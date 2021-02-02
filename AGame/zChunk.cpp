@@ -1,5 +1,6 @@
 #include "zChunk.h"
 #include "zArchetype.h"
+#include <iostream>
 
 Chunk::Chunk(Archetype* holder, const uint32_t& size)
 	:
@@ -10,7 +11,10 @@ Chunk::Chunk(Archetype* holder, const uint32_t& size)
 	for (auto i : _owning_archetype->_descriptions) {
 		bytesize += i->_size;
 	}
-	_data = std::make_unique<char>(bytesize * size);
+	_data = std::make_unique<char[]>(bytesize*size);
+	/*for (int i = 0; i < bytesize * size; ++i) {
+		std::cout << i << ": " << (int)*(_data.get() + i) << std::endl;
+	}*/
 }
 
 int Chunk::Add() {

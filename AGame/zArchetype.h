@@ -23,7 +23,7 @@ struct TestComponent3 {
 struct Chunk;
 struct Archetype {
 	uint32_t								_chunk_stride = 0;
-	uint32_t								_entities_per_chunk = 1;
+	uint32_t								_entities_per_chunk = 100;
 	std::vector<ComponentDescription*>		_descriptions;
 	std::unordered_map<std::string, int>	_type_offset;
 	std::bitset<64>							_mask;
@@ -40,19 +40,18 @@ struct Archetype {
 struct ArchetypeDatabase {
 	static ArchetypeDatabase& Instance();
 	template <typename...T_COMPONENTS>
-	Archetype& CreateArchetype() {
+	std::shared_ptr<Archetype> CreateArchetype() {
 		// create mask & check if archetype already exist
 		std::bitset<64> mask;
 		((mask[component_description_v<T_COMPONENTS>._bit] = 1), ...);
 		if (_database.find(mask) != _database.end()) {
-			return *_database[mask].get();
+			return _database[mask];
 		} // else creates it
 		auto archetype_ptr = std::make_shared<Archetype>();
 		((archetype_ptr->AddDescriptions<T_COMPONENTS>()), ...);
 		_database[mask] = archetype_ptr;
 		archetype_ptr->_mask = mask;
-		auto raw_ptr = archetype_ptr.get();
-		return *_database[mask].get();
+		return _database[mask];
 	}
 	std::unordered_map<std::bitset<64>, std::shared_ptr<Archetype>> _database;
 private:

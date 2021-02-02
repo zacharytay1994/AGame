@@ -1,5 +1,6 @@
 #pragma once
 #include "zArchetype.h"
+#include "zChunk.h"
 
 template <typename...T_COMPONENTS>
 struct Entity {
@@ -8,8 +9,8 @@ struct Entity {
 
 	//template <typename...T_COMPONENTS>
 	Entity() {
-		Archetype& archetype = ArchetypeDatabase::Instance().CreateArchetype<T_COMPONENTS ...>();
-		_id = archetype.Add(_chunk);
+		std::shared_ptr<Archetype> archetype = ArchetypeDatabase::Instance().CreateArchetype<T_COMPONENTS ...>();
+		_id = archetype->Add(_chunk);
 		((_chunk->GetComponent<T_COMPONENTS>(_id) = T_COMPONENTS()), ...);
 	}
 	template <typename T>

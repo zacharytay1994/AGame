@@ -3,10 +3,8 @@
 
 #include "AEEngine.h"
 #include "AGame/zEntity.h"
-#include "AGame/zSystem.h"
-#include "AGame/zComponent.h"
-#include "AGame/zArchetype.h"
-#include "AGame/zChunk.h"
+
+#include <iostream>
 
 // ---------------------------------------------------------------------------
 // main
@@ -33,26 +31,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	
 	/////////////////
 	// Initialization
-	ComponentDescription_DB _db;
-	_db.RegisterComponent<TestComponent>();
-	_db.RegisterComponent<TestComponent2>();
-	_db.RegisterComponent<TestComponent3>();
-	int i = component_description_v<TestComponent2>._size;
-	/*ArchetypeDatabase::Instance().CreateArchetype<TestComponent, TestComponent3>();
-	ArchetypeDatabase::Instance().CreateArchetype<TestComponent3, TestComponent2>();*/
-	Entity<TestComponent> my_entity;
-	int& j = my_entity.Get<TestComponent>().x;
-	j = 3;
-	TestComponent& p = my_entity.Get<TestComponent>();
-	Entity<TestComponent> my_entity4;
-	int k = my_entity4._chunk->GetComponent<TestComponent>(my_entity4._id).x;
-	Entity<TestComponent, TestComponent2> entity2;
-	char& c = entity2._chunk->GetComponent<TestComponent2>(entity2._id).c;
-	c = 'o';
-	TestComponent2 cc = entity2.Get<TestComponent2>();
-	Entity<TestComponent3, TestComponent2> entity3;
-	double g = entity3._chunk->GetComponent<TestComponent2>(entity3._id).y;
-	ArchetypeDatabase& instance = ArchetypeDatabase::Instance();
 
 
 	// Using custom window procedure
@@ -60,10 +38,38 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 
 	// Changing the window title
-	AESysSetWindowTitle("My New Demo!");
+	AESysSetWindowTitle("A Beautiful Window!");
 
 	// reset the system modules
 	AESysReset();
+
+	ComponentDescription_DB _db;
+	_db.RegisterComponent<TestComponent>();
+	_db.RegisterComponent<TestComponent2>();
+	_db.RegisterComponent<TestComponent3>();
+	////int i = component_description_v<TestComponent2>._size;
+	/////*ArchetypeDatabase::Instance().CreateArchetype<TestComponent, TestComponent3>();
+	////ArchetypeDatabase::Instance().CreateArchetype<TestComponent3, TestComponent2>();*/
+	Entity<TestComponent> my_entity;
+	int& j = my_entity.Get<TestComponent>().x;
+	j = 3;
+	TestComponent& p = my_entity.Get<TestComponent>();
+	Entity<TestComponent> my_entity4;
+	int k = my_entity4._chunk->GetComponent<TestComponent>(my_entity4._id).x;
+
+	Entity<TestComponent, TestComponent2> entity2;
+	TestComponent2& com = entity2.Get<TestComponent2>();
+	char& c = entity2.Get<TestComponent2>().c;
+	
+	c = 'o';
+	TestComponent2& cc = entity2.Get<TestComponent2>();
+	Entity<TestComponent2, TestComponent> entity3;
+	double g = entity3._chunk->GetComponent<TestComponent2>(entity3._id).y;
+
+	char& ccc = entity3.Get<TestComponent2>().c;
+	ccc = 'b';
+	TestComponent2& cccc = entity3.Get<TestComponent2>();
+	ArchetypeDatabase& instance = ArchetypeDatabase::Instance();
 
 	// Initialization end
 	/////////////////////
@@ -118,6 +124,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		// Handling Input
 		AEInputUpdate();
 
+		//std::cout << com.y << std::endl;
 		/*AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
 		AEGfxSetPosition(0.0f, 0.0f);
 		AEGfxTextureSet(tex1, 0.0f, 0.0f);
@@ -142,7 +149,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		AESysFrameEnd();
 
 		// check if forcing the application to quit
-		if (AEInputCheckTriggered(AEVK_ESCAPE) || 0 == AESysDoesWindowExist())
+		//s32 shor = AESysDoesWindowExist();
+		if (AEInputCheckTriggered(AEVK_ESCAPE) || !AESysDoesWindowExist())
 			gGameRunning = 0;
 	}
 

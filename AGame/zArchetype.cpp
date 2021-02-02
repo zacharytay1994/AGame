@@ -3,7 +3,7 @@
 
 int Archetype::Add(std::shared_ptr<Chunk>& chunk) {
 	// check if there are any empty chunks
-	for (auto i : _chunk_database) {
+	for (auto& i : _chunk_database) {
 		if (i->_number_of_entities < _entities_per_chunk) {
 			chunk = i;
 			return i->Add();

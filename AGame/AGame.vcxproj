@@ -15,7 +15,6 @@
     <ClCompile Include="zChunk.cpp" />
     <ClCompile Include="zComponent.cpp" />
     <ClCompile Include="zArchetype.cpp" />
-    <ClCompile Include="zecs.cpp" />
     <ClCompile Include="zEntity.cpp" />
     <ClCompile Include="zSystem.cpp" />
   </ItemGroup>
@@ -23,7 +22,6 @@
     <ClInclude Include="zChunk.h" />
     <ClInclude Include="zComponent.h" />
     <ClInclude Include="zArchetype.h" />
-    <ClInclude Include="zecs.h" />
     <ClInclude Include="zEntity.h" />
     <ClInclude Include="zSystem.h" />
   </ItemGroup>
