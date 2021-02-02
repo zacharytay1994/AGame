@@ -1,0 +1,60 @@
+#pragma once
+#include "zComponent.h"
+#include <memory>
+#include <bitset>
+#include <unordered_map>
+#include <string>
+
+struct TestComponent {
+	int x = 5;
+	int y = 3;
+};
+
+struct TestComponent2 {
+	int x = 2;
+	double y = 7.2;
+	char c = 'p';
+};
+
+struct TestComponent3 {
+	int x = 99;
+};
+
+struct Chunk;
+struct Archetype {
+	uint32_t								_chunk_stride = 0;
+	uint32_t								_entities_per_chunk = 1;
+	std::vector<ComponentDescription*>		_descriptions;
+	std::unordered_map<std::string, int>	_type_offset;
+	std::bitset<64>							_mask;
+	std::vector<std::shared_ptr<Chunk>>		_chunk_database;
+	template <typename T_COMPONENT>
+	void AddDescriptions() {
+		_descriptions.push_back(&component_description_v<T_COMPONENT>);
+		_type_offset[typeid(T_COMPONENT).name()] = _chunk_stride;
+		_chunk_stride += sizeof(T_COMPONENT);
+ 	}
+	int Add(std::shared_ptr<Chunk>& chunk);
+};
+
+struct ArchetypeDatabase {
+	static ArchetypeDatabase& Instance();
+	template <typename...T_COMPONENTS>
+	Archetype& CreateArchetype() {
+		// create mask & check if archetype already exist
+		std::bitset<64> mask;
+		((mask[component_description_v<T_COMPONENTS>._bit] = 1), ...);
+		if (_database.find(mask) != _database.end()) {
+			return *_database[mask].get();
+		} // else creates it
+		auto archetype_ptr = std::make_shared<Archetype>();
+		((archetype_ptr->AddDescriptions<T_COMPONENTS>()), ...);
+		_database[mask] = archetype_ptr;
+		archetype_ptr->_mask = mask;
+		auto raw_ptr = archetype_ptr.get();
+		return *_database[mask].get();
+	}
+	std::unordered_map<std::bitset<64>, std::shared_ptr<Archetype>> _database;
+private:
+	ArchetypeDatabase() = default;
+};
