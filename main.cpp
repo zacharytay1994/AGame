@@ -3,8 +3,32 @@
 
 #include "AEEngine.h"
 #include "AGame/zEntity.h"
+#include "AGame/zSystem.h"
 
 #include <iostream>
+#include <string>
+
+struct Vec2 {
+	float x = 0;
+	float y = 0;
+};
+
+struct Position {
+	Vec2 _pos = { 0,0 };
+};
+
+struct Velocity {
+	Vec2 _vel = { 1,1 };
+};
+
+void UpdatePosition(const float& dt, Chunk& c, const int& id) {
+	c.GetComponent<Position>(id)._pos.x += c.GetComponent<Velocity>(id)._vel.x * dt;
+	c.GetComponent<Position>(id)._pos.y += c.GetComponent<Velocity>(id)._vel.y * dt;
+}
+
+void PrintPosition(const float& dt, Chunk& c, const int& id) {
+	std::cout << "Entity: " << id << " : " << c.GetComponent<Position>(id)._pos.x << " | " << c.GetComponent<Position>(id)._pos.y << std::endl;
+}
 
 // ---------------------------------------------------------------------------
 // main
@@ -43,37 +67,17 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	// reset the system modules
 	AESysReset();
 
-	ComponentDescription_DB _db;
-	_db.RegisterComponent<TestComponent>();
-	_db.RegisterComponent<TestComponent2>();
-	_db.RegisterComponent<TestComponent3>();
-	////int i = component_description_v<TestComponent2>._size;
-	/////*ArchetypeDatabase::Instance().CreateArchetype<TestComponent, TestComponent3>();
-	////ArchetypeDatabase::Instance().CreateArchetype<TestComponent3, TestComponent2>();*/
-	Entity<TestComponent> my_entity;
-	int& j = my_entity.Get<TestComponent>().x;
-	j = 3;
-	TestComponent& p = my_entity.Get<TestComponent>();
-	Entity<TestComponent> my_entity4;
-	int k = my_entity4._chunk->GetComponent<TestComponent>(my_entity4._id).x;
-
-	Entity<TestComponent, TestComponent2> entity2;
-	TestComponent2& com = entity2.Get<TestComponent2>();
-	char& c = entity2.Get<TestComponent2>().c;
-	
-	c = 'o';
-	TestComponent2& cc = entity2.Get<TestComponent2>();
-	Entity<TestComponent2, TestComponent> entity3;
-	double g = entity3._chunk->GetComponent<TestComponent2>(entity3._id).y;
-
-	char& ccc = entity3.Get<TestComponent2>().c;
-	ccc = 'b';
-	TestComponent2& cccc = entity3.Get<TestComponent2>();
-	ArchetypeDatabase& instance = ArchetypeDatabase::Instance();
-
 	// Initialization end
 	/////////////////////
+	ComponentDescription_DB _cdb;
+	_cdb.RegisterComponent<Position>();
+	_cdb.RegisterComponent<Velocity>();
 
+	SystemDatabase::Instance().AddSystem<Position,Velocity>(UpdatePosition);
+	SystemDatabase::Instance().AddSystem<Position>(PrintPosition);
+
+	Entity<Position, Velocity> e1;
+	Entity<Position, Velocity> e2;
 
 	////////////////////////////////
 	// Creating the objects (Shapes)
@@ -143,7 +147,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 		// Game loop draw end
 		/////////////////////
-
+		SystemDatabase::Instance().SystemDatabaseUpdate(AEFrameRateControllerGetFrameTime());
 
 		// Informing the system about the loop's end
 		AESysFrameEnd();
