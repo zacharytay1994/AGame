@@ -13,10 +13,13 @@ void SystemDatabase::SystemDatabaseUpdate(const float& dt) {
 		for (auto& archetype : adb._database) {
 			// and the mask to see which archetypes are of interest
 			if ((system->_mask & archetype.second->_mask) == system->_mask) {
+				system->_dt = dt;
 				// loop through
 				for (auto& chunk : archetype.second->_chunk_database) {
+					system->_current_chunk = chunk.get();
 					for (int i = 0; i < chunk->_number_of_entities; ++i) {
-						system->UpdateComponent(dt, *(chunk.get()), i);
+						system->_current_id = i;
+						system->UpdateComponent();
 					}
 				}
 			}

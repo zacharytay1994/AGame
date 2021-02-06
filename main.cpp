@@ -21,13 +21,13 @@ struct Velocity {
 	Vec2 _vel = { 1,1 };
 };
 
-void UpdatePosition(const float& dt, Chunk& c, const int& id) {
-	c.GetComponent<Position>(id)._pos.x += c.GetComponent<Velocity>(id)._vel.x * dt;
-	c.GetComponent<Position>(id)._pos.y += c.GetComponent<Velocity>(id)._vel.y * dt;
+void UpdatePosition(System& s) {
+	s.c<Position>()._pos.x += s.c<Velocity>()._vel.x * s._dt;
+	s.c<Position>()._pos.y += s.c<Velocity>()._vel.y * s._dt;
 }
 
-void PrintPosition(const float& dt, Chunk& c, const int& id) {
-	std::cout << "Entity: " << id << " : " << c.GetComponent<Position>(id)._pos.x << " | " << c.GetComponent<Position>(id)._pos.y << std::endl;
+void PrintPosition(System& s) {
+	std::cout << "Entity: " << s._current_id << " : " << s.c<Position>()._pos.x << " | " << s.c<Position>()._pos.y << std::endl;
 }
 
 // ---------------------------------------------------------------------------
@@ -98,16 +98,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	// Creating Fonts end
 	//////////////////////////////////
-	//AEGfxTexture* tex1 = AEGfxTextureLoad("../bin/Assets/test2.png");
-	//AEGfxMeshStart();
-	//// create triangle one
-	//AEGfxTriAdd(-100.0f, -100.0f, 0x00FF00FF, 1.0f, 0.0f,
-	//	100.0f, -100.0f, 0x00FF00FF, 1.0f, 1.0f,
-	//	-100.0f, 100.0f, 0x00FF00FF, 0.0f, 0.0f);
-	//AEGfxTriAdd(100.0f, -100.0f, 0x00FF00FF, 1.0f, 1.0f,
-	//	100.0f, 100.0f, 0x00FF00FF, 1.0f, 0.0f,
-	//	-100.0f, 100.0f, 0x00FF00FF, 0.0f, 0.0f);
-	//AEGfxVertexList* mesh = AEGfxMeshEnd();
+	AEGfxTexture* tex1 = AEGfxTextureLoad("../bin/Assets/test2.png");
+	AEGfxMeshStart();
+	// create triangle one
+	AEGfxTriAdd(-100.0f, -100.0f, 0x00FF00FF, 1.0f, 0.0f,
+		100.0f, -100.0f, 0x00FF00FF, 1.0f, 1.0f,
+		-100.0f, 100.0f, 0x00FF00FF, 0.0f, 0.0f);
+	AEGfxTriAdd(100.0f, -100.0f, 0x00FF00FF, 1.0f, 1.0f,
+		100.0f, 100.0f, 0x00FF00FF, 1.0f, 0.0f,
+		-100.0f, 100.0f, 0x00FF00FF, 0.0f, 0.0f);
+	AEGfxVertexList* mesh = AEGfxMeshEnd();
 
 	//AEGfxMeshStart();
 	//// This shape has 5 vertices
