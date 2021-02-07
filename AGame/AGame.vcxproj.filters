@@ -59,5 +59,8 @@
     <ClInclude Include="SceneDeclarations.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CSHeaderDef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -2,6 +2,7 @@
 #include <bitset>
 #include <memory>
 #include <vector>
+#include <iostream>
 
 #include "zComponent.h"
 #include "zChunk.h"
@@ -43,9 +44,10 @@ class SystemDatabase {
 public:
 	static SystemDatabase& Instance();
 	template <typename...T>
-	void AddSystem(fp_update u) {
+	void RegisterSystem(fp_update u) {
 		_database.push_back(std::make_unique<System>());
 		_database.back()->Initialize<T...>(u);
+		std::cout << "SYSTEM |" << typeid(fp_update).name() << "| registered.";
 	}
 	void SystemDatabaseUpdate(const float& dt);
 };

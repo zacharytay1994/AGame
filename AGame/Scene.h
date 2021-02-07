@@ -4,20 +4,23 @@
 #include <assert.h>
 #include <memory>
 
-typedef void (*scene_initialize)(void);
-typedef void (*scene_update)(const float& dt);
-typedef void (*scene_exit)(void);
+//typedef void (*scene_initialize)(void);
+//typedef void (*scene_update)(const float& dt);
+//typedef void (*scene_exit)(void);
 
 struct Scene {
-	scene_initialize	_initialize;
+	/*scene_initialize	_initialize;
 	scene_update		_update;
-	scene_exit			_exit;
-	Scene(scene_initialize init, scene_update update, scene_exit exit) 
-		:
+	scene_exit			_exit;*/
+	Scene(/*scene_initialize init, scene_update update, scene_exit exit*/) 
+		/*:
 		_initialize(init),
 		_update(update),
-		_exit(exit)
+		_exit(exit)*/
 	{}
+	virtual void Initialize();
+	virtual void Update(const float& dt);
+	virtual void Exit();
 };
 
 class SceneManager {
@@ -29,6 +32,10 @@ public:
 	static SceneManager& Instance();
 	void Initialize();
 	void ChangeScene(const std::string& name);
-	void AddScene(const std::string& name, scene_initialize init, scene_update update, scene_exit exit);
+	template <typename T>
+	void AddScene(const std::string& name) {
+		assert(_scenes.find(name) == _scenes.end());
+		_scenes[name] = std::make_shared<T>();
+	}
 	void Update(const float& dt);
 };
