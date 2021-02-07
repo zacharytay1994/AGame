@@ -27,10 +27,6 @@ void SystemDatabase::SystemDatabaseUpdate(const float& dt) {
 	}
 }
 
-//System::System()
-//{
-//}
-
 //void System::BaseUpdate(const float& dt)
 //{
 //}

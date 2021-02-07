@@ -12,13 +12,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\main.cpp" />
+    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="zChunk.cpp" />
-    <ClCompile Include="zComponent.cpp" />
     <ClCompile Include="zArchetype.cpp" />
-    <ClCompile Include="zEntity.cpp" />
     <ClCompile Include="zSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Scene.h" />
+    <ClInclude Include="SceneDeclarations.h" />
     <ClInclude Include="zChunk.h" />
     <ClInclude Include="zComponent.h" />
     <ClInclude Include="zArchetype.h" />

@@ -5,17 +5,6 @@
 #include <unordered_map>
 #include <string>
 
-struct TestComponent {
-	int x = 5;
-	int y = 3;
-};
-
-struct TestComponent2 {
-	int x = 2;
-	double y = 7.2;
-	char c = 'p';
-};
-
 struct TestComponent3 {
 	int x = 99;
 };

@@ -13,41 +13,50 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\ecs">
+      <UniqueIdentifier>{da220380-8949-498b-ad49-ead53d5145bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ecs">
+      <UniqueIdentifier>{7db2363e-b36d-453a-a533-da695915c55a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="zEntity.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="zComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="zSystem.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="zArchetype.cpp">
+      <Filter>Source Files\ecs</Filter>
     </ClCompile>
     <ClCompile Include="zChunk.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\ecs</Filter>
     </ClCompile>
-    <ClCompile Include="zArchetype.cpp">
+    <ClCompile Include="zSystem.cpp">
+      <Filter>Source Files\ecs</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="zEntity.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="zComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="zSystem.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="zArchetype.h">
+      <Filter>Header Files\ecs</Filter>
     </ClInclude>
     <ClInclude Include="zChunk.h">
+      <Filter>Header Files\ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="zComponent.h">
+      <Filter>Header Files\ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="zEntity.h">
+      <Filter>Header Files\ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="zSystem.h">
+      <Filter>Header Files\ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="zArchetype.h">
+    <ClInclude Include="SceneDeclarations.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
