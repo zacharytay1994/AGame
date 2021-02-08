@@ -151,7 +151,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 		// Game loop draw end
 		/////////////////////
-		SystemDatabase::Instance().SystemDatabaseUpdate((float)AEFrameRateControllerGetFrameTime());
 
 		// Informing the system about the loop's end
 		AESysFrameEnd();

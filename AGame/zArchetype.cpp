@@ -1,3 +1,4 @@
+#include <iostream>
 #include "zArchetype.h"
 #include "zChunk.h"
 
@@ -18,4 +19,13 @@ int Archetype::Add(std::shared_ptr<Chunk>& chunk) {
 ArchetypeDatabase& ArchetypeDatabase::Instance() {
 	static ArchetypeDatabase instance;
 	return instance;
+}
+
+void ArchetypeDatabase::FlushEntities() {
+	for (auto archetype : _database) {
+		for (auto chunk : archetype.second->_chunk_database) {
+			chunk->_number_of_entities = 0;
+		}
+	}
+	std::cout << "ARCHETYPE_DATABASE :: FLUSHED ENTITIES." << std::endl;
 }

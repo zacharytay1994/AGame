@@ -5,10 +5,6 @@
 #include <unordered_map>
 #include <string>
 
-struct TestComponent3 {
-	int x = 99;
-};
-
 struct Chunk;
 struct Archetype {
 	uint32_t								_chunk_stride = 0;
@@ -42,6 +38,7 @@ struct ArchetypeDatabase {
 		archetype_ptr->_mask = mask;
 		return _database[mask];
 	}
+	void FlushEntities();
 	std::unordered_map<std::bitset<64>, std::shared_ptr<Archetype>> _database;
 private:
 	ArchetypeDatabase() = default;

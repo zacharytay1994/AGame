@@ -15,6 +15,18 @@ Chunk::Chunk(Archetype* holder, const uint32_t& size)
 }
 
 int Chunk::Add() {
-	++_number_of_entities;
-	return _number_of_entities - 1;
+	// check if free ids stack has any to give
+	if (_free_ids.empty()) {
+		++_number_of_entities;
+		return _number_of_entities - 1;
+	}
+	int id = _free_ids.top();
+	_free_ids.pop();
+	return id;
+}
+
+void Chunk::Remove(const int& id)
+{
+	--_number_of_entities;
+	_free_ids.push(id);
 }

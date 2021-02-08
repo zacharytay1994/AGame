@@ -32,6 +32,7 @@ struct System {
 	T& c() {
 		return _current_chunk->GetComponent<T>(_current_id);
 	}
+	void RemoveEntity();
 };
 
 class SystemDatabase {
@@ -44,13 +45,13 @@ public:
 		_database.push_back(std::make_unique<System>());
 		_database.back()->_update = u;
 		_database.back()->BuildMask<T...>();
-		std::cout << "SYSTEM function |" << typeid(fp_update).name() << "| registered.";
+		std::cout << "SYSTEM UPDATE REGISTERED." << std::endl;
 	}
 	template <typename T, typename...COMPONENTS>
 	void RegisterSystem() {
 		_database.push_back(std::make_unique<T>());
 		_database.back()->BuildMask<COMPONENTS...>();
-		std::cout << "SYSTEM override |" << typeid(fp_update).name() << "| registered.";
+		std::cout << "SYSTEM OVERRIDE |" << typeid(T).name() << "| REGISTERED." << std::endl;
 	}
 	void SystemDatabaseUpdate(const float& dt);
 };

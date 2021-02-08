@@ -27,6 +27,9 @@ void SystemDatabase::SystemDatabaseUpdate(const float& dt) {
 	}
 }
 
-//void System::BaseUpdate(const float& dt)
-//{
-//}
+void System::RemoveEntity()
+{
+	if (_current_chunk) {
+		_current_chunk->Remove(_current_id);
+	}
+}

@@ -1,13 +1,16 @@
 #pragma once
 #include <memory>
+#include <stack>
 #include "zArchetype.h"
 
 struct Chunk {
 	std::shared_ptr<Archetype>	_owning_archetype;
 	std::unique_ptr<char[]>		_data;
 	uint32_t					_number_of_entities;
+	std::stack<int>				_free_ids;
 	Chunk(Archetype* holder, const uint32_t& size);
 	int Add();
+	void Remove(const int& id);
 	template <typename T>
 	T& GetComponent(const int& id) {
 		char* data = _data.get();
