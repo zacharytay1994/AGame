@@ -15,4 +15,9 @@ public:
 		return _entities.back();
 	}
 	void RemoveEntity(Entity* entity);
+
+	/*_________________________________________________________
+	* Custom Factory Functions
+	___________________________________________________________*/
+	void FF_CreateBasicSprite(const std::string& texturename, const std::string& meshname);
 };

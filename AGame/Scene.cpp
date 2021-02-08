@@ -2,6 +2,7 @@
 #include "SceneDeclarations.h"
 #include "zSystem.h"
 #include "CSHeaderDef.h"
+#include "ResourceManager.h"
 #include <iostream>
 
 SceneManager::SceneManager()
@@ -17,14 +18,17 @@ SceneManager& SceneManager::Instance()
 
 void SceneManager::Initialize() {
 
+	// Initialize Resource Manager
+	ResourceManager::Instance();
+
 	// Registering all components for the game
-	ComponentDescription_DB::Instance().RegisterComponent<Example_Position>();
+	ComponentDescription_DB::Instance().RegisterComponent<Position>();
 	ComponentDescription_DB::Instance().RegisterComponent<Example_Velocity>();
 
 	// Registering all systems for the game
-	SystemDatabase::Instance().RegisterSystem<Example_Position>(Example_PrintPosition);
+	SystemDatabase::Instance().RegisterSystem<Position>(Example_PrintPosition);
 	//SystemDatabase::Instance().RegisterSystem<Example_PrintPositionSys, Example_Position>();
-	SystemDatabase::Instance().RegisterSystem<Example_UpdatePosition, Example_Position, Example_Velocity>();
+	SystemDatabase::Instance().RegisterSystem<Example_UpdatePosition, Position, Example_Velocity>();
 
 	// Registering scenes
 	AddScene<TestScene>("Test Scene");

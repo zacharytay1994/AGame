@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClCompile Include="..\main.cpp" />
     <ClCompile Include="Factory.cpp" />
+    <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="zChunk.cpp" />
     <ClCompile Include="zArchetype.cpp" />
@@ -22,6 +23,7 @@
   <ItemGroup>
     <ClInclude Include="CSHeaderDef.h" />
     <ClInclude Include="Factory.h" />
+    <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneDeclarations.h" />
     <ClInclude Include="zChunk.h" />
