@@ -11,24 +11,20 @@ struct Chunk;
 struct System;
 struct Archetype;
 typedef void (*fp_update)(System& system);
-
 struct System {
 	std::bitset<64>			_mask;
-	fp_update				_update;
-	bool					_initialized = false;
+	fp_update				_update = nullptr;
 
 	Chunk*					_current_chunk = nullptr;
 	int						_current_id = -1;
 	float					_dt = -1.0f;
 	template <typename...T>
-	void Initialize(fp_update u) {
+	void BuildMask() {
 		((_mask[component_description_v<T>._bit] = 1), ...);
-		_update = u;
-		_initialized = true;
 	}
 	System() = default;
-	void UpdateComponent() {
-		if (_initialized) {
+	virtual void UpdateComponent() {
+		if (_update) {
 			_update(*this);
 		}
 	}
@@ -46,8 +42,15 @@ public:
 	template <typename...T>
 	void RegisterSystem(fp_update u) {
 		_database.push_back(std::make_unique<System>());
-		_database.back()->Initialize<T...>(u);
-		std::cout << "SYSTEM |" << typeid(fp_update).name() << "| registered.";
+		_database.back()->_update = u;
+		_database.back()->BuildMask<T...>();
+		std::cout << "SYSTEM function |" << typeid(fp_update).name() << "| registered.";
+	}
+	template <typename T, typename...COMPONENTS>
+	void RegisterSystem() {
+		_database.push_back(std::make_unique<T>());
+		_database.back()->BuildMask<COMPONENTS...>();
+		std::cout << "SYSTEM override |" << typeid(fp_update).name() << "| registered.";
 	}
 	void SystemDatabaseUpdate(const float& dt);
 };

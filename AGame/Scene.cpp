@@ -18,12 +18,13 @@ void SceneManager::Initialize() {
 
 	// Registering all components for the game
 	ComponentDescription_DB::Instance().RegisterComponent<Position>();
+	ComponentDescription_DB::Instance().RegisterComponent<Velocity>();
 
 	// Registering all systems for the game
+	SystemDatabase::Instance().RegisterSystem<Position>(PrintPosition);
+	SystemDatabase::Instance().RegisterSystem<PrintPositionSys, Position, Velocity>();
 
 	// Registering scenes
-	/*AddScene("Test Scene", TS1_Initialize, TS1_Update, TS1_Exit);
-	AddScene("Test Scene 2", TS2_Initialize, TS2_Update, TS2_Exit);*/
 	AddScene<TestScene>("Test Scene");
 	AddScene<TestScene2>("Test Scene 2");
 }
