@@ -17,6 +17,9 @@ void Factory::RemoveEntity(Entity* entity)
 void Factory::FF_CreateBasicSprite(const std::string& texturename, const std::string& meshname)
 {
     _entities.emplace_back();
-    _entities.back().Initialize<Position,Sprite>();
-    ResourceManager::Instance().GetResource(_entities.back().Get<Sprite>()._texture, _entities.back().Get<Sprite>()._mesh, texturename, meshname);
+    Entity& e = _entities.back();
+    e.Initialize<Com_Position,Com_Sprite,Com_ArrowKeys>();
+    ResourceManager::Instance().GetResource(e.Get<Com_Sprite>()._texture, e.Get<Com_Sprite>()._mesh, texturename, meshname);
+    e.Get<Com_Sprite>()._x_scale = 50.0f;
+    e.Get<Com_Sprite>()._y_scale = 50.0f;
 }

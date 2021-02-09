@@ -5,36 +5,74 @@
 #include "ResourceManager.h"
 #include <iostream>
 
+/*______________________________________________________
+* Brief:	Constructor of scene manager.
+* Access:	private (singleton)
+________________________________________________________*/
 SceneManager::SceneManager()
 {
 	Initialize();
 }
 
+/*______________________________________________________
+* Brief:	Handle to the singleton instance.
+* Access:	public
+* 
+* Use e.g:	SceneManager::Instance().ExampleFunction()
+* 
+* \return	Reference to a scenemanager static instance.
+________________________________________________________*/
 SceneManager& SceneManager::Instance()
 {
     static SceneManager instance;
     return instance;
 }
 
+/*______________________________________________________
+* Brief:	Initializes a few things.
+*			1. ResourceManager singleton
+*			2. Registering components
+*			3. Registering systems
+*			4. Registering scenes
+* Access:	private
+*
+* Called:	In SceneManager::SceneManager()
+*
+* \return	Reference to a scenemanager static instance.
+________________________________________________________*/
 void SceneManager::Initialize() {
 
-	// Initialize Resource Manager
+	// 1. Initialize Resource Manager
 	ResourceManager::Instance();
 
-	// Registering all components for the game
-	ComponentDescription_DB::Instance().RegisterComponent<Position>();
-	ComponentDescription_DB::Instance().RegisterComponent<Example_Velocity>();
+	// 2. Registering all components for the game
+	ComponentDescription_DB::Instance().RegisterComponent<Com_Position>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_Example_Velocity>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_Sprite>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_ArrowKeys>();
 
-	// Registering all systems for the game
-	SystemDatabase::Instance().RegisterSystem<Position>(Example_PrintPosition);
-	//SystemDatabase::Instance().RegisterSystem<Example_PrintPositionSys, Example_Position>();
-	SystemDatabase::Instance().RegisterSystem<Example_UpdatePosition, Position, Example_Velocity>();
+	// 3. Registering all systems for the game
+	// SystemDatabase::Instance().RegisterSystem<Example_UpdatePosition, Position, Example_Velocity>();
+	SystemDatabase::Instance().RegisterSystem<Sys_DrawSprite, Com_Position, Com_Sprite>();
+	SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeys, Com_Position, Com_ArrowKeys>();
 
-	// Registering scenes
+	// 4. Registering scenes
 	AddScene<TestScene>("Test Scene");
 	AddScene<TestScene2>("Test Scene 2");
 }
 
+/*______________________________________________________
+* Brief:	Exits the current scene and initializes
+*			the next scene.
+* 
+* Access:	public
+* 
+* Used e.g:	SceneManager::Instance().ChangeScene("myScene");
+* 
+* arg[in]:	name
+*			- The name of the scene to change to,
+*			  assigned at SceneManager::AddScene()
+________________________________________________________*/
 void SceneManager::ChangeScene(const std::string& name) {
 	assert(_scenes.find(name) != _scenes.end());
 	if (_current_scene) {
@@ -50,9 +88,17 @@ void SceneManager::ChangeScene(const std::string& name) {
 	std::cout << "SCENE |" << _current_scene_name << "| INITIALIZED." << std::endl;
 }
 
-//void SceneManager::AddScene(const std::string& name/*, scene_initialize init, scene_update update, scene_exit exit*/)
-//}
-
+/*______________________________________________________
+* Brief:	Updates the current scene bound to the 
+*			SceneManager.
+*
+* Access:	public (needs to be called in main.cpp)
+*
+* called:	In main.cpp
+* 
+* arg[in]:	dt
+*			- Delta/Frame time between frames in seconds.
+________________________________________________________*/
 void SceneManager::Update(const float& dt)
 {
 	if (_current_scene) {
@@ -61,14 +107,41 @@ void SceneManager::Update(const float& dt)
 	}
 }
 
+/*______________________________________________________
+* Brief:	Virtual (overridable) function for
+*			derived systems.
+*
+* Access:	private
+*			- friend class SceneManager
+*
+* called:	SceneManager::ChangeScene();
+________________________________________________________*/
 void Scene::Initialize()
 {
 }
 
+/*______________________________________________________
+* Brief:	Virtual (overridable) function for
+*			derived systems.
+*
+* Access:	private
+*			- friend class SceneManager
+*
+* called:	SceneManager::Update();
+________________________________________________________*/
 void Scene::Update(const float& dt)
 {
 }
 
+/*______________________________________________________
+* Brief:	Virtual (overridable) function for
+*			derived systems.
+*
+* Access:	private
+*			- friend class SceneManager
+*
+* called:	SceneManager::ChangeScene();
+________________________________________________________*/
 void Scene::Exit()
 {
 }

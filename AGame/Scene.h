@@ -4,34 +4,53 @@
 #include <assert.h>
 #include <memory>
 
-//typedef void (*scene_initialize)(void);
-//typedef void (*scene_update)(const float& dt);
-//typedef void (*scene_exit)(void);
-
-struct Scene {
-	/*scene_initialize	_initialize;
-	scene_update		_update;
-	scene_exit			_exit;*/
-	Scene(/*scene_initialize init, scene_update update, scene_exit exit*/) 
-		/*:
-		_initialize(init),
-		_update(update),
-		_exit(exit)*/
-	{}
+/*___________________________________________________________________________________
+* Brief:	Scene class is mainly meant to be virtual.
+*			To be overriden to create custom scenes.
+* 
+* Relation:	SceneManager
+*			- std::unordered_map<std::string, std::shared_ptr<Scene>> _scenes;
+____________________________________________________________________________________*/
+class Scene {
+	friend class SceneManager;
 	virtual void Initialize();
 	virtual void Update(const float& dt);
 	virtual void Exit();
+public:
+	Scene() {}
 };
 
+/*___________________________________________________________________________________
+* Brief:	SceneManager class is the boss of all scenes. In charge of
+*			loading and changing scenes. Register your new scenes declared in
+*			SceneDeclarations.h here.
+* 
+* LookAt:	AddScene(), ChangeScene()
+____________________________________________________________________________________*/
 class SceneManager {
 	SceneManager();
-	std::unordered_map<std::string, std::shared_ptr<Scene>> _scenes;
-	std::shared_ptr<Scene>	_current_scene = nullptr;
-	std::string				_current_scene_name = "";
+	std::unordered_map<std::string, std::shared_ptr<Scene>> _scenes;	// container to all added scenes
+	std::shared_ptr<Scene>	_current_scene = nullptr;					// current scene being processed, if nullptr, scene state won't update
+	std::string				_current_scene_name = "";					// current scene name, assigned by AddScene()
+	void Initialize();
 public:
 	static SceneManager& Instance();
-	void Initialize();
 	void ChangeScene(const std::string& name);
+	/*___________________________________________________________________________________
+	* Brief:	Creates a scene of type derived scene.
+	*
+	* Access:	public
+	* 
+	* Used e.g:	SceneManager::Instance().AddScene<MyDerivedScene>();
+	*			- look at SceneDeclarations.h for example scenes and
+	*			  SceneManager::Initialize() for example adding.
+	* 
+	* Called:	in SceneManager::Initialize()
+	* 
+	* arg[in]:	name
+	*			- The name of the scene to change to,
+	*			  assigned at SceneManager::AddScene()
+	____________________________________________________________________________________*/
 	template <typename T>
 	void AddScene(const std::string& name) {
 		assert(_scenes.find(name) == _scenes.end());

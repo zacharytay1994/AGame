@@ -5,7 +5,7 @@
 
 struct ResourceManager {
 	static ResourceManager& Instance();
-	void GetResource(AEGfxTexture* tex, AEGfxVertexList* mesh, const std::string& texturename, const std::string& meshname);
+	void GetResource(AEGfxTexture*& tex, AEGfxVertexList*& mesh, const std::string& texturename, const std::string& meshname);
 private:
 	ResourceManager();
 	void Initialize();

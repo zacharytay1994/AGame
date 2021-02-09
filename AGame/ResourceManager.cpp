@@ -7,7 +7,7 @@ ResourceManager& ResourceManager::Instance()
 	return instance;
 }
 
-void ResourceManager::GetResource(AEGfxTexture* tex, AEGfxVertexList* mesh, const std::string& texturename, const std::string& meshname)
+void ResourceManager::GetResource(AEGfxTexture*& tex, AEGfxVertexList*& mesh, const std::string& texturename, const std::string& meshname)
 {
 	assert(_textures.find(texturename) != _textures.end());
 	assert(_meshes.find(meshname) != _meshes.end());
@@ -30,6 +30,7 @@ ResourceManager::ResourceManager()
 void ResourceManager::Initialize()
 {
 	// load all textures
+	LoadTexture("test", "../bin/Assets/test2.png");
 	// load all meshes
 	// start with basic sprite mesh, square mesh
 	AEGfxMeshStart();
