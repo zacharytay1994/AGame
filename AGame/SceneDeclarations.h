@@ -5,6 +5,7 @@
 #include "zEntity.h"
 #include "CSHeaderDef.h"
 #include "Factory.h"
+#include "ResourceManager.h"
 #include <string>
 
 /*!___________________________________________________________________
@@ -16,6 +17,7 @@ struct TestScene : public Scene {
 	________________________________*/
 	std::string test = "hello";
 	int e2 = -1;
+	Com_Tilemap tile;
 	/*
 	Initialize Override (optional)
 	________________________________*/
@@ -24,6 +26,15 @@ struct TestScene : public Scene {
 		/*Entity& entity = Factory::Instance().CreateEntity<Com_Position, Com_Example_Velocity>();
 		entity.Get<Com_Example_Velocity>() = { 1.0f,2.0f };*/
 		e2 = Factory::Instance().FF_Sprite("test2", 1, 8, 8, 0.1f, 50.0f, 80.0f);
+		tile._width = 3;
+		tile._height = 4;
+		tile._map.resize(12);
+		for (int i = 0; i < 12; ++i) {
+			tile._map[i] = 1;
+		}
+		//ResourceManager::Instance().WriteTilemapTxt("test2.txt", tile);
+		ResourceManager::Instance().ReadTilemapTxt("test.txt", tile);
+		int i = 0;
 	}
 	/*
 	Update Override (optional)

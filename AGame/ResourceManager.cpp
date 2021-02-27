@@ -1,5 +1,7 @@
 #include "ResourceManager.h"
+#include "CSHeaderDef.h"
 #include <assert.h>
+#include <fstream>
 
 #define MY_PI 3.142f
 
@@ -24,7 +26,7 @@ void ResourceManager::GetResource(AEGfxTexture*& tex, AEGfxVertexList*& mesh, co
 
 void ResourceManager::LoadTexture(const std::string& name, const std::string& path)
 {
-	_textures[name] = AEGfxTextureLoad(path.c_str());
+	_textures[name] = AEGfxTextureLoad((asset_path + texture_path + path).c_str());
 	// make sure texture is successfully loaded
 	assert(_textures[name]);
 }
@@ -57,6 +59,76 @@ AEGfxVertexList* ResourceManager::CreateMesh(const int& row, const int& col)
 	return _meshes[key];
 }
 
+void ResourceManager::ReadTilemapBin(const std::string& path, Com_Tilemap& tilemap)
+{
+	// open binary file
+	std::ifstream file(asset_path + tilemap_path + path, std::ios::in | std::ios::binary);
+	assert(file);
+	// read width, height
+	file.read((char*)&tilemap._width, sizeof(int));
+	file.read((char*)&tilemap._height, sizeof(int));
+	int size = tilemap._width * tilemap._height;
+	tilemap._map.resize((size_t)size);
+	for (int i = 0; i < size; ++i) {
+		file.read((char*)&tilemap._map[i], sizeof(int));
+	}
+	file.close();
+}
+
+void ResourceManager::WriteTilemapBin(const std::string& path, Com_Tilemap& tilemap)
+{
+	// open binary file
+	std::ofstream file(asset_path + tilemap_path + path, std::ios::out | std::ios::binary);
+	assert(file);
+	// write width, height
+	file.write((char*)&tilemap._width, sizeof(int));
+	file.write((char*)&tilemap._height, sizeof(int));
+	int size = tilemap._width * tilemap._height;
+	// write data
+	for (int i = 0; i < size; ++i) {
+		file.write((char*)&tilemap._map[i], sizeof(int));
+	}
+	file.close();
+}
+
+void ResourceManager::ReadTilemapTxt(const std::string& path, Com_Tilemap& tilemap)
+{
+	// open text file
+	std::ifstream file(asset_path + tilemap_path + path);
+	assert(file);
+	std::string line;
+	// write width, height, size
+	getline(file, line);
+	tilemap._width = (int)std::stoi(line);
+	getline(file, line);
+	tilemap._height = (int)std::stoi(line);
+	tilemap._map.resize((size_t)tilemap._height * (size_t)tilemap._width);
+	for (size_t y = 0; y < (size_t)tilemap._height; ++y) {
+		getline(file, line);
+		for (size_t x = 0; x < (size_t)tilemap._width; ++x) {
+			tilemap._map[x * (size_t)tilemap._height + y] = line[x];
+		}
+	}
+	file.close();
+}
+
+void ResourceManager::WriteTilemapTxt(const std::string& path, Com_Tilemap& tilemap)
+{
+	// open text file
+	std::ofstream file(asset_path + tilemap_path + path);
+	assert(file);
+	// write width, height, size
+	file << tilemap._width << "\n";
+	file << tilemap._height << "\n";
+	for (size_t y = 0; y < (size_t)tilemap._height; ++y) {
+		for (size_t x = 0; x < (size_t)tilemap._width; ++x) {
+			file << tilemap._map[x * (size_t)tilemap._height + y];
+		}
+		file << "\n";
+	}
+	file.close();
+}
+
 ResourceManager::ResourceManager()
 {
 	Initialize();
@@ -65,21 +137,6 @@ ResourceManager::ResourceManager()
 void ResourceManager::Initialize()
 {
 	// load all textures
-	LoadTexture("test", "../bin/Assets/test2.png");
-	LoadTexture("test2", "../bin/Assets/testguy.png");
-	// load all meshes
-	// start with basic sprite mesh, square mesh
-	//AEGfxMeshStart();
-	//AEGfxTriAdd(
-	//	-0.5f, 0.5f, 0xFFFF0000, 0.0f, 0.0f,
-	//	-0.5f, -0.5f, 0xFFFF0000, 0.0f, 1.0f,
-	//	0.5f, 0.5f, 0xFFFFFFFF, 1.0f, 0.0f
-	//);
-	//AEGfxTriAdd(
-	//	0.5f, 0.5f, 0xFFFF0000, 1.0f, 0.0f,
-	//	-0.5f, -0.5f, 0xFFFF0000, 0.0f, 1.0f,
-	//	0.5f, -0.5f, 0xFFFFFFFF, 1.0f, 1.0f
-	//);
-	//// mesh signature 1 by 1 default sprite
-	//_meshes[{1, 1}] = AEGfxMeshEnd();
+	LoadTexture("test", "test2.png");
+	LoadTexture("test2", "testguy.png");
 }

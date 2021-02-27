@@ -129,7 +129,9 @@ struct Sys_ArrowKeys : public System {
 					.. Renders a tilemap
 ________________________________________________________________________*/
 struct Com_Tilemap {
-
+	std::vector<int> _map;
+	int _width = 0;
+	int _height = 0;
 };
 
 struct Sys_Tilemap : public System {
