@@ -164,4 +164,5 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	// free the system
 	AESysExit();
+	SceneManager::Instance().Free();
 }

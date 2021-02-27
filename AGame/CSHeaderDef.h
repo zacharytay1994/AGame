@@ -18,7 +18,8 @@ struct Com_Position {
 struct Sys_Example_PrintPosition : public System {
 	std::string s = "Check out this awesome position: ";
 	void UpdateComponent() override {
-		std::cout << s << c<Com_Position>().x << "|" << c<Com_Position>().y << std::endl;
+		std::cout << s << get<Com_Position>().x << "|" << get<Com_Position>().y << std::endl;
+		
 	}
 };
 
@@ -35,17 +36,17 @@ struct Com_Example_Velocity {
 struct Sys_Example_UpdatePosition : public System {
 	std::string s = "I am updating position of entity: ";
 	void UpdateComponent() override {
-		c<Com_Position>().x += c<Com_Example_Velocity>().x * _dt;
-		c<Com_Position>().y += c<Com_Example_Velocity>().y * _dt;
-		Com_Position& test = c<Com_Position>();
-		std::cout << s << _current_id << " |" << c<Com_Position>().x << "," << c<Com_Position>().y << std::endl;
+		get<Com_Position>().x += get<Com_Example_Velocity>().x * _dt;
+		get<Com_Position>().y += get<Com_Example_Velocity>().y * _dt;
+		Com_Position& test = get<Com_Position>();
+		std::cout << s << _current_id << " |" << get<Com_Position>().x << "," << get<Com_Position>().y << std::endl;
 		RemoveEntity();
 	}
 };
 
 /*______________________________________________________________________
-	Component	- Sprite
-	System		- Example_UpdatePosition <Position, Velocity>
+	Component	- Com_Sprite
+	System		- Sys_DrawSprite <Com_Position, Com_Sprite>
 					.. Adds velocity to the position.
 ________________________________________________________________________*/
 struct Com_Sprite {
@@ -54,6 +55,14 @@ struct Com_Sprite {
 	float				_x_scale	= 1.0f;
 	float				_y_scale	= 1.0f;
 	float				_rotation	= 0.0f;
+	int					_frames		= 1;
+	int					_current_frame = 0;
+	float				_frame_interval = 1;
+	float				_frame_interval_counter = 0.0f;
+	int					_row = 1;
+	int					_col = 1;
+	float				_offset_x = 0.0f;
+	float				_offset_y = 0.0f;
 	AEMtx33				_transform;
 };
 
@@ -61,8 +70,19 @@ struct Sys_DrawSprite : public System {
 	void UpdateComponent() override {
 		//	// form the matrix
 		AEMtx33 trans, scale, rot;
-		Com_Sprite& sprite = c<Com_Sprite>();
-		Com_Position& position = c<Com_Position>();
+		Draw(trans, scale, rot, get<Com_Sprite>(), get<Com_Position>());
+	}
+	void Draw(AEMtx33& trans, AEMtx33& scale, AEMtx33& rot, Com_Sprite& sprite, Com_Position& position) {
+		// increment frame
+		if (sprite._frame_interval_counter > sprite._frame_interval) {
+			sprite._current_frame = ++sprite._current_frame >= sprite._frames ? 0 : sprite._current_frame;
+			sprite._offset_x = (sprite._current_frame % sprite._col) * 1.0f/ (float)sprite._col;
+			sprite._offset_y = (sprite._current_frame / sprite._col) * 1.0f / (float)sprite._row;
+			sprite._frame_interval_counter = 0.0f;
+		}
+		else {
+			sprite._frame_interval_counter += _dt;
+		}
 		AEMtx33Scale(&scale, sprite._x_scale, sprite._y_scale);
 		AEMtx33Rot(&rot, sprite._rotation);
 		AEMtx33Trans(&trans, position.x, position.y);
@@ -71,7 +91,7 @@ struct Sys_DrawSprite : public System {
 		// set aegfx variables
 		AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
 		AEGfxSetTransform(sprite._transform.m);
-		AEGfxTextureSet(sprite._texture, 0.0f, 0.0f);
+		AEGfxTextureSet(sprite._texture, sprite._offset_x, sprite._offset_y);
 		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
 		AEGfxMeshDraw(sprite._mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
 	}
@@ -89,16 +109,29 @@ struct Com_ArrowKeys {
 struct Sys_ArrowKeys : public System {
 	void UpdateComponent() override {
 		if (AEInputCheckCurr(VK_LEFT)) {
-			c<Com_Position>().x -= 10.0f * _dt;
+			get<Com_Position>().x -= 10.0f * _dt;
 		}
 		if (AEInputCheckCurr(VK_RIGHT)) {
-			c<Com_Position>().x += 10.0f * _dt;
+			get<Com_Position>().x += 10.0f * _dt;
 		}
 		if (AEInputCheckCurr(VK_UP)) {
-			c<Com_Position>().y += 10.0f * _dt;
+			get<Com_Position>().y += 10.0f * _dt;
 		}
 		if (AEInputCheckCurr(VK_DOWN)) {
-			c<Com_Position>().y -= 10.0f * _dt;
+			get<Com_Position>().y -= 10.0f * _dt;
 		}
 	}
+};
+
+/*______________________________________________________________________
+	Component	- Com_Tilemap
+	System		- Sys_Tilemap <Com_Tilemap>
+					.. Renders a tilemap
+________________________________________________________________________*/
+struct Com_Tilemap {
+
+};
+
+struct Sys_Tilemap : public System {
+
 };

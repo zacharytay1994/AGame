@@ -44,6 +44,11 @@ void SceneManager::Initialize() {
 
 	// 1. Initialize Resource Manager
 	ResourceManager::Instance();
+	// set default texture settings
+	AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
+	AEGfxSetBlendMode(AE_GFX_BM_BLEND);
+	AEGfxSetTransparency(1.0f);
+	AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// 2. Registering all components for the game
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Position>();
@@ -59,6 +64,11 @@ void SceneManager::Initialize() {
 	// 4. Registering scenes
 	AddScene<TestScene>("Test Scene");
 	AddScene<TestScene2>("Test Scene 2");
+}
+
+void SceneManager::Free()
+{
+	ResourceManager::Instance().FreeResources();
 }
 
 /*______________________________________________________

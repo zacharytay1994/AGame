@@ -36,6 +36,7 @@ class SceneManager {
 public:
 	static SceneManager& Instance();
 	void ChangeScene(const std::string& name);
+	void Free();
 	/*___________________________________________________________________________________
 	* Brief:	Creates a scene of type derived scene.
 	*

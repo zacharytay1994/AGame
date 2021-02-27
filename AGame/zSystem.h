@@ -29,7 +29,7 @@ struct System {
 		}
 	}
 	template <typename T>
-	T& c() {
+	T& get() {
 		return _current_chunk->GetComponent<T>(_current_id);
 	}
 	void RemoveEntity();

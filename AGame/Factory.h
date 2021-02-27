@@ -4,6 +4,7 @@
 #include "zEntity.h"
 
 class Factory {
+	uint64_t _unique_ids = 0;
 	std::vector<Entity> _entities;
 	Factory() = default;
 public:
@@ -12,12 +13,14 @@ public:
 	Entity& CreateEntity() {
 		_entities.emplace_back();
 		_entities.back().Initialize<T...>();
+		++_unique_ids;
 		return _entities.back();
 	}
 	void RemoveEntity(Entity* entity);
+	Entity& GetEntity(const int& id);
 
 	/*_________________________________________________________
 	* Custom Factory Functions
 	___________________________________________________________*/
-	void FF_CreateBasicSprite(const std::string& texturename, const std::string& meshname);
+	int FF_Sprite(const std::string& texturename, const int& row, const int& col, const int& frames, const float& interval, const float& scalex, const float& scaley);
 };

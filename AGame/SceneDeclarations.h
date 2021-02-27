@@ -15,14 +15,15 @@ struct TestScene : public Scene {
 	Member Variables
 	________________________________*/
 	std::string test = "hello";
+	int e2 = -1;
 	/*
 	Initialize Override (optional)
 	________________________________*/
 	void Initialize() override {
 		std::cout << test << " this is a test scene" << std::endl;
-		Entity& entity = Factory::Instance().CreateEntity<Com_Position, Com_Example_Velocity>();
-		entity.Get<Com_Example_Velocity>() = { 1.0f,2.0f };
-		Factory::Instance().FF_CreateBasicSprite("test", "square");
+		/*Entity& entity = Factory::Instance().CreateEntity<Com_Position, Com_Example_Velocity>();
+		entity.Get<Com_Example_Velocity>() = { 1.0f,2.0f };*/
+		e2 = Factory::Instance().FF_Sprite("test2", 1, 8, 8, 0.1f, 50.0f, 80.0f);
 	}
 	/*
 	Update Override (optional)
@@ -32,8 +33,9 @@ struct TestScene : public Scene {
 			SceneManager::Instance().ChangeScene("Test Scene 2");
 		}
 		if (AEInputCheckCurr('P')) {
-			Entity& entity = Factory::Instance().CreateEntity<Com_Position, Com_Example_Velocity>();
-			entity.Get<Com_Example_Velocity>() = { 1.0f,2.0f };
+			Factory::Instance().FF_Sprite("test2", 1, 8, 8, 0.2f, 50.0f, 80.0f);
+			Factory::Instance().GetEntity(e2).Get<Com_Sprite>()._frame_interval -= dt;
+			//Com_Sprite& s = e2->Get<Com_Sprite>();
 		}
 	}
 	/*
