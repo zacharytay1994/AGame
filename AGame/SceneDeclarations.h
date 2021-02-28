@@ -27,6 +27,7 @@ struct TestScene : public Scene {
 		/*Entity& entity = Factory::Instance().CreateEntity<Com_Position, Com_Example_Velocity>();
 		entity.Get<Com_Example_Velocity>() = { 1.0f,2.0f };*/
 		e2 = Factory::Instance().FF_Sprite("test2", 1, 8, 8, 0.1f, 50.0f, 80.0f);
+		e2 = Factory::Instance().FF_Sprite("test2", 1, 8, 8, 0.1f, 50.0f, 80.0f);
 		/*tile._width = 3;
 		tile._height = 4;
 		tile._map.resize(12);
@@ -46,6 +47,7 @@ struct TestScene : public Scene {
 		}
 		int i = 0;*/
 		tilemap = Factory::Instance().FF_Tilemap("test");
+		std::vector<Com_Sprite*> vref = SystemDatabase::Instance().GetAllComponents<Com_Sprite>();
 	}
 	/*
 	Update Override (optional)

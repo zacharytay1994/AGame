@@ -131,6 +131,7 @@ struct Sys_ArrowKeys : public System {
 ________________________________________________________________________*/
 struct Com_Tilemap {
 	std::vector<int> _map;
+	std::vector<int> _collision_mask;
 	int _width = 0;
 	int _height = 0;
 	float _scale_x = 1.0f;
