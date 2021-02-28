@@ -16,3 +16,9 @@ void Entity::Destroy()
 	// remove from factory
 	Factory::Instance().RemoveEntity(this);
 }
+
+void Entity::FreeData()
+{
+	// remove from chunk
+	_chunk->Remove(_id);
+}

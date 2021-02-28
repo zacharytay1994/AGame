@@ -60,4 +60,31 @@ struct Entity {
 	*			e1.Destroy();
 	________________________________________________________*/
 	void Destroy();
+
+	template <typename T>
+	Entity& AddComponent() {
+		// get mask
+		std::bitset<64> mask = _chunk->_owning_archetype->_mask;
+		if (mask[component_description_v<T>._bit]) {
+			return *this;
+		}
+		mask[component_description_v<T>._bit] = 1;
+		// recreate archetype with new mask
+		std::shared_ptr<Archetype> archetype = ArchetypeDatabase::Instance().CreateArchetype(mask, _chunk->_owning_archetype);
+		archetype->AddDescriptions<T>();
+		std::shared_ptr<Chunk> temp;
+		int temp_id = archetype->Add(temp);
+		// perform shallow copy from current chunk to temp
+		memcpy(temp->GetDataBegin(temp_id), _chunk->GetDataBegin(_id), _chunk->_owning_archetype->_chunk_stride);
+		//T& tilemap = Get<T>();
+		// free data in old archetype/chunk
+		FreeData();
+		// assign new and initialize new component
+		_chunk = temp;
+		_id = temp_id;
+		_chunk->GetComponent<T>(_id) = T();
+		std::cout << "Component Added!" << std::endl;
+		return *this;
+	}
+	void FreeData();
 };

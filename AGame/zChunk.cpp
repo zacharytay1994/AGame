@@ -30,3 +30,8 @@ void Chunk::Remove(const int& id)
 	--_number_of_entities;
 	_free_ids.push(id);
 }
+
+char* Chunk::GetDataBegin(const int& id)
+{
+	return _data.get() + (size_t)id * (size_t)_owning_archetype->_chunk_stride;
+}

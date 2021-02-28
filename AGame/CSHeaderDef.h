@@ -134,6 +134,8 @@ struct Com_Tilemap {
 	std::vector<int> _floor_mask;
 	int _width = 0;
 	int _height = 0;
+	float _x = 0.0f;
+	float _y = 0.0f;
 	float _scale_x = 1.0f;
 	float _scale_y = 1.0f;
 	AEGfxTexture* _texture;
@@ -145,7 +147,13 @@ struct Sys_Tilemap : public System {
 	void UpdateComponent() override {
 		
 		if (get<Com_Tilemap>()._initialized) {
-			// render tilemap
+			//// render tilemap
+			//if (AEInputCheckCurr(VK_RIGHT)) {
+			//	get<Com_Tilemap>()._x += _dt * 10.0f;
+			//}
+			//if (AEInputCheckCurr(VK_UP)) {
+			//	get<Com_Tilemap>()._y += _dt * 10.0f;
+			//}
 			DrawTilemap(get<Com_Tilemap>());
 		}
 	}
@@ -156,7 +164,7 @@ struct Sys_Tilemap : public System {
 		for (size_t y = 0; y < (size_t)tilemap._height; ++y) {
 			for (size_t x = 0; x < (size_t)tilemap._width; ++x) {
 				if (tilemap._floor_mask[x * (size_t)tilemap._height + y] == -1) { continue; }
-				AEMtx33Trans(&trans, (float)x, -(float)y);
+				AEMtx33Trans(&trans, (float)x+tilemap._x, -(float)y+tilemap._y);
 				AEMtx33Concat(&transform, &scale, &trans);
 				AEGfxSetTransform(transform.m);
 				if (tilemap._floor_mask[x * (size_t)tilemap._height + y]) {
@@ -170,4 +178,19 @@ struct Sys_Tilemap : public System {
 			}
 		}
 	}
+};
+
+/*______________________________________________________________________
+	Component	- Com_TilePosition
+	System		- Sys_TilePosition <Com_TilePosition, Com_Position>
+					.. Binds an entity position to the 
+________________________________________________________________________*/
+struct Com_TilePosition {
+	int _grid_x;
+	int _grid_y;
+	Com_Tilemap* tilemap;
+};
+
+struct Sys_TilePosition {
+
 };

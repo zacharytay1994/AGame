@@ -130,7 +130,7 @@ void ResourceManager::WriteTilemapTxt(const std::string& path, Com_Tilemap& tile
 	file.close();
 }
 
-void ResourceManager::ReadCollisionMapBin(const std::string& path, Com_Tilemap& tilemap)
+void ResourceManager::ReadFloorMapBin(const std::string& path, Com_Tilemap& tilemap)
 {
 	// open binary file
 	std::ifstream file(asset_path + tilemap_path + path, std::ios::in | std::ios::binary);
@@ -159,11 +159,11 @@ void ResourceManager::ReadCollisionMapBin(const std::string& path, Com_Tilemap& 
 	}
 }
 
-void ResourceManager::WriteCollisionMapBin(const std::string& path, Com_Tilemap& tilemap)
+void ResourceManager::WriteFloorMapBin(const std::string& path, Com_Tilemap& tilemap)
 {
 }
 
-void ResourceManager::ReadCollisionMapTxt(const std::string& path, Com_Tilemap& tilemap)
+void ResourceManager::ReadFloorMapTxt(const std::string& path, Com_Tilemap& tilemap)
 {
 	// open text file
 	std::ifstream file(asset_path + tilemap_path + path);
@@ -200,7 +200,7 @@ void ResourceManager::ReadCollisionMapTxt(const std::string& path, Com_Tilemap& 
 	file.close();
 }
 
-void ResourceManager::WriteCollisionMapTxt(const std::string& path, Com_Tilemap& tilemap)
+void ResourceManager::WriteFloorMapTxt(const std::string& path, Com_Tilemap& tilemap)
 {
 }
 

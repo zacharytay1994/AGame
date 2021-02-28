@@ -8,12 +8,13 @@
 struct ComponentDescription {
 	const	uint32_t	_size;
 	mutable	int			_bit;
+	const std::string	_name;
 };
 
 namespace ComponentDescriptionDetails {
 	template <typename T_COMPONENT>
 	ComponentDescription MakeComponentDescription() {
-		return ComponentDescription{ sizeof(T_COMPONENT),-1 };
+		return ComponentDescription{ sizeof(T_COMPONENT),-1, typeid(T_COMPONENT).name() };
 	}
 	// to prevent vs compiler from creating multiple instances of a comp desc
 	template <typename T_COMPONENT>

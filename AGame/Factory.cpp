@@ -25,7 +25,7 @@ int Factory::FF_Sprite(const std::string& texturename, const int& row, const int
 {
     _entities.emplace_back();
     Entity& e = _entities.back();
-    e.Initialize<Com_Position,Com_Sprite,Com_ArrowKeys>();
+    e.Initialize<Com_Position,Com_Sprite>();
     // gets texture and mesh resources from resource manager
     ResourceManager::Instance().GetResource(e.Get<Com_Sprite>()._texture, e.Get<Com_Sprite>()._mesh, texturename, row, col, frames);
     e.Get<Com_Sprite>()._x_scale = scalex;
@@ -39,12 +39,12 @@ int Factory::FF_Sprite(const std::string& texturename, const int& row, const int
     return (int)_unique_ids-1;
 }
 
-int Factory::FF_Tilemap(const std::string& texture)
+int Factory::FF_Tilemap(const std::string& texture, const std::string& bottom, const std::string& top)
 {
     Entity& e = CreateEntity<Com_Tilemap>();
     ResourceManager::Instance().GetResource(e.Get<Com_Tilemap>()._texture, e.Get<Com_Tilemap>()._mesh, texture, 4, 4, 16);
-    ResourceManager::Instance().ReadTilemapTxt("t_test.txt", e.Get<Com_Tilemap>());
-    ResourceManager::Instance().ReadCollisionMapTxt("c_test.txt", e.Get<Com_Tilemap>());
+    ResourceManager::Instance().ReadTilemapTxt(top, e.Get<Com_Tilemap>());
+    ResourceManager::Instance().ReadFloorMapTxt(bottom, e.Get<Com_Tilemap>());
     Com_Tilemap& tilemap = e.Get<Com_Tilemap>();
     e.Get<Com_Tilemap>()._scale_x = 50.0f;
     e.Get<Com_Tilemap>()._scale_y = 50.0f;
