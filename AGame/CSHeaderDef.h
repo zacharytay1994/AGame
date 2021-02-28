@@ -70,9 +70,10 @@ struct Sys_DrawSprite : public System {
 	void UpdateComponent() override {
 		//	// form the matrix
 		AEMtx33 trans, scale, rot;
-		Draw(trans, scale, rot, get<Com_Sprite>(), get<Com_Position>());
+		Draw(get<Com_Sprite>(), get<Com_Position>());
 	}
-	void Draw(AEMtx33& trans, AEMtx33& scale, AEMtx33& rot, Com_Sprite& sprite, Com_Position& position) {
+	void Draw(Com_Sprite& sprite, Com_Position& position) {
+		AEMtx33 trans, scale, rot;
 		// increment frame
 		if (sprite._frame_interval_counter > sprite._frame_interval) {
 			sprite._current_frame = ++sprite._current_frame >= sprite._frames ? 0 : sprite._current_frame;
@@ -86,8 +87,8 @@ struct Sys_DrawSprite : public System {
 		AEMtx33Scale(&scale, sprite._x_scale, sprite._y_scale);
 		AEMtx33Rot(&rot, sprite._rotation);
 		AEMtx33Trans(&trans, position.x, position.y);
-		AEMtx33Concat(&sprite._transform, &scale, &rot);
-		AEMtx33Concat(&sprite._transform, &sprite._transform, &trans);
+		AEMtx33Concat(&sprite._transform, &rot, &scale);
+		AEMtx33Concat(&sprite._transform, &trans, &sprite._transform);
 		// set aegfx variables
 		AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
 		AEGfxSetTransform(sprite._transform.m);
@@ -109,16 +110,16 @@ struct Com_ArrowKeys {
 struct Sys_ArrowKeys : public System {
 	void UpdateComponent() override {
 		if (AEInputCheckCurr(VK_LEFT)) {
-			get<Com_Position>().x -= 10.0f * _dt;
+			get<Com_Position>().x -= 100.0f * _dt;
 		}
 		if (AEInputCheckCurr(VK_RIGHT)) {
-			get<Com_Position>().x += 10.0f * _dt;
+			get<Com_Position>().x += 100.0f * _dt;
 		}
 		if (AEInputCheckCurr(VK_UP)) {
-			get<Com_Position>().y += 10.0f * _dt;
+			get<Com_Position>().y += 100.0f * _dt;
 		}
 		if (AEInputCheckCurr(VK_DOWN)) {
-			get<Com_Position>().y -= 10.0f * _dt;
+			get<Com_Position>().y -= 100.0f * _dt;
 		}
 	}
 };
@@ -132,8 +133,36 @@ struct Com_Tilemap {
 	std::vector<int> _map;
 	int _width = 0;
 	int _height = 0;
+	float _scale_x = 1.0f;
+	float _scale_y = 1.0f;
+	AEGfxTexture* _texture;
+	AEGfxVertexList* _mesh;
+	bool _initialized = false;
 };
 
 struct Sys_Tilemap : public System {
-
+	void UpdateComponent() override {
+		
+		if (get<Com_Tilemap>()._initialized) {
+			// render tilemap
+			DrawTilemap(get<Com_Tilemap>());
+		}
+	}
+	void DrawTilemap(const Com_Tilemap& tilemap) {
+		AEMtx33 trans, scale, transform;
+		AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
+		AEMtx33Scale(&scale, tilemap._scale_x, tilemap._scale_y);
+		for (size_t y = 0; y < (size_t)tilemap._height; ++y) {
+			for (size_t x = 0; x < (size_t)tilemap._width; ++x) {
+				AEMtx33Trans(&trans, (float)x, -(float)y);
+				AEMtx33Concat(&transform, &scale, &trans);
+				AEGfxSetTransform(transform.m);
+				if ((char)tilemap._map[x * (size_t)tilemap._height + y] == '1') {
+					AEGfxTextureSet(tilemap._texture, 0.0f, 0.0f);
+					AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
+					AEGfxMeshDraw(tilemap._mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
+				}
+			}
+		}
+	}
 };

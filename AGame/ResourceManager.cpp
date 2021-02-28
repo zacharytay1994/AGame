@@ -73,6 +73,7 @@ void ResourceManager::ReadTilemapBin(const std::string& path, Com_Tilemap& tilem
 		file.read((char*)&tilemap._map[i], sizeof(int));
 	}
 	file.close();
+	tilemap._initialized = true;
 }
 
 void ResourceManager::WriteTilemapBin(const std::string& path, Com_Tilemap& tilemap)
@@ -110,6 +111,7 @@ void ResourceManager::ReadTilemapTxt(const std::string& path, Com_Tilemap& tilem
 		}
 	}
 	file.close();
+	tilemap._initialized = true;
 }
 
 void ResourceManager::WriteTilemapTxt(const std::string& path, Com_Tilemap& tilemap)

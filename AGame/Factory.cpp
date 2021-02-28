@@ -38,3 +38,14 @@ int Factory::FF_Sprite(const std::string& texturename, const int& row, const int
     ++_unique_ids;
     return (int)_unique_ids-1;
 }
+
+int Factory::FF_Tilemap(const std::string& texture)
+{
+    Entity& e = CreateEntity<Com_Tilemap>();
+    ResourceManager::Instance().GetResource(e.Get<Com_Tilemap>()._texture, e.Get<Com_Tilemap>()._mesh, texture, 1, 1, 1);
+    ResourceManager::Instance().ReadTilemapBin("test.bin", e.Get<Com_Tilemap>());
+    e.Get<Com_Tilemap>()._scale_x = 50.0f;
+    e.Get<Com_Tilemap>()._scale_y = 50.0f;
+    ++_unique_ids;
+    return _unique_ids - 1;
+}
