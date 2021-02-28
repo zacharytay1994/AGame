@@ -71,9 +71,9 @@ void ResourceManager::ReadTilemapBin(const std::string& path, Com_Tilemap& tilem
 	tilemap._map.resize((size_t)size);
 	for (int i = 0; i < size; ++i) {
 		file.read((char*)&tilemap._map[i], sizeof(int));
+		tilemap._map[i] -= '0';
 	}
 	file.close();
-	tilemap._initialized = true;
 }
 
 void ResourceManager::WriteTilemapBin(const std::string& path, Com_Tilemap& tilemap)
@@ -107,11 +107,10 @@ void ResourceManager::ReadTilemapTxt(const std::string& path, Com_Tilemap& tilem
 	for (size_t y = 0; y < (size_t)tilemap._height; ++y) {
 		getline(file, line);
 		for (size_t x = 0; x < (size_t)tilemap._width; ++x) {
-			tilemap._map[x * (size_t)tilemap._height + y] = line[x];
+			tilemap._map[x * (size_t)tilemap._height + y] = line[x]-'0';
 		}
 	}
 	file.close();
-	tilemap._initialized = true;
 }
 
 void ResourceManager::WriteTilemapTxt(const std::string& path, Com_Tilemap& tilemap)
@@ -131,6 +130,80 @@ void ResourceManager::WriteTilemapTxt(const std::string& path, Com_Tilemap& tile
 	file.close();
 }
 
+void ResourceManager::ReadCollisionMapBin(const std::string& path, Com_Tilemap& tilemap)
+{
+	// open binary file
+	std::ifstream file(asset_path + tilemap_path + path, std::ios::in | std::ios::binary);
+	assert(file);
+	std::vector<int> temp;
+	// read width, height
+	file.read((char*)&tilemap._width, sizeof(int));
+	file.read((char*)&tilemap._height, sizeof(int));
+	int size = tilemap._width * tilemap._height;
+	temp.resize((size_t)size);
+	for (int i = 0; i < size; ++i) {
+		file.read((char*)&temp[i], sizeof(int));
+		temp[i] -= '0';
+	}
+	file.close();
+	tilemap._floor_mask.resize((size_t)size);
+	for (int y = 0; y < tilemap._height; ++y) {
+		for (int x = 0; x < tilemap._width; ++x) {
+			int i = 0, n = y - 1, s = y + 1, w = x - 1, e = x + 1;
+			if (n >= 0 && temp[x * (size_t)tilemap._height + n]) { i |= 1; }
+			if (s < tilemap._height && temp[x * (size_t)tilemap._height + s]) { i |= 8; }
+			if (w >= 0 && temp[w * (size_t)tilemap._height + y]) { i |= 2; }
+			if (e < tilemap._width && temp[e * (size_t)tilemap._height + y]) { i |= 4; }
+			tilemap._floor_mask[x * (size_t)tilemap._height + y] = i;
+		}
+	}
+}
+
+void ResourceManager::WriteCollisionMapBin(const std::string& path, Com_Tilemap& tilemap)
+{
+}
+
+void ResourceManager::ReadCollisionMapTxt(const std::string& path, Com_Tilemap& tilemap)
+{
+	// open text file
+	std::ifstream file(asset_path + tilemap_path + path);
+	assert(file);
+	std::string line;
+	std::vector<int> temp;
+	// write width, height, size
+	getline(file, line);
+	tilemap._width = (int)std::stoi(line);
+	getline(file, line);
+	tilemap._height = (int)std::stoi(line);
+	temp.resize((size_t)tilemap._height * (size_t)tilemap._width);
+	tilemap._floor_mask.resize((size_t)tilemap._height * (size_t)tilemap._width);
+	for (size_t y = 0; y < (size_t)tilemap._height; ++y) {
+		getline(file, line);
+		for (size_t x = 0; x < (size_t)tilemap._width; ++x) {
+			temp[x * (size_t)tilemap._height + y] = line[x] - '0';
+		}
+	}
+	for (size_t y = 0; y < (size_t)tilemap._height; ++y) {
+		for (size_t x = 0; x < (size_t)tilemap._width; ++x) {
+			if (!temp[x * (size_t)tilemap._height + y]) { 
+				tilemap._floor_mask[x * (size_t)tilemap._height + y] = -1;
+				continue; 
+			}
+			int i = 0, n = y - 1, s = y + 1, w = x - 1, e = x + 1;
+			if (n >= 0 && temp[x * (size_t)tilemap._height + n]) { i |= 1; }
+			if (s < tilemap._height && temp[x * (size_t)tilemap._height + s]) { i |= 8; }
+			if (w >= 0 && temp[w * (size_t)tilemap._height + y]) { i |= 2; }
+			if (e < tilemap._width && temp[e * (size_t)tilemap._height + y]) { i |= 4; }
+			tilemap._floor_mask[x * (size_t)tilemap._height + y] = i;
+		}
+	}
+	file.close();
+}
+
+void ResourceManager::WriteCollisionMapTxt(const std::string& path, Com_Tilemap& tilemap)
+{
+}
+
 ResourceManager::ResourceManager()
 {
 	Initialize();
@@ -141,4 +214,5 @@ void ResourceManager::Initialize()
 	// load all textures
 	LoadTexture("test", "test2.png");
 	LoadTexture("test2", "testguy.png");
+	LoadTexture("tilemap", "tilemaptest.png");
 }

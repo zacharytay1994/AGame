@@ -42,10 +42,13 @@ int Factory::FF_Sprite(const std::string& texturename, const int& row, const int
 int Factory::FF_Tilemap(const std::string& texture)
 {
     Entity& e = CreateEntity<Com_Tilemap>();
-    ResourceManager::Instance().GetResource(e.Get<Com_Tilemap>()._texture, e.Get<Com_Tilemap>()._mesh, texture, 1, 1, 1);
-    ResourceManager::Instance().ReadTilemapBin("test.bin", e.Get<Com_Tilemap>());
+    ResourceManager::Instance().GetResource(e.Get<Com_Tilemap>()._texture, e.Get<Com_Tilemap>()._mesh, texture, 4, 4, 16);
+    ResourceManager::Instance().ReadTilemapTxt("t_test.txt", e.Get<Com_Tilemap>());
+    ResourceManager::Instance().ReadCollisionMapTxt("c_test.txt", e.Get<Com_Tilemap>());
+    Com_Tilemap& tilemap = e.Get<Com_Tilemap>();
     e.Get<Com_Tilemap>()._scale_x = 50.0f;
     e.Get<Com_Tilemap>()._scale_y = 50.0f;
+    e.Get<Com_Tilemap>()._initialized = true;
     ++_unique_ids;
     return _unique_ids - 1;
 }

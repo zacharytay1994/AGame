@@ -131,7 +131,7 @@ struct Sys_ArrowKeys : public System {
 ________________________________________________________________________*/
 struct Com_Tilemap {
 	std::vector<int> _map;
-	std::vector<int> _collision_mask;
+	std::vector<int> _floor_mask;
 	int _width = 0;
 	int _height = 0;
 	float _scale_x = 1.0f;
@@ -155,11 +155,15 @@ struct Sys_Tilemap : public System {
 		AEMtx33Scale(&scale, tilemap._scale_x, tilemap._scale_y);
 		for (size_t y = 0; y < (size_t)tilemap._height; ++y) {
 			for (size_t x = 0; x < (size_t)tilemap._width; ++x) {
+				if (tilemap._floor_mask[x * (size_t)tilemap._height + y] == -1) { continue; }
 				AEMtx33Trans(&trans, (float)x, -(float)y);
 				AEMtx33Concat(&transform, &scale, &trans);
 				AEGfxSetTransform(transform.m);
-				if ((char)tilemap._map[x * (size_t)tilemap._height + y] == '1') {
-					AEGfxTextureSet(tilemap._texture, 0.0f, 0.0f);
+				if (tilemap._floor_mask[x * (size_t)tilemap._height + y]) {
+					// sample texture according to collision mask
+					float offset_x = (tilemap._floor_mask[x * (size_t)tilemap._height + y] % 4) * 1.0f / (float)4;
+					float offset_y = (tilemap._floor_mask[x * (size_t)tilemap._height + y] / 4) * 1.0f / (float)4;
+					AEGfxTextureSet(tilemap._texture, offset_x, offset_y);
 					AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
 					AEGfxMeshDraw(tilemap._mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
 				}

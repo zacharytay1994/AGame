@@ -28,4 +28,9 @@ public:
 	void WriteTilemapBin(const std::string& path,  Com_Tilemap& tilemap);
 	void ReadTilemapTxt(const std::string& path, Com_Tilemap& tilemap);
 	void WriteTilemapTxt(const std::string& path,  Com_Tilemap& tilemap);
+
+	void ReadCollisionMapBin(const std::string& path, Com_Tilemap& tilemap);
+	void WriteCollisionMapBin(const std::string& path, Com_Tilemap& tilemap);
+	void ReadCollisionMapTxt(const std::string& path, Com_Tilemap& tilemap);
+	void WriteCollisionMapTxt(const std::string& path, Com_Tilemap& tilemap);
 }; 
