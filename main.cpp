@@ -69,7 +69,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	AESysReset();
 
 	SceneManager::Instance();
-	SceneManager::Instance().ChangeScene("Test Scene");
+	SceneManager::Instance().ChangeScene("Test Scene 3");
 	// Initialization end
 	/////////////////////
 	/*ComponentDescription_DB _cdb;
