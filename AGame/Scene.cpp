@@ -66,6 +66,7 @@ void SceneManager::Initialize() {
 	// 4. Registering scenes
 	AddScene<TestScene>("Test Scene");
 	AddScene<TestScene2>("Test Scene 2");
+	AddScene<ExampleScene>("ExampleScene");
 }
 
 void SceneManager::Free()
@@ -88,16 +89,19 @@ ________________________________________________________*/
 void SceneManager::ChangeScene(const std::string& name) {
 	assert(_scenes.find(name) != _scenes.end());
 	if (_current_scene) {
+		// calls exit and unload
 		_current_scene->Exit();
-		std::cout << "SCENE |" << _current_scene_name << "| EXITED." << std::endl;
+		_current_scene->Unload();
+		std::cout << "SCENE |" << _current_scene_name << "| FREED AND UNLOADED." << std::endl;
 		// reload the scene into memory
-		_scenes[_current_scene_name] = std::make_shared<Scene>();
+		//_scenes[_current_scene_name] = std::make_shared<Scene>();
 	}
 	ArchetypeDatabase::Instance().FlushEntities();
 	_current_scene = _scenes[name];
 	_current_scene_name = name;
+	_current_scene->Load();
 	_current_scene->Initialize();
-	std::cout << "SCENE |" << _current_scene_name << "| INITIALIZED." << std::endl;
+	std::cout << "SCENE |" << _current_scene_name << "| LOADED AND INITIALIZED." << std::endl;
 }
 
 /*______________________________________________________
@@ -155,5 +159,46 @@ void Scene::Update(const float& dt)
 * called:	SceneManager::ChangeScene();
 ________________________________________________________*/
 void Scene::Exit()
+{
+}
+
+
+// new functions
+
+void SceneManager::RestartScene()
+{
+	if (_current_scene) {
+		_current_scene->Exit();
+		std::cout << "Scene Freed." << std::endl;
+		ArchetypeDatabase::Instance().FlushEntities();
+		_current_scene->Initialize();
+		std::cout << "Scene Initialized." << std::endl;
+	}
+}
+
+void SceneManager::Load()
+{
+}
+
+void SceneManager::Draw(const float& dt)
+{
+	if (_current_scene) {
+		_current_scene->Draw(dt);
+	}
+}
+
+void SceneManager::Unload()
+{
+}
+
+void Scene::Load()
+{
+}
+
+void Scene::Draw(const float& dt)
+{
+}
+
+void Scene::Unload()
 {
 }

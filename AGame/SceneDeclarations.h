@@ -32,7 +32,7 @@ struct TestScene : public Scene {
 	________________________________*/
 	void Update(const float& dt) override {
 		if (AEInputCheckCurr('L')) {
-			SceneManager::Instance().ChangeScene("Test Scene 2");
+			SceneManager::Instance().ChangeScene("ExampleScene");
 		}
 		if (AEInputCheckCurr('P')) {
 			Factory::Instance().FF_Sprite("test2", 1, 8, 8, 0.2f, 50.0f, 80.0f);
@@ -52,6 +52,9 @@ struct TestScene : public Scene {
 			e.Get<Com_Tilemap>()._scale_x = 50.0f;
 			e.Get<Com_Tilemap>()._scale_y = 50.0f;
 			e.Get<Com_Tilemap>()._initialized = true;
+		}
+		if (AEInputCheckTriggered('R')) {
+			SceneManager::Instance().RestartScene();
 		}
 	}
 	/*
@@ -75,4 +78,39 @@ struct TestScene2 : public Scene {
 		//std::cout << "hehe just keep printing" << std::endl;
 	}
 	// overriding initialize/update/exit is optional
+};
+
+struct ExampleScene : public Scene {
+	AEGfxTexture* scene_texture;	// scene persistent resource
+	int* scene_variable;			// scene temporary resource
+	void Load() override {
+		scene_texture = AEGfxTextureLoad("Somerandomtexture.png");
+		std::cout << "Example Scene Loaded." << std::endl;
+	}
+	void Initialize() override {
+		// initializing
+		scene_variable = new int{ 10 };
+		std::cout << "Example Scene Initialized" << std::endl;
+	}
+	void Update(const float& dt) override {
+		++(*scene_variable);
+		if (AEInputCheckTriggered('R')) {
+			SceneManager::Instance().RestartScene();
+		}
+		if (AEInputCheckTriggered('C')) {
+			SceneManager::Instance().ChangeScene("Test Scene");
+		}
+	}
+	void Draw(const float& dt) override {
+		// draw smoething
+	}
+	void Exit() override {
+		// free scene resources
+		delete scene_variable;
+		std::cout << "Example Scene Freed." << std::endl;
+	}
+	void Unload() override {
+		//if (scene_texture) { AEGfxTextureUnload(scene_texture); }
+		std::cout << "Example Scene Unloaded." << std::endl;
+	}
 };

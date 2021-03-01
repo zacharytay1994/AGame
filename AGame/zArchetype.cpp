@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stack>
 #include "zArchetype.h"
 #include "zChunk.h"
 
@@ -41,6 +42,7 @@ void ArchetypeDatabase::FlushEntities() {
 	for (auto archetype : _database) {
 		for (auto chunk : archetype.second->_chunk_database) {
 			chunk->_number_of_entities = 0;
+			chunk->_free_ids = std::stack<int>();
 		}
 	}
 	std::cout << "ARCHETYPE_DATABASE :: FLUSHED ENTITIES." << std::endl;
