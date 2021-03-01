@@ -34,12 +34,12 @@ struct Com_Example_Velocity {
 };
 
 struct Sys_Example_UpdatePosition : public System {
-	std::string s = "I am updating position of entity: ";
+	//std::string s = "I am updating position of entity: ";
 	void UpdateComponent() override {
 		get<Com_Position>().x += get<Com_Example_Velocity>().x * _dt;
 		get<Com_Position>().y += get<Com_Example_Velocity>().y * _dt;
 		Com_Position& test = get<Com_Position>();
-		std::cout << s << _current_id << " |" << get<Com_Position>().x << "," << get<Com_Position>().y << std::endl;
+		//std::cout << s << _current_id << " |" << get<Com_Position>().x << "," << get<Com_Position>().y << std::endl;
 		//RemoveEntity();
 	}
 };
