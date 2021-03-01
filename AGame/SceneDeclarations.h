@@ -83,7 +83,7 @@ _____________________________________________________________________*/
 struct TestScene3 : public Scene {
 	std::string test = "hi";
 	int e2 = -1;
-	int e3[];
+	int e3[5] = { -1,-1,-1,-1,-1 };
 	void Initialize() override {
 		srand(100);
 		e2 = Factory::Instance().FF_Sprite("test2", 1, 8, 8, 0.1f, 50.0f, 80.0f);
@@ -91,13 +91,17 @@ struct TestScene3 : public Scene {
 		{
 			float randomPosx = static_cast<float>(rand() % 100) + 100.0f;
 			float randomPosy = static_cast<float>(rand() % 100) + 20.0f;
-			e3[i] = Factory::Instance().FF_SpriteRandomPosition("test", 1, 8, 8, 0.2f, 50.0f, 50.0f, randomPosx, randomPosy);
+			e3[i] = Factory::Instance().FF_SpriteRandomPosition("test", 1, 1, 1, 1.0f, 50.0f, 50.0f, randomPosx, randomPosy);
 		}
+		int i = 0;
 		
 	}
 	void Update(const float& dt) override {
 		
-
+		/*Com_Sprite& s = Factory::Instance().GetEntity(e3[0]).Get<Com_Sprite>();
+		if (!s._texture) {
+			int i = 0;
+		}*/
 		if (AEInputCheckCurr('P')) {
 			Factory::Instance().FF_Sprite("test2", 1, 8, 8, 0.2f, 50.0f, 80.0f); // create sprite
 			//Factory::Instance().GetEntity(e2).Get<Com_Sprite>()._frame_interval -= dt;
@@ -121,8 +125,8 @@ struct TestScene3 : public Scene {
 		for (int j{ 0 }; j < 5; j++) 
 		{
 			Entity& enemy = Factory::Instance().GetEntity(e3[j]);
-			//enemy.Get<Com_Example_Velocity>().x += 1.0f; // replace with pathfinding
-			//enemy.Get<Com_Example_Velocity>().y += 1.0f;
+			enemy.Get<Com_Example_Velocity>().x += 0.0f; // replace with pathfinding
+			enemy.Get<Com_Example_Velocity>().y += 0.0f;
 
 			//warping so that enemy dont go out of bound
 			if(enemy.Get<Com_Position>().x > AEGfxGetWinMaxX() || 
@@ -132,8 +136,8 @@ struct TestScene3 : public Scene {
 				{
 					enemy.Get<Com_Position>().x = AEWrap((enemy.Get<Com_Position>()).x, AEGfxGetWinMinX(),	AEGfxGetWinMaxX());
 					enemy.Get<Com_Position>().y = AEWrap((enemy.Get<Com_Position>()).y, AEGfxGetWinMinY(),	AEGfxGetWinMaxY());
-					enemy.Get<Com_Example_Velocity>().x -= 1.0f;
-					enemy.Get<Com_Example_Velocity>().y -= 1.0f;
+					enemy.Get<Com_Example_Velocity>().x -= 0.0f;
+					enemy.Get<Com_Example_Velocity>().y -= 0.0f;
 				}
 		}
 

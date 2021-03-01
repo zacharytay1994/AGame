@@ -96,7 +96,7 @@ void ResourceManager::ReadTilemapTxt(const std::string& path, Com_Tilemap& tilem
 {
 	// open text file
 	std::ifstream file(asset_path + tilemap_path + path);
-	assert(file);
+	assert(file); 
 	std::string line;
 	// write width, height, size
 	getline(file, line);
