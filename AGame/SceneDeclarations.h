@@ -118,11 +118,15 @@ struct TestScene3 : public Scene {
 			e.Get<Com_Tilemap>()._initialized = true;
 		}
 
-		for (int j{ 0 }; j < 5; j++) 
+		for (int j{0}; j < 5; j++) 
 		{
 			Entity& enemy = Factory::Instance().GetEntity(e3[j]);
-			//enemy.Get<Com_Example_Velocity>().x += 1.0f; // replace with pathfinding
-			//enemy.Get<Com_Example_Velocity>().y += 1.0f;
+			enemy.Get<Com_Example_Velocity>().x += 1.0f; // replace with pathfinding ltr
+			enemy.Get<Com_Example_Velocity>().y += 1.0f;
+
+			if (enemy.Get<Com_Example_Velocity>().x ) 
+			{
+			}
 
 			//warping so that enemy dont go out of bound
 			if(enemy.Get<Com_Position>().x > AEGfxGetWinMaxX() || 
@@ -130,8 +134,8 @@ struct TestScene3 : public Scene {
 				enemy.Get<Com_Position>().y > AEGfxGetWinMaxY() || 
 				enemy.Get<Com_Position>().y < AEGfxGetWinMinY())
 				{
-					enemy.Get<Com_Position>().x = AEWrap((enemy.Get<Com_Position>()).x, AEGfxGetWinMinX(),	AEGfxGetWinMaxX());
-					enemy.Get<Com_Position>().y = AEWrap((enemy.Get<Com_Position>()).y, AEGfxGetWinMinY(),	AEGfxGetWinMaxY());
+					/*enemy.Get<Com_Position>().x = AEWrap((enemy.Get<Com_Position>()).x, AEGfxGetWinMinX(),	AEGfxGetWinMaxX());
+					enemy.Get<Com_Position>().y = AEWrap((enemy.Get<Com_Position>()).y, AEGfxGetWinMinY(),	AEGfxGetWinMaxY());*/
 					enemy.Get<Com_Example_Velocity>().x -= 1.0f;
 					enemy.Get<Com_Example_Velocity>().y -= 1.0f;
 				}

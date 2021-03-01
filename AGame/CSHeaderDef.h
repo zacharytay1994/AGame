@@ -40,7 +40,7 @@ struct Sys_Example_UpdatePosition : public System {
 		get<Com_Position>().y += get<Com_Example_Velocity>().y * _dt;
 		Com_Position& test = get<Com_Position>();
 		std::cout << s << _current_id << " |" << get<Com_Position>().x << "," << get<Com_Position>().y << std::endl;
-		RemoveEntity();
+		//RemoveEntity();
 	}
 };
 

@@ -76,7 +76,11 @@ int Factory::FF_SpriteRandomPosition(const std::string& texturename, const int& 
 
     ++_unique_ids;
     return (int)_unique_ids - 1;
+    
     /*int e = FF_Sprite(texturename, row, col, frames, interval, scalex, scaley);
-    GetEntity(e).AddComponent<Com_Example_Velocity>();*/
-    //return e;
+    GetEntity(e).AddComponent<Com_Example_Velocity>();
+    e.Get<Com_Position>().x = x;
+    e.Get<Com_Position>().y = y;
+    return e;
+    */
 }
