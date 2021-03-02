@@ -67,6 +67,9 @@ struct Com_Sprite {
 };
 
 struct Sys_DrawSprite : public System {
+	void OncePerFrame() override {
+		std::cout << "Updating all sprites" << std::endl;
+	}
 	void UpdateComponent() override {
 		//	// form the matrix
 		AEMtx33 trans, scale, rot;
@@ -138,8 +141,8 @@ struct Com_Tilemap {
 	float _y = 0.0f;
 	float _scale_x = 1.0f;
 	float _scale_y = 1.0f;
-	AEGfxTexture* _texture;
-	AEGfxVertexList* _mesh;
+	AEGfxTexture* _texture = nullptr;
+	AEGfxVertexList* _mesh = nullptr;
 	bool _initialized = false;
 };
 

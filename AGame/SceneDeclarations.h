@@ -49,8 +49,8 @@ struct TestScene : public Scene {
 			ResourceManager::Instance().ReadTilemapTxt("t_test.txt", e.Get<Com_Tilemap>());
 			ResourceManager::Instance().ReadFloorMapTxt("c_test.txt", e.Get<Com_Tilemap>());
 			Com_Tilemap& tilemap = e.Get<Com_Tilemap>();
-			e.Get<Com_Tilemap>()._scale_x = 50.0f;
-			e.Get<Com_Tilemap>()._scale_y = 50.0f;
+			e.Get<Com_Tilemap>()._scale_x = 100.0f;
+			e.Get<Com_Tilemap>()._scale_y = 100.0f;
 			e.Get<Com_Tilemap>()._initialized = true;
 		}
 		if (AEInputCheckTriggered('R')) {
