@@ -18,7 +18,8 @@ struct Com_Position {
 struct Sys_Example_PrintPosition : public System {
 	std::string s = "Check out this awesome position: ";
 	void UpdateComponent() override {
-		std::cout << s << c<Com_Position>().x << "|" << c<Com_Position>().y << std::endl;
+		std::cout << s << get<Com_Position>().x << "|" << get<Com_Position>().y << std::endl;
+		
 	}
 };
 
@@ -35,17 +36,17 @@ struct Com_Example_Velocity {
 struct Sys_Example_UpdatePosition : public System {
 	std::string s = "I am updating position of entity: ";
 	void UpdateComponent() override {
-		c<Com_Position>().x += c<Com_Example_Velocity>().x * _dt;
-		c<Com_Position>().y += c<Com_Example_Velocity>().y * _dt;
-		Com_Position& test = c<Com_Position>();
-		std::cout << s << _current_id << " |" << c<Com_Position>().x << "," << c<Com_Position>().y << std::endl;
+		get<Com_Position>().x += get<Com_Example_Velocity>().x * _dt;
+		get<Com_Position>().y += get<Com_Example_Velocity>().y * _dt;
+		Com_Position& test = get<Com_Position>();
+		std::cout << s << _current_id << " |" << get<Com_Position>().x << "," << get<Com_Position>().y << std::endl;
 		RemoveEntity();
 	}
 };
 
 /*______________________________________________________________________
-	Component	- Sprite
-	System		- Example_UpdatePosition <Position, Velocity>
+	Component	- Com_Sprite
+	System		- Sys_DrawSprite <Com_Position, Com_Sprite>
 					.. Adds velocity to the position.
 ________________________________________________________________________*/
 struct Com_Sprite {
@@ -54,6 +55,14 @@ struct Com_Sprite {
 	float				_x_scale	= 1.0f;
 	float				_y_scale	= 1.0f;
 	float				_rotation	= 0.0f;
+	int					_frames		= 1;
+	int					_current_frame = 0;
+	float				_frame_interval = 1;
+	float				_frame_interval_counter = 0.0f;
+	int					_row = 1;
+	int					_col = 1;
+	float				_offset_x = 0.0f;
+	float				_offset_y = 0.0f;
 	AEMtx33				_transform;
 };
 
@@ -61,17 +70,29 @@ struct Sys_DrawSprite : public System {
 	void UpdateComponent() override {
 		//	// form the matrix
 		AEMtx33 trans, scale, rot;
-		Com_Sprite& sprite = c<Com_Sprite>();
-		Com_Position& position = c<Com_Position>();
+		Draw(get<Com_Sprite>(), get<Com_Position>());
+	}
+	void Draw(Com_Sprite& sprite, Com_Position& position) {
+		AEMtx33 trans, scale, rot;
+		// increment frame
+		if (sprite._frame_interval_counter > sprite._frame_interval) {
+			sprite._current_frame = ++sprite._current_frame >= sprite._frames ? 0 : sprite._current_frame;
+			sprite._offset_x = (sprite._current_frame % sprite._col) * 1.0f/ (float)sprite._col;
+			sprite._offset_y = (sprite._current_frame / sprite._col) * 1.0f / (float)sprite._row;
+			sprite._frame_interval_counter = 0.0f;
+		}
+		else {
+			sprite._frame_interval_counter += _dt;
+		}
 		AEMtx33Scale(&scale, sprite._x_scale, sprite._y_scale);
 		AEMtx33Rot(&rot, sprite._rotation);
 		AEMtx33Trans(&trans, position.x, position.y);
-		AEMtx33Concat(&sprite._transform, &scale, &rot);
-		AEMtx33Concat(&sprite._transform, &sprite._transform, &trans);
+		AEMtx33Concat(&sprite._transform, &rot, &scale);
+		AEMtx33Concat(&sprite._transform, &trans, &sprite._transform);
 		// set aegfx variables
 		AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
 		AEGfxSetTransform(sprite._transform.m);
-		AEGfxTextureSet(sprite._texture, 0.0f, 0.0f);
+		AEGfxTextureSet(sprite._texture, sprite._offset_x, sprite._offset_y);
 		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
 		AEGfxMeshDraw(sprite._mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
 	}
@@ -89,16 +110,87 @@ struct Com_ArrowKeys {
 struct Sys_ArrowKeys : public System {
 	void UpdateComponent() override {
 		if (AEInputCheckCurr(VK_LEFT)) {
-			c<Com_Position>().x -= 10.0f * _dt;
+			get<Com_Position>().x -= 100.0f * _dt;
 		}
 		if (AEInputCheckCurr(VK_RIGHT)) {
-			c<Com_Position>().x += 10.0f * _dt;
+			get<Com_Position>().x += 100.0f * _dt;
 		}
 		if (AEInputCheckCurr(VK_UP)) {
-			c<Com_Position>().y += 10.0f * _dt;
+			get<Com_Position>().y += 100.0f * _dt;
 		}
 		if (AEInputCheckCurr(VK_DOWN)) {
-			c<Com_Position>().y -= 10.0f * _dt;
+			get<Com_Position>().y -= 100.0f * _dt;
 		}
 	}
+};
+
+/*______________________________________________________________________
+	Component	- Com_Tilemap
+	System		- Sys_Tilemap <Com_Tilemap>
+					.. Renders a tilemap
+________________________________________________________________________*/
+struct Com_Tilemap {
+	std::vector<int> _map;
+	std::vector<int> _floor_mask;
+	int _width = 0;
+	int _height = 0;
+	float _x = 0.0f;
+	float _y = 0.0f;
+	float _scale_x = 1.0f;
+	float _scale_y = 1.0f;
+	AEGfxTexture* _texture;
+	AEGfxVertexList* _mesh;
+	bool _initialized = false;
+};
+
+struct Sys_Tilemap : public System {
+	void UpdateComponent() override {
+		
+		if (get<Com_Tilemap>()._initialized) {
+			//// render tilemap
+			//if (AEInputCheckCurr(VK_RIGHT)) {
+			//	get<Com_Tilemap>()._x += _dt * 10.0f;
+			//}
+			//if (AEInputCheckCurr(VK_UP)) {
+			//	get<Com_Tilemap>()._y += _dt * 10.0f;
+			//}
+			DrawTilemap(get<Com_Tilemap>());
+		}
+	}
+	void DrawTilemap(const Com_Tilemap& tilemap) {
+		AEMtx33 trans, scale, transform;
+		AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
+		AEMtx33Scale(&scale, tilemap._scale_x, tilemap._scale_y);
+		for (size_t y = 0; y < (size_t)tilemap._height; ++y) {
+			for (size_t x = 0; x < (size_t)tilemap._width; ++x) {
+				if (tilemap._floor_mask[x * (size_t)tilemap._height + y] == -1) { continue; }
+				AEMtx33Trans(&trans, (float)x+tilemap._x, -(float)y+tilemap._y);
+				AEMtx33Concat(&transform, &scale, &trans);
+				AEGfxSetTransform(transform.m);
+				if (tilemap._floor_mask[x * (size_t)tilemap._height + y]) {
+					// sample texture according to collision mask
+					float offset_x = (tilemap._floor_mask[x * (size_t)tilemap._height + y] % 4) * 1.0f / (float)4;
+					float offset_y = (tilemap._floor_mask[x * (size_t)tilemap._height + y] / 4) * 1.0f / (float)4;
+					AEGfxTextureSet(tilemap._texture, offset_x, offset_y);
+					AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
+					AEGfxMeshDraw(tilemap._mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
+				}
+			}
+		}
+	}
+};
+
+/*______________________________________________________________________
+	Component	- Com_TilePosition
+	System		- Sys_TilePosition <Com_TilePosition, Com_Position>
+					.. Binds an entity position to the 
+________________________________________________________________________*/
+struct Com_TilePosition {
+	int _grid_x;
+	int _grid_y;
+	Com_Tilemap* tilemap;
+};
+
+struct Sys_TilePosition {
+
 };

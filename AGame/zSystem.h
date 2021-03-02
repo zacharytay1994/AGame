@@ -29,7 +29,7 @@ struct System {
 		}
 	}
 	template <typename T>
-	T& c() {
+	T& get() {
 		return _current_chunk->GetComponent<T>(_current_id);
 	}
 	void RemoveEntity();
@@ -54,4 +54,23 @@ public:
 		std::cout << "SYSTEM OVERRIDE |" << typeid(T).name() << "| REGISTERED." << std::endl;
 	}
 	void SystemDatabaseUpdate(const float& dt);
+	template <typename T>
+	std::vector<T*> GetAllComponents() {
+		std::vector<T*> out;
+		ArchetypeDatabase& adb = ArchetypeDatabase::Instance();
+		std::bitset<64> mask;
+		mask[component_description_v<T>._bit] = 1;
+		for (auto& archetype : adb._database) {
+			// and the mask to see which archetypes are of interest
+			if ((mask & archetype.second->_mask) == mask) {
+				// loop through
+				for (auto& chunk : archetype.second->_chunk_database) {
+					for (int i = 0; i < chunk->_number_of_entities; ++i) {
+						out.emplace_back(&chunk->GetComponent<T>(i));
+					}
+				}
+			}
+		}
+		return out;
+	}
 };

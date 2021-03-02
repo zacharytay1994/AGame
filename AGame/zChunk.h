@@ -18,4 +18,5 @@ struct Chunk {
 		T& test = *((T*)data);
 		return *((T*)data);
 	}
+	char* GetDataBegin(const int& id);
 };
