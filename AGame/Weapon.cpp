@@ -110,5 +110,10 @@ void Weapon::SetWeapon_Pattern(std::vector<BulletSpawn> const& rhs)
 
 Pistol::Pistol() : Weapon(1)
 {
-
+	SetWeapon_Damage(1);
+	SetWeapon_ReloadTime(2);
+	SetWeapon_Capacity(6);
+	std::vector<BulletSpawn> temp_Pattern;
+	temp_Pattern.push_back({ 1, 0 });
+	SetWeapon_Pattern(temp_Pattern);
 }
