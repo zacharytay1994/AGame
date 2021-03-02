@@ -16,15 +16,18 @@ struct TestScene : public Scene {
 	Member Variables
 	________________________________*/
 	std::string test = "hello";
-	int e2 = -1;
+	eid e2 = -1;
 	//Com_Tilemap tile;
-	int tilemap = -1;
+	eid tilemap = -1;
 	/*
 	Initialize Override (optional)
 	________________________________*/
 	void Initialize() override {
 		std::cout << test << " this is a test scene" << std::endl;
-		e2 = Factory::Instance().FF_Sprite("test2", 1, 8, 8, 0.1f, 50.0f, 80.0f);
+		tilemap = Factory::Instance().FF_Tilemap("tilemap", "c_test.txt", "t_test.txt");
+		Com_Tilemap& test = Factory::Instance()[tilemap].Get<Com_Tilemap>();
+		e2 = Factory::Instance().FF_SpriteTile({ "test2", 1, 8, 8, 0.1f, 100.0f, 200.0f }, tilemap, 0, 0);
+		Com_Sprite& test2 = Factory::Instance()[e2].Get<Com_Sprite>();
 		//tilemap = Factory::Instance().FF_Tilemap("tilemap", "c_test.txt", "t_test.txt");
 	}
 	/*
@@ -35,7 +38,7 @@ struct TestScene : public Scene {
 			SceneManager::Instance().ChangeScene("ExampleScene");
 		}
 		if (AEInputCheckCurr('P')) {
-			Factory::Instance().FF_Sprite("test2", 1, 8, 8, 0.2f, 50.0f, 80.0f);
+			Factory::Instance().FF_Sprite({ "test2", 1, 8, 8, 0.2f, 50.0f, 80.0f }, 0.0f, 0.0f);
 			Factory::Instance().GetEntity(e2).Get<Com_Sprite>()._frame_interval -= dt;
 			//Com_Sprite& s = e2->Get<Com_Sprite>();
 		}

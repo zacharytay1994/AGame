@@ -33,12 +33,12 @@ void ResourceManager::LoadTexture(const std::string& name, const std::string& pa
 
 void ResourceManager::FreeResources()
 {
-	for (auto m : _meshes) {
+	/*for (auto m : _meshes) {
 		AEGfxMeshFree(m.second);
 	}
 	for (auto t : _textures) {
 		AEGfxTextureUnload(t.second);
-	}
+	}*/
 }
 
 AEGfxVertexList* ResourceManager::CreateMesh(const int& row, const int& col)
@@ -194,8 +194,9 @@ void ResourceManager::ReadFloorMapTxt(const std::string& path, Com_Tilemap& tile
 			if (s < tilemap._height && temp[x * (size_t)tilemap._height + s]) { i |= 8; }
 			if (w >= 0 && temp[w * (size_t)tilemap._height + y]) { i |= 2; }
 			if (e < tilemap._width && temp[e * (size_t)tilemap._height + y]) { i |= 4; }
-			tilemap._floor_mask[x * (size_t)tilemap._height + y] = i;
+			tilemap._floor_mask[x * (size_t)tilemap._height + y] = (int)i;
 		}
+		int i = 0;
 	}
 	file.close();
 }

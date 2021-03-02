@@ -63,16 +63,14 @@ struct Com_Sprite {
 	int					_col = 1;
 	float				_offset_x = 0.0f;
 	float				_offset_y = 0.0f;
-	AEMtx33				_transform;
+	AEMtx33				_transform { 0 };
 };
 
 struct Sys_DrawSprite : public System {
-	void OncePerFrame() override {
-		std::cout << "Updating all sprites" << std::endl;
-	}
+	std::vector<Com_Sprite*> con;
 	void UpdateComponent() override {
 		//	// form the matrix
-		AEMtx33 trans, scale, rot;
+		AEMtx33 trans{ 0 }, scale{ 0 }, rot{ 0 };
 		Draw(get<Com_Sprite>(), get<Com_Position>());
 	}
 	void Draw(Com_Sprite& sprite, Com_Position& position) {
@@ -148,7 +146,6 @@ struct Com_Tilemap {
 
 struct Sys_Tilemap : public System {
 	void UpdateComponent() override {
-		
 		if (get<Com_Tilemap>()._initialized) {
 			//// render tilemap
 			//if (AEInputCheckCurr(VK_RIGHT)) {
@@ -188,12 +185,32 @@ struct Sys_Tilemap : public System {
 	System		- Sys_TilePosition <Com_TilePosition, Com_Position>
 					.. Binds an entity position to the 
 ________________________________________________________________________*/
-struct Com_TilePosition {
-	int _grid_x;
-	int _grid_y;
-	Com_Tilemap* tilemap;
+struct Com_TilemapRef {
+	Com_Tilemap* _tilemap = nullptr;
 };
 
-struct Sys_TilePosition {
+struct Com_TilePosition {
+	int _grid_x = 0;
+	int _grid_y = 0;
+	int _vgrid_x = 0;	// verified grid positions - do not set
+	int _vgrid_y = 0;	// verified grid positions - do not set
+};
 
+struct Sys_TilePosition : public System {
+	void UpdateComponent() override {
+		//Com_TilemapRef& tilemapref = get<Com_TilemapRef>();
+		//Com_Tilemap* tilemap = get<Com_TilemapRef>()._tilemap;
+		//Com_Position& position = get<Com_Position>();
+		//Com_TilePosition& t_position = get<Com_TilePosition>();
+		//if (tilemap) {
+		//	// check if new tile position is within grid - would be checked with collision_mask after
+		//	if (!tilemap->_floor_mask[(size_t)t_position._grid_x * (size_t)tilemap->_height + (size_t)t_position._grid_y]) {
+		//		t_position._vgrid_x = t_position._grid_x;
+		//		t_position._vgrid_y = t_position._grid_y;
+		//	}
+		//	// bind position to grid position
+		//	position.x = tilemap->_x + (float)t_position._vgrid_x * tilemap->_scale_x;
+		//	position.y = tilemap->_y + (float)t_position._vgrid_y * tilemap->_scale_y;
+		//}
+	}
 };
