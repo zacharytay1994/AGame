@@ -496,7 +496,8 @@ struct Sys_WeaponAttack : public System {
 		if (AEInputCheckCurr(VK_SPACE)) {
 			//if character holding to sword 
 			if (get<Com_WeaponAttack>().currentweapon == Com_WeaponAttack::sword) {
-				//attack the grid infront 
+				//attack the grid infront or shoort invisible bullet 
+				sword_attack(get<Com_Direction>(),get<Com_TilePosition>());
 
 			}
 			//if character holding to pistol 
@@ -507,7 +508,21 @@ struct Sys_WeaponAttack : public System {
 		}
 	}
 
-	void sword_attack() {
+	void sword_attack(Com_Direction& direction, Com_TilePosition& Tilepos) {
+		if (direction.currdir == direction.up) {
+			
+		}
+		if (direction.currdir == direction.down) {
 
+		}
+		if (direction.currdir == direction.left) {
+
+		}
+		if (direction.currdir == direction.right) {
+			
+		}
 	}
 };
+
+
+
