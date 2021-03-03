@@ -10,7 +10,7 @@
 * Used:		Entity instances are not meant to be defined as is. Look at Factory.h
 *			Factory::CreateEntity(), Factory::FF_CreateBasicSprite() as examples
 *			of how to instantiate an entity.
-* 
+*
 * Relation:	Factory
 *			- std::vector<Entity> _entities;
 ____________________________________________________________________________________*/
@@ -21,7 +21,7 @@ struct Entity {
 	/*______________________________________________________
 	* Brief:	Initializes the entity and creates/fetches a unique
 	*			Archetype generated with its component combination.
-	*			A chunk of that archetype will be returned 
+	*			A chunk of that archetype will be returned
 	*
 	* Access:	public (called by factory, might make private and
 	*			friend in future)
@@ -40,7 +40,7 @@ struct Entity {
 	* Brief:	Gets a component that an entity has. There
 	*			is no underlying check, up to user to validate.
 	*			Will UDB if getting non-existing component.
-	* 
+	*
 	* Access:	public
 	*
 	* Use e.g:	Entity& e1 = Factory::CreateEntity<Com_Position>();

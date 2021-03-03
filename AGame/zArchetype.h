@@ -18,7 +18,7 @@ struct Archetype {
 		_descriptions.push_back(&component_description_v<T_COMPONENT>);
 		_type_offset[typeid(T_COMPONENT).name()] = _chunk_stride;
 		_chunk_stride += sizeof(T_COMPONENT);
- 	}
+	}
 	int Add(std::shared_ptr<Chunk>& chunk);
 };
 

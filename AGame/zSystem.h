@@ -1,6 +1,7 @@
 #pragma once
 #include <bitset>
 #include <memory>
+#include <vector>
 #include <iostream>
 
 #include "zComponent.h"
@@ -14,7 +15,7 @@ struct System {
 	std::bitset<64>			_mask;
 	fp_update				_update = nullptr;
 
-	Chunk*					_current_chunk = nullptr;
+	Chunk* _current_chunk = nullptr;
 	int						_current_id = -1;
 	float					_dt = -1.0f;
 	template <typename...T>
@@ -33,7 +34,6 @@ struct System {
 		return _current_chunk->GetComponent<T>(_current_id);
 	}
 	void RemoveEntity();
-	//void PathFinding();
 };
 
 class SystemDatabase {

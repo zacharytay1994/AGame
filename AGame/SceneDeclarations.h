@@ -102,76 +102,78 @@ struct TestScene2 : public Scene {
 /*___________________________________________________________________
 	TEST SCENE 3 - Created By : Aus
 _____________________________________________________________________*/
-struct TestScene3 : public Scene {
-	std::string test = "hi";
-	int e2 = -1;
-	int e3[5] = { -1,-1,-1,-1,-1 };
-	float velXEnemy = 50.0f;
-	float velYEnemy = 50.0f;
-	void Initialize() override {
-		srand(100);
-		e2 = Factory::Instance().FF_Sprite("test2", 1, 8, 8, 0.1f, 50.0f, 80.0f);
-		for (int i{ 0 }; i < 1; ++i)
-		{
-			float randomPosx = static_cast<float>(rand() % 100) + 100.0f;
-			float randomPosy = static_cast<float>(rand() % 100) + 20.0f;
-			e3[i] = Factory::Instance().FF_SpriteRandomPosition("test3", 1, 8, 8, 0.2f, 50.0f, 50.0f, randomPosx, randomPosy, velXEnemy, velYEnemy);
-			
-		}
-		int i = 0;
-		
-	}
-	void Update(const float& dt) override {
-		
-		/*Com_Sprite& s = Factory::Instance().GetEntity(e3[0]).Get<Com_Sprite>();
-		if (!s._texture) {
-			int i = 0;
-		}*/
-		if (AEInputCheckCurr('P')) {
-			Factory::Instance().FF_Sprite("test2", 1, 8, 8, 0.2f, 50.0f, 80.0f); // create sprite
-			//Factory::Instance().GetEntity(e2).Get<Com_Sprite>()._frame_interval -= dt;
-			//Com_Sprite& s = e2->Get<Com_Sprite>();
-		}	
-		if (AEInputCheckCurr('O')) {
-			Factory::Instance().GetEntity(e2).AddComponent<Com_ArrowKeys>();
-		}
-		if (AEInputCheckCurr('I')) {
-			Entity& e = Factory::Instance().GetEntity(e2);
-			e.AddComponent<Com_Tilemap>();
-			ResourceManager::Instance().GetResource(e.Get<Com_Tilemap>()._texture, e.Get<Com_Tilemap>()._mesh, "tilemap", 4, 4, 16);
-			ResourceManager::Instance().ReadTilemapTxt("t_test.txt", e.Get<Com_Tilemap>());
-			ResourceManager::Instance().ReadFloorMapTxt("c_test.txt", e.Get<Com_Tilemap>());
-			Com_Tilemap& tilemap = e.Get<Com_Tilemap>();
-			e.Get<Com_Tilemap>()._scale_x = 50.0f;
-			e.Get<Com_Tilemap>()._scale_y = 50.0f;
-			e.Get<Com_Tilemap>()._initialized = true;
-		}
-
-		for (int j{0}; j < 1; j++) 
-		{
-			Entity& enemy = Factory::Instance().GetEntity(e3[j]);
-			
-
-			//warping so that enemy dont go out of bound
-			if (enemy.Get<Com_Position>().x > AEGfxGetWinMaxX())
-			{
-				enemy.Get<Com_Example_Velocity>().x = -velXEnemy;
-			}
-			else if (enemy.Get<Com_Position>().x < AEGfxGetWinMinX())
-			{
-				enemy.Get<Com_Example_Velocity>().x = velXEnemy;
-			}
-			else if (enemy.Get<Com_Position>().y > AEGfxGetWinMaxY())
-			{
-				enemy.Get<Com_Example_Velocity>().y = -velYEnemy;
-			}
-			else if (enemy.Get<Com_Position>().y < AEGfxGetWinMinY())
-			{
-				enemy.Get<Com_Example_Velocity>().y = velYEnemy;
-			}
-		}
-
-	}
+//struct TestScene3 : public Scene
+//{
+//	std::string test = "hi";
+//	int e2 = -1;
+//	int e3[5] = { -1,-1,-1,-1,-1 };
+//	float velXEnemy = 50.0f;
+//	float velYEnemy = 50.0f;
+//	void Initialize() override {
+//		srand(100);
+//		e2 = Factory::Instance().FF_Sprite("test2", 1, 8, 8, 0.1f, 50.0f, 80.0f);
+//		for (int i{ 0 }; i < 1; ++i)
+//		{
+//			float randomPosx = static_cast<float>(rand() % 100) + 100.0f;
+//			float randomPosy = static_cast<float>(rand() % 100) + 20.0f;
+//			e3[i] = Factory::Instance().FF_Sprite("test3", 1, 8, 8, 0.2f, 50.0f, 50.0f, randomPosx, randomPosy, velXEnemy, velYEnemy);
+//
+//		}
+//		int i = 0;
+//
+//	}
+//	void Update(const float& dt) override {
+//
+//		/*Com_Sprite& s = Factory::Instance().GetEntity(e3[0]).Get<Com_Sprite>();
+//		if (!s._texture) {
+//			int i = 0;
+//		}*/
+//		if (AEInputCheckCurr('P')) {
+//			Factory::Instance().FF_Sprite("test2", 1, 8, 8, 0.2f, 50.0f, 80.0f); // create sprite
+//			//Factory::Instance().GetEntity(e2).Get<Com_Sprite>()._frame_interval -= dt;
+//			//Com_Sprite& s = e2->Get<Com_Sprite>();
+//		}
+//		if (AEInputCheckCurr('O')) {
+//			Factory::Instance().GetEntity(e2).AddComponent<Com_ArrowKeys>();
+//		}
+//		if (AEInputCheckCurr('I')) {
+//			Entity& e = Factory::Instance().GetEntity(e2);
+//			e.AddComponent<Com_Tilemap>();
+//			ResourceManager::Instance().GetResource(e.Get<Com_Tilemap>()._texture, e.Get<Com_Tilemap>()._mesh, "tilemap", 4, 4, 16);
+//			ResourceManager::Instance().ReadTilemapTxt("t_test.txt", e.Get<Com_Tilemap>());
+//			ResourceManager::Instance().ReadFloorMapTxt("c_test.txt", e.Get<Com_Tilemap>());
+//			Com_Tilemap& tilemap = e.Get<Com_Tilemap>();
+//			e.Get<Com_Tilemap>()._scale_x = 50.0f;
+//			e.Get<Com_Tilemap>()._scale_y = 50.0f;
+//			e.Get<Com_Tilemap>()._initialized = true;
+//		}
+//
+//		for (int j{ 0 }; j < 1; j++)
+//		{
+//			Entity& enemy = Factory::Instance().GetEntity(e3[j]);
+//
+//
+//			//warping so that enemy dont go out of bound
+//			if (enemy.Get<Com_Position>().x > AEGfxGetWinMaxX())
+//			{
+//				enemy.Get<Com_Velocity>().x = -velXEnemy;
+//			}
+//			else if (enemy.Get<Com_Position>().x < AEGfxGetWinMinX())
+//			{
+//				enemy.Get<Com_Velocity>().x = velXEnemy;
+//			}
+//			else if (enemy.Get<Com_Position>().y > AEGfxGetWinMaxY())
+//			{
+//				enemy.Get<Com_Velocity>().y = -velYEnemy;
+//			}
+//			else if (enemy.Get<Com_Position>().y < AEGfxGetWinMinY())
+//			{
+//				enemy.Get<Com_Velocity>().y = velYEnemy;
+//			}
+//		}
+//
+//	}
+//};
 	// overriding initialize/update/exit is optional
 struct ExampleScene : public Scene {
 	AEGfxTexture* scene_texture;	// scene persistent resource
