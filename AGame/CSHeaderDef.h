@@ -1,61 +1,52 @@
 #pragma once
 #include <iostream>
 #include <string>
+#include "AEEngine.h"
 
 #include "zComponent.h"
 #include "zSystem.h"
 
-/*______________________________________________________________________
-	Component	- Example_Position			
-	System		- Example_PrintPositionSys	<Position>
-					.. Prints out position to the console.
-________________________________________________________________________*/
+/*___________________________________________________________________________________________________________________________________
+	COMPONENT DECLARATIONS & DEFINITONS																	<<	COMPONENT DEFINITIONS  >>
+	_________________________________________________________________________________________________________________________________*/
+// basic data
+struct Com_Position;
+struct Com_Velocity;
+struct Com_Sprite;
+struct Com_Direction;
+// input
+struct Com_ArrowKeys;
+struct Com_ArrowKeysTilemap;
+// tilemap
+struct Com_Tilemap;
+struct Com_TilemapRef;
+struct Com_TilePosition;
+// collision
+struct Com_BoundingBox;
+struct Com_CollisionData;
+// attack
+struct Com_WeaponAttack;
+/*__________________________________________________________________________________________________
+																				Component::BASIC DATA
+____________________________________________________________________________________________________*/
+
 struct Com_Position {
 	float x{ 0.0f };
 	float y{ 0.0f };
 };
 
-struct Sys_Example_PrintPosition : public System {
-	std::string s = "Check out this awesome position: ";
-	void UpdateComponent() override {
-		std::cout << s << get<Com_Position>().x << "|" << get<Com_Position>().y << std::endl;
-		
-	}
-};
-
-/*______________________________________________________________________
-	Component	- Example_Velocity
-	System		- Example_UpdatePosition <Position, ArrowKeys>
-					.. Changes position based on arrow key input.
-________________________________________________________________________*/
 struct Com_Velocity {
 	float x{ 0.0f };
 	float y{ 0.0f };
 };
 
-struct Sys_Example_UpdatePosition : public System {
-	std::string s = "I am updating position of entity: ";
-	void UpdateComponent() override {
-		get<Com_Position>().x += get<Com_Velocity>().x * _dt;
-		get<Com_Position>().y += get<Com_Velocity>().y * _dt;
-		Com_Position& test = get<Com_Position>();
-		std::cout << s << _current_id << " |" << get<Com_Position>().x << "," << get<Com_Position>().y << std::endl;
-		//RemoveEntity();
-	}
-};
-
-/*______________________________________________________________________
-	Component	- Com_Sprite
-	System		- Sys_DrawSprite <Com_Position, Com_Sprite>
-					.. Adds velocity to the position.
-________________________________________________________________________*/
 struct Com_Sprite {
-	AEGfxTexture*		_texture	= nullptr;
-	AEGfxVertexList*	_mesh		= nullptr;
-	float				_x_scale	= 1.0f;
-	float				_y_scale	= 1.0f;
-	float				_rotation	= 0.0f;
-	int					_frames		= 1;
+	AEGfxTexture* _texture = nullptr;
+	AEGfxVertexList* _mesh = nullptr;
+	float				_x_scale = 1.0f;
+	float				_y_scale = 1.0f;
+	float				_rotation = 0.0f;
+	int					_frames = 1;
 	int					_current_frame = 0;
 	float				_frame_interval = 1;
 	float				_frame_interval_counter = 0.0f;
@@ -63,8 +54,126 @@ struct Com_Sprite {
 	int					_col = 1;
 	float				_offset_x = 0.0f;
 	float				_offset_y = 0.0f;
-	AEMtx33				_transform { 0 };
+	AEMtx33				_transform{ 0 };
 };
+
+struct Com_Direction {
+	enum Direction { up, down, left, right };
+	int currdir;
+};
+
+/*																				Component::INPUT
+____________________________________________________________________________________________________*/
+
+struct Com_ArrowKeys {
+	char _filler = 0; // filler 
+};
+
+struct Com_ArrowKeysTilemap {
+	char _filler = 0;
+};
+/*																				Component::TILEMAP
+____________________________________________________________________________________________________*/
+
+struct Com_Tilemap {
+	std::vector<int> _map;
+	std::vector<int> _floor_mask;
+	float _offset_x = 0.0f;
+	float _offset_y = 0.0f;
+	int _width = 0;
+	int _height = 0;
+	float _scale_x = 1.0f;
+	float _scale_y = 1.0f;
+	AEGfxTexture* _texture = nullptr;
+	AEGfxVertexList* _mesh = nullptr;
+	bool _initialized = false;
+};
+
+struct Com_TilemapRef {
+	Com_Tilemap* _tilemap = nullptr;
+};
+
+struct Com_TilePosition {
+	int _grid_x = 0;
+	int _grid_y = 0;
+	int _vgrid_x = 0;	// verified grid positions - do not set
+	int _vgrid_y = 0;	// verified grid positions - do not set
+};
+
+/*																				Component::COLLISION
+____________________________________________________________________________________________________*/
+struct Com_BoundingBox
+{
+	Com_Position min;
+	Com_Position max;
+	float scale;
+};
+
+struct CollisionData {
+	Com_BoundingBox* aabb;
+	Com_Velocity* vel;
+};
+
+/*																				Component::ATTACK
+____________________________________________________________________________________________________*/
+struct Com_WeaponAttack
+{
+	enum Weapons {
+		sword,
+		pistol
+	};
+	int currentweapon{ 0 };
+};
+
+/*___________________________________________________________________________________________________________________________________
+	SYSTEM DECLARATIONS				<< RIGHT CLICK ON DECLARATION TO NAVIGATE TO DEFINITION!! >>			<<	SYSTEM DECLARATIONS  >>
+	_________________________________________________________________________________________________________________________________
+	>> basic systems
+		- Sys_DrawSprite
+		- Sys_Boundary
+	>> input
+		- Sys_ArrowKeys
+		- Sys_ArrowKeysTilemap
+	>> tilemap
+		- Sys_Tilemap
+		- Sys_TilemapPosition
+		- Sys_TilePosition
+	>> collision
+		- Sys_BoundingBox
+		- Sys_AABB
+	>> attack
+		- Sys_Projectile
+________________________________________________________________________*/
+/*																				system::BASIC SYSTEMS
+____________________________________________________________________________________________________*/
+struct Sys_DrawSprite;
+struct Sys_Boundary;
+
+/*																				system::INPUT
+____________________________________________________________________________________________________*/
+struct Sys_ArrowKeys;
+struct Sys_ArrowKeysTilemap;
+
+/*																				system::TILEMAP
+____________________________________________________________________________________________________*/
+struct Sys_Tilemap;
+struct Sys_TilemapPosition;
+struct Sys_TilePosition;
+
+/*																				system::COLLISION
+____________________________________________________________________________________________________*/
+struct Sys_BoundingBox;
+struct Sys_AABB;
+
+/*																				system::ATTACK
+____________________________________________________________________________________________________*/
+struct Sys_WeaponAttack;
+
+/*___________________________________________________________________________________________________________________________________
+	SYSTEM DEFINITIONS																						<<	SYSTEM DEFINITIONS  >>
+_____________________________________________________________________________________________________________________________________*/
+/*																				system::BASIC SYSTEMS
+____________________________________________________________________________________________________*/
 
 struct Sys_DrawSprite : public System {
 	std::vector<Com_Sprite*> con;
@@ -78,7 +187,7 @@ struct Sys_DrawSprite : public System {
 		// increment frame
 		if (sprite._frame_interval_counter > sprite._frame_interval) {
 			sprite._current_frame = ++sprite._current_frame >= sprite._frames ? 0 : sprite._current_frame;
-			sprite._offset_x = (sprite._current_frame % sprite._col) * 1.0f/ (float)sprite._col;
+			sprite._offset_x = (sprite._current_frame % sprite._col) * 1.0f / (float)sprite._col;
 			sprite._offset_y = (sprite._current_frame / sprite._col) * 1.0f / (float)sprite._row;
 			sprite._frame_interval_counter = 0.0f;
 		}
@@ -99,57 +208,79 @@ struct Sys_DrawSprite : public System {
 	}
 };
 
-/*______________________________________________________________________
-	Component	- ArrowKeys
-	System		- Example_UpdatePosition <Position, Velocity>
-					.. Adds velocity to the position.
-________________________________________________________________________*/
-struct Com_ArrowKeys {
-	char _filler = 0; // filler 
-};
-
-struct Sys_ArrowKeys : public System {
+struct Sys_Boundary : public System {
 	void UpdateComponent() override {
-		if (AEInputCheckCurr(VK_LEFT)) {
-			get<Com_Position>().x -= 100.0f * _dt;
+		//check the boundary
+		checkboundary(get<Com_Position>());
+	}
+	void checkboundary(Com_Position position) {
+		//if outside the view port 
+		if (position.x > AEGfxGetWinMaxX()) {
+			//destroy the entity
+			RemoveEntity();
 		}
-		if (AEInputCheckCurr(VK_RIGHT)) {
-			get<Com_Position>().x += 100.0f * _dt;
+		if (position.x < AEGfxGetWinMinX()) {
+			//destroy the entity
+			RemoveEntity();
 		}
-		if (AEInputCheckCurr(VK_UP)) {
-			get<Com_Position>().y += 100.0f * _dt;
+		if (position.y > AEGfxGetWinMaxY()) {
+			//destroy the entity
+			RemoveEntity();
 		}
-		if (AEInputCheckCurr(VK_DOWN)) {
-			get<Com_Position>().y -= 100.0f * _dt;
+		if (position.y < AEGfxGetWinMinY()) {
+			//destroy the entity
+			RemoveEntity();
 		}
 	}
 };
 
-/*______________________________________________________________________
-	Component	- Com_Tilemap
-	System		- Sys_Tilemap <Com_Tilemap>
-					.. Renders a tilemap
-________________________________________________________________________*/
-struct Com_Tilemap {
-	std::vector<int> _map;
-	std::vector<int> _floor_mask;
-	float _offset_x = 0.0f;
-	float _offset_y = 0.0f;
-	int _width = 0;
-	int _height = 0;
-	float _scale_x = 1.0f;
-	float _scale_y = 1.0f;
-	AEGfxTexture* _texture = nullptr;
-	AEGfxVertexList* _mesh = nullptr;
-	bool _initialized = false;
+/*																				system::INPUT
+____________________________________________________________________________________________________*/
+
+struct Sys_ArrowKeys : public System {
+	void UpdateComponent() override {
+		if (AEInputCheckCurr(VK_LEFT)) {
+			get<Com_Position>().x -= 1.0f * _dt;
+		}
+		if (AEInputCheckCurr(VK_RIGHT)) {
+			get<Com_Position>().x += 1.0f * _dt;
+		}
+		if (AEInputCheckCurr(VK_UP)) {
+			get<Com_Position>().y += 1.0f * _dt;
+		}
+		if (AEInputCheckCurr(VK_DOWN)) {
+			get<Com_Position>().y -= 1.0f * _dt;
+		}
+	}
 };
+
+struct Sys_ArrowKeysTilemap : public System {
+	void UpdateComponent() override {
+		Com_TilePosition& pos = get<Com_TilePosition>();
+		if (AEInputCheckTriggered(VK_LEFT)) {
+			pos._grid_x -= 1;
+		}
+		if (AEInputCheckTriggered(VK_RIGHT)) {
+			pos._grid_x += 1;
+		}
+		if (AEInputCheckTriggered(VK_UP)) {
+			pos._grid_y -= 1;
+		}
+		if (AEInputCheckTriggered(VK_DOWN)) {
+			pos._grid_y += 1;
+		}
+	}
+};
+
+/*																				system::TILEMAP
+____________________________________________________________________________________________________*/
 
 struct Sys_Tilemap : public System {
 	void UpdateComponent() override {
 		Com_Tilemap& tilemap = get<Com_Tilemap>();
 		if (tilemap._initialized) {
 			Com_Position& position = get<Com_Position>();
-			DrawTilemap(tilemap,position);
+			DrawTilemap(tilemap, position);
 		}
 	}
 	void DrawTilemap(const Com_Tilemap& tilemap, const Com_Position& position) {
@@ -159,7 +290,7 @@ struct Sys_Tilemap : public System {
 		for (size_t y = 0; y < (size_t)tilemap._height; ++y) {
 			for (size_t x = 0; x < (size_t)tilemap._width; ++x) {
 				if (tilemap._floor_mask[x * (size_t)tilemap._height + y] == -1) { continue; }
-				AEMtx33Trans(&trans, (float)x+tilemap._offset_x, -(float)y+tilemap._offset_y);
+				AEMtx33Trans(&trans, (float)x + tilemap._offset_x, -(float)y + tilemap._offset_y);
 				AEMtx33Concat(&transform, &scale, &trans);
 				AEGfxSetTransform(transform.m);
 				if (tilemap._floor_mask[x * (size_t)tilemap._height + y]) {
@@ -177,27 +308,11 @@ struct Sys_Tilemap : public System {
 
 struct Sys_TilemapPosition : public System {
 	void UpdateComponent() override {
-		Com_Tilemap& tilemap = get<Com_Tilemap>(); 
+		Com_Tilemap& tilemap = get<Com_Tilemap>();
 		Com_Position& position = get<Com_Position>();
 		tilemap._offset_x = position.x;
 		tilemap._offset_y = position.y;
 	}
-};
-
-/*______________________________________________________________________
-	Component	- Com_TilePosition
-	System		- Sys_TilePosition <Com_TilePosition, Com_Position>
-					.. Binds an entity position to the 
-________________________________________________________________________*/
-struct Com_TilemapRef {
-	Com_Tilemap* _tilemap = nullptr;
-};
-
-struct Com_TilePosition {
-	int _grid_x = 0;
-	int _grid_y = 0;
-	int _vgrid_x = 0;	// verified grid positions - do not set
-	int _vgrid_y = 0;	// verified grid positions - do not set
 };
 
 struct Sys_TilePosition : public System {
@@ -223,48 +338,8 @@ struct Sys_TilePosition : public System {
 		}
 	}
 };
-
-struct Com_ArrowKeysTilemap {
-	char _filler = 0;
-};
-
-struct Sys_ArrowKeysTilemap : public System {
-	void UpdateComponent() override {
-		Com_TilePosition& pos = get<Com_TilePosition>();
-		if (AEInputCheckTriggered(VK_LEFT)) {
-			pos._grid_x -= 1;
-		}
-		if (AEInputCheckTriggered(VK_RIGHT)) {
-			pos._grid_x += 1;
-		}
-		if (AEInputCheckTriggered(VK_UP)) {
-			pos._grid_y -= 1;
-		}
-		if (AEInputCheckTriggered(VK_DOWN)) {
-			pos._grid_y += 1;
-		}
-	}
-};
-
-/*___________________________________________________________________________________________________________________________
-	Component - Com_Direction
-______________________________________________________________________________________________________________________*/
-struct Com_Direction {
-	enum Direction { up, down, left, right };
-	int currdir;
-};
-
-/*___________________________________________________________________________________________________________________________
-	Component - Com_BoundingBox
-	System - Sys_Boundingbox <Com_BoundingBox,Com_Position>
-	Calculates the bounding box of entity
-______________________________________________________________________________________________________________________*/
-struct Com_BoundingBox
-{
-	Com_Position min;
-	Com_Position max;
-	float scale;
-};
+/*																				system::COLLISION
+____________________________________________________________________________________________________*/
 
 struct Sys_Boundingbox : public System {
 	void UpdateComponent() override {
@@ -291,17 +366,6 @@ struct Sys_Boundingbox : public System {
 		boundingbox.min.y = -0.5f * boundingbox.scale + position.y;
 		boundingbox.max.y = 0.5f * boundingbox.scale + position.y;
 	}
-
-};
-
-
-/*___________________________________________________________________________________________________________________________
-	System - Sys_AABB <Com_BoundingBox,Com_Position,Com_velocity>
-	AABB Collision detection
-______________________________________________________________________________________________________________________*/
-struct CollisionData {
-	Com_BoundingBox* aabb;
-	Com_Velocity* vel;
 };
 
 struct Sys_AABB : public System {
@@ -393,14 +457,12 @@ struct Sys_AABB : public System {
 	}
 };
 
-/*___________________________________________________________________________________________________________________________
-	Components - Com_Projectile , Com_GameObj
-	System - Sys_Projectile<Com_Position,
-______________________________________________________________________________________________________________________*/
+/*																				system::ATTACK
+____________________________________________________________________________________________________*/
 
 struct Sys_Projectile : public System {
 	void UpdateComponent() override {
-		Com_Direction& direction= get<Com_Direction>();
+		Com_Direction& direction = get<Com_Direction>();
 		//if space triggered 
 		if (AEInputCheckCurr(VK_SPACE)) {
 			if (direction.currdir == direction.right) {
@@ -419,7 +481,7 @@ struct Sys_Projectile : public System {
 				//create an entity of bullet 
 				CreateProjectile(get<Com_Position>(), get<Com_Velocity>(), get<Com_Direction>());
 			}
-	
+
 		}
 	}
 	void CreateProjectile(Com_Position& position, Com_Velocity& velocity, Com_Direction& direction) {
@@ -429,56 +491,13 @@ struct Sys_Projectile : public System {
 	}
 };
 
-/*___________________________________________________________________________________________________________________________
-	System - Sys_CheckBoundaries
-______________________________________________________________________________________________________________________*/
-
-struct Sys_Boundary : public System {
-	void UpdateComponent() override {
-		//check the boundary
-		checkboundary(get<Com_Position>());
-	}
-	void checkboundary(Com_Position position) {
-		//if outside the view port 
-		if (position.x > AEGfxGetWinMaxX()) {
-			//destroy the entity
-			RemoveEntity();
-		}
-		if (position.x < AEGfxGetWinMinX()) {
-			//destroy the entity
-			RemoveEntity();
-		}
-		if (position.y > AEGfxGetWinMaxY()) {
-			//destroy the entity
-			RemoveEntity();
-		}
-		if (position.y < AEGfxGetWinMinY()) {
-			//destroy the entity
-			RemoveEntity();
-		}
-	}
-};
-
-
-/*___________________________________________________________________________________________________________________________
-	Components - Weapons
-	System - Sys_Weapons
-______________________________________________________________________________________________________________________*/
-struct Com_WeaponAttack
-{
-	enum Weapons {
-		sword,
-		pistol
-	};
-	int currentweapon{ 0 };
-};
-
 struct Sys_WeaponAttack : public System {
 	void UpdateComponent() override {
 		if (AEInputCheckCurr(VK_SPACE)) {
 			//if character holding to sword 
 			if (get<Com_WeaponAttack>().currentweapon == Com_WeaponAttack::sword) {
-				//attack the grid infront 
+				//attack the grid infront or shoort invisible bullet 
+				sword_attack(get<Com_Direction>(),get<Com_TilePosition>());
 
 			}
 			//if character holding to pistol 
@@ -489,52 +508,21 @@ struct Sys_WeaponAttack : public System {
 		}
 	}
 
-	void sword_attack() {
+	void sword_attack(Com_Direction& direction, Com_TilePosition& Tilepos) {
+		if (direction.currdir == direction.up) {
+			
+		}
+		if (direction.currdir == direction.down) {
 
+		}
+		if (direction.currdir == direction.left) {
+
+		}
+		if (direction.currdir == direction.right) {
+			
+		}
 	}
 };
 
-/*
-struct Sys_ArrowKeys : public System {
-	void UpdateComponent() override {
-		if (AEInputCheckCurr(VK_LEFT)) {
-			//if already facing this direction, move 
-			if (get<Com_Direction>().currdir == Com_Direction::left) {
-				get<Com_Position>().x -= get<Com_Tilemap>()._scale_x;
-			}
-			//if not facing this direction, change it to face there
-			else {
-				get<Com_Direction>().currdir = Com_Direction::left;
-			}
-		}
-		if (AEInputCheckCurr(VK_RIGHT)) {
-			//if already facing this direction, move 
-			if (get<Com_Direction>().currdir == Com_Direction::right) {
-				get<Com_Position>().x += get<Com_Tilemap>()._scale_x;
-			}
-			//if not facing this direction, change it to face there
-			else {
-				get<Com_Direction>().currdir = Com_Direction::right;
-			}
-		}
-		if (AEInputCheckCurr(VK_UP)) {
-			if (get<Com_Direction>().currdir == Com_Direction::up) {
-				get<Com_Position>().y += get<Com_Tilemap>()._scale_y;
-			}
-			//if not facing this direction, change it to face there
-			else {
-				get<Com_Direction>().currdir = Com_Direction::up;
-			}
-		}
-		if (AEInputCheckCurr(VK_DOWN)) {
-			if (get<Com_Direction>().currdir == Com_Direction::down) {
-				get<Com_Position>().y -= get<Com_Tilemap>()._scale_y;
-			}
-			//if not facing this direction, change it to face there
-			else {
-				get<Com_Direction>().currdir = Com_Direction::down;
-			}
-		}
-	}
-};
-*/
+
+
