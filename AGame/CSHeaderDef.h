@@ -598,7 +598,6 @@ struct Sys_EnemyAttack : public System {
 //timer
 struct Com_GameTimer {
 	size_t timerinseconds{ 0 };
-	size_t timerinminutes{ 0 };
 	size_t incrementer{ 0 };
 };
 
