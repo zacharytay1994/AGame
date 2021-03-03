@@ -8,6 +8,7 @@ struct Chunk {
 	std::unique_ptr<char[]>		_data;
 	uint32_t					_number_of_entities;
 	std::stack<int>				_free_ids;
+	std::vector<int>			_active_flags;
 	Chunk(Archetype* holder, const uint32_t& size);
 	int Add();
 	void Remove(const int& id);
@@ -19,4 +20,8 @@ struct Chunk {
 		return *((T*)data);
 	}
 	char* GetDataBegin(const int& id);
+	void MoveData(const int destination, const int source);
+	void ZeroData(const int id);
+	void ZeroAllData();
+	void Free();
 };

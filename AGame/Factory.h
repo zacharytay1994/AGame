@@ -24,6 +24,7 @@ public:
 	}
 	void RemoveEntity(Entity* entity);
 	Entity& GetEntity(const int& id);
+	void Free();
 
 	/*_________________________________________________________
 	* Custom Factory Functions

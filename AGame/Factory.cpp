@@ -21,6 +21,12 @@ Entity& Factory::GetEntity(const int& id)
     return _entities[id];
 }
 
+void Factory::Free()
+{
+    _unique_ids = 0;
+    _entities = std::vector<Entity>();
+}
+
 eid Factory::FF_Sprite(const SpriteData& data, const float& x, const float& y)
 {
     eid id = CreateEntity<Com_Position, Com_Sprite>();
@@ -42,7 +48,7 @@ eid Factory::FF_Sprite(const SpriteData& data, const float& x, const float& y)
 
 eid Factory::FF_Tilemap(const std::string& texture, const std::string& bottom, const std::string& top)
 {
-    eid id = CreateEntity<Com_Tilemap>();
+    eid id = CreateEntity<Com_Tilemap, Com_Position, Com_ArrowKeys>();
     Entity& e = Factory::Instance()[id];
     Com_Tilemap& tilemap = e.Get<Com_Tilemap>();
     ResourceManager::Instance().GetResource(tilemap._texture, tilemap._mesh, texture, 4, 4, 16);
@@ -56,7 +62,7 @@ eid Factory::FF_Tilemap(const std::string& texture, const std::string& bottom, c
 
 eid Factory::FF_SpriteTile(const SpriteData& data, const eid& tilemap, const int& x, const int& y)
 {
-    eid id = CreateEntity<Com_Position, Com_Sprite, Com_TilePosition, Com_TilemapRef>();
+    eid id = CreateEntity<Com_Position, Com_Sprite, Com_TilePosition, Com_TilemapRef, Com_ArrowKeysTilemap>();
     Entity& e = Factory::Instance()[id];
     // gets texture and mesh resources from resource manager
     Com_Sprite& sprite = e.Get<Com_Sprite>();
@@ -70,7 +76,6 @@ eid Factory::FF_SpriteTile(const SpriteData& data, const eid& tilemap, const int
 
     e.Get<Com_TilePosition>() = { x,y,x,y };
     Com_Tilemap& temp = Factory::Instance().GetEntity(tilemap).Get<Com_Tilemap>();
-    Factory::Instance().GetEntity(tilemap).Get<Com_TilemapRef>()._tilemap = &Factory::Instance().GetEntity(tilemap).Get<Com_Tilemap>();
-
+    Factory::Instance().GetEntity(id).Get<Com_TilemapRef>()._tilemap = &Factory::Instance().GetEntity(tilemap).Get<Com_Tilemap>();
     return id;
 }

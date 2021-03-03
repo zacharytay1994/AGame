@@ -40,7 +40,7 @@ struct Sys_Example_UpdatePosition : public System {
 		get<Com_Position>().y += get<Com_Example_Velocity>().y * _dt;
 		Com_Position& test = get<Com_Position>();
 		std::cout << s << _current_id << " |" << get<Com_Position>().x << "," << get<Com_Position>().y << std::endl;
-		RemoveEntity();
+		//RemoveEntity();
 	}
 };
 
@@ -111,16 +111,16 @@ struct Com_ArrowKeys {
 struct Sys_ArrowKeys : public System {
 	void UpdateComponent() override {
 		if (AEInputCheckCurr(VK_LEFT)) {
-			get<Com_Position>().x -= 100.0f * _dt;
+			get<Com_Position>().x -= 1.0f * _dt;
 		}
 		if (AEInputCheckCurr(VK_RIGHT)) {
-			get<Com_Position>().x += 100.0f * _dt;
+			get<Com_Position>().x += 1.0f * _dt;
 		}
 		if (AEInputCheckCurr(VK_UP)) {
-			get<Com_Position>().y += 100.0f * _dt;
+			get<Com_Position>().y += 1.0f * _dt;
 		}
 		if (AEInputCheckCurr(VK_DOWN)) {
-			get<Com_Position>().y -= 100.0f * _dt;
+			get<Com_Position>().y -= 1.0f * _dt;
 		}
 	}
 };
@@ -133,10 +133,10 @@ ________________________________________________________________________*/
 struct Com_Tilemap {
 	std::vector<int> _map;
 	std::vector<int> _floor_mask;
+	float _offset_x = 0.0f;
+	float _offset_y = 0.0f;
 	int _width = 0;
 	int _height = 0;
-	float _x = 0.0f;
-	float _y = 0.0f;
 	float _scale_x = 1.0f;
 	float _scale_y = 1.0f;
 	AEGfxTexture* _texture = nullptr;
@@ -146,25 +146,20 @@ struct Com_Tilemap {
 
 struct Sys_Tilemap : public System {
 	void UpdateComponent() override {
-		if (get<Com_Tilemap>()._initialized) {
-			//// render tilemap
-			//if (AEInputCheckCurr(VK_RIGHT)) {
-			//	get<Com_Tilemap>()._x += _dt * 10.0f;
-			//}
-			//if (AEInputCheckCurr(VK_UP)) {
-			//	get<Com_Tilemap>()._y += _dt * 10.0f;
-			//}
-			DrawTilemap(get<Com_Tilemap>());
+		Com_Tilemap& tilemap = get<Com_Tilemap>();
+		if (tilemap._initialized) {
+			Com_Position& position = get<Com_Position>();
+			DrawTilemap(tilemap,position);
 		}
 	}
-	void DrawTilemap(const Com_Tilemap& tilemap) {
+	void DrawTilemap(const Com_Tilemap& tilemap, const Com_Position& position) {
 		AEMtx33 trans, scale, transform;
 		AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
 		AEMtx33Scale(&scale, tilemap._scale_x, tilemap._scale_y);
 		for (size_t y = 0; y < (size_t)tilemap._height; ++y) {
 			for (size_t x = 0; x < (size_t)tilemap._width; ++x) {
 				if (tilemap._floor_mask[x * (size_t)tilemap._height + y] == -1) { continue; }
-				AEMtx33Trans(&trans, (float)x+tilemap._x, -(float)y+tilemap._y);
+				AEMtx33Trans(&trans, (float)x+tilemap._offset_x, -(float)y+tilemap._offset_y);
 				AEMtx33Concat(&transform, &scale, &trans);
 				AEGfxSetTransform(transform.m);
 				if (tilemap._floor_mask[x * (size_t)tilemap._height + y]) {
@@ -177,6 +172,15 @@ struct Sys_Tilemap : public System {
 				}
 			}
 		}
+	}
+};
+
+struct Sys_TilemapPosition : public System {
+	void UpdateComponent() override {
+		Com_Tilemap& tilemap = get<Com_Tilemap>(); 
+		Com_Position& position = get<Com_Position>();
+		tilemap._offset_x = position.x;
+		tilemap._offset_y = position.y;
 	}
 };
 
@@ -198,19 +202,46 @@ struct Com_TilePosition {
 
 struct Sys_TilePosition : public System {
 	void UpdateComponent() override {
-		//Com_TilemapRef& tilemapref = get<Com_TilemapRef>();
-		//Com_Tilemap* tilemap = get<Com_TilemapRef>()._tilemap;
-		//Com_Position& position = get<Com_Position>();
-		//Com_TilePosition& t_position = get<Com_TilePosition>();
-		//if (tilemap) {
-		//	// check if new tile position is within grid - would be checked with collision_mask after
-		//	if (!tilemap->_floor_mask[(size_t)t_position._grid_x * (size_t)tilemap->_height + (size_t)t_position._grid_y]) {
-		//		t_position._vgrid_x = t_position._grid_x;
-		//		t_position._vgrid_y = t_position._grid_y;
-		//	}
-		//	// bind position to grid position
-		//	position.x = tilemap->_x + (float)t_position._vgrid_x * tilemap->_scale_x;
-		//	position.y = tilemap->_y + (float)t_position._vgrid_y * tilemap->_scale_y;
-		//}
+		Com_TilemapRef& tilemapref = get<Com_TilemapRef>();
+		Com_Tilemap* tilemap = tilemapref._tilemap;
+		Com_Position& position = get<Com_Position>();
+		Com_TilePosition& t_position = get<Com_TilePosition>();
+		if (tilemap) {
+			// check if new tile position is within grid - would be checked with collision_mask after
+			if (t_position._grid_x >= 0 && t_position._grid_x < tilemap->_width && t_position._grid_y >= 0 && t_position._grid_y < tilemap->_height &&
+				tilemap->_floor_mask[(size_t)t_position._grid_x * (size_t)tilemap->_height + (size_t)t_position._grid_y] >= 0) {
+				t_position._vgrid_x = t_position._grid_x;
+				t_position._vgrid_y = t_position._grid_y;
+			}
+			else {
+				t_position._grid_x = t_position._vgrid_x;
+				t_position._grid_y = t_position._vgrid_y;
+			}
+			// bind position to grid position
+			position.x = tilemap->_offset_x * tilemap->_scale_x + (float)t_position._vgrid_x * tilemap->_scale_x;
+			position.y = tilemap->_offset_y * tilemap->_scale_y - (float)t_position._vgrid_y * tilemap->_scale_y;
+		}
+	}
+};
+
+struct Com_ArrowKeysTilemap {
+	char _filler = 0;
+};
+
+struct Sys_ArrowKeysTilemap : public System {
+	void UpdateComponent() override {
+		Com_TilePosition& pos = get<Com_TilePosition>();
+		if (AEInputCheckTriggered(VK_LEFT)) {
+			pos._grid_x -= 1;
+		}
+		if (AEInputCheckTriggered(VK_RIGHT)) {
+			pos._grid_x += 1;
+		}
+		if (AEInputCheckTriggered(VK_UP)) {
+			pos._grid_y -= 1;
+		}
+		if (AEInputCheckTriggered(VK_DOWN)) {
+			pos._grid_y += 1;
+		}
 	}
 };

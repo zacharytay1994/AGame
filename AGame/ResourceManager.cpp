@@ -33,12 +33,12 @@ void ResourceManager::LoadTexture(const std::string& name, const std::string& pa
 
 void ResourceManager::FreeResources()
 {
-	/*for (auto m : _meshes) {
+	for (auto m : _meshes) {
 		AEGfxMeshFree(m.second);
 	}
 	for (auto t : _textures) {
 		AEGfxTextureUnload(t.second);
-	}*/
+	}
 }
 
 AEGfxVertexList* ResourceManager::CreateMesh(const int& row, const int& col)
