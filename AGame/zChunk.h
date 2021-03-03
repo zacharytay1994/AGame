@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <stack>
+#include <assert.h>
 #include "zArchetype.h"
 
 struct Chunk {
@@ -14,6 +15,9 @@ struct Chunk {
 	void Remove(const int& id);
 	template <typename T>
 	T& GetComponent(const int& id) {
+		assert(("Getting component that does not exist in Entity.",
+			_owning_archetype->_type_offset.find(typeid(T).name()) != _owning_archetype->_type_offset.end()));
+
 		char* data = _data.get();
 		data += (size_t)id * (size_t)_owning_archetype->_chunk_stride + (size_t)_owning_archetype->_type_offset[typeid(T).name()];
 		T& test = *((T*)data);

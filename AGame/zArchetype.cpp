@@ -22,11 +22,13 @@ ArchetypeDatabase& ArchetypeDatabase::Instance() {
 	return instance;
 }
 
-std::shared_ptr<Archetype> ArchetypeDatabase::CreateArchetype(const std::bitset<64>& mask, const std::shared_ptr<Archetype>& archetype)
+bool ArchetypeDatabase::CreateArchetype(const std::bitset<64>& mask, const std::shared_ptr<Archetype>& archetype, 
+	std::shared_ptr<Archetype>& outarche)
 {
 	// create mask & check if archetype already exist
 	if (_database.find(mask) != _database.end()) {
-		return _database[mask];
+		outarche = _database[mask];
+		return false;
 	} // else creates it
 	auto archetype_ptr = std::make_shared<Archetype>();
 	archetype_ptr->_type_offset = archetype->_type_offset;
@@ -35,7 +37,8 @@ std::shared_ptr<Archetype> ArchetypeDatabase::CreateArchetype(const std::bitset<
 	//archetype_ptr->AddDescriptions(mask);
 	archetype_ptr->_mask = mask;
 	_database[mask] = archetype_ptr;
-	return _database[mask];
+	outarche = _database[mask];
+	return true;
 }
 
 void ArchetypeDatabase::FlushEntities() {
