@@ -22,14 +22,13 @@ ArchetypeDatabase& ArchetypeDatabase::Instance() {
 	return instance;
 }
 
-bool ArchetypeDatabase::CreateArchetype(const std::bitset<64>& mask, const std::shared_ptr<Archetype>& archetype, 
+bool ArchetypeDatabase::CloneArchetype(const std::bitset<64>& mask, const std::shared_ptr<Archetype>& archetype, 
 	std::shared_ptr<Archetype>& outarche)
 {
-	// create mask & check if archetype already exist
-	if (_database.find(mask) != _database.end()) {
-		outarche = _database[mask];
-		return false;
-	} // else creates it
+	//if (_database.find(mask) != _database.end()) {
+	//	outarche = _database[mask];
+	//	return false;
+	//} // else creates it
 	auto archetype_ptr = std::make_shared<Archetype>();
 	archetype_ptr->_type_offset = archetype->_type_offset;
 	archetype_ptr->_descriptions = archetype->_descriptions;
