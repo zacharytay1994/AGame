@@ -25,7 +25,7 @@ struct TestScene : public Scene {
 	void Initialize() override {
 		std::cout << test << " this is a test scene" << std::endl;
 		e2 = Factory::Instance().FF_Sprite("test2", 1, 8, 8, 0.1f, 50.0f, 80.0f);
-		//tilemap = Factory::Instance().FF_Tilemap("tilemap", "c_test.txt", "t_test.txt");
+		tilemap = Factory::Instance().FF_Tilemap("tilemap", "c_test.txt", "t_test.txt");
 	}
 	/*
 	Update Override (optional)
