@@ -84,14 +84,17 @@ struct TestScene3 : public Scene {
 	std::string test = "hi";
 	int e2 = -1;
 	int e3[5] = { -1,-1,-1,-1,-1 };
+	float velXEnemy = 50.0f;
+	float velYEnemy = 50.0f;
 	void Initialize() override {
 		srand(100);
 		e2 = Factory::Instance().FF_Sprite("test2", 1, 8, 8, 0.1f, 50.0f, 80.0f);
-		for (int i{ 0 }; i < 5; ++i)
+		for (int i{ 0 }; i < 1; ++i)
 		{
 			float randomPosx = static_cast<float>(rand() % 100) + 100.0f;
 			float randomPosy = static_cast<float>(rand() % 100) + 20.0f;
-			e3[i] = Factory::Instance().FF_SpriteRandomPosition("test", 1, 1, 1, 1.0f, 50.0f, 50.0f, randomPosx, randomPosy);
+			e3[i] = Factory::Instance().FF_SpriteRandomPosition("test3", 1, 8, 8, 0.2f, 50.0f, 50.0f, randomPosx, randomPosy, velXEnemy, velYEnemy);
+			
 		}
 		int i = 0;
 		
@@ -122,27 +125,28 @@ struct TestScene3 : public Scene {
 			e.Get<Com_Tilemap>()._initialized = true;
 		}
 
-		for (int j{0}; j < 5; j++) 
+		for (int j{0}; j < 1; j++) 
 		{
 			Entity& enemy = Factory::Instance().GetEntity(e3[j]);
-			enemy.Get<Com_Example_Velocity>().x += 1.0f; // replace with pathfinding ltr
-			enemy.Get<Com_Example_Velocity>().y += 1.0f;
-
-			if (enemy.Get<Com_Example_Velocity>().x ) 
-			{
-			}
+			
 
 			//warping so that enemy dont go out of bound
-			if(enemy.Get<Com_Position>().x > AEGfxGetWinMaxX() || 
-				enemy.Get<Com_Position>().x < AEGfxGetWinMinX() ||
-				enemy.Get<Com_Position>().y > AEGfxGetWinMaxY() || 
-				enemy.Get<Com_Position>().y < AEGfxGetWinMinY())
-				{
-					enemy.Get<Com_Position>().x = AEWrap((enemy.Get<Com_Position>()).x, AEGfxGetWinMinX(),	AEGfxGetWinMaxX());
-					enemy.Get<Com_Position>().y = AEWrap((enemy.Get<Com_Position>()).y, AEGfxGetWinMinY(),	AEGfxGetWinMaxY());
-					enemy.Get<Com_Example_Velocity>().x -= 0.0f;
-					enemy.Get<Com_Example_Velocity>().y -= 0.0f;
-				}
+			if (enemy.Get<Com_Position>().x > AEGfxGetWinMaxX())
+			{
+				enemy.Get<Com_Example_Velocity>().x = -velXEnemy;
+			}
+			else if (enemy.Get<Com_Position>().x < AEGfxGetWinMinX())
+			{
+				enemy.Get<Com_Example_Velocity>().x = velXEnemy;
+			}
+			else if (enemy.Get<Com_Position>().y > AEGfxGetWinMaxY())
+			{
+				enemy.Get<Com_Example_Velocity>().y = -velYEnemy;
+			}
+			else if (enemy.Get<Com_Position>().y < AEGfxGetWinMinY())
+			{
+				enemy.Get<Com_Example_Velocity>().y = velYEnemy;
+			}
 		}
 
 	}

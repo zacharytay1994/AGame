@@ -214,5 +214,6 @@ void ResourceManager::Initialize()
 	// load all textures
 	LoadTexture("test", "test2.png");
 	LoadTexture("test2", "testguy.png");
+	LoadTexture("test3", "TestAlien.png");
 	LoadTexture("tilemap", "tilemaptest.png");
 }

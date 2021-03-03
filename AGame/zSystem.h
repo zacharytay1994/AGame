@@ -1,7 +1,6 @@
 #pragma once
 #include <bitset>
 #include <memory>
-#include <vector>
 #include <iostream>
 
 #include "zComponent.h"
@@ -33,6 +32,7 @@ struct System {
 		return _current_chunk->GetComponent<T>(_current_id);
 	}
 	void RemoveEntity();
+	//void PathFinding();
 };
 
 class SystemDatabase {

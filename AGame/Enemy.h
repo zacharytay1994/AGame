@@ -8,6 +8,6 @@
 //unique
 struct Com_Enemy 
 {
-	
+	int health;
 
 };

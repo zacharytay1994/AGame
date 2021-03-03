@@ -54,7 +54,7 @@ int Factory::FF_Tilemap(const std::string& texture, const std::string& bottom, c
 }
 
 int Factory::FF_SpriteRandomPosition(const std::string& texturename, const int& row, const int& col, const int& frames, const float& interval, const float& scalex, const float& scaley,
-    const float& x, const float& y)
+    const float& x, const float& y, const float& velX, const float& velY)
 {
     _entities.emplace_back();
     Entity& e = _entities.back();
@@ -71,8 +71,8 @@ int Factory::FF_SpriteRandomPosition(const std::string& texturename, const int& 
     e.Get<Com_Position>().x = x;
     e.Get<Com_Position>().y = y;
 
-    e.Get<Com_Example_Velocity>().x = 1.0f;
-    e.Get<Com_Example_Velocity>().y = 1.0f;
+    e.Get<Com_Example_Velocity>().x = velX;
+    e.Get<Com_Example_Velocity>().y = velY;
 
     ++_unique_ids;
     return (int)_unique_ids - 1;
