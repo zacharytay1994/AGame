@@ -524,5 +524,47 @@ struct Sys_WeaponAttack : public System {
 	}
 };
 
+ /////////Edits  
+
+/*-------------------------------------
+//for spawning of enemies 
+-------------------------------------------*/
+struct Com_EnemySpawn{
+	size_t numberofenemies{ 5 }; //number of enemies to spawn 
+	Com_TilePosition spawnlocation;
+};
+
+struct Com_Wave{
+	size_t timerforwave{ 60 }; //if timer hits 0 in secsm spawn new wave 
+	size_t numberofwaves{ 3 }; //if number of wave hit 0, level unlocked 
+};
+
+//logic for spawning of enemies 
+struct Sys_EnemySpawning : public System {
+	void UpdateComponent() override {
+		//if timer hit 0 spawn wave/ number of enemies hit 0 
+		if (get<Com_Wave>().timerforwave == 0 || get<Com_EnemySpawn>().numberofenemies == 0) {
+			spawn_enemies(get<Com_BoundingBox>(), get<Com_Direction>(),get<Com_EnemySpawn>());
+		}
+	}
+
+	void spawn_enemies(Com_BoundingBox, Com_Direction& direction,Com_EnemySpawn& Spawnenemy) {
+		//spawn enemy at a certain location
+		//create enemy entity 
+		//Factory::Instance().CreateEntity<Com_Sprite, Com_Position, Com_BoundingBox, Com_Direction>();
+	}
+};
 
 
+/*-------------------------------------
+			//for attack of enemies 
+-------------------------------------------*/
+
+struct Com_TypeEnemy {
+	enum EnemyType
+	{
+		Alien1, //melee
+		Alien2  //range
+	};
+	size_t Alientype{ 0 };
+};
