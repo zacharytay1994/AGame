@@ -28,7 +28,7 @@ struct Sys_Example_PrintPosition : public System {
 	System		- Example_UpdatePosition <Position, ArrowKeys>
 					.. Changes position based on arrow key input.
 ________________________________________________________________________*/
-struct Com_Example_Velocity {
+struct Com_Velocity {
 	float x{ 0.0f };
 	float y{ 0.0f };
 };
@@ -36,8 +36,8 @@ struct Com_Example_Velocity {
 struct Sys_Example_UpdatePosition : public System {
 	std::string s = "I am updating position of entity: ";
 	void UpdateComponent() override {
-		get<Com_Position>().x += get<Com_Example_Velocity>().x * _dt;
-		get<Com_Position>().y += get<Com_Example_Velocity>().y * _dt;
+		get<Com_Position>().x += get<Com_Velocity>().x * _dt;
+		get<Com_Position>().y += get<Com_Velocity>().y * _dt;
 		Com_Position& test = get<Com_Position>();
 		std::cout << s << _current_id << " |" << get<Com_Position>().x << "," << get<Com_Position>().y << std::endl;
 		//RemoveEntity();
@@ -245,3 +245,293 @@ struct Sys_ArrowKeysTilemap : public System {
 		}
 	}
 };
+
+/*___________________________________________________________________________________________________________________________
+	Component - Com_Direction
+______________________________________________________________________________________________________________________*/
+struct Com_Direction {
+	enum Direction { up, down, left, right };
+	int currdir;
+};
+
+/*___________________________________________________________________________________________________________________________
+	Component - Com_BoundingBox
+	System - Sys_Boundingbox <Com_BoundingBox,Com_Position>
+	Calculates the bounding box of entity
+______________________________________________________________________________________________________________________*/
+struct Com_BoundingBox
+{
+	Com_Position min;
+	Com_Position max;
+	float scale;
+};
+
+struct Sys_Boundingbox : public System {
+	void UpdateComponent() override {
+		//calculate AABB bounding box 
+		calculateAABB(get<Com_BoundingBox>(), get<Com_Position>(), get<Com_BoundingBox>());
+	}
+	/*-----------------------------------------
+
+	@brief updates the bounding box
+	@param Com_BoundingBox& BoundingBox
+	x,y
+	@param Com_Position& Position
+	x,y
+	@param Com_BoundingBox& scale
+	scale of object
+	@return void
+
+	------------------------------------------*/
+	void calculateAABB(Com_BoundingBox& boundingbox, Com_Position& position, Com_BoundingBox& scale)
+	{
+		//calculate min max
+		boundingbox.max.x = -0.5f * boundingbox.scale + position.x;
+		boundingbox.min.x = 0.5f * boundingbox.scale + position.x;
+		boundingbox.min.y = -0.5f * boundingbox.scale + position.y;
+		boundingbox.max.y = 0.5f * boundingbox.scale + position.y;
+	}
+
+};
+
+
+/*___________________________________________________________________________________________________________________________
+	System - Sys_AABB <Com_BoundingBox,Com_Position,Com_velocity>
+	AABB Collision detection
+______________________________________________________________________________________________________________________*/
+struct CollisionData {
+	Com_BoundingBox* aabb;
+	Com_Velocity* vel;
+};
+
+struct Sys_AABB : public System {
+	std::vector<CollisionData> AABBTest; //to store all collision data 
+	void UpdateComponent() override {
+		//calculate AABB detection
+		int collisionflag = 0;
+		Com_BoundingBox* AABB = &get<Com_BoundingBox>();
+		Com_Velocity* vel = &get<Com_Velocity>();
+		for (int i{ 0 }; i < AABBTest.size(); ++i) {
+			collisionflag = CollisionAABB(*AABB, *vel, *AABBTest[i].aabb, *AABBTest[i].vel);
+		}
+		AABBTest.emplace_back(CollisionData{ AABB,vel });
+	}
+
+	/*-----------------------------------------
+	@brief does an AABB Collision check
+	@param Com_BoundingBox obj 1
+	@param Com_Velocity obj 1
+	@param Com_BoundingBox obj 2
+	@param Com_Velocity obj 2
+	@return bool
+	1 - collide/ 0 - no collide
+	------------------------------------------*/
+	bool CollisionAABB(const Com_BoundingBox& object1, const Com_Velocity& objvel1,
+		const Com_BoundingBox& object2, const Com_Velocity& objvel2)
+	{
+		if ((object1.max.x < object2.min.x || object1.min.x > object2.max.x) || (object1.max.y < object2.min.y || object1.min.y > object2.max.y)) { // check static collision
+			// initialzing time of first and last contact 
+			float tFirst = 0.0f; //init tfirst 
+			float tLast = (float)AEFrameRateControllerGetFrameTime(); //inti tlast 
+			AEVec2 Rvel;
+			Rvel.x = objvel2.x - objvel1.x;
+			Rvel.y = objvel2.y - objvel1.y;
+			if (Rvel.x < 0.0) { // if relative velocity x < 0
+				if (object2.max.x < object1.min.x) {
+					return 0;//no collision
+				}
+				if (object1.max.x < object2.min.x) {
+					tFirst = max((object1.max.x - object2.min.x) / Rvel.x, tFirst); //calculate tfirst touch
+				}
+				if (object2.max.x > object1.min.x) {
+					tLast = min((object1.min.x - object2.max.x) / Rvel.x, tLast); //calculate tlast touch
+				}
+			}
+			if (Rvel.x > 0.0) { //if relative velocity x > 0
+				if (object2.min.x > object1.max.x) {
+					return 0;//no collision
+				}
+				if (object2.max.x < object1.min.x) {
+					tFirst = max((object1.min.x - object2.max.x) / Rvel.x, tFirst);  // calculate tfirst touch
+				}
+				if (object1.max.x > object2.min.x) {
+					tLast = min((object1.max.x - object2.min.x) / Rvel.x, tLast); //calculate tlast touch 
+				}
+			}
+			if (Rvel.y < 0.0) //if relative velocity y < 0
+			{
+				if (object2.max.y < object1.min.y) {
+					return 0; // not collison moving apart 
+				}
+				if (object1.max.y < object2.min.y) {
+					tFirst = max((object1.max.y - object2.min.y) / Rvel.y, tFirst); //calculate tfirst touch
+				}
+				if (object2.max.y > object1.min.y) {
+					tLast = min((object1.min.y - object2.max.y) / Rvel.y, tLast); //calculate tlast touch
+				}
+			}
+			if (Rvel.y > 0.0)
+			{
+				if (object2.min.y > object1.max.y) {
+					return 0; // not collison moving apart 
+
+				}
+				if (object2.max.y < object1.min.y) {
+					tFirst = max((object1.min.y - object2.max.y) / Rvel.y, tFirst);  // cacluate tfirst touch
+
+				}
+				if (object1.max.y > object2.min.y) {
+					tLast = min((object1.max.y - object2.min.y) / Rvel.y, tLast);  //calculate tlast touch
+				}
+			}
+			if (tFirst > tLast) {
+				return 0; //no collision
+			}
+			else { return 1; }  //dynamic collision
+		}
+		return 1;  //static collision 
+	}
+};
+
+/*___________________________________________________________________________________________________________________________
+	Components - Com_Projectile , Com_GameObj
+	System - Sys_Projectile<Com_Position,
+______________________________________________________________________________________________________________________*/
+
+struct Sys_Projectile : public System {
+	void UpdateComponent() override {
+		//if space triggered 
+		if (AEInputCheckCurr(VK_SPACE)) {
+			CreateProjectile(get<Com_Position>(), get<Com_Velocity>(), get<Com_Direction>());
+		}
+	}
+	void CreateProjectile(Com_Position& position, Com_Velocity& velocity, Com_Direction& direction) {
+		//creat projectile based on direction
+		if (direction.currdir == direction.right) {
+			//create an entity of bullet 
+			//set entity sprite, position, velocity, direction
+		}
+		if (direction.currdir == direction.left) {
+			//create an entity of bullet 
+			//set entity sprite, position, velocity, direction
+		}
+		if (direction.currdir == direction.up) {
+			//create an entity of bullet 
+			//set entity sprite, position, velocity, direction
+		}
+		if (direction.currdir == direction.down) {
+			//create an entity of bullet 
+			//set entity sprite, position, velocity, direction
+		}
+
+	}
+};
+
+/*___________________________________________________________________________________________________________________________
+	System - Sys_CheckBoundaries
+______________________________________________________________________________________________________________________*/
+
+struct Sys_Boundary : public System {
+	void UpdateComponent() override {
+		//check the boundary
+		checkboundary(get<Com_Position>());
+	}
+	void checkboundary(Com_Position position) {
+		//if outside the view port 
+		if (position.x > AEGfxGetWinMaxX()) {
+			//destroy the entity
+			RemoveEntity();
+		}
+		if (position.x < AEGfxGetWinMinX()) {
+			//destroy the entity
+			RemoveEntity();
+		}
+		if (position.y > AEGfxGetWinMaxY()) {
+			//destroy the entity
+			RemoveEntity();
+		}
+		if (position.y < AEGfxGetWinMinY()) {
+			//destroy the entity
+			RemoveEntity();
+		}
+	}
+};
+
+
+/*___________________________________________________________________________________________________________________________
+	Components - Weapons
+	System - Sys_Weapons
+______________________________________________________________________________________________________________________*/
+struct Com_WeaponAttack
+{
+	enum Weapons {
+		sword,
+		pistol
+	};
+	int currentweapon{ 0 };
+};
+
+struct Sys_WeaponAttack : public System {
+	void UpdateComponent() override {
+		if (AEInputCheckCurr(VK_SPACE)) {
+			//if character holding to sword 
+			if (get<Com_WeaponAttack>().currentweapon == Com_WeaponAttack::sword) {
+				//attack the grid infront 
+			}
+			//if character holding to pistol 
+			if (get<Com_WeaponAttack>().currentweapon == Com_WeaponAttack::pistol) {
+				//shoot out projectile 
+				//Sys_Projectile::CreateProjectile(Com_Position & position, Com_Velocity & velocity, Com_Direction & direction);
+			}
+		}
+	}
+
+	void sword_attack() {
+
+	}
+};
+
+/*
+struct Sys_ArrowKeys : public System {
+	void UpdateComponent() override {
+		if (AEInputCheckCurr(VK_LEFT)) {
+			//if already facing this direction, move 
+			if (get<Com_Direction>().currdir == Com_Direction::left) {
+				get<Com_Position>().x -= get<Com_Tilemap>()._scale_x;
+			}
+			//if not facing this direction, change it to face there
+			else {
+				get<Com_Direction>().currdir = Com_Direction::left;
+			}
+		}
+		if (AEInputCheckCurr(VK_RIGHT)) {
+			//if already facing this direction, move 
+			if (get<Com_Direction>().currdir == Com_Direction::right) {
+				get<Com_Position>().x += get<Com_Tilemap>()._scale_x;
+			}
+			//if not facing this direction, change it to face there
+			else {
+				get<Com_Direction>().currdir = Com_Direction::right;
+			}
+		}
+		if (AEInputCheckCurr(VK_UP)) {
+			if (get<Com_Direction>().currdir == Com_Direction::up) {
+				get<Com_Position>().y += get<Com_Tilemap>()._scale_y;
+			}
+			//if not facing this direction, change it to face there
+			else {
+				get<Com_Direction>().currdir = Com_Direction::up;
+			}
+		}
+		if (AEInputCheckCurr(VK_DOWN)) {
+			if (get<Com_Direction>().currdir == Com_Direction::down) {
+				get<Com_Position>().y -= get<Com_Tilemap>()._scale_y;
+			}
+			//if not facing this direction, change it to face there
+			else {
+				get<Com_Direction>().currdir = Com_Direction::down;
+			}
+		}
+	}
+};
+*/
