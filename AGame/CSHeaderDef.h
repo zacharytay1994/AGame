@@ -568,3 +568,48 @@ struct Com_TypeEnemy {
 	};
 	size_t Alientype{ 0 };
 };
+
+
+//logic for attack of enemies 
+struct Sys_EnemyAttack : public System {
+	void UpdateComponent() override {
+		//if enemy is melee
+		if (get<Com_TypeEnemy>().Alientype == Com_TypeEnemy::Alien1) {
+			//check 4 sides if player is 1 tile away
+			//if () {
+			//	//shoot invisible that direction 
+			//	//create projectile system
+			//}
+		}
+		//if enemy is range
+		if (get<Com_TypeEnemy>().Alientype == Com_TypeEnemy::Alien2) {
+			//check 4 sides if player is x/y aligned 
+			//if () {
+			//	//shoot that direction
+			//	//createprojectile system
+			//}
+		}
+	}
+};
+
+/*-------------------------------------
+			//timing for game/wave
+-------------------------------------------*/
+//timer
+struct Com_GameTimer {
+	size_t timerinseconds{ 0 };
+	size_t timerinminutes{ 0 };
+	size_t incrementer{ 0 };
+};
+
+//frame rate non independent timer 
+struct Sys_GameTimer : public System {
+	void UpdateComponent() override {
+		++get<Com_GameTimer>().incrementer;
+		if (AEFrameRateControllerGetFrameRate() < get<Com_GameTimer>().incrementer) {
+			get<Com_GameTimer>().incrementer = 0; //reset incrementer 
+			++get<Com_GameTimer>().timerinseconds; //add 1 sec
+		}
+	}
+};
+
