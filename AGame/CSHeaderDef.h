@@ -400,30 +400,32 @@ ________________________________________________________________________________
 
 struct Sys_Projectile : public System {
 	void UpdateComponent() override {
+		Com_Direction& direction= get<Com_Direction>();
 		//if space triggered 
 		if (AEInputCheckCurr(VK_SPACE)) {
-			CreateProjectile(get<Com_Position>(), get<Com_Velocity>(), get<Com_Direction>());
+			if (direction.currdir == direction.right) {
+				//create an entity of bullet 
+				CreateProjectile(get<Com_Position>(), get<Com_Velocity>(), get<Com_Direction>());
+			}
+			if (direction.currdir == direction.left) {
+				//create an entity of bullet 
+				CreateProjectile(get<Com_Position>(), get<Com_Velocity>(), get<Com_Direction>());
+			}
+			if (direction.currdir == direction.up) {
+				//create an entity of bullet 
+				CreateProjectile(get<Com_Position>(), get<Com_Velocity>(), get<Com_Direction>());
+			}
+			if (direction.currdir == direction.down) {
+				//create an entity of bullet 
+				CreateProjectile(get<Com_Position>(), get<Com_Velocity>(), get<Com_Direction>());
+			}
+	
 		}
 	}
 	void CreateProjectile(Com_Position& position, Com_Velocity& velocity, Com_Direction& direction) {
 		//creat projectile based on direction
-		if (direction.currdir == direction.right) {
-			//create an entity of bullet 
-			//set entity sprite, position, velocity, direction
-		}
-		if (direction.currdir == direction.left) {
-			//create an entity of bullet 
-			//set entity sprite, position, velocity, direction
-		}
-		if (direction.currdir == direction.up) {
-			//create an entity of bullet 
-			//set entity sprite, position, velocity, direction
-		}
-		if (direction.currdir == direction.down) {
-			//create an entity of bullet 
-			//set entity sprite, position, velocity, direction
-		}
-
+		//Factory::Instance().CreateEntity<Com_Sprite, Com_Velocity, Com_Position, Com_BoundingBox, Com_Direction>();
+		//set entity sprite, position, velocity, direction
 	}
 };
 
@@ -477,6 +479,7 @@ struct Sys_WeaponAttack : public System {
 			//if character holding to sword 
 			if (get<Com_WeaponAttack>().currentweapon == Com_WeaponAttack::sword) {
 				//attack the grid infront 
+
 			}
 			//if character holding to pistol 
 			if (get<Com_WeaponAttack>().currentweapon == Com_WeaponAttack::pistol) {
