@@ -111,16 +111,16 @@ struct Com_ArrowKeys {
 struct Sys_ArrowKeys : public System {
 	void UpdateComponent() override {
 		if (AEInputCheckCurr(VK_LEFT)) {
-			get<Com_Position>().x -= 1.0f * _dt;
+			get<Com_Position>().x -= 100.0f * _dt;
 		}
 		if (AEInputCheckCurr(VK_RIGHT)) {
-			get<Com_Position>().x += 1.0f * _dt;
+			get<Com_Position>().x += 100.0f * _dt;
 		}
 		if (AEInputCheckCurr(VK_UP)) {
-			get<Com_Position>().y += 1.0f * _dt;
+			get<Com_Position>().y += 100.0f * _dt;
 		}
 		if (AEInputCheckCurr(VK_DOWN)) {
-			get<Com_Position>().y -= 1.0f * _dt;
+			get<Com_Position>().y -= 100.0f * _dt;
 		}
 	}
 };

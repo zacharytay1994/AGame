@@ -26,12 +26,13 @@ struct TestScene : public Scene {
 		std::cout << test << " this is a test scene" << std::endl;
 		std::cout << sizeof(Com_Tilemap) << std::endl;
 
-		tilemap = Factory::Instance().FF_Tilemap("tilemap", "c_test.txt", "t_test.txt");
+		/*tilemap = Factory::Instance().FF_Tilemap("tilemap", "c_test.txt", "t_test.txt");
 		Entity& testing = Factory::Instance()[tilemap];
-		Com_Tilemap& test = Factory::Instance()[tilemap].Get<Com_Tilemap>();
-		e2 = Factory::Instance().FF_SpriteTile({ "test2", 1, 8, 8, 0.1f, 100.0f, 200.0f }, tilemap, 0, 0);
-		Com_TilemapRef& ref = Factory::Instance()[e2].Get<Com_TilemapRef>();
+		Com_Tilemap& test = Factory::Instance()[tilemap].Get<Com_Tilemap>();*/
+		e2 = Factory::Instance().FF_Sprite({ "test2", 1, 8, 8, 0.1f, 100.0f, 200.0f }, 0, 0);
+		//Com_TilemapRef& ref = Factory::Instance()[e2].Get<Com_TilemapRef>();
 		Com_Sprite& test2 = Factory::Instance()[e2].Get<Com_Sprite>();
+		//e2 = Factory::Instance().FF_Sprite({ "test2", 1, 8, 8, 0.1f, 100.0f, 200.0f }, 0, 0);
 
 		//tilemap = Factory::Instance().FF_Tilemap("tilemap", "c_test.txt", "t_test.txt");
 		/*e2 = Factory::Instance().FF_Sprite({ "test2", 1, 8, 8, 0.1f, 100.0f, 200.0f }, 0, 0);
@@ -43,16 +44,16 @@ struct TestScene : public Scene {
 	Update Override (optional)
 	________________________________*/
 	void Update(const float& dt) override {
-		Entity& testing = Factory::Instance()[tilemap];
+		//Entity& testing = Factory::Instance()[tilemap];
 		if (AEInputCheckCurr('L')) {
 			SceneManager::Instance().ChangeScene("ExampleScene");
 		}
 		if (AEInputCheckTriggered('P')) {
-			Factory::Instance().FF_Sprite({ "test2", 1, 8, 8, 0.2f, 50.0f, 80.0f }, 0.0f, 0.0f);
+			e2 = Factory::Instance().FF_Sprite({ "test2", 1, 8, 8, 0.2f, 50.0f, 80.0f }, 0.0f, 0.0f);
 			//Factory::Instance().GetEntity(e2).Get<Com_Sprite>()._frame_interval -= dt;
 			//Com_Sprite& s = e2->Get<Com_Sprite>();
 		}
-		if (AEInputCheckCurr('O')) {
+		if (AEInputCheckTriggered('O')) {
 			Factory::Instance()[e2].AddComponent<Com_ArrowKeys>();
 		}
 		if (AEInputCheckTriggered('M')) {
