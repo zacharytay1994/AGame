@@ -16,6 +16,10 @@ class Scene {
 	virtual void Initialize();
 	virtual void Update(const float& dt);
 	virtual void Exit();
+	// new functions
+	virtual void Load();
+	virtual void Draw(const float& dt);
+	virtual void Unload();
 public:
 	Scene() {}
 };
@@ -58,4 +62,10 @@ public:
 		_scenes[name] = std::make_shared<T>();
 	}
 	void Update(const float& dt);
+
+	// new functions
+	void RestartScene();
+	void Load();
+	void Draw(const float& dt);
+	void Unload();
 };

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stack>
 #include "zArchetype.h"
 #include "zChunk.h"
 
@@ -21,27 +22,32 @@ ArchetypeDatabase& ArchetypeDatabase::Instance() {
 	return instance;
 }
 
-std::shared_ptr<Archetype> ArchetypeDatabase::CreateArchetype(const std::bitset<64>& mask, const std::shared_ptr<Archetype>& archetype)
+bool ArchetypeDatabase::CreateArchetype(const std::bitset<64>& mask, const std::shared_ptr<Archetype>& archetype, 
+	std::shared_ptr<Archetype>& outarche)
 {
 	// create mask & check if archetype already exist
 	if (_database.find(mask) != _database.end()) {
-		return _database[mask];
+		outarche = _database[mask];
+		return false;
 	} // else creates it
 	auto archetype_ptr = std::make_shared<Archetype>();
 	archetype_ptr->_type_offset = archetype->_type_offset;
 	archetype_ptr->_descriptions = archetype->_descriptions;
 	archetype_ptr->_chunk_stride = archetype->_chunk_stride;
 	//archetype_ptr->AddDescriptions(mask);
-	_database[mask] = archetype_ptr;
 	archetype_ptr->_mask = mask;
-	return _database[mask];
+	_database[mask] = archetype_ptr;
+	outarche = _database[mask];
+	return true;
 }
 
 void ArchetypeDatabase::FlushEntities() {
-	for (auto archetype : _database) {
-		for (auto chunk : archetype.second->_chunk_database) {
-			chunk->_number_of_entities = 0;
+	for (auto& archetype : _database) {
+		for (auto& chunk : archetype.second->_chunk_database) {
+			// zero out memory
+			chunk->Free();
 		}
 	}
+	//_database = std::unordered_map<std::bitset<64>, std::shared_ptr<Archetype>>();
 	std::cout << "ARCHETYPE_DATABASE :: FLUSHED ENTITIES." << std::endl;
 }

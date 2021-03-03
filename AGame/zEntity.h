@@ -34,6 +34,7 @@ struct Entity {
 		std::shared_ptr<Archetype> archetype = ArchetypeDatabase::Instance().CreateArchetype<T_COMPONENTS ...>();
 		_id = archetype->Add(_chunk);
 		((_chunk->GetComponent<T_COMPONENTS>(_id) = T_COMPONENTS()), ...);
+		int i = 0;
 	}
 	/*______________________________________________________
 	* Brief:	Gets a component that an entity has. There
@@ -70,8 +71,10 @@ struct Entity {
 		}
 		mask[component_description_v<T>._bit] = 1;
 		// recreate archetype with new mask
-		std::shared_ptr<Archetype> archetype = ArchetypeDatabase::Instance().CreateArchetype(mask, _chunk->_owning_archetype);
-		archetype->AddDescriptions<T>();
+		std::shared_ptr<Archetype> archetype;
+		if (ArchetypeDatabase::Instance().CreateArchetype(mask, _chunk->_owning_archetype, archetype)) {
+			archetype->AddDescriptions<T>();
+		}
 		std::shared_ptr<Chunk> temp;
 		int temp_id = archetype->Add(temp);
 		// perform shallow copy from current chunk to temp

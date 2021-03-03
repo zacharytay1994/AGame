@@ -4,7 +4,7 @@
 #include "AEEngine.h"
 
 // forward deckaratuibs
-class Com_Tilemap;
+struct Com_Tilemap;
 
 struct ResourceManager {
 	static ResourceManager& Instance();

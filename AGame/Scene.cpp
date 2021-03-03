@@ -52,22 +52,28 @@ void SceneManager::Initialize() {
 
 	// 2. Registering all components for the game
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Position>();
-	ComponentDescription_DB::Instance().RegisterComponent<Com_Example_Velocity>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_Velocity>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Sprite>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_ArrowKeys>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Tilemap>();
-	
+	ComponentDescription_DB::Instance().RegisterComponent<Com_TilemapRef>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_TilePosition>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_ArrowKeysTilemap>();
 
 	// 3. Registering all systems for the game
-	SystemDatabase::Instance().RegisterSystem<Sys_Example_UpdatePosition, Com_Position, Com_Example_Velocity>();
+	// SystemDatabase::Instance().RegisterSystem<Example_UpdatePosition, Position, Example_Velocity>();
+	SystemDatabase::Instance().RegisterSystem<Sys_Tilemap, Com_Tilemap>();
 	SystemDatabase::Instance().RegisterSystem<Sys_DrawSprite, Com_Position, Com_Sprite>();
 	SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeys, Com_Position, Com_ArrowKeys>();
-	SystemDatabase::Instance().RegisterSystem<Sys_Tilemap, Com_Tilemap>();
+	SystemDatabase::Instance().RegisterSystem<Sys_TilemapPosition, Com_Tilemap, Com_Position>();
+	SystemDatabase::Instance().RegisterSystem<Sys_TilePosition, Com_TilemapRef, Com_TilePosition, Com_Position>();
+	SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeysTilemap, Com_TilePosition>();
 
 	// 4. Registering scenes
 	AddScene<TestScene>("Test Scene");
 	AddScene<TestScene2>("Test Scene 2");
 	AddScene<TestScene3>("Test Scene 3");
+	AddScene<ExampleScene>("ExampleScene");
 }
 
 void SceneManager::Free()
@@ -90,16 +96,19 @@ ________________________________________________________*/
 void SceneManager::ChangeScene(const std::string& name) {
 	assert(_scenes.find(name) != _scenes.end());
 	if (_current_scene) {
+		// calls exit and unload
 		_current_scene->Exit();
-		std::cout << "SCENE |" << _current_scene_name << "| EXITED." << std::endl;
+		_current_scene->Unload();
+		std::cout << "SCENE |" << _current_scene_name << "| FREED AND UNLOADED." << std::endl;
 		// reload the scene into memory
-		_scenes[_current_scene_name] = std::make_shared<Scene>();
+		//_scenes[_current_scene_name] = std::make_shared<Scene>();
 	}
 	ArchetypeDatabase::Instance().FlushEntities();
 	_current_scene = _scenes[name];
 	_current_scene_name = name;
+	_current_scene->Load();
 	_current_scene->Initialize();
-	std::cout << "SCENE |" << _current_scene_name << "| INITIALIZED." << std::endl;
+	std::cout << "SCENE |" << _current_scene_name << "| LOADED AND INITIALIZED." << std::endl;
 }
 
 /*______________________________________________________
@@ -157,5 +166,47 @@ void Scene::Update(const float& dt)
 * called:	SceneManager::ChangeScene();
 ________________________________________________________*/
 void Scene::Exit()
+{
+}
+
+
+// new functions
+
+void SceneManager::RestartScene()
+{
+	if (_current_scene) {
+		_current_scene->Exit();
+		std::cout << "Scene Freed." << std::endl;
+		ArchetypeDatabase::Instance().FlushEntities();
+		Factory::Instance().Free();
+		_current_scene->Initialize();
+		std::cout << "Scene Initialized." << std::endl;
+	}
+}
+
+void SceneManager::Load()
+{
+}
+
+void SceneManager::Draw(const float& dt)
+{
+	if (_current_scene) {
+		_current_scene->Draw(dt);
+	}
+}
+
+void SceneManager::Unload()
+{
+}
+
+void Scene::Load()
+{
+}
+
+void Scene::Draw(const float& dt)
+{
+}
+
+void Scene::Unload()
 {
 }
