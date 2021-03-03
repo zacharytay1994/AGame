@@ -40,6 +40,5 @@ public:
 	};
 	eid FF_Sprite(const SpriteData& data, const float& x, const float& y);
 	eid FF_Tilemap(const std::string& texture, const std::string& bottom, const std::string& top);
-
 	eid FF_SpriteTile(const SpriteData& data, const eid& tilemap, const int& x, const int& y);
 };

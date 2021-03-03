@@ -59,6 +59,9 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_TilemapRef>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_TilePosition>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_ArrowKeysTilemap>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_Direction>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_WeaponAttack>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_BoundingBox>();
 
 	// 3. Registering all systems for the game
 	// SystemDatabase::Instance().RegisterSystem<Example_UpdatePosition, Position, Example_Velocity>();
