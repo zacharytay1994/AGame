@@ -52,7 +52,7 @@ void SceneManager::Initialize() {
 
 	// 2. Registering all components for the game
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Position>();
-	ComponentDescription_DB::Instance().RegisterComponent<Com_Example_Velocity>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_Velocity>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Sprite>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_ArrowKeys>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Tilemap>();
