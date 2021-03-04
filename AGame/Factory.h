@@ -5,6 +5,8 @@
 #include "zEntity.h"
 
 typedef int eid; // entity id
+//forward declare to draw from cpp 
+struct Com_Direction;
 
 class Factory {
 	uint64_t _unique_ids = 0;
@@ -40,7 +42,21 @@ public:
 	};
 	eid FF_Sprite(const SpriteData& data, const float& x, const float& y);
 	eid FF_Tilemap(const std::string& texture, const std::string& bottom, const std::string& top);
-
 	eid FF_SpriteTile(const SpriteData& data, const eid& tilemap, const int& x, const int& y);
+<<<<<<< HEAD
 	//eid FF_SpriteRandomPosition(const SpriteData& data, const float& x, const float& y, const float& velX, const float& velY);
+=======
+	template <typename MovementType>
+	eid FF_SpriteMovableTile(const SpriteData& data, const eid& tilemap, const int& x, const int& y) {
+		eid id = FF_SpriteTile(data, tilemap, x, y);
+		Factory::Instance()[id].AddComponent<MovementType>();
+		return id;
+	}
+
+
+	//created by wilf for testing 
+	eid FF_Createproj(const SpriteData& data, const int& x, const int& y,const Com_Direction& direction); //create projectile 
+	eid FF_CreateEnemy(const SpriteData& data, const eid& tilemap, const int& x, const int& y);
+
+>>>>>>> origin/Player-Wilf
 };

@@ -3,10 +3,14 @@
 #include <string>
 #include <vector>
 #include "AEEngine.h"
+<<<<<<< HEAD
 //<<<<<<< HEAD
 //=======
 //
 //>>>>>>> origin/refactor
+=======
+#include "Factory.h"
+>>>>>>> origin/Player-Wilf
 #include "zComponent.h"
 #include "zSystem.h"
 using namespace std;
@@ -39,6 +43,12 @@ struct Com_Node;
 																				Component::BASIC DATA
 ____________________________________________________________________________________________________*/
 
+//timer
+struct Com_GameTimer {
+	size_t timerinseconds{ 0 };
+	size_t incrementer{ 0 };
+};
+
 struct Com_Position {
 	float x{ 0.0f };
 	float y{ 0.0f };
@@ -68,7 +78,11 @@ struct Com_Sprite {
 
 struct Com_Direction {
 	enum Direction { up, down, left, right };
-	int currdir;
+	int currdir = up;
+};
+
+struct Com_Boundary {
+	char _filler = 0; //filler 
 };
 
 /*																				Component::INPUT
@@ -131,8 +145,11 @@ struct Com_WeaponAttack
 		sword,
 		pistol
 	};
-	int currentweapon{ 0 };
-};
+	int currentweapon{ 1 };
+};;
+
+/*																				Component::ENEMY
+____________________________________________________________________________________________________*/
 
 /*																Component::PATH FINDING
 ____________________________________________________________________________________________________*/
@@ -212,6 +229,15 @@ ________________________________________________________________________________
 /*																				system::BASIC SYSTEMS
 ____________________________________________________________________________________________________*/
 
+struct Sys_Velocity : public System {
+	void UpdateComponent() override {
+		Com_Velocity& velocity = get<Com_Velocity>();
+		Com_Position& position = get<Com_Position>();
+		position.x += velocity.x * _dt;
+		position.y += velocity.y * _dt;
+	}
+};
+
 struct Sys_DrawSprite : public System {
 	std::vector<Com_Sprite*> con;
 	void UpdateComponent() override {
@@ -277,16 +303,16 @@ ________________________________________________________________________________
 struct Sys_ArrowKeys : public System {
 	void UpdateComponent() override {
 		if (AEInputCheckCurr(VK_LEFT)) {
-			get<Com_Position>().x -= 1.0f * _dt;
+			get<Com_Position>().x -= 100.0f * _dt;
 		}
 		if (AEInputCheckCurr(VK_RIGHT)) {
-			get<Com_Position>().x += 1.0f * _dt;
+			get<Com_Position>().x += 100.0f * _dt;
 		}
 		if (AEInputCheckCurr(VK_UP)) {
-			get<Com_Position>().y += 1.0f * _dt;
+			get<Com_Position>().y += 100.0f * _dt;
 		}
 		if (AEInputCheckCurr(VK_DOWN)) {
-			get<Com_Position>().y -= 1.0f * _dt;
+			get<Com_Position>().y -= 100.0f * _dt;
 		}
 	}
 };
@@ -294,17 +320,39 @@ struct Sys_ArrowKeys : public System {
 struct Sys_ArrowKeysTilemap : public System {
 	void UpdateComponent() override {
 		Com_TilePosition& pos = get<Com_TilePosition>();
+		Com_Direction& direction = get<Com_Direction>();
 		if (AEInputCheckTriggered(VK_LEFT)) {
-			pos._grid_x -= 1;
+			//if already left 
+			if (direction.currdir == direction.left) {
+				pos._grid_x -= 1;
+			}
+			else {
+				direction.currdir = direction.left;
+			}
 		}
 		if (AEInputCheckTriggered(VK_RIGHT)) {
-			pos._grid_x += 1;
+			if (direction.currdir == direction.right) {
+				pos._grid_x += 1;
+			}
+			else {
+				direction.currdir = direction.right;
+			}
 		}
 		if (AEInputCheckTriggered(VK_UP)) {
-			pos._grid_y -= 1;
+			if (direction.currdir == direction.up) {
+				pos._grid_y -= 1;
+			}
+			else {
+				direction.currdir = direction.up;
+			}
 		}
 		if (AEInputCheckTriggered(VK_DOWN)) {
-			pos._grid_y += 1;
+			if (direction.currdir == direction.down) {
+				pos._grid_y += 1;
+			}
+			else {
+				direction.currdir = direction.down;
+			}
 		}
 	}
 };
@@ -313,6 +361,7 @@ struct Sys_ArrowKeysTilemap : public System {
 ____________________________________________________________________________________________________*/
 
 struct Sys_Tilemap : public System {
+	int i = 0;
 	void UpdateComponent() override {
 		Com_Tilemap& tilemap = get<Com_Tilemap>();
 		if (tilemap._initialized) {
@@ -497,58 +546,179 @@ struct Sys_AABB : public System {
 /*																				system::ATTACK
 ____________________________________________________________________________________________________*/
 
+struct Com_Projectile {
+	char _filler = 0; //filler
+};
+
+
 struct Sys_Projectile : public System {
+	Factory::SpriteData data = { "test", 1, 1, 1, 100.0f, 50.0f, 50.0f };
+	//passing in of player's data 
+	virtual void CreateProjectile(Com_Direction& direction,Com_Position& position) {
+		//calling the factory fnc
+		Factory::Instance().FF_Createproj(data, position.x, position.y,direction);
+	}
+};
+
+
+struct Sys_PlayerAttack : public Sys_Projectile {
 	void UpdateComponent() override {
-		Com_Direction& direction = get<Com_Direction>();
-		//if space triggered 
+
 		if (AEInputCheckCurr(VK_SPACE)) {
-			if (direction.currdir == direction.right) {
-				//create an entity of bullet 
-				CreateProjectile(get<Com_Position>(), get<Com_Velocity>(), get<Com_Direction>());
-			}
-			if (direction.currdir == direction.left) {
-				//create an entity of bullet 
-				CreateProjectile(get<Com_Position>(), get<Com_Velocity>(), get<Com_Direction>());
-			}
+			Com_Direction& direction = get<Com_Direction>();
+			Com_WeaponAttack& weapon = get<Com_WeaponAttack>();
+			Com_Position& position = get<Com_Position>();
 			if (direction.currdir == direction.up) {
-				//create an entity of bullet 
-				CreateProjectile(get<Com_Position>(), get<Com_Velocity>(), get<Com_Direction>());
+				//if character holding to sword 
+				if (weapon.currentweapon == weapon.sword) {
+					//attack the grid infront or shoort invisible bullet 
+					sword_attack(direction, position);
+
+				}
+				//if character holding to pistol 
+				if (weapon.currentweapon == weapon.pistol) {
+					//shoot out projectile 
+					CreateProjectile(direction, position);
+				}
+
 			}
 			if (direction.currdir == direction.down) {
-				//create an entity of bullet 
-				CreateProjectile(get<Com_Position>(), get<Com_Velocity>(), get<Com_Direction>());
-			}
+				//if character holding to sword 
+				if (weapon.currentweapon == weapon.sword) {
+					//attack the grid infront or shoort invisible bullet 
+					sword_attack(direction, position);
 
+				}
+				//if character holding to pistol 
+				if (weapon.currentweapon == weapon.pistol) {
+					//shoot out projectile 
+					CreateProjectile(direction, position);
+				}
+			}
+			if (direction.currdir == direction.left) {
+				//if character holding to sword 
+				if (weapon.currentweapon == weapon.sword) {
+					//attack the grid infront or shoort invisible bullet 
+					sword_attack(direction, position);
+
+				}
+				//if character holding to pistol 
+				if (weapon.currentweapon == weapon.pistol) {
+					//shoot out projectile 
+					CreateProjectile(direction, position);
+				}
+			}
+			if (direction.currdir == direction.right) {
+				//if character holding to sword 
+				if (weapon.currentweapon == weapon.sword) {
+					//attack the grid infront or shoort invisible bullet 
+					sword_attack(direction, position);
+
+				}
+				//if character holding to pistol 
+				if (weapon.currentweapon == weapon.pistol) {
+					//shoot out projectile 
+					CreateProjectile(direction, position);
+				}
+			}
 		}
 	}
-	void CreateProjectile(Com_Position& position, Com_Velocity& velocity, Com_Direction& direction) {
-		//creat projectile based on direction
-		//Factory::Instance().CreateEntity<Com_Sprite, Com_Velocity, Com_Position, Com_BoundingBox, Com_Direction>();
-		//set entity sprite, position, velocity, direction
+	void sword_attack(Com_Direction& direction, Com_Position& position) {
+		//pending 
 	}
 };
 
-struct Sys_WeaponAttack : public System {
+
+ /////////Edits  
+
+/*-------------------------------------
+//for spawning of enemies 
+-------------------------------------------*/
+struct Com_EnemySpawn{
+	size_t numberofenemies{ 5 }; //number of enemies to spawn 
+};
+
+struct Com_Wave{
+	size_t timerforwave{ 60 }; //if timer hits 0 in secsm spawn new wave 
+	size_t numberofwaves{ 3 }; //if number of wave hit 0, level unlocked 
+};
+
+//logic for spawning of enemies 
+struct Sys_EnemySpawning : public System {
 	void UpdateComponent() override {
-		if (AEInputCheckCurr(VK_SPACE)) {
-			//if character holding to sword 
-			if (get<Com_WeaponAttack>().currentweapon == Com_WeaponAttack::sword) {
-				//attack the grid infront 
-
-			}
-			//if character holding to pistol 
-			if (get<Com_WeaponAttack>().currentweapon == Com_WeaponAttack::pistol) {
-				//shoot out projectile 
-				//Sys_Projectile::CreateProjectile(Com_Position & position, Com_Velocity & velocity, Com_Direction & direction);
-			}
+		Com_EnemySpawn& Enemyspawn = get<Com_EnemySpawn>();
+		Com_Wave& wave = get<Com_Wave>();
+		Com_GameTimer& timer = get<Com_GameTimer>();
+		//if the timer hits for set time 
+		//if timer hit 0 spawn wave/ number of enemies hit 0 
+		if (timer.timerinseconds == wave.timerforwave || Enemyspawn.numberofenemies == 0) {
+			//spawning of enemies 
+			spawn_enemies();
+			--wave.numberofwaves; //decrease the number of waves left 
+			timer.timerinseconds = 0;
 		}
 	}
-
-	void sword_attack() {
-
+	void spawn_enemies() {
+		//spawn enemy at a certain location
+		//create enemy entity 
+		/*Factory::Instance().CreateEntity<Com_Sprite, Com_Position, Com_BoundingBox, Com_Direction, 
+			Com_TilePosition, Com_Tilemap,Com_TypeEnemy,Com_EnemySpawn,Com_Wave>();*/
 	}
 };
 
+
+/*-------------------------------------
+			//for attack of enemies 
+-------------------------------------------*/
+
+struct Com_TypeEnemy {
+	enum EnemyType
+	{
+		Alien1, //melee
+		Alien2  //range
+	};
+	size_t Alientype{ 0 };
+};
+
+
+//logic for attack of enemies 
+struct Sys_EnemyAttack : public Sys_Projectile {
+	void UpdateComponent() override {
+		//if enemy is melee
+		if (get<Com_TypeEnemy>().Alientype == Com_TypeEnemy::Alien1) {
+			//check 4 sides if player is 1 tile away
+			//if () {
+			//	//shoot invisible that direction 
+			//	//create projectile system
+			//}
+		}
+		//if enemy is range
+		if (get<Com_TypeEnemy>().Alientype == Com_TypeEnemy::Alien2) {
+			//check 4 sides if player is x/y aligned 
+			//if () {
+			//	//shoot that direction
+			//	//createprojectile system
+			//}
+		}
+	}
+};
+
+/*-------------------------------------
+			//timing for game/wave
+-------------------------------------------*/
+
+//frame rate non independent timer 
+struct Sys_GameTimer : public System {
+	void UpdateComponent() override {
+		++get<Com_GameTimer>().incrementer;
+		if (AEFrameRateControllerGetFrameRate() < get<Com_GameTimer>().incrementer) {
+			get<Com_GameTimer>().incrementer = 0; //reset incrementer 
+			++get<Com_GameTimer>().timerinseconds; //add 1 sec
+		}
+	}
+};
+
+<<<<<<< HEAD
 /*																			system::PATH FINDING
 ____________________________________________________________________________________________________*/
 
@@ -691,3 +861,5 @@ bool Solve_AStar(Com_Node& ode, Com_Tilemap& tile)
 
 
 };
+=======
+>>>>>>> origin/Player-Wilf
