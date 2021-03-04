@@ -30,13 +30,25 @@ public:
 	* Custom Factory Functions
 	___________________________________________________________*/
 	struct SpriteData {
-		std::string texturename;
-		int row;
-		int col;
-		int frames;
-		float interval;
-		float scalex;
-		float scaley;
+		int _layer;
+		std::string _texturename;
+		int _row;
+		int _col;
+		int _frames;
+		float _interval;
+		float _scalex;
+		float _scaley;
+		SpriteData(const std::string& name, const float& scalex = 1.0f, const float& scaley = 1.0f, int row = 1.0, int col = 1.0, int frames = 1.0f, const float& interval = 0.5f, int layer = 0)
+			:
+			_texturename(name),
+			_scalex(scalex),
+			_scaley(scaley),
+			_row(row),
+			_col(col),
+			_frames(frames),
+			_interval(interval),
+			_layer(layer)
+		{}
 	};
 	eid FF_Sprite(const SpriteData& data, const float& x, const float& y);
 	eid FF_Tilemap(const std::string& texture, const std::string& bottom, const std::string& top);

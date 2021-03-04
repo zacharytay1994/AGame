@@ -24,6 +24,29 @@ void ResourceManager::GetResource(AEGfxTexture*& tex, AEGfxVertexList*& mesh, co
 	}
 }
 
+void ResourceManager::DrawQueue(RenderPack pack)
+{
+	_render_queue.push(pack);
+}
+
+void ResourceManager::FlushDraw()
+{
+	AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
+	AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
+	while (!_render_queue.empty()) {
+		const RenderPack& rp = _render_queue.top();
+		AEGfxSetTransform(const_cast<RenderPack&>(rp)._transform.m);
+		AEGfxTextureSet(rp._texture, rp._offset_x, rp._offset_y);
+		AEGfxMeshDraw(rp._mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
+		_render_queue.pop();
+	}
+}
+
+void ResourceManager::ResetRenderQueue()
+{
+	_render_queue = std::priority_queue <RenderPack, std::vector<RenderPack>, RM_Compare>();
+}
+
 void ResourceManager::LoadTexture(const std::string& name, const std::string& path)
 {
 	_textures[name] = AEGfxTextureLoad((asset_path + texture_path + path).c_str());
@@ -189,7 +212,7 @@ void ResourceManager::ReadFloorMapTxt(const std::string& path, Com_Tilemap& tile
 				tilemap._floor_mask[x * (size_t)tilemap._height + y] = -1;
 				continue; 
 			}
-			int i = 0, n = y - 1, s = y + 1, w = x - 1, e = x + 1;
+			int i = 0, n = (int)y - 1, s = (int)y + 1, w = (int)x - 1, e = (int)x + 1;
 			if (n >= 0 && temp[x * (size_t)tilemap._height + n]) { i |= 1; }
 			if (s < tilemap._height && temp[x * (size_t)tilemap._height + s]) { i |= 8; }
 			if (w >= 0 && temp[w * (size_t)tilemap._height + y]) { i |= 2; }
@@ -216,4 +239,9 @@ void ResourceManager::Initialize()
 	LoadTexture("test", "test2.png");
 	LoadTexture("test2", "testguy.png");
 	LoadTexture("tilemap", "tilemaptest.png");
+}
+
+bool RenderComparator(RenderPack* p1, RenderPack* p2)
+{
+	return p1->_layer < p2->_layer;
 }

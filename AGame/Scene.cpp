@@ -77,6 +77,7 @@ void SceneManager::Initialize() {
 
 void SceneManager::Free()
 {
+	ResourceManager::Instance().ResetRenderQueue();
 	ResourceManager::Instance().FreeResources();
 }
 
@@ -102,6 +103,7 @@ void SceneManager::ChangeScene(const std::string& name) {
 		// reload the scene into memory
 		//_scenes[_current_scene_name] = std::make_shared<Scene>();
 	}
+	ResourceManager::Instance().ResetRenderQueue();
 	ArchetypeDatabase::Instance().FlushEntities();
 	_current_scene = _scenes[name];
 	_current_scene_name = name;
@@ -126,6 +128,7 @@ void SceneManager::Update(const float& dt)
 	if (_current_scene) {
 		_current_scene->Update(dt);
 		SystemDatabase::Instance().SystemDatabaseUpdate((float)AEFrameRateControllerGetFrameTime());
+		ResourceManager::Instance().FlushDraw();
 	}
 }
 
@@ -176,6 +179,7 @@ void SceneManager::RestartScene()
 	if (_current_scene) {
 		_current_scene->Exit();
 		std::cout << "Scene Freed." << std::endl;
+		ResourceManager::Instance().ResetRenderQueue();
 		ArchetypeDatabase::Instance().FlushEntities();
 		Factory::Instance().Free();
 		_current_scene->Initialize();
@@ -196,6 +200,7 @@ void SceneManager::Draw(const float& dt)
 
 void SceneManager::Unload()
 {
+	ResourceManager::Instance().ResetRenderQueue();
 }
 
 void Scene::Load()
@@ -208,4 +213,5 @@ void Scene::Draw(const float& dt)
 
 void Scene::Unload()
 {
+	ResourceManager::Instance().ResetRenderQueue();
 }

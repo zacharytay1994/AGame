@@ -1,8 +1,10 @@
 #pragma once
 #include <iostream>
 #include <string>
+#include <queue>
 #include "AEEngine.h"
 
+#include "ResourceManager.h"
 #include "zComponent.h"
 #include "zSystem.h"
 
@@ -41,8 +43,7 @@ struct Com_Velocity {
 };
 
 struct Com_Sprite {
-	AEGfxTexture* _texture = nullptr;
-	AEGfxVertexList* _mesh = nullptr;
+	RenderPack			_render_pack;
 	float				_x_scale = 1.0f;
 	float				_y_scale = 1.0f;
 	float				_rotation = 0.0f;
@@ -52,9 +53,6 @@ struct Com_Sprite {
 	float				_frame_interval_counter = 0.0f;
 	int					_row = 1;
 	int					_col = 1;
-	float				_offset_x = 0.0f;
-	float				_offset_y = 0.0f;
-	AEMtx33				_transform{ 0 };
 };
 
 struct Com_Direction {
@@ -76,16 +74,15 @@ struct Com_ArrowKeysTilemap {
 ____________________________________________________________________________________________________*/
 
 struct Com_Tilemap {
+	RenderPack		_render_pack;
 	std::vector<int> _map;
 	std::vector<int> _floor_mask;
-	float _offset_x = 0.0f;
-	float _offset_y = 0.0f;
+	float _offset_x{ 0.0f };
+	float _offset_y{ 0.0f };
 	int _width = 0;
 	int _height = 0;
 	float _scale_x = 1.0f;
 	float _scale_y = 1.0f;
-	AEGfxTexture* _texture = nullptr;
-	AEGfxVertexList* _mesh = nullptr;
 	bool _initialized = false;
 };
 
@@ -190,8 +187,8 @@ struct Sys_DrawSprite : public System {
 		// increment frame
 		if (sprite._frame_interval_counter > sprite._frame_interval) {
 			sprite._current_frame = ++sprite._current_frame >= sprite._frames ? 0 : sprite._current_frame;
-			sprite._offset_x = (sprite._current_frame % sprite._col) * 1.0f / (float)sprite._col;
-			sprite._offset_y = (sprite._current_frame / sprite._col) * 1.0f / (float)sprite._row;
+			sprite._render_pack._offset_x = (sprite._current_frame % sprite._col) * 1.0f / (float)sprite._col;
+			sprite._render_pack._offset_y = (sprite._current_frame / sprite._col) * 1.0f / (float)sprite._row;
 			sprite._frame_interval_counter = 0.0f;
 		}
 		else {
@@ -200,14 +197,10 @@ struct Sys_DrawSprite : public System {
 		AEMtx33Scale(&scale, sprite._x_scale, sprite._y_scale);
 		AEMtx33Rot(&rot, sprite._rotation);
 		AEMtx33Trans(&trans, position.x, position.y);
-		AEMtx33Concat(&sprite._transform, &rot, &scale);
-		AEMtx33Concat(&sprite._transform, &trans, &sprite._transform);
+		AEMtx33Concat(&sprite._render_pack._transform, &rot, &scale);
+		AEMtx33Concat(&sprite._render_pack._transform, &trans, &sprite._render_pack._transform);
 		// set aegfx variables
-		AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
-		AEGfxSetTransform(sprite._transform.m);
-		AEGfxTextureSet(sprite._texture, sprite._offset_x, sprite._offset_y);
-		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
-		AEGfxMeshDraw(sprite._mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
+		ResourceManager::Instance().DrawQueue(sprite._render_pack);
 	}
 };
 
@@ -243,16 +236,16 @@ ________________________________________________________________________________
 struct Sys_ArrowKeys : public System {
 	void UpdateComponent() override {
 		if (AEInputCheckCurr(VK_LEFT)) {
-			get<Com_Position>().x -= 100.0f * _dt;
+			get<Com_Position>().x -= 10.0f * _dt;
 		}
 		if (AEInputCheckCurr(VK_RIGHT)) {
-			get<Com_Position>().x += 100.0f * _dt;
+			get<Com_Position>().x += 10.0f * _dt;
 		}
 		if (AEInputCheckCurr(VK_UP)) {
-			get<Com_Position>().y += 100.0f * _dt;
+			get<Com_Position>().y += 10.0f * _dt;
 		}
 		if (AEInputCheckCurr(VK_DOWN)) {
-			get<Com_Position>().y -= 100.0f * _dt;
+			get<Com_Position>().y -= 10.0f * _dt;
 		}
 	}
 };
@@ -286,23 +279,22 @@ struct Sys_Tilemap : public System {
 			DrawTilemap(tilemap, position);
 		}
 	}
-	void DrawTilemap(const Com_Tilemap& tilemap, const Com_Position& position) {
+	void DrawTilemap(Com_Tilemap& tilemap, const Com_Position& position) {
 		AEMtx33 trans, scale, transform;
-		AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
 		AEMtx33Scale(&scale, tilemap._scale_x, tilemap._scale_y);
 		for (size_t y = 0; y < (size_t)tilemap._height; ++y) {
 			for (size_t x = 0; x < (size_t)tilemap._width; ++x) {
 				if (tilemap._floor_mask[x * (size_t)tilemap._height + y] == -1) { continue; }
 				AEMtx33Trans(&trans, (float)x + tilemap._offset_x, -(float)y + tilemap._offset_y);
 				AEMtx33Concat(&transform, &scale, &trans);
-				AEGfxSetTransform(transform.m);
+				tilemap._render_pack._transform = transform;
 				if (tilemap._floor_mask[x * (size_t)tilemap._height + y]) {
 					// sample texture according to collision mask
-					float offset_x = (tilemap._floor_mask[x * (size_t)tilemap._height + y] % 4) * 1.0f / (float)4;
-					float offset_y = (tilemap._floor_mask[x * (size_t)tilemap._height + y] / 4) * 1.0f / (float)4;
-					AEGfxTextureSet(tilemap._texture, offset_x, offset_y);
-					AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
-					AEGfxMeshDraw(tilemap._mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
+					float _offset_x = (tilemap._floor_mask[x * (size_t)tilemap._height + y] % 4) * 1.0f / (float)4;
+					float _offset_y = (tilemap._floor_mask[x * (size_t)tilemap._height + y] / 4) * 1.0f / (float)4;
+					tilemap._render_pack._offset_x = (tilemap._floor_mask[x * (size_t)tilemap._height + y] % 4) * 1.0f / (float)4;
+					tilemap._render_pack._offset_y = (tilemap._floor_mask[x * (size_t)tilemap._height + y] / 4) * 1.0f / (float)4;
+					ResourceManager::Instance().DrawQueue(tilemap._render_pack);
 				}
 			}
 		}
@@ -336,8 +328,8 @@ struct Sys_TilePosition : public System {
 				t_position._grid_y = t_position._vgrid_y;
 			}
 			// bind position to grid position
-			position.x = tilemap->_offset_x * tilemap->_scale_x + (float)t_position._vgrid_x * tilemap->_scale_x;
-			position.y = tilemap->_offset_y * tilemap->_scale_y - (float)t_position._vgrid_y * tilemap->_scale_y;
+			position.x = tilemap->_render_pack._offset_x * tilemap->_scale_x + (float)t_position._vgrid_x * tilemap->_scale_x;
+			position.y = tilemap->_render_pack._offset_y * tilemap->_scale_y - (float)t_position._vgrid_y * tilemap->_scale_y;
 		}
 	}
 };
