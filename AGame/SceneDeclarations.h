@@ -290,6 +290,9 @@ struct TestScenePF : public Scene
 		if (AEInputCheckTriggered('O')) {
 			Factory::Instance()[e2].AddComponent<Com_ArrowKeysTilemap>();
 		}
+
+
+
 	}
 };
 
