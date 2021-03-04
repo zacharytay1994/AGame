@@ -289,6 +289,8 @@ struct TestScenePF : public Scene
 		}
 		if (AEInputCheckTriggered('O')) {
 			Factory::Instance()[e2].AddComponent<Com_ArrowKeysTilemap>();
+			std::cout << Factory::Instance()[e2].Get<Com_TilePosition>()._grid_x << std::endl;
+			std::cout << Factory::Instance()[e2].Get<Com_TilePosition>()._grid_y << std::endl;
 		}
 
 

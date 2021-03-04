@@ -69,7 +69,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	AESysReset();
 
 	SceneManager::Instance();
-	SceneManager::Instance().ChangeScene("TestScenewilfred");
+	SceneManager::Instance().ChangeScene("Test PathFinding");
 
 
 	// Initialization end
