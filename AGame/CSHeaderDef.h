@@ -560,38 +560,38 @@ struct Sys_PathFinding : public System
 	}
 	
 
-void MapCreate(Com_Node& ode, Com_Tilemap& tile)
+void MapCreate(Com_Node& ode, const Com_Tilemap& tile)
 {
 	// Create a 2D array of nodes - this is for convenience of rendering and construction
 	// and is not required for the algorithm to work - the nodes could be placed anywhere
 	// in any space, in multiple dimension
-	int width = tile._width;
 	int height = tile._height;
+	int width = tile._width;
 	int MapArea = width * height;
 	ode.nodes = new Com_PathFinding[MapArea];
-	for (int x = 0; x < width; x++)
-		for (int y = 0; y < height; y++)
+	for (int y = 0; y < height; y++)
+		for (int x = 0; x < width; x++)
 		{
-			ode.nodes[y * width + x].x = x; // to give each node its own coordinates
-			ode.nodes[y * width + x].y = y;
+			ode.nodes[x * height + y].x = x; // to give each node its own coordinates
+			ode.nodes[x * height + y].y = y;
 			// set everything to default value 1st
-			ode.nodes[y * width + x].bObstacle = false;
-			ode.nodes[y * width + x].parent = nullptr;
-			ode.nodes[y * width + x].bVisited = false;
+			ode.nodes[x * height + y].bObstacle = false;
+			ode.nodes[x * height + y].parent = nullptr;
+			ode.nodes[x * height + y].bVisited = false;
 		}
 
 	// Create connections - in this case nodes are on a regular grid
-	for (int x = 0; x < width; x++)
-		for (int y = 0; y < width; y++)
+	for (int y = 0; y < height; y++)
+		for (int x = 0; x < width; x++)
 		{
-			if (y > 0)
-				ode.nodes[y * width + x].vecNeighbours.push_back(&ode.nodes[(y - 1) * width + (x + 0)]);
-			if (y < height - 1)
-				ode.nodes[y * width + x].vecNeighbours.push_back(&ode.nodes[(y + 1) * width + (x + 0)]);
 			if (x > 0)
-				ode.nodes[y * width + x].vecNeighbours.push_back(&ode.nodes[(y + 0) * width + (x - 1)]);
+				ode.nodes[x * height + y].vecNeighbours.push_back(&ode.nodes[(x - 1) * height + (y + 0)]);
 			if (x < width - 1)
-				ode.nodes[y * width + x].vecNeighbours.push_back(&ode.nodes[(y + 0) * width + (x + 1)]);
+				ode.nodes[x * height + y].vecNeighbours.push_back(&ode.nodes[(x + 1) * height + (y + 0)]);
+			if (y > 0)
+				ode.nodes[x * height + y].vecNeighbours.push_back(&ode.nodes[(x + 0) * height + (y - 1)]);
+			if (y < height - 1)
+				ode.nodes[x * height + y].vecNeighbours.push_back(&ode.nodes[(x + 0) * height + (y + 1)]);
 
 		}
 
@@ -602,16 +602,16 @@ void MapCreate(Com_Node& ode, Com_Tilemap& tile)
 
 bool Solve_AStar(Com_Node& ode, Com_Tilemap& tile)
 {
-	int width = tile._width;
 	int height = tile._height;
+	int width = tile._width;
 	// Reset Navigation Graph - default all node states
-	for (int x = 0; x < width; x++)
-		for (int y = 0; y < height; y++)
+	for (int y = 0; y < height; y++)
+		for (int x = 0; x < width; x++)
 		{
-			ode.nodes[y * width + x].bVisited = false;
-			ode.nodes[y * width + x].fGlobalGoal = INFINITY;
-			ode.nodes[y * width + x].fLocalGoal = INFINITY;
-			ode.nodes[y * width + x].parent = nullptr;	// No parents
+			ode.nodes[x * height + y].bVisited = false;
+			ode.nodes[x * height + y].fGlobalGoal = INFINITY;
+			ode.nodes[x * height + y].fLocalGoal = INFINITY;
+			ode.nodes[x * height + y].parent = nullptr;	// No parents
 		}
 
 	auto distance = [](Com_PathFinding* a, Com_PathFinding* b) // For convenience
