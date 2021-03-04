@@ -84,17 +84,17 @@ int&	Weapon::Weapon_Curr_Capacity()
 	return weapon_curr_ReloadTimer;
 }
 
-void Weapon::SetWeapon_Damage(unsigned int const& new_Damage)
+void Weapon::SetWeapon_Damage(unsigned int new_Damage)
 {
 	weapon_Damage = new_Damage;
 }
 
-void Weapon::SetWeapon_ReloadTime(unsigned int const& new_ReloadTime)
+void Weapon::SetWeapon_ReloadTime(unsigned int new_ReloadTime)
 {
 	weapon_ReloadTime = new_ReloadTime;
 }
 
-void Weapon::SetWeapon_Capacity(unsigned int const& new_Capacity)
+void Weapon::SetWeapon_Capacity(unsigned int new_Capacity)
 {
 	weapon_Capacity = new_Capacity;
 }

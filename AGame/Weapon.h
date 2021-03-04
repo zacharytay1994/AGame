@@ -28,9 +28,9 @@ class Weapon
 		int&	Weapon_Curr_Capacity();
 
 	protected:
-		void SetWeapon_Damage(unsigned int const& new_Damage);
-		void SetWeapon_ReloadTime(unsigned int const& new_ReloadTime);
-		void SetWeapon_Capacity(unsigned int const& new_Capacity);
+		void SetWeapon_Damage(unsigned int new_Damage);
+		void SetWeapon_ReloadTime(unsigned int new_ReloadTime);
+		void SetWeapon_Capacity(unsigned int new_Capacity);
 		void SetWeapon_Pattern(std::vector<BulletSpawn> const& rhs);
 
 	private:
