@@ -17,15 +17,15 @@ SceneManager::SceneManager()
 /*______________________________________________________
 * Brief:	Handle to the singleton instance.
 * Access:	public
-* 
+*
 * Use e.g:	SceneManager::Instance().ExampleFunction()
-* 
+*
 * \return	Reference to a scenemanager static instance.
 ________________________________________________________*/
 SceneManager& SceneManager::Instance()
 {
-    static SceneManager instance;
-    return instance;
+	static SceneManager instance;
+	return instance;
 }
 
 /*______________________________________________________
@@ -76,11 +76,11 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeys, Com_Position, Com_ArrowKeys>();
 	SystemDatabase::Instance().RegisterSystem<Sys_TilemapPosition, Com_Tilemap, Com_Position>();
 	SystemDatabase::Instance().RegisterSystem<Sys_TilePosition, Com_TilemapRef, Com_TilePosition, Com_Position>();
-	SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeysTilemap, Com_TilePosition, Com_ArrowKeysTilemap,Com_Direction>();
-	SystemDatabase::Instance().RegisterSystem<Sys_PlayerAttack,Com_Direction,Com_WeaponAttack, Com_TilePosition, Com_Projectile>();
-	SystemDatabase::Instance().RegisterSystem<Sys_GameTimer, Com_GameTimer>(); 
-	SystemDatabase::Instance().RegisterSystem<Sys_EnemyAttack, Com_Direction, Com_TypeEnemy, Com_TilePosition,Com_Tilemap>();
-	SystemDatabase::Instance().RegisterSystem<Sys_EnemySpawning, Com_Direction,Com_Wave>();
+	SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeysTilemap, Com_TilePosition, Com_ArrowKeysTilemap, Com_Direction>();
+	SystemDatabase::Instance().RegisterSystem<Sys_PlayerAttack, Com_Direction, Com_WeaponAttack, Com_TilePosition, Com_Projectile>();
+	SystemDatabase::Instance().RegisterSystem<Sys_GameTimer, Com_GameTimer>();
+	SystemDatabase::Instance().RegisterSystem<Sys_EnemyAttack, Com_Direction, Com_TypeEnemy, Com_TilePosition, Com_Tilemap>();
+	SystemDatabase::Instance().RegisterSystem<Sys_EnemySpawning, Com_EnemySpawn, Com_Wave, Com_GameTimer>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Velocity, Com_Position, Com_Velocity>();
 
 	// 4. Registering scenes
@@ -98,11 +98,11 @@ void SceneManager::Free()
 /*______________________________________________________
 * Brief:	Exits the current scene and initializes
 *			the next scene.
-* 
+*
 * Access:	public
-* 
+*
 * Used e.g:	SceneManager::Instance().ChangeScene("myScene");
-* 
+*
 * arg[in]:	name
 *			- The name of the scene to change to,
 *			  assigned at SceneManager::AddScene()
@@ -126,13 +126,13 @@ void SceneManager::ChangeScene(const std::string& name) {
 }
 
 /*______________________________________________________
-* Brief:	Updates the current scene bound to the 
+* Brief:	Updates the current scene bound to the
 *			SceneManager.
 *
 * Access:	public (needs to be called in main.cpp)
 *
 * called:	In main.cpp
-* 
+*
 * arg[in]:	dt
 *			- Delta/Frame time between frames in seconds.
 ________________________________________________________*/

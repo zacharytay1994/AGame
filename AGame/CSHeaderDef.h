@@ -30,6 +30,12 @@ struct Com_WeaponAttack;
 																				Component::BASIC DATA
 ____________________________________________________________________________________________________*/
 
+//timer
+struct Com_GameTimer {
+	size_t timerinseconds{ 0 };
+	size_t incrementer{ 0 };
+};
+
 struct Com_Position {
 	float x{ 0.0f };
 	float y{ 0.0f };
@@ -599,13 +605,16 @@ struct Com_Wave{
 //logic for spawning of enemies 
 struct Sys_EnemySpawning : public System {
 	void UpdateComponent() override {
-		Com_Direction& Direction = get<Com_Direction>();
 		Com_EnemySpawn& Enemyspawn = get<Com_EnemySpawn>();
 		Com_Wave& wave = get<Com_Wave>();
+		Com_GameTimer& timer = get<Com_GameTimer>();
+		//if the timer hits for set time 
 		//if timer hit 0 spawn wave/ number of enemies hit 0 
-		if (wave.timerforwave == 0 || Enemyspawn.numberofenemies == 0) {
+		if (timer.timerinseconds == wave.timerforwave || Enemyspawn.numberofenemies == 0) {
 			//spawning of enemies 
 			spawn_enemies();
+			--wave.numberofwaves; //decrease the number of waves left 
+			timer.timerinseconds = 0;
 		}
 	}
 	void spawn_enemies() {
@@ -656,11 +665,6 @@ struct Sys_EnemyAttack : public Sys_Projectile {
 /*-------------------------------------
 			//timing for game/wave
 -------------------------------------------*/
-//timer
-struct Com_GameTimer {
-	size_t timerinseconds{ 0 };
-	size_t incrementer{ 0 };
-};
 
 //frame rate non independent timer 
 struct Sys_GameTimer : public System {
