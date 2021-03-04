@@ -62,6 +62,10 @@ struct Com_Direction {
 	int currdir;
 };
 
+struct Com_Boundary {
+	char _filler = 0; //filler 
+};
+
 /*																				Component::INPUT
 ____________________________________________________________________________________________________*/
 
@@ -467,7 +471,8 @@ struct Com_Projectile {
 
 struct Sys_Projectile : public System {
 	virtual void CreateProjectile(Com_Direction& direction,Com_TilePosition& tileposition) {
-		Factory::Instance().CreateEntity<Com_Sprite, Com_Velocity, Com_Position, Com_BoundingBox, Com_Direction>();
+		Factory::Instance().CreateEntity<Com_Sprite, Com_Velocity, Com_TilePosition, Com_BoundingBox, Com_Direction,Com_Boundary,Com_Tilemap>();
+
 	}
 };
 
@@ -534,7 +539,7 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 		}
 	}
 	void sword_attack(Com_Direction& direction, Com_TilePosition& Tilepos) {
-
+		//pending 
 	}
 };
 

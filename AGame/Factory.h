@@ -47,4 +47,6 @@ public:
 		Factory::Instance()[id].AddComponent<MovementType>();
 		return id;
 	}
+
+	//eid FF_Createproj(const SpriteData& data, const eid& tilemap, const int& x, const int& y, const double velocity, );
 };

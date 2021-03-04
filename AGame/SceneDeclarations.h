@@ -138,3 +138,68 @@ struct ExampleScene : public Scene {
 		std::cout << "Example Scene Unloaded." << std::endl;
 	}
 };
+
+
+
+/*!___________________________________________________________________
+	TEST SCENE - Created By : Wilfredddd
+_____________________________________________________________________*/
+struct TestScenewilfred : public Scene {
+	/*
+	Member Variables
+	________________________________*/
+	std::string test = "hello";
+	eid e2 = -1;
+	//Com_Tilemap tile;
+	eid tilemap = -1;
+	/*
+	Initialize Override (optional)
+	________________________________*/
+	void Initialize() override {
+		std::cout << test << " this is a test scene" << std::endl;
+		std::cout << sizeof(Com_Tilemap) << std::endl;
+
+		tilemap = Factory::Instance().FF_Tilemap("tilemap", "c_test.txt", "t_test.txt");
+		e2 = Factory::Instance().FF_SpriteMovableTile<Com_ArrowKeysTilemap>({ "test2", 1, 8, 8, 0.1f, 100.0f, 200.0f }, tilemap, 0, 0);
+	}
+	/*
+	Update Override (optional)
+	________________________________*/
+	void Update(const float& dt) override {
+		//Entity& testing = Factory::Instance()[tilemap];
+		if (AEInputCheckCurr('L')) {
+			SceneManager::Instance().ChangeScene("Test Scene 2");
+		}
+		if (AEInputCheckTriggered('P')) {
+			e2 = Factory::Instance().FF_SpriteTile({ "test2", 1, 8, 8, 0.2f, 50.0f, 80.0f }, tilemap, 3.0f, 0.0f);
+		}
+		/*if (AEInputCheckTriggered('O')) {
+			Factory::Instance()[e2].AddComponent<Com_ArrowKeysTilemap>();
+		}
+		if (AEInputCheckTriggered('M')) {
+			Entity& test = Factory::Instance()[tilemap];
+			Factory::Instance()[tilemap].AddComponent<Com_Position>();
+			Factory::Instance()[tilemap].AddComponent<Com_ArrowKeys>();
+		}
+		if (AEInputCheckCurr('I')) {
+			Entity& e = Factory::Instance().GetEntity(e2);
+			e.AddComponent<Com_Tilemap>();
+			ResourceManager::Instance().GetResource(e.Get<Com_Tilemap>()._texture, e.Get<Com_Tilemap>()._mesh, "tilemap", 4, 4, 16);
+			ResourceManager::Instance().ReadTilemapTxt("t_test.txt", e.Get<Com_Tilemap>());
+			ResourceManager::Instance().ReadFloorMapTxt("c_test.txt", e.Get<Com_Tilemap>());
+			Com_Tilemap& tilemap = e.Get<Com_Tilemap>();
+			e.Get<Com_Tilemap>()._scale_x = 100.0f;
+			e.Get<Com_Tilemap>()._scale_y = 100.0f;
+			e.Get<Com_Tilemap>()._initialized = true;
+		}
+		if (AEInputCheckTriggered('R')) {
+			SceneManager::Instance().RestartScene();
+		}*/
+	}
+	/*
+	Exit Override (optional)
+	________________________________*/
+	void Exit() override {
+		std::cout << "woo switching to scene 2!" << std::endl;
+	}
+};
