@@ -1,13 +1,16 @@
 #pragma once
 #include <iostream>
 #include <string>
+#include <vector>
 #include "AEEngine.h"
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/refactor
+//<<<<<<< HEAD
+//=======
+//
+//>>>>>>> origin/refactor
 #include "zComponent.h"
 #include "zSystem.h"
+using namespace std;
+
 
 /*___________________________________________________________________________________________________________________________________
 	COMPONENT DECLARATIONS & DEFINITONS																	<<	COMPONENT DEFINITIONS  >>
@@ -29,6 +32,9 @@ struct Com_BoundingBox;
 struct Com_CollisionData;
 // attack
 struct Com_WeaponAttack;
+// Nodes
+struct NodeForPathFinding;
+struct Com_Node;
 /*__________________________________________________________________________________________________
 																				Component::BASIC DATA
 ____________________________________________________________________________________________________*/
@@ -128,6 +134,30 @@ struct Com_WeaponAttack
 	int currentweapon{ 0 };
 };
 
+/*																Component::NODE FOR PATH FINDING
+____________________________________________________________________________________________________*/
+struct NodeForPathFinding
+{
+	bool bObstacle = false;			// Is the node an obstruction?
+	bool bVisited = false;			// Have we searched this node before?
+	float fGlobalGoal = 0.0f;				// Distance to goal so far
+	float fLocalGoal = 0.0f;				// Distance to goal if we took the alternative route
+	int x = 0;							// Nodes position in 2D space
+	int y = 0;
+	vector<NodeForPathFinding*> vecNeighbours;	// Connections to neighbours
+	NodeForPathFinding* parent = nullptr;					// Node connecting to this node that offers shortest parent
+};
+
+struct Com_Node
+{
+	NodeForPathFinding* nodes = nullptr;
+	int nMapWidth = 16; // for now here but will be replace based on tile map
+	int nMapHeight = 16;
+
+	NodeForPathFinding* nodeStart = nullptr;
+	NodeForPathFinding* nodeEnd = nullptr;
+};
+
 /*___________________________________________________________________________________________________________________________________
 	SYSTEM DECLARATIONS				<< RIGHT CLICK ON DECLARATION TO NAVIGATE TO DEFINITION!! >>			<<	SYSTEM DECLARATIONS  >>
 	_________________________________________________________________________________________________________________________________
@@ -171,6 +201,10 @@ struct Sys_AABB;
 /*																				system::ATTACK
 ____________________________________________________________________________________________________*/
 struct Sys_WeaponAttack;
+
+/*																				system::PATHFINDING
+____________________________________________________________________________________________________*/
+struct Sys_PathFinding;
 
 /*___________________________________________________________________________________________________________________________________
 	SYSTEM DEFINITIONS																						<<	SYSTEM DEFINITIONS  >>
@@ -513,4 +547,55 @@ struct Sys_WeaponAttack : public System {
 	void sword_attack() {
 
 	}
+};
+
+/*																			system::PATH FINDING
+____________________________________________________________________________________________________*/
+
+struct Sys_PathFinding : public System
+{
+	void UpdateComponent() override {
+		Com_Node* ode = &get<Com_Node>();
+	}
+	
+
+void MapCreate(Com_Node& ode)
+{
+	// Create a 2D array of nodes - this is for convenience of rendering and construction
+	// and is not required for the algorithm to work - the nodes could be placed anywhere
+	// in any space, in multiple dimension
+	int width = ode.nMapWidth;
+	int height = ode.nMapHeight;
+	int MapArea = width * height;
+	ode.nodes = new NodeForPathFinding[MapArea];
+	for (int x = 0; x < ode.nMapWidth; x++)
+		for (int y = 0; y < ode.nMapHeight; y++)
+		{
+			ode.nodes[y * width + x].x = x; // to give each node its own coordinates
+			ode.nodes[y * width + x].y = y;
+			// set everything to default value 1st
+			ode.nodes[y * width + x].bObstacle = false;
+			ode.nodes[y * width + x].parent = nullptr;
+			ode.nodes[y * width + x].bVisited = false;
+		}
+
+	// Create connections - in this case nodes are on a regular grid
+	for (int x = 0; x < width; x++)
+		for (int y = 0; y < width; y++)
+		{
+			if (y > 0)
+				ode.nodes[y * width + x].vecNeighbours.push_back(&ode.nodes[(y - 1) * width + (x + 0)]);
+			if (y < height - 1)
+				ode.nodes[y * width + x].vecNeighbours.push_back(&ode.nodes[(y + 1) * width + (x + 0)]);
+			if (x > 0)
+				ode.nodes[y * width + x].vecNeighbours.push_back(&ode.nodes[(y + 0) * width + (x - 1)]);
+			if (x < width - 1)
+				ode.nodes[y * width + x].vecNeighbours.push_back(&ode.nodes[(y + 0) * width + (x + 1)]);
+
+		}
+
+	// Manually positio the start and end markers so they are not nullptr
+	ode.nodeStart = &ode.nodes[(height / 2) * width + 1];
+	ode.nodeEnd = &ode.nodes[(height / 2) * width + width - 2];
+}
 };

@@ -60,6 +60,7 @@ eid Factory::FF_Tilemap(const std::string& texture, const std::string& bottom, c
     return id;
 }
 
+
 eid Factory::FF_SpriteTile(const SpriteData& data, const eid& tilemap, const int& x, const int& y)
 {
     eid id = CreateEntity<Com_Position, Com_Sprite, Com_TilePosition, Com_TilemapRef, Com_ArrowKeysTilemap>();
@@ -80,34 +81,22 @@ eid Factory::FF_SpriteTile(const SpriteData& data, const eid& tilemap, const int
     return id;
 }
 
-//int Factory::FF_SpriteRandomPosition(const std::string& texturename, const int& row, const int& col, const int& frames, const float& interval, const float& scalex, const float& scaley,
-//    const float& x, const float& y, const float& velX, const float& velY)
+//eid Factory::FF_SpriteRandomPosition(const SpriteData& data, const float& x, const float& y, const float& velX, const float& velY)
 //{
-//    eid id = CreateEntity<Com_Position, Com_Sprite>();
+//    eid id = CreateEntity<Com_Position, Com_Sprite, Com_Velocity>();
 //    Entity& e = Factory::Instance()[id];
-//    e.Initialize<Com_Position, Com_Sprite, Com_Velocity>();
+//    Com_Sprite& sprite = e.Get<Com_Sprite>();
 //    // gets texture and mesh resources from resource manager
-//    ResourceManager::Instance().GetResource(e.Get<Com_Sprite>()._texture, e.Get<Com_Sprite>()._mesh, texturename, row, col, frames);
-//    e.Get<Com_Sprite>()._x_scale = scalex;
-//    e.Get<Com_Sprite>()._y_scale = scaley;
-//    e.Get<Com_Sprite>()._row = row;
-//    e.Get<Com_Sprite>()._col = col;
-//    e.Get<Com_Sprite>()._frames = frames;
-//    e.Get<Com_Sprite>()._frame_interval = interval;
+//    ResourceManager::Instance().GetResource(sprite._texture, sprite._mesh, data.texturename, data.row, data.col, data.frames);
+//    sprite._x_scale = data.scalex;
+//    sprite._y_scale = data.scaley;
+//    sprite._row = data.row;
+//    sprite._col = data.col;
+//    sprite._frames = data.frames;
+//    sprite._frame_interval = data.interval;
 //
-//    e.Get<Com_Position>().x = x;
-//    e.Get<Com_Position>().y = y;
+//    e.Get<Com_Position>() = { x,y };
+//    e.Get<Com_Velocity>() = { velX,velY };
 //
-//    e.Get<Com_Velocity>().x = velX;
-//    e.Get<Com_Velocity>().y = velY;
-//
-//    
 //    return id;
-//    
-//    /*int e = FF_Sprite(texturename, row, col, frames, interval, scalex, scaley);
-//    GetEntity(e).AddComponent<Com_Example_Velocity>();
-//    e.Get<Com_Position>().x = x;
-//    e.Get<Com_Position>().y = y;
-//    return e;
-//    */
 //}
