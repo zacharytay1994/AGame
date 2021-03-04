@@ -186,7 +186,6 @@ struct Sys_Velocity : public System {
 	void UpdateComponent() override {
 		Com_Velocity& velocity = get<Com_Velocity>();
 		Com_Position& position = get<Com_Position>();
-		//updates the velocity 
 		position.x += velocity.x * _dt;
 		position.y += velocity.y * _dt;
 	}
@@ -507,21 +506,10 @@ struct Com_Projectile {
 
 struct Sys_Projectile : public System {
 	Factory::SpriteData data = { "test", 1, 1, 1, 100.0f, 50.0f, 50.0f };
+	//passing in of player's data 
 	virtual void CreateProjectile(Com_Direction& direction,Com_Position& position) {
 		//calling the factory fnc
-		if (direction.currdir == direction.left) {
-
-		}
-		if (direction.currdir == direction.right) {
-
-		}
-		if (direction.currdir == direction.up) {
-
-		}
-		if (direction.currdir == direction.down) {
-
-		}
-		Factory::Instance().FF_Createproj(data, position.x, position.y);
+		Factory::Instance().FF_Createproj(data, position.x, position.y,direction);
 	}
 };
 

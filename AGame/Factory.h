@@ -5,6 +5,8 @@
 #include "zEntity.h"
 
 typedef int eid; // entity id
+//forward declare to draw from cpp 
+struct Com_Direction;
 
 class Factory {
 	uint64_t _unique_ids = 0;
@@ -50,7 +52,7 @@ public:
 
 
 	//created by wilf for testing 
-	eid FF_Createproj(const SpriteData& data, const int& x, const int& y);
+	eid FF_Createproj(const SpriteData& data, const int& x, const int& y,const Com_Direction& direction);
 
 
 };

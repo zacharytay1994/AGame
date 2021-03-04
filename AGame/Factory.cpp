@@ -70,15 +70,32 @@ eid Factory::FF_SpriteTile(const SpriteData& data, const eid& tilemap, const int
     return id;
 }
 
-eid Factory::FF_Createproj(const SpriteData& data,const int& x, const int& y)
+eid Factory::FF_Createproj(const SpriteData& data, const int& x, const int& y, const Com_Direction& direction)
 {
     eid id = FF_Sprite(data, x, y);
     //for the projectile not the entity calling it 
     Factory::Instance()[id].AddComponent<Com_WeaponAttack,Com_Velocity>();
     Entity& e = Factory::Instance()[id];
     //setting of velocity which is not initialized 
-    e.Get<Com_Velocity>().x = 10.0f;
-    e.Get<Com_Velocity>().y = 10.0f;   
+    //Com_Direction& direction = e.Get<Com_Direction>();
+    Com_Velocity& velocity = e.Get<Com_Velocity>();
+	//updates the velocity 
+	if (direction.currdir == direction.left) {
+        velocity.x = -100.0f;
+        velocity.y = 0.0f;
+	}
+	if (direction.currdir == direction.right) {
+        velocity.x = 100.0f;
+        velocity.y = 0.0f;
+	}
+	if (direction.currdir == direction.up) {
+        velocity.x = 0.0f;
+        velocity.y = 100.0f;
+	}
+	if (direction.currdir == direction.down) {
+        velocity.x = 0.0f;
+        velocity.y = -100.0f;
+	}
     return id;
 }
 
