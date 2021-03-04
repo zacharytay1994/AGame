@@ -9,6 +9,12 @@ class Inventory
 		Inventory();
 		~Inventory();
 
+		bool Inventory_EquipWeapon(std::string const& name);
+
+		bool Inventory_SetWeaponUnlocked(std::string const& name);
+		bool Inventory_CheckWeaponUnlocked(std::string const& name) const;
+
 	private:
 		std::map<std::string, Weapon*> inventory_weapon;
+		Weapon* equippped_weapon;
 };

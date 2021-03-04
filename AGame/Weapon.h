@@ -23,9 +23,11 @@ class Weapon
 		const unsigned int	GetWeapon_Damage() const;
 		const unsigned int	GetWeapon_ReloadTime() const;
 		const unsigned int	GetWeapon_Capacity() const;
+		const bool			GetWeapon_Unlocked() const;
 
 		int&	Weapon_Curr_ReloadTimer();
 		int&	Weapon_Curr_Capacity();
+		void	Weapon_Unlock();
 
 	protected:
 		void SetWeapon_Damage(unsigned int new_Damage);
@@ -41,6 +43,8 @@ class Weapon
 
 		int weapon_curr_ReloadTimer;
 		int weapon_curr_Capacity;
+		bool weapon_unlocked;
+
 		std::vector<BulletSpawn> weapon_Pattern;
 };
 
