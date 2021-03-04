@@ -62,6 +62,11 @@ const unsigned int	Weapon::GetWeapon_ID() const
 	return weapon_ID;
 }
 
+const std::string&	Weapon::GetWeapon_Name() const
+{
+	return weapon_Name;
+}
+
 const unsigned int	Weapon::GetWeapon_Damage() const
 {
 	return weapon_Damage;
@@ -97,6 +102,11 @@ void	Weapon::Weapon_Unlock()
 	weapon_unlocked = true;
 }
 
+void Weapon::SetWeapon_Name(std::string const& new_Name)
+{
+	weapon_Name = new_Name;
+}
+
 void Weapon::SetWeapon_Damage(unsigned int new_Damage)
 {
 	weapon_Damage = new_Damage;
@@ -123,6 +133,7 @@ void Weapon::SetWeapon_Pattern(std::vector<BulletSpawn> const& rhs)
 
 Pistol::Pistol() : Weapon(1)
 {
+	SetWeapon_Name("Pistol");
 	SetWeapon_Damage(1);
 	SetWeapon_ReloadTime(2);
 	SetWeapon_Capacity(6);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 
 struct BulletSpawn
 {
@@ -20,6 +21,7 @@ class Weapon
 		virtual void Weapon_Reload();	// What happens when weapon is reloaded
 
 		const unsigned int	GetWeapon_ID() const;
+		const std::string&	GetWeapon_Name() const;
 		const unsigned int	GetWeapon_Damage() const;
 		const unsigned int	GetWeapon_ReloadTime() const;
 		const unsigned int	GetWeapon_Capacity() const;
@@ -30,6 +32,7 @@ class Weapon
 		void	Weapon_Unlock();
 
 	protected:
+		void SetWeapon_Name(std::string const& new_Name);
 		void SetWeapon_Damage(unsigned int new_Damage);
 		void SetWeapon_ReloadTime(unsigned int new_ReloadTime);
 		void SetWeapon_Capacity(unsigned int new_Capacity);
@@ -37,6 +40,7 @@ class Weapon
 
 	private:
 		const unsigned int weapon_ID;
+		std::string weapon_Name;
 		unsigned int weapon_Damage;
 		unsigned int weapon_ReloadTime;
 		unsigned int weapon_Capacity;
