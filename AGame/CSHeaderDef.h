@@ -60,6 +60,10 @@ struct Com_Direction {
 	int currdir;
 };
 
+struct Com_YLayering {
+	char filler = 0;
+};
+
 /*																				Component::INPUT
 ____________________________________________________________________________________________________*/
 
@@ -230,6 +234,13 @@ struct Sys_Boundary : public System {
 	}
 };
 
+struct Sys_YLayering : public System {
+	void UpdateComponent() override {
+		// sets the layer to the position
+		get<Com_Sprite>()._render_pack._layer = -get<Com_Position>().y;
+	}
+};
+
 /*																				system::INPUT
 ____________________________________________________________________________________________________*/
 
@@ -328,8 +339,8 @@ struct Sys_TilePosition : public System {
 				t_position._grid_y = t_position._vgrid_y;
 			}
 			// bind position to grid position
-			position.x = tilemap->_render_pack._offset_x * tilemap->_scale_x + (float)t_position._vgrid_x * tilemap->_scale_x;
-			position.y = tilemap->_render_pack._offset_y * tilemap->_scale_y - (float)t_position._vgrid_y * tilemap->_scale_y;
+			position.x = tilemap->_offset_x * tilemap->_scale_x + (float)t_position._vgrid_x * tilemap->_scale_x;
+			position.y = tilemap->_offset_y * tilemap->_scale_y - (float)t_position._vgrid_y * tilemap->_scale_y;
 		}
 	}
 };
