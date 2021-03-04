@@ -77,10 +77,11 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_TilemapPosition, Com_Tilemap, Com_Position>();
 	SystemDatabase::Instance().RegisterSystem<Sys_TilePosition, Com_TilemapRef, Com_TilePosition, Com_Position>();
 	SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeysTilemap, Com_TilePosition, Com_ArrowKeysTilemap,Com_Direction>();
-	SystemDatabase::Instance().RegisterSystem<Sys_PlayerAttack,Com_Direction,Com_WeaponAttack, Com_TilePosition,Com_Tilemap>();
+	SystemDatabase::Instance().RegisterSystem<Sys_PlayerAttack,Com_Direction,Com_WeaponAttack, Com_TilePosition, Com_Projectile>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GameTimer, Com_GameTimer>(); 
 	SystemDatabase::Instance().RegisterSystem<Sys_EnemyAttack, Com_Direction, Com_TypeEnemy, Com_TilePosition,Com_Tilemap>();
 	SystemDatabase::Instance().RegisterSystem<Sys_EnemySpawning, Com_Direction,Com_Wave>();
+	SystemDatabase::Instance().RegisterSystem<Sys_Velocity, Com_Position, Com_Velocity>();
 
 	// 4. Registering scenes
 	AddScene<TestScene>("Test Scene");

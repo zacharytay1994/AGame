@@ -69,11 +69,18 @@ eid Factory::FF_SpriteTile(const SpriteData& data, const eid& tilemap, const int
     e.Get<Com_TilemapRef>()._tilemap = &Factory::Instance()[tilemap].Get<Com_Tilemap>();
     return id;
 }
-//
-//eid Factory::FF_Createproj()
-//{
-//    return eid();
-//}
+
+eid Factory::FF_Createproj(const SpriteData& data,const int& x, const int& y)
+{
+    eid id = FF_Sprite(data, x, y);
+    //for the projectile not the entity calling it 
+    Factory::Instance()[id].AddComponent<Com_WeaponAttack,Com_Velocity>();
+    Entity& e = Factory::Instance()[id];
+    //setting of velocity which is not initialized 
+    e.Get<Com_Velocity>().x = 10.0f;
+    e.Get<Com_Velocity>().y = 10.0f;   
+    return id;
+}
 
 
 

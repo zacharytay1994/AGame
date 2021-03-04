@@ -48,5 +48,9 @@ public:
 		return id;
 	}
 
-	//eid FF_Createproj(const SpriteData& data, const eid& tilemap, const int& x, const int& y, const double velocity, );
+
+	//created by wilf for testing 
+	eid FF_Createproj(const SpriteData& data, const int& x, const int& y);
+
+
 };

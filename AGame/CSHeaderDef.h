@@ -126,7 +126,7 @@ struct Com_WeaponAttack
 		sword,
 		pistol
 	};
-	int currentweapon{ 0 };
+	int currentweapon{ 1 };
 };;
 
 /*																				Component::ENEMY
@@ -181,6 +181,16 @@ struct Sys_WeaponAttack;
 _____________________________________________________________________________________________________________________________________*/
 /*																				system::BASIC SYSTEMS
 ____________________________________________________________________________________________________*/
+
+struct Sys_Velocity : public System {
+	void UpdateComponent() override {
+		Com_Velocity& velocity = get<Com_Velocity>();
+		Com_Position& position = get<Com_Position>();
+		//updates the velocity 
+		position.x += velocity.x * _dt;
+		position.y += velocity.y * _dt;
+	}
+};
 
 struct Sys_DrawSprite : public System {
 	std::vector<Com_Sprite*> con;
@@ -496,30 +506,44 @@ struct Com_Projectile {
 
 
 struct Sys_Projectile : public System {
-	virtual void CreateProjectile(Com_Direction& direction,Com_TilePosition& tileposition) {
-		Factory::Instance().CreateEntity<Com_Sprite,Com_Position, Com_Velocity, Com_TilePosition, Com_BoundingBox, Com_Direction,Com_Boundary,Com_Tilemap>();
+	Factory::SpriteData data = { "test", 1, 1, 1, 100.0f, 50.0f, 50.0f };
+	virtual void CreateProjectile(Com_Direction& direction,Com_Position& position) {
+		//calling the factory fnc
+		if (direction.currdir == direction.left) {
 
+		}
+		if (direction.currdir == direction.right) {
+
+		}
+		if (direction.currdir == direction.up) {
+
+		}
+		if (direction.currdir == direction.down) {
+
+		}
+		Factory::Instance().FF_Createproj(data, position.x, position.y);
 	}
 };
 
 
 struct Sys_PlayerAttack : public Sys_Projectile {
 	void UpdateComponent() override {
+
 		if (AEInputCheckCurr(VK_SPACE)) {
 			Com_Direction& direction = get<Com_Direction>();
 			Com_WeaponAttack& weapon = get<Com_WeaponAttack>();
-			Com_TilePosition& tilepos = get<Com_TilePosition>();
+			Com_Position& position = get<Com_Position>();
 			if (direction.currdir == direction.up) {
 				//if character holding to sword 
 				if (weapon.currentweapon == weapon.sword) {
 					//attack the grid infront or shoort invisible bullet 
-					sword_attack(direction, tilepos);
+					sword_attack(direction, position);
 
 				}
 				//if character holding to pistol 
 				if (weapon.currentweapon == weapon.pistol) {
 					//shoot out projectile 
-					CreateProjectile(direction,tilepos);
+					CreateProjectile(direction, position);
 				}
 
 			}
@@ -527,44 +551,44 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 				//if character holding to sword 
 				if (weapon.currentweapon == weapon.sword) {
 					//attack the grid infront or shoort invisible bullet 
-					sword_attack(direction, tilepos);
+					sword_attack(direction, position);
 
 				}
 				//if character holding to pistol 
 				if (weapon.currentweapon == weapon.pistol) {
 					//shoot out projectile 
-					CreateProjectile(direction, tilepos);
+					CreateProjectile(direction, position);
 				}
 			}
 			if (direction.currdir == direction.left) {
 				//if character holding to sword 
 				if (weapon.currentweapon == weapon.sword) {
 					//attack the grid infront or shoort invisible bullet 
-					sword_attack(direction, tilepos);
+					sword_attack(direction, position);
 
 				}
 				//if character holding to pistol 
 				if (weapon.currentweapon == weapon.pistol) {
 					//shoot out projectile 
-					CreateProjectile(direction, tilepos);
+					CreateProjectile(direction, position);
 				}
 			}
 			if (direction.currdir == direction.right) {
 				//if character holding to sword 
 				if (weapon.currentweapon == weapon.sword) {
 					//attack the grid infront or shoort invisible bullet 
-					sword_attack(direction, tilepos);
+					sword_attack(direction, position);
 
 				}
 				//if character holding to pistol 
 				if (weapon.currentweapon == weapon.pistol) {
 					//shoot out projectile 
-					CreateProjectile(direction, tilepos);
+					CreateProjectile(direction, position);
 				}
 			}
 		}
 	}
-	void sword_attack(Com_Direction& direction, Com_TilePosition& Tilepos) {
+	void sword_attack(Com_Direction& direction, Com_Position& position) {
 		//pending 
 	}
 };

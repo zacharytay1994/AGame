@@ -48,8 +48,8 @@ struct TestScene : public Scene {
 		//	SceneManager::Instance().ChangeScene("Test Scene 2");
 		//}
 		if (AEInputCheckTriggered('N')) {
-			std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i++ << std::endl;
-			std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i << std::endl;
+			//std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i++ << std::endl;
+			//std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i << std::endl;
 		}
 		if (AEInputCheckTriggered('P')) {
 			player = Factory::Instance().FF_SpriteTile({ "test2", 1, 8, 8, 0.2f, 50.0f, 80.0f }, tilemap, 3.0f, 0.0f);
@@ -161,6 +161,8 @@ struct TestScenewilfred : public Scene {
 
 		tilemap = Factory::Instance().FF_Tilemap("tilemap", "c_test.txt", "t_test.txt");
 		e2 = Factory::Instance().FF_SpriteMovableTile<Com_ArrowKeysTilemap>({ "test2", 1, 8, 8, 0.1f, 100.0f, 200.0f }, tilemap, 0, 0);
+		//init to add component to the entity/adding own logic 
+		Factory::Instance()[e2].AddComponent<Com_WeaponAttack, Com_Projectile>();
 	}
 	/*
 	Update Override (optional)
