@@ -2,34 +2,34 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="Factory.cpp">
-      <Filter>Resource Files</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Inventory.cpp">
-      <Filter>Resource Files</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\main.cpp">
-      <Filter>Resource Files</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ResourceManager.cpp">
-      <Filter>Resource Files</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Scene.cpp">
-      <Filter>Resource Files</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Weapon.cpp">
-      <Filter>Resource Files</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="zArchetype.cpp">
-      <Filter>Resource Files\ecs</Filter>
+      <Filter>Source Files\ecs</Filter>
     </ClCompile>
     <ClCompile Include="zChunk.cpp">
-      <Filter>Resource Files\ecs</Filter>
+      <Filter>Source Files\ecs</Filter>
     </ClCompile>
     <ClCompile Include="zEntity.cpp">
-      <Filter>Resource Files\ecs</Filter>
+      <Filter>Source Files\ecs</Filter>
     </ClCompile>
     <ClCompile Include="zSystem.cpp">
-      <Filter>Resource Files\ecs</Filter>
+      <Filter>Source Files\ecs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -57,9 +57,6 @@
     <ClInclude Include="Factory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FindPath.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Inventory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -80,17 +77,17 @@
     <Filter Include="Header Files">
       <UniqueIdentifier>{b16db80f-30fa-4ff8-8ccd-55f0ed850c3a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{c2996020-0a64-4a83-85ef-f45c2d3f5266}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{113307a9-f5eb-41fc-a003-ad3e0b72f0a9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\ecs">
       <UniqueIdentifier>{465c9e19-01d5-435e-8de0-e94839efb3c1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\ecs">
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{c2996020-0a64-4a83-85ef-f45c2d3f5266}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ecs">
       <UniqueIdentifier>{88572970-bbf0-4a48-887b-88525b4abeda}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{ad9fb691-7574-4a50-b878-d6f64668a381}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

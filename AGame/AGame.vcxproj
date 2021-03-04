@@ -26,7 +26,6 @@
     <ClInclude Include="CSHeaderDef.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="Factory.h" />
-    <ClInclude Include="FindPath.h" />
     <ClInclude Include="Inventory.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Scene.h" />
