@@ -48,7 +48,7 @@ eid Factory::FF_Sprite(const SpriteData& data, const float& x, const float& y)
 
 eid Factory::FF_Tilemap(const std::string& texture, const std::string& bottom, const std::string& top)
 {
-    eid id = CreateEntity<Com_Tilemap, Com_Position, Com_ArrowKeys>();
+    eid id = CreateEntity<Com_Tilemap, Com_Position>();
     Entity& e = Factory::Instance()[id];
     Com_Tilemap& tilemap = e.Get<Com_Tilemap>();
     ResourceManager::Instance().GetResource(tilemap._texture, tilemap._mesh, texture, 4, 4, 16);

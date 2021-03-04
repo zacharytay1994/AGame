@@ -127,7 +127,10 @@ struct Com_WeaponAttack
 		pistol
 	};
 	int currentweapon{ 0 };
-};
+};;
+
+/*																				Component::ENEMY
+____________________________________________________________________________________________________*/
 
 /*___________________________________________________________________________________________________________________________________
 	SYSTEM DECLARATIONS				<< RIGHT CLICK ON DECLARATION TO NAVIGATE TO DEFINITION!! >>			<<	SYSTEM DECLARATIONS  >>
@@ -244,16 +247,16 @@ ________________________________________________________________________________
 struct Sys_ArrowKeys : public System {
 	void UpdateComponent() override {
 		if (AEInputCheckCurr(VK_LEFT)) {
-			get<Com_Position>().x -= 1.0f * _dt;
+			get<Com_Position>().x -= 100.0f * _dt;
 		}
 		if (AEInputCheckCurr(VK_RIGHT)) {
-			get<Com_Position>().x += 1.0f * _dt;
+			get<Com_Position>().x += 100.0f * _dt;
 		}
 		if (AEInputCheckCurr(VK_UP)) {
-			get<Com_Position>().y += 1.0f * _dt;
+			get<Com_Position>().y += 100.0f * _dt;
 		}
 		if (AEInputCheckCurr(VK_DOWN)) {
-			get<Com_Position>().y -= 1.0f * _dt;
+			get<Com_Position>().y -= 100.0f * _dt;
 		}
 	}
 };
@@ -302,6 +305,7 @@ struct Sys_ArrowKeysTilemap : public System {
 ____________________________________________________________________________________________________*/
 
 struct Sys_Tilemap : public System {
+	int i = 0;
 	void UpdateComponent() override {
 		Com_Tilemap& tilemap = get<Com_Tilemap>();
 		if (tilemap._initialized) {
