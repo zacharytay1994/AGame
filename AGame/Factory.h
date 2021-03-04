@@ -41,4 +41,10 @@ public:
 	eid FF_Sprite(const SpriteData& data, const float& x, const float& y);
 	eid FF_Tilemap(const std::string& texture, const std::string& bottom, const std::string& top);
 	eid FF_SpriteTile(const SpriteData& data, const eid& tilemap, const int& x, const int& y);
+	template <typename MovementType>
+	eid FF_SpriteMovableTile(const SpriteData& data, const eid& tilemap, const int& x, const int& y) {
+		eid id = FF_SpriteTile(data, tilemap, x, y);
+		Factory::Instance()[id].AddComponent<MovementType>();
+		return id;
+	}
 };
