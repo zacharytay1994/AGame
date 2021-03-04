@@ -171,7 +171,7 @@ struct TestScenewilfred : public Scene {
 			SceneManager::Instance().ChangeScene("Test Scene 2");
 		}
 		if (AEInputCheckTriggered('P')) {
-			e2 = Factory::Instance().FF_SpriteTile({ "test2", 1, 8, 8, 0.2f, 50.0f, 80.0f }, tilemap, 3.0f, 0.0f);
+			e2 = Factory::Instance().FF_SpriteMovableTile<Com_ArrowKeysTilemap>({ "test2", 1, 8, 8, 0.2f, 50.0f, 80.0f }, tilemap, 3.0f, 0.0f);
 		}
 		/*if (AEInputCheckTriggered('O')) {
 			Factory::Instance()[e2].AddComponent<Com_ArrowKeysTilemap>();

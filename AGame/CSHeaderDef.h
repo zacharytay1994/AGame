@@ -59,7 +59,7 @@ struct Com_Sprite {
 
 struct Com_Direction {
 	enum Direction { up, down, left, right };
-	int currdir;
+	int currdir = up;
 };
 
 struct Com_Boundary {
@@ -261,17 +261,39 @@ struct Sys_ArrowKeys : public System {
 struct Sys_ArrowKeysTilemap : public System {
 	void UpdateComponent() override {
 		Com_TilePosition& pos = get<Com_TilePosition>();
+		Com_Direction& direction = get<Com_Direction>();
 		if (AEInputCheckTriggered(VK_LEFT)) {
-			pos._grid_x -= 1;
+			//if already left 
+			if (direction.currdir == direction.left) {
+				pos._grid_x -= 1;
+			}
+			else {
+				direction.currdir = direction.left;
+			}
 		}
 		if (AEInputCheckTriggered(VK_RIGHT)) {
-			pos._grid_x += 1;
+			if (direction.currdir == direction.right) {
+				pos._grid_x += 1;
+			}
+			else {
+				direction.currdir = direction.right;
+			}
 		}
 		if (AEInputCheckTriggered(VK_UP)) {
-			pos._grid_y -= 1;
+			if (direction.currdir == direction.up) {
+				pos._grid_y -= 1;
+			}
+			else {
+				direction.currdir = direction.up;
+			}
 		}
 		if (AEInputCheckTriggered(VK_DOWN)) {
-			pos._grid_y += 1;
+			if (direction.currdir == direction.down) {
+				pos._grid_y += 1;
+			}
+			else {
+				direction.currdir = direction.down;
+			}
 		}
 	}
 };
@@ -471,7 +493,7 @@ struct Com_Projectile {
 
 struct Sys_Projectile : public System {
 	virtual void CreateProjectile(Com_Direction& direction,Com_TilePosition& tileposition) {
-		Factory::Instance().CreateEntity<Com_Sprite, Com_Velocity, Com_TilePosition, Com_BoundingBox, Com_Direction,Com_Boundary,Com_Tilemap>();
+		Factory::Instance().CreateEntity<Com_Sprite,Com_Position, Com_Velocity, Com_TilePosition, Com_BoundingBox, Com_Direction,Com_Boundary,Com_Tilemap>();
 
 	}
 };
@@ -561,16 +583,20 @@ struct Com_Wave{
 //logic for spawning of enemies 
 struct Sys_EnemySpawning : public System {
 	void UpdateComponent() override {
+		Com_Direction& Direction = get<Com_Direction>();
+		Com_EnemySpawn& Enemyspawn = get<Com_EnemySpawn>();
+		Com_Wave& wave = get<Com_Wave>();
 		//if timer hit 0 spawn wave/ number of enemies hit 0 
-		if (get<Com_Wave>().timerforwave == 0 || get<Com_EnemySpawn>().numberofenemies == 0) {
-			spawn_enemies(get<Com_BoundingBox>(), get<Com_Direction>(),get<Com_EnemySpawn>());
+		if (wave.timerforwave == 0 || Enemyspawn.numberofenemies == 0) {
+			//spawning of enemies 
+			spawn_enemies();
 		}
 	}
-
-	void spawn_enemies(Com_BoundingBox, Com_Direction& direction,Com_EnemySpawn& Spawnenemy) {
+	void spawn_enemies() {
 		//spawn enemy at a certain location
 		//create enemy entity 
-		//Factory::Instance().CreateEntity<Com_Sprite, Com_Position, Com_BoundingBox, Com_Direction>();
+		/*Factory::Instance().CreateEntity<Com_Sprite, Com_Position, Com_BoundingBox, Com_Direction, 
+			Com_TilePosition, Com_Tilemap,Com_TypeEnemy,Com_EnemySpawn,Com_Wave>();*/
 	}
 };
 
