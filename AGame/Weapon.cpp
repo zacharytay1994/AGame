@@ -87,6 +87,11 @@ const bool Weapon::GetWeapon_Unlocked() const
 	return weapon_unlocked;
 }
 
+const std::vector<BulletSpawn>& Weapon::GetWeapon_Pattern() const
+{
+	return weapon_Pattern;
+}
+
 int&	Weapon::Weapon_Curr_ReloadTimer()
 {
 	return weapon_curr_ReloadTimer;

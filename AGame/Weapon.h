@@ -26,6 +26,9 @@ class Weapon
 		const unsigned int	GetWeapon_ReloadTime() const;
 		const unsigned int	GetWeapon_Capacity() const;
 		const bool			GetWeapon_Unlocked() const;
+		#if defined(DEBUG) | defined(_DEBUG)
+			const std::vector<BulletSpawn>& GetWeapon_Pattern() const;
+		#endif
 
 		int&	Weapon_Curr_ReloadTimer();
 		int&	Weapon_Curr_Capacity();
