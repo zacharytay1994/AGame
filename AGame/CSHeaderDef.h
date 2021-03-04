@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 #include "AEEngine.h"
-
+#include "Factory.h"
 #include "zComponent.h"
 #include "zSystem.h"
 
@@ -460,69 +460,84 @@ struct Sys_AABB : public System {
 /*																				system::ATTACK
 ____________________________________________________________________________________________________*/
 
+struct Com_Projectile {
+	char _filler = 0; //filler
+};
+
+
 struct Sys_Projectile : public System {
+	virtual void CreateProjectile(Com_Direction& direction,Com_TilePosition& tileposition) {
+		Factory::Instance().CreateEntity<Com_Sprite, Com_Velocity, Com_Position, Com_BoundingBox, Com_Direction>();
+	}
+};
+
+
+struct Sys_PlayerAttack : public Sys_Projectile {
 	void UpdateComponent() override {
-		Com_Direction& direction = get<Com_Direction>();
-		//if space triggered 
 		if (AEInputCheckCurr(VK_SPACE)) {
-			if (direction.currdir == direction.right) {
-				//create an entity of bullet 
-				CreateProjectile(get<Com_Position>(), get<Com_Velocity>(), get<Com_Direction>());
-			}
-			if (direction.currdir == direction.left) {
-				//create an entity of bullet 
-				CreateProjectile(get<Com_Position>(), get<Com_Velocity>(), get<Com_Direction>());
-			}
+			Com_Direction& direction = get<Com_Direction>();
+			Com_WeaponAttack& weapon = get<Com_WeaponAttack>();
+			Com_TilePosition& tilepos = get<Com_TilePosition>();
 			if (direction.currdir == direction.up) {
-				//create an entity of bullet 
-				CreateProjectile(get<Com_Position>(), get<Com_Velocity>(), get<Com_Direction>());
+				//if character holding to sword 
+				if (weapon.currentweapon == weapon.sword) {
+					//attack the grid infront or shoort invisible bullet 
+					sword_attack(direction, tilepos);
+
+				}
+				//if character holding to pistol 
+				if (weapon.currentweapon == weapon.pistol) {
+					//shoot out projectile 
+					CreateProjectile(direction,tilepos);
+				}
+
 			}
 			if (direction.currdir == direction.down) {
-				//create an entity of bullet 
-				CreateProjectile(get<Com_Position>(), get<Com_Velocity>(), get<Com_Direction>());
-			}
+				//if character holding to sword 
+				if (weapon.currentweapon == weapon.sword) {
+					//attack the grid infront or shoort invisible bullet 
+					sword_attack(direction, tilepos);
 
+				}
+				//if character holding to pistol 
+				if (weapon.currentweapon == weapon.pistol) {
+					//shoot out projectile 
+					CreateProjectile(direction, tilepos);
+				}
+			}
+			if (direction.currdir == direction.left) {
+				//if character holding to sword 
+				if (weapon.currentweapon == weapon.sword) {
+					//attack the grid infront or shoort invisible bullet 
+					sword_attack(direction, tilepos);
+
+				}
+				//if character holding to pistol 
+				if (weapon.currentweapon == weapon.pistol) {
+					//shoot out projectile 
+					CreateProjectile(direction, tilepos);
+				}
+			}
+			if (direction.currdir == direction.right) {
+				//if character holding to sword 
+				if (weapon.currentweapon == weapon.sword) {
+					//attack the grid infront or shoort invisible bullet 
+					sword_attack(direction, tilepos);
+
+				}
+				//if character holding to pistol 
+				if (weapon.currentweapon == weapon.pistol) {
+					//shoot out projectile 
+					CreateProjectile(direction, tilepos);
+				}
+			}
 		}
 	}
-	void CreateProjectile(Com_Position& position, Com_Velocity& velocity, Com_Direction& direction) {
-		//creat projectile based on direction
-		//Factory::Instance().CreateEntity<Com_Sprite, Com_Velocity, Com_Position, Com_BoundingBox, Com_Direction>();
-		//set entity sprite, position, velocity, direction
-	}
-};
-
-struct Sys_WeaponAttack : public System {
-	void UpdateComponent() override {
-		if (AEInputCheckCurr(VK_SPACE)) {
-			//if character holding to sword 
-			if (get<Com_WeaponAttack>().currentweapon == Com_WeaponAttack::sword) {
-				//attack the grid infront or shoort invisible bullet 
-				sword_attack(get<Com_Direction>(),get<Com_TilePosition>());
-
-			}
-			//if character holding to pistol 
-			if (get<Com_WeaponAttack>().currentweapon == Com_WeaponAttack::pistol) {
-				//shoot out projectile 
-				//Sys_Projectile::CreateProjectile(Com_Position & position, Com_Velocity & velocity, Com_Direction & direction);
-			}
-		}
-	}
-
 	void sword_attack(Com_Direction& direction, Com_TilePosition& Tilepos) {
-		if (direction.currdir == direction.up) {
-			
-		}
-		if (direction.currdir == direction.down) {
 
-		}
-		if (direction.currdir == direction.left) {
-
-		}
-		if (direction.currdir == direction.right) {
-			
-		}
 	}
 };
+
 
  /////////Edits  
 
@@ -531,7 +546,6 @@ struct Sys_WeaponAttack : public System {
 -------------------------------------------*/
 struct Com_EnemySpawn{
 	size_t numberofenemies{ 5 }; //number of enemies to spawn 
-	Com_TilePosition spawnlocation;
 };
 
 struct Com_Wave{
@@ -571,7 +585,7 @@ struct Com_TypeEnemy {
 
 
 //logic for attack of enemies 
-struct Sys_EnemyAttack : public System {
+struct Sys_EnemyAttack : public Sys_Projectile {
 	void UpdateComponent() override {
 		//if enemy is melee
 		if (get<Com_TypeEnemy>().Alientype == Com_TypeEnemy::Alien1) {

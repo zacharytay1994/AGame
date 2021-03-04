@@ -69,3 +69,5 @@ eid Factory::FF_SpriteTile(const SpriteData& data, const eid& tilemap, const int
     e.Get<Com_TilemapRef>()._tilemap = &Factory::Instance()[tilemap].Get<Com_Tilemap>();
     return id;
 }
+
+
