@@ -279,7 +279,6 @@ struct Sys_ArrowKeysTilemap : public System {
 ____________________________________________________________________________________________________*/
 
 struct Sys_Tilemap : public System {
-	int i = 0;
 	void UpdateComponent() override {
 		Com_Tilemap& tilemap = get<Com_Tilemap>();
 		if (tilemap._initialized) {

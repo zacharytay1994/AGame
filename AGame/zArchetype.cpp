@@ -22,7 +22,7 @@ ArchetypeDatabase& ArchetypeDatabase::Instance() {
 	return instance;
 }
 
-bool ArchetypeDatabase::CloneArchetype(const std::bitset<64>& mask, const std::shared_ptr<Archetype>& archetype, 
+bool ArchetypeDatabase::CloneArchetype(const std::bitset<64>& mask, Archetype* archetype, 
 	std::shared_ptr<Archetype>& outarche)
 {
 	//if (_database.find(mask) != _database.end()) {
