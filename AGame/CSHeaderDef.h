@@ -33,7 +33,7 @@ struct Com_CollisionData;
 // attack
 struct Com_WeaponAttack;
 // Nodes
-struct NodeForPathFinding;
+struct Com_PathFinding;
 struct Com_Node;
 /*__________________________________________________________________________________________________
 																				Component::BASIC DATA
@@ -134,9 +134,9 @@ struct Com_WeaponAttack
 	int currentweapon{ 0 };
 };
 
-/*																Component::NODE FOR PATH FINDING
+/*																Component::PATH FINDING
 ____________________________________________________________________________________________________*/
-struct NodeForPathFinding
+struct Com_PathFinding
 {
 	bool bObstacle = false;			// Is the node an obstruction?
 	bool bVisited = false;			// Have we searched this node before?
@@ -144,18 +144,18 @@ struct NodeForPathFinding
 	float fLocalGoal = 0.0f;				// Distance to goal if we took the alternative route
 	int x = 0;							// Nodes position in 2D space
 	int y = 0;
-	vector<NodeForPathFinding*> vecNeighbours;	// Connections to neighbours
-	NodeForPathFinding* parent = nullptr;					// Node connecting to this node that offers shortest parent
+	vector<Com_PathFinding*> vecNeighbours;	// Connections to neighbours
+	Com_PathFinding* parent = nullptr;					// Node connecting to this node that offers shortest parent
 };
 
 struct Com_Node
 {
-	NodeForPathFinding* nodes = nullptr;
-	int nMapWidth = 16; // for now here but will be replace based on tile map
-	int nMapHeight = 16;
+	Com_PathFinding* nodes = nullptr;
+	Com_PathFinding* nodeStart = nullptr;
+	Com_PathFinding* nodeEnd = nullptr;
+	/*int nMapWidth = 0; 
+	int nMapHeight = 0;*/
 
-	NodeForPathFinding* nodeStart = nullptr;
-	NodeForPathFinding* nodeEnd = nullptr;
 };
 
 /*___________________________________________________________________________________________________________________________________
@@ -556,20 +556,21 @@ struct Sys_PathFinding : public System
 {
 	void UpdateComponent() override {
 		Com_Node* ode = &get<Com_Node>();
+		Com_Tilemap& tile = get<Com_Tilemap>();
 	}
 	
 
-void MapCreate(Com_Node& ode)
+void MapCreate(Com_Node& ode, Com_Tilemap& tile)
 {
 	// Create a 2D array of nodes - this is for convenience of rendering and construction
 	// and is not required for the algorithm to work - the nodes could be placed anywhere
 	// in any space, in multiple dimension
-	int width = ode.nMapWidth;
-	int height = ode.nMapHeight;
+	int width = tile._width;
+	int height = tile._height;
 	int MapArea = width * height;
-	ode.nodes = new NodeForPathFinding[MapArea];
-	for (int x = 0; x < ode.nMapWidth; x++)
-		for (int y = 0; y < ode.nMapHeight; y++)
+	ode.nodes = new Com_PathFinding[MapArea];
+	for (int x = 0; x < width; x++)
+		for (int y = 0; y < height; y++)
 		{
 			ode.nodes[y * width + x].x = x; // to give each node its own coordinates
 			ode.nodes[y * width + x].y = y;
@@ -599,10 +600,10 @@ void MapCreate(Com_Node& ode)
 	ode.nodeEnd = &ode.nodes[(height / 2) * width + width - 2];
 }
 
-bool Solve_AStar(Com_Node& ode)
+bool Solve_AStar(Com_Node& ode, Com_Tilemap& tile)
 {
-	int width = ode.nMapWidth;
-	int height = ode.nMapHeight;
+	int width = tile._width;
+	int height = tile._height;
 	// Reset Navigation Graph - default all node states
 	for (int x = 0; x < width; x++)
 		for (int y = 0; y < height; y++)
@@ -613,25 +614,25 @@ bool Solve_AStar(Com_Node& ode)
 			ode.nodes[y * width + x].parent = nullptr;	// No parents
 		}
 
-	auto distance = [](NodeForPathFinding* a, NodeForPathFinding* b) // For convenience
+	auto distance = [](Com_PathFinding* a, Com_PathFinding* b) // For convenience
 	{
 		return sqrtf((a->x - b->x) * (a->x - b->x) + (a->y - b->y) * (a->y - b->y));
 	};
 
-	auto heuristic = [distance](NodeForPathFinding* a, NodeForPathFinding* b) // So we can experiment with heuristic
+	auto heuristic = [distance](Com_PathFinding* a, Com_PathFinding* b) // So we can experiment with heuristic
 	{
 		return distance(a, b);
 	};
 
 	// Setup starting conditions
-	NodeForPathFinding* nodeCurrent = ode.nodeStart;
+	Com_PathFinding* nodeCurrent = ode.nodeStart;
 	ode.nodeStart->fLocalGoal = 0.0f;
 	ode.nodeStart->fGlobalGoal = heuristic(ode.nodeStart, ode.nodeEnd);
 
 	// Add start node to not tested list - this will ensure it gets tested.
 	// As the algorithm progresses, newly discovered nodes get added to this
 	// list, and will themselves be tested later
-	list<NodeForPathFinding*> listNotTestedNodes;
+	list<Com_PathFinding*> listNotTestedNodes;
 	listNotTestedNodes.push_back(ode.nodeStart);
 
 	// if the not tested list contains nodes, there may be better paths
@@ -641,7 +642,7 @@ bool Solve_AStar(Com_Node& ode)
 	while (!listNotTestedNodes.empty() && nodeCurrent != ode.nodeEnd)// Find absolutely shortest path // && nodeCurrent != nodeEnd)
 	{
 		// Sort Untested nodes by global goal, so lowest is first
-		listNotTestedNodes.sort([](const NodeForPathFinding* lhs, const NodeForPathFinding* rhs) { return lhs->fGlobalGoal < rhs->fGlobalGoal; });
+		listNotTestedNodes.sort([](const Com_PathFinding* lhs, const Com_PathFinding* rhs) { return lhs->fGlobalGoal < rhs->fGlobalGoal; });
 
 		// Front of listNotTestedNodes is potentially the lowest distance node. Our
 		// list may also contain nodes that have been visited, so ditch these...

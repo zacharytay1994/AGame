@@ -59,6 +59,8 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_TilemapRef>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_TilePosition>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_ArrowKeysTilemap>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_Node>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_PathFinding>();
 
 	// 3. Registering all systems for the game
 	// SystemDatabase::Instance().RegisterSystem<Example_UpdatePosition, Position, Example_Velocity>();
@@ -68,6 +70,7 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_TilemapPosition, Com_Tilemap, Com_Position>();
 	SystemDatabase::Instance().RegisterSystem<Sys_TilePosition, Com_TilemapRef, Com_TilePosition, Com_Position>();
 	SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeysTilemap, Com_TilePosition>();
+	SystemDatabase::Instance().RegisterSystem<Sys_PathFinding, Com_Node, Com_PathFinding>();
 
 	// 4. Registering scenes
 	AddScene<TestScene>("Test Scene");
