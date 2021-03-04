@@ -6,6 +6,7 @@
 #include "CSHeaderDef.h"
 #include "Factory.h"
 #include "ResourceManager.h"
+#include "Inventory.h"
 #include <string>
 
 struct testdata {
@@ -26,6 +27,7 @@ struct TestScene : public Scene {
 	//Com_Tilemap tile;
 	eid tilemap = -1;
 	Factory::SpriteData data{ "test2", 1, 8, 8, 0.1f, 100.0f, 200.0f };
+	Inventory playerInv;
 	/*
 	Initialize Override (optional)
 	________________________________*/
@@ -75,6 +77,20 @@ struct TestScene : public Scene {
 		//if (AEInputCheckTriggered('R')) {
 		//	SceneManager::Instance().RestartScene();
 		//}
+
+		#if defined(DEBUG) | defined(_DEBUG)
+			if (AEInputCheckTriggered(AEVK_G)) {
+				playerInv.Inventory_PrintCurrentWeapon();
+			}
+
+			if (AEInputCheckTriggered(AEVK_H)) {
+				std::cout << playerInv.Inventory_EquipWeapon("Pistol") << std::endl;
+			}
+
+			if (AEInputCheckTriggered(AEVK_F)) {
+				std::cout << playerInv.Inventory_SetWeaponUnlocked("Pistol") << std::endl;
+			}
+#		endif
 	}
 	/*
 	Exit Override (optional)
