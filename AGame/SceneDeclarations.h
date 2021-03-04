@@ -9,12 +9,6 @@
 #include "Inventory.h"
 #include <string>
 
-struct testdata {
-	int i;
-};
-void testfunction(Sys_Tilemap* t, testdata td) {
-	t->i = td.i;
-}
 /*!___________________________________________________________________
 	TEST SCENE - Created By : Zac
 _____________________________________________________________________*/
@@ -36,7 +30,12 @@ struct TestScene : public Scene {
 		std::cout << sizeof(Com_Tilemap) << std::endl;
 
 		tilemap = Factory::Instance().FF_Tilemap("tilemap", "c_test.txt", "t_test.txt");
-		//player = Factory::Instance().FF_SpriteMovableTile<Com_ArrowKeysTilemap>(data, tilemap, 0, 0);
+		//SystemDatabase::Instance().GetSystem<Sys_Projectile>().tilemap = tilemap;
+		player = Factory::Instance().FF_Sprite(data, 0.0f, 0.0f);
+		//player = Factory::Instance().CreateEntity<Com_Position>();
+		/*int* i = new int{ 0 };
+		std::shared_ptr<int> a{ i };
+		std::shared_ptr<int> b{ i };*/
 	}
 	/*
 	Update Override (optional)
@@ -50,16 +49,16 @@ struct TestScene : public Scene {
 		//	SceneManager::Instance().ChangeScene("Test Scene 2");
 		//}
 		if (AEInputCheckTriggered('N')) {
-			//std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i++ << std::endl;
-			//std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i << std::endl;
+			/*std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i++ << std::endl;
+			std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i << std::endl;*/
 		}
 		if (AEInputCheckTriggered('P')) {
-			player = Factory::Instance().FF_SpriteTile({ "test2", 1, 8, 8, 0.2f, 50.0f, 80.0f }, tilemap, 3.0f, 0.0f);
+			player = Factory::Instance().FF_Sprite(data, 100.0f, 100.0f);
 			//Factory::Instance().GetEntity(player).Get<Com_Sprite>()._frame_interval -= dt;
 			//Com_Sprite& s = player->Get<Com_Sprite>();
 		}
 		if (AEInputCheckTriggered('O')) {
-			Factory::Instance()[player].AddComponent<Com_ArrowKeysTilemap>();
+			Factory::Instance()[player].AddComponent<Com_ArrowKeys>();
 		}
 		//if (AEInputCheckTriggered('U')) {
 		//	player = Factory::Instance().FF_Sprite({ "test2", 1, 8, 8, 0.2f, 50.0f, 80.0f }, 3.0f, 0.0f);

@@ -5,7 +5,7 @@
 #include "zArchetype.h"
 
 struct Chunk {
-	std::shared_ptr<Archetype>	_owning_archetype;
+	Archetype*					_owning_archetype;
 	std::unique_ptr<char[]>		_data;
 	uint32_t					_number_of_entities;
 	std::stack<int>				_free_ids;

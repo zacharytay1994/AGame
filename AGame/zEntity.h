@@ -15,7 +15,7 @@
 *			- std::vector<Entity> _entities;
 ____________________________________________________________________________________*/
 struct Entity {
-	std::shared_ptr<Chunk>	_chunk{ nullptr };
+	std::shared_ptr<Chunk>	_chunk;
 	int						_id{ 0 };
 	Entity() {}
 	/*______________________________________________________
@@ -67,6 +67,7 @@ struct Entity {
 		// get mask
 		std::bitset<64> mask = _chunk->_owning_archetype->_mask;
 		int flag = 0;
+		// if already has components in it
 		((flag = flag ? flag : mask[component_description_v<T>._bit]), ...);
 		if (flag) {
 			return *this;
