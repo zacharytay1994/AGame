@@ -25,6 +25,11 @@ bool Inventory::Inventory_EquipWeapon(std::string const& name)
 	return false;
 }
 
+const Weapon& Inventory::Inventory_GetCurrentWeapon() const
+{
+	return *equippped_weapon;
+}
+
 bool Inventory::Inventory_SetWeaponUnlocked(std::string const& name)
 {
 	std::map<std::string, Weapon*>::iterator it = inventory_weapon.find(name);
