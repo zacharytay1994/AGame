@@ -110,7 +110,6 @@ eid Factory::FF_CreateEnemy(const SpriteData& data, const eid& tilemap, const in
     return id;
 }
 
-<<<<<<< HEAD
 //eid Factory::FF_SpriteRandomPosition(const SpriteData& data, const float& x, const float& y, const float& velX, const float& velY)
 //{
 //    eid id = CreateEntity<Com_Position, Com_Sprite, Com_Velocity>();
@@ -130,7 +129,4 @@ eid Factory::FF_CreateEnemy(const SpriteData& data, const eid& tilemap, const in
 //
 //    return id;
 //}
-=======
 
-
->>>>>>> origin/Player-Wilf

@@ -59,10 +59,8 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_TilemapRef>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_TilePosition>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_ArrowKeysTilemap>();
-<<<<<<< HEAD
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Node>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_PathFinding>();
-=======
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Direction>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_WeaponAttack>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_BoundingBox>();
@@ -72,7 +70,6 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_TypeEnemy>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Projectile>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GameTimer>();
->>>>>>> origin/Player-Wilf
 
 	// 3. Registering all systems for the game
 	// SystemDatabase::Instance().RegisterSystem<Example_UpdatePosition, Position, Example_Velocity>();
@@ -81,17 +78,14 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeys, Com_Position, Com_ArrowKeys>();
 	SystemDatabase::Instance().RegisterSystem<Sys_TilemapPosition, Com_Tilemap, Com_Position>();
 	SystemDatabase::Instance().RegisterSystem<Sys_TilePosition, Com_TilemapRef, Com_TilePosition, Com_Position>();
-<<<<<<< HEAD
 	SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeysTilemap, Com_TilePosition>();
 	SystemDatabase::Instance().RegisterSystem<Sys_PathFinding, Com_Node, Com_PathFinding>();
-=======
 	SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeysTilemap, Com_TilePosition, Com_ArrowKeysTilemap, Com_Direction>();
 	SystemDatabase::Instance().RegisterSystem<Sys_PlayerAttack, Com_Direction, Com_WeaponAttack, Com_TilePosition, Com_Projectile>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GameTimer, Com_GameTimer>();
 	SystemDatabase::Instance().RegisterSystem<Sys_EnemyAttack, Com_Direction, Com_TypeEnemy, Com_TilePosition, Com_Tilemap>();
 	SystemDatabase::Instance().RegisterSystem<Sys_EnemySpawning, Com_EnemySpawn, Com_Wave, Com_GameTimer>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Velocity, Com_Position, Com_Velocity>();
->>>>>>> origin/Player-Wilf
 
 	// 4. Registering scenes
 	AddScene<TestScene>("Test Scene");

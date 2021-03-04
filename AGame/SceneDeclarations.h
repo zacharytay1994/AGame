@@ -103,7 +103,6 @@ struct TestScene2 : public Scene {
 	// overriding initialize/update/exit is optional
 };
 
-<<<<<<< HEAD
 /*___________________________________________________________________
 	TEST SCENE 3 - Created By : Aus
 _____________________________________________________________________*/
@@ -197,9 +196,8 @@ struct TestScene3 : public Scene
 	}
 };
 	// overriding initialize/update/exit is optional
-=======
+
 // Example Code
->>>>>>> origin/Player-Wilf
 struct ExampleScene : public Scene {
 	AEGfxTexture* scene_texture;	// scene persistent resource
 	int* scene_variable;			// scene temporary resource
@@ -235,7 +233,7 @@ struct ExampleScene : public Scene {
 	}
 };
 
-<<<<<<< HEAD
+
 /*___________________________________________________________________
 	TEST FOR PATHFINDING - Created By : Aus
 _____________________________________________________________________*/
@@ -258,29 +256,33 @@ struct TestScenePF : public Scene
 		Com_Sprite& test2 = Factory::Instance()[e2].Get<Com_Sprite>();
 
 	}
-	void Update(const float& dt) override {
+	void Update(const float& dt) override
+	{
 
 		/*Com_Sprite& s = Factory::Instance().GetEntity(e3[0]).Get<Com_Sprite>();
 		if (!s._texture) {
 			int i = 0;
 		}*/
-		if (AEInputCheckCurr('L')) {
-			SceneManager::Instance().ChangeScene("ExampleScene");
+		if (AEInputCheckTriggered('N')) {
+			//std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i++ << std::endl;
+			//std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i << std::endl;
 		}
 		if (AEInputCheckTriggered('P')) {
 			e2 = Factory::Instance().FF_SpriteTile({ "test2", 1, 8, 8, 0.2f, 50.0f, 80.0f }, tilemap, 3.0f, 0.0f);
-			//Factory::Instance().GetEntity(e2).Get<Com_Sprite>()._frame_interval -= dt;
-			//Com_Sprite& s = e2->Get<Com_Sprite>();
+			//Factory::Instance().GetEntity(player).Get<Com_Sprite>()._frame_interval -= dt;
+			//Com_Sprite& s = player->Get<Com_Sprite>();
 		}
 		if (AEInputCheckTriggered('O')) {
-			Factory::Instance()[e2].AddComponent<Com_ArrowKeys>();
-=======
-
+			Factory::Instance()[e2].AddComponent<Com_ArrowKeysTilemap>();
+		}
+	}
+};
 
 /*!___________________________________________________________________
 	TEST SCENE - Created By : Wilfredddd
 _____________________________________________________________________*/
-struct TestScenewilfred : public Scene {
+struct TestScenewilfred : public Scene 
+{
 	/*
 	Member Variables
 	________________________________*/
@@ -344,6 +346,5 @@ struct TestScenewilfred : public Scene {
 	________________________________*/
 	void Exit() override {
 		std::cout << "woo switching to scene 2!" << std::endl;
->>>>>>> origin/Player-Wilf
 	}
 };

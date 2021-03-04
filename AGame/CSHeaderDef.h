@@ -3,14 +3,8 @@
 #include <string>
 #include <vector>
 #include "AEEngine.h"
-<<<<<<< HEAD
-//<<<<<<< HEAD
-//=======
-//
-//>>>>>>> origin/refactor
-=======
 #include "Factory.h"
->>>>>>> origin/Player-Wilf
+
 #include "zComponent.h"
 #include "zSystem.h"
 using namespace std;
@@ -718,7 +712,7 @@ struct Sys_GameTimer : public System {
 	}
 };
 
-<<<<<<< HEAD
+
 /*																			system::PATH FINDING
 ____________________________________________________________________________________________________*/
 
@@ -861,5 +855,3 @@ bool Solve_AStar(Com_Node& ode, Com_Tilemap& tile)
 
 
 };
-=======
->>>>>>> origin/Player-Wilf

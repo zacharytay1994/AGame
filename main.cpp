@@ -69,11 +69,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	AESysReset();
 
 	SceneManager::Instance();
-<<<<<<< HEAD
 	SceneManager::Instance().ChangeScene("Test PathFinding");
-=======
-	SceneManager::Instance().ChangeScene("TestScenewilfred");
->>>>>>> origin/Player-Wilf
+
+
 	// Initialization end
 	/////////////////////
 	/*ComponentDescription_DB _cdb;
