@@ -38,7 +38,7 @@ struct ArchetypeDatabase {
 		archetype_ptr->_mask = mask;
 		return _database[mask];
 	}
-	std::shared_ptr<Archetype> CreateArchetype(const std::bitset<64>& mask, const std::shared_ptr<Archetype>& archetype);
+	bool CloneArchetype(const std::bitset<64>& mask, const std::shared_ptr<Archetype>& archetype, std::shared_ptr<Archetype>& outarche);
 	void FlushEntities();
 	std::unordered_map<std::bitset<64>, std::shared_ptr<Archetype>> _database;
 private:

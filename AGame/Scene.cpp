@@ -52,16 +52,22 @@ void SceneManager::Initialize() {
 
 	// 2. Registering all components for the game
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Position>();
-	ComponentDescription_DB::Instance().RegisterComponent<Com_Example_Velocity>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_Velocity>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Sprite>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_ArrowKeys>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Tilemap>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_TilemapRef>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_TilePosition>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_ArrowKeysTilemap>();
 
 	// 3. Registering all systems for the game
 	// SystemDatabase::Instance().RegisterSystem<Example_UpdatePosition, Position, Example_Velocity>();
+	SystemDatabase::Instance().RegisterSystem<Sys_Tilemap, Com_Tilemap>();
 	SystemDatabase::Instance().RegisterSystem<Sys_DrawSprite, Com_Position, Com_Sprite>();
 	SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeys, Com_Position, Com_ArrowKeys>();
-	SystemDatabase::Instance().RegisterSystem<Sys_Tilemap, Com_Tilemap>();
+	SystemDatabase::Instance().RegisterSystem<Sys_TilemapPosition, Com_Tilemap, Com_Position>();
+	SystemDatabase::Instance().RegisterSystem<Sys_TilePosition, Com_TilemapRef, Com_TilePosition, Com_Position>();
+	SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeysTilemap, Com_TilePosition, Com_ArrowKeysTilemap>();
 
 	// 4. Registering scenes
 	AddScene<TestScene>("Test Scene");
@@ -171,6 +177,7 @@ void SceneManager::RestartScene()
 		_current_scene->Exit();
 		std::cout << "Scene Freed." << std::endl;
 		ArchetypeDatabase::Instance().FlushEntities();
+		Factory::Instance().Free();
 		_current_scene->Initialize();
 		std::cout << "Scene Initialized." << std::endl;
 	}

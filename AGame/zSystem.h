@@ -23,6 +23,7 @@ struct System {
 		((_mask[component_description_v<T>._bit] = 1), ...);
 	}
 	System() = default;
+	virtual void OncePerFrame() {}
 	virtual void UpdateComponent() {
 		if (_update) {
 			_update(*this);

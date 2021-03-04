@@ -21,34 +21,51 @@ Entity& Factory::GetEntity(const int& id)
     return _entities[id];
 }
 
-int Factory::FF_Sprite(const std::string& texturename, const int& row, const int& col, const int& frames, const float& interval, const float& scalex, const float& scaley)
+void Factory::Free()
 {
-    _entities.emplace_back();
-    Entity& e = _entities.back();
-    e.Initialize<Com_Position,Com_Sprite>();
-    // gets texture and mesh resources from resource manager
-    ResourceManager::Instance().GetResource(e.Get<Com_Sprite>()._texture, e.Get<Com_Sprite>()._mesh, texturename, row, col, frames);
-    e.Get<Com_Sprite>()._x_scale = scalex;
-    e.Get<Com_Sprite>()._y_scale = scaley;
-    e.Get<Com_Sprite>()._row = row;
-    e.Get<Com_Sprite>()._col = col;
-    e.Get<Com_Sprite>()._frames = frames;
-    e.Get<Com_Sprite>()._frame_interval = interval;
-
-    ++_unique_ids;
-    return (int)_unique_ids-1;
+    _unique_ids = 0;
+    _entities = std::vector<Entity>();
 }
 
-int Factory::FF_Tilemap(const std::string& texture, const std::string& bottom, const std::string& top)
+eid Factory::FF_Sprite(const SpriteData& data, const float& x, const float& y)
 {
-    Entity& e = CreateEntity<Com_Tilemap>();
-    ResourceManager::Instance().GetResource(e.Get<Com_Tilemap>()._texture, e.Get<Com_Tilemap>()._mesh, texture, 4, 4, 16);
-    ResourceManager::Instance().ReadTilemapTxt(top, e.Get<Com_Tilemap>());
-    ResourceManager::Instance().ReadFloorMapTxt(bottom, e.Get<Com_Tilemap>());
+    eid id = CreateEntity<Com_Position, Com_Sprite>();
+    Entity& e = Factory::Instance()[id];
+    Com_Sprite& sprite = e.Get<Com_Sprite>();
+    // gets texture and mesh resources from resource manager
+    ResourceManager::Instance().GetResource(sprite._texture, sprite._mesh, data.texturename, data.row, data.col, data.frames);
+    sprite._x_scale = data.scalex;
+    sprite._y_scale = data.scaley;
+    sprite._row = data.row;
+    sprite._col = data.col;
+    sprite._frames = data.frames;
+    sprite._frame_interval = data.interval;
+
+    e.Get<Com_Position>() = { x,y };
+
+    return id;
+}
+
+eid Factory::FF_Tilemap(const std::string& texture, const std::string& bottom, const std::string& top)
+{
+    eid id = CreateEntity<Com_Tilemap, Com_Position, Com_ArrowKeys>();
+    Entity& e = Factory::Instance()[id];
     Com_Tilemap& tilemap = e.Get<Com_Tilemap>();
-    e.Get<Com_Tilemap>()._scale_x = 50.0f;
-    e.Get<Com_Tilemap>()._scale_y = 50.0f;
-    e.Get<Com_Tilemap>()._initialized = true;
-    ++_unique_ids;
-    return _unique_ids - 1;
+    ResourceManager::Instance().GetResource(tilemap._texture, tilemap._mesh, texture, 4, 4, 16);
+    ResourceManager::Instance().ReadTilemapTxt(top, tilemap);
+    ResourceManager::Instance().ReadFloorMapTxt(bottom, tilemap);
+    tilemap._scale_x = 50.0f;
+    tilemap._scale_y = 50.0f;
+    tilemap._initialized = true;
+    return id;
+}
+
+eid Factory::FF_SpriteTile(const SpriteData& data, const eid& tilemap, const int& x, const int& y)
+{
+    eid id = FF_Sprite(data, 0.0f, 0.0f);
+    Factory::Instance()[id].AddComponent<Com_TilePosition, Com_TilemapRef>();
+    Entity& e = Factory::Instance()[id];
+    e.Get<Com_TilePosition>() = { x,y,x,y };
+    e.Get<Com_TilemapRef>()._tilemap = &Factory::Instance()[tilemap].Get<Com_Tilemap>();
+    return id;
 }
