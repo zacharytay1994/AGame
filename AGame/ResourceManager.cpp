@@ -119,7 +119,7 @@ void ResourceManager::ReadTilemapTxt(const std::string& path, Com_Tilemap& tilem
 {
 	// open text file
 	std::ifstream file(asset_path + tilemap_path + path);
-	assert(file);
+	assert(file); 
 	std::string line;
 	// write width, height, size
 	getline(file, line);
@@ -238,6 +238,7 @@ void ResourceManager::Initialize()
 	// load all textures
 	LoadTexture("test", "test2.png");
 	LoadTexture("test2", "testguy.png");
+	LoadTexture("test3", "TestAlien.png");
 	LoadTexture("tilemap", "tilemaptest.png");
 	LoadTexture("skeleton", "temp1.png");
 	LoadTexture("coolguy", "temp2.png");

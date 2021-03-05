@@ -17,15 +17,15 @@ SceneManager::SceneManager()
 /*______________________________________________________
 * Brief:	Handle to the singleton instance.
 * Access:	public
-* 
+*
 * Use e.g:	SceneManager::Instance().ExampleFunction()
-* 
+*
 * \return	Reference to a scenemanager static instance.
 ________________________________________________________*/
 SceneManager& SceneManager::Instance()
 {
-    static SceneManager instance;
-    return instance;
+	static SceneManager instance;
+	return instance;
 }
 
 /*______________________________________________________
@@ -59,6 +59,17 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_TilemapRef>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_TilePosition>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_ArrowKeysTilemap>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_Node>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_PathFinding>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_Direction>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_WeaponAttack>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_BoundingBox>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_Boundary>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_Wave>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_EnemySpawn>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_TypeEnemy>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_Projectile>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_GameTimer>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_YLayering>();
 
 	// 3. Registering all systems for the game
@@ -68,14 +79,26 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeys, Com_Position, Com_ArrowKeys>();
 	SystemDatabase::Instance().RegisterSystem<Sys_TilemapPosition, Com_Tilemap, Com_Position>();
 	SystemDatabase::Instance().RegisterSystem<Sys_TilePosition, Com_TilemapRef, Com_TilePosition, Com_Position>();
+	// SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeysTilemap, Com_TilePosition>();
+	SystemDatabase::Instance().RegisterSystem<Sys_PathFinding, Com_Node, Com_PathFinding>();
+	SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeysTilemap, Com_TilePosition, Com_ArrowKeysTilemap, Com_Direction>();
+	SystemDatabase::Instance().RegisterSystem<Sys_PlayerAttack, Com_Direction, Com_WeaponAttack, Com_TilePosition, Com_Projectile>();
+	SystemDatabase::Instance().RegisterSystem<Sys_GameTimer, Com_GameTimer>();
+	SystemDatabase::Instance().RegisterSystem<Sys_EnemyAttack, Com_Direction, Com_TypeEnemy, Com_TilePosition, Com_Tilemap>();
+	SystemDatabase::Instance().RegisterSystem<Sys_EnemySpawning, Com_EnemySpawn, Com_Wave, Com_GameTimer>();
+	SystemDatabase::Instance().RegisterSystem<Sys_Velocity, Com_Position, Com_Velocity>();
 	SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeysTilemap, Com_TilePosition, Com_ArrowKeysTilemap>();
 	SystemDatabase::Instance().RegisterSystem<Sys_YLayering, Com_Sprite, Com_Position, Com_YLayering>();
 
 	// 4. Registering scenes
 	AddScene<TestScene>("Test Scene");
 	AddScene<TestScene2>("Test Scene 2");
+	AddScene<TestScene3>("Test Scene 3");
+	AddScene<TestScenePF>("Test PathFinding");
 	AddScene<ExampleScene>("ExampleScene");
 	AddScene<MainMenu>("Main Menu");
+	AddScene<TestScenewilfred>("TestScenewilfred");
+	AddScene<Menu>("Menu");
 }
 
 void SceneManager::Free()
@@ -87,11 +110,11 @@ void SceneManager::Free()
 /*______________________________________________________
 * Brief:	Exits the current scene and initializes
 *			the next scene.
-* 
+*
 * Access:	public
-* 
+*
 * Used e.g:	SceneManager::Instance().ChangeScene("myScene");
-* 
+*
 * arg[in]:	name
 *			- The name of the scene to change to,
 *			  assigned at SceneManager::AddScene()
@@ -116,13 +139,13 @@ void SceneManager::ChangeScene(const std::string& name) {
 }
 
 /*______________________________________________________
-* Brief:	Updates the current scene bound to the 
+* Brief:	Updates the current scene bound to the
 *			SceneManager.
 *
 * Access:	public (needs to be called in main.cpp)
 *
 * called:	In main.cpp
-* 
+*
 * arg[in]:	dt
 *			- Delta/Frame time between frames in seconds.
 ________________________________________________________*/

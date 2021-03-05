@@ -17,7 +17,7 @@ struct System {
 	std::bitset<64>			_mask;
 	fp_update				_update = nullptr;
 
-	Chunk*					_current_chunk = nullptr;
+	Chunk* _current_chunk = nullptr;
 	int						_current_id = -1;
 	float					_dt = -1.0f;
 	template <typename...T>

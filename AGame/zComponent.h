@@ -19,7 +19,7 @@ namespace ComponentDescriptionDetails {
 	// to prevent vs compiler from creating multiple instances of a comp desc
 	template <typename T_COMPONENT>
 	struct BugFix {
-		inline static ComponentDescription component_description 
+		inline static ComponentDescription component_description
 			= MakeComponentDescription<T_COMPONENT>();
 	};
 }
