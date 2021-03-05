@@ -16,9 +16,10 @@ struct Menu : public Scene
 {
 	std::string test = "hi";
 	eid e;
+	Factory::SpriteData data{ "test2", 100.0f, 160.0f, 2, 3, 8, 0.15f };
 	void Initialize() override {
 		std::cout << test << " Welcome, press enter to start" << std::endl;
-		e = Factory::Instance().FF_Sprite({ "test2", 1, 8, 8, 0.1f, 100.0f, 200.0f }, 0, 0);
+		e = Factory::Instance().FF_Sprite(data, 0, 0);
 
 	}
 	void Update(const float& dt) override {
@@ -114,7 +115,7 @@ struct TestScene : public Scene {
 		//	SceneManager::Instance().RestartScene();
 		//}
 
-		#if defined(DEBUG) | defined(_DEBUG)
+		/*#if defined(DEBUG) | defined(_DEBUG)
 			if (AEInputCheckTriggered(AEVK_G)) {
 				playerInv.Inventory_PrintCurrentWeapon();
 			}
@@ -126,7 +127,7 @@ struct TestScene : public Scene {
 			if (AEInputCheckTriggered(AEVK_F)) {
 				std::cout << playerInv.Inventory_SetWeaponUnlocked("Pistol") << std::endl;
 			}
-#		endif
+#		endif*/
 		if (AEInputCheckTriggered('R')) {
 			SceneManager::Instance().RestartScene();
 		}
@@ -168,20 +169,21 @@ struct TestScene3 : public Scene
 	eid e3[5] = { -1,-1,-1,-1,-1 };
 	//Com_Tilemap tile;
 	eid tilemap = -1;
+	Factory::SpriteData data{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.15f };
 	void Initialize() override {
 		srand(100);
 
 		tilemap = Factory::Instance().FF_Tilemap("tilemap", "c_test.txt", "t_test.txt");
 		Entity& testing = Factory::Instance()[tilemap];
 		Com_Tilemap& test = Factory::Instance()[tilemap].Get<Com_Tilemap>();
-		e2 = Factory::Instance().FF_SpriteTile({ "test2", 1, 8, 8, 0.1f, 10.0f, 20.0f }, tilemap, 0, 0);
+		e2 = Factory::Instance().FF_SpriteTile(data, tilemap, 0, 0);
 		//e2 = Factory::Instance().FF_Sprite({ "test2", 1, 8, 8, 0.1f , 50.0f, 80.0f }, 0 ,0);
 		Com_Sprite& test2 = Factory::Instance()[e2].Get<Com_Sprite>();
 		for (int i{ 0 }; i < 1; ++i)
 		{
 			float randomPosx = static_cast<float>(rand() % 4);
 			float randomPosy = static_cast<float>(rand() % 3);
-			e3[i] = Factory::Instance().FF_SpriteTile({ "test3", 1, 8, 8, 0.2f , 50.0f, 50.0f }, tilemap, 4, 3);
+			e3[i] = Factory::Instance().FF_SpriteTile(data, tilemap, 4, 3);
 
 		}
 		int i = 0;
@@ -197,7 +199,7 @@ struct TestScene3 : public Scene
 			SceneManager::Instance().ChangeScene("ExampleScene");
 		}
 		if (AEInputCheckTriggered('P')) {
-			e2 = Factory::Instance().FF_SpriteTile({ "test2", 1, 8, 8, 0.2f, 50.0f, 80.0f }, tilemap, 3.0f, 0.0f);
+			e2 = Factory::Instance().FF_SpriteTile(data, tilemap, 3.0f, 0.0f);
 			//Factory::Instance().GetEntity(e2).Get<Com_Sprite>()._frame_interval -= dt;
 			//Com_Sprite& s = e2->Get<Com_Sprite>();
 		}
@@ -209,7 +211,7 @@ struct TestScene3 : public Scene
 			Factory::Instance()[tilemap].AddComponent<Com_Position>();
 			Factory::Instance()[tilemap].AddComponent<Com_ArrowKeys>();
 		}
-		if (AEInputCheckCurr('I')) {
+		/*if (AEInputCheckCurr('I')) {
 			Entity& e = Factory::Instance().GetEntity(e2);
 			e.AddComponent<Com_Tilemap>();
 			ResourceManager::Instance().GetResource(e.Get<Com_Tilemap>()._texture, e.Get<Com_Tilemap>()._mesh, "tilemap", 4, 4, 16);
@@ -219,7 +221,7 @@ struct TestScene3 : public Scene
 			e.Get<Com_Tilemap>()._scale_x = 100.0f;
 			e.Get<Com_Tilemap>()._scale_y = 100.0f;
 			e.Get<Com_Tilemap>()._initialized = true;
-		}
+		}*/
 		if (AEInputCheckTriggered('R')) {
 			SceneManager::Instance().RestartScene();
 		}
@@ -299,14 +301,15 @@ struct TestScenePF : public Scene
 	eid e3 = -1;
 	//Com_Tilemap tile;
 	eid tilemap = -1;
+	Factory::SpriteData data{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.15f };
 	void Initialize() override {
 		srand(100);
 
 		tilemap = Factory::Instance().FF_Tilemap("tilemap", "c_test.txt", "t_test.txt");
 		Entity& testing = Factory::Instance()[tilemap];
 		Com_Tilemap& test = Factory::Instance()[tilemap].Get<Com_Tilemap>();
-		e2 = Factory::Instance().FF_SpriteTile({ "test2", 1, 8, 8, 0.1f, 50.0f, 50.0f }, tilemap, 0, 0);
-		e3 = Factory::Instance().FF_SpriteTile({ "test3", 1, 8, 8, 0.1f, 50.0f, 50.0f }, tilemap, 4, 3);
+		e2 = Factory::Instance().FF_SpriteTile(data, tilemap, 0, 0);
+		e3 = Factory::Instance().FF_SpriteTile(data, tilemap, 4, 3);
 		//e2 = Factory::Instance().FF_Sprite({ "test2", 1, 8, 8, 0.1f , 50.0f, 80.0f }, 0 ,0);
 		Com_Sprite& test2 = Factory::Instance()[e2].Get<Com_Sprite>();
 
@@ -323,7 +326,7 @@ struct TestScenePF : public Scene
 			//std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i << std::endl;
 		}
 		if (AEInputCheckTriggered('P')) {
-			e2 = Factory::Instance().FF_SpriteTile({ "test2", 1, 8, 8, 0.2f, 50.0f, 80.0f }, tilemap, 3.0f, 0.0f);
+			e2 = Factory::Instance().FF_SpriteTile(data, tilemap, 3.0f, 0.0f);
 			//Factory::Instance().GetEntity(player).Get<Com_Sprite>()._frame_interval -= dt;
 			//Com_Sprite& s = player->Get<Com_Sprite>();
 		}
@@ -350,6 +353,7 @@ struct TestScenewilfred : public Scene
 	eid e2 = -1;
 	//Com_Tilemap tile;
 	eid tilemap = -1;
+	Factory::SpriteData data{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.15f };
 	/*
 	Initialize Override (optional)
 	________________________________*/
@@ -358,7 +362,7 @@ struct TestScenewilfred : public Scene
 		std::cout << sizeof(Com_Tilemap) << std::endl;
 
 		tilemap = Factory::Instance().FF_Tilemap("tilemap", "c_test.txt", "t_test.txt");
-		e2 = Factory::Instance().FF_SpriteMovableTile<Com_ArrowKeysTilemap>({ "test2", 1, 8, 8, 0.1f, 100.0f, 200.0f }, tilemap, 0, 0);
+		e2 = Factory::Instance().FF_SpriteMovableTile<Com_ArrowKeysTilemap>(data, tilemap, 0, 0);
 		//init to add component to the entity/adding own logic 
 		Factory::Instance()[e2].AddComponent<Com_WeaponAttack, Com_Projectile>();
 	}
@@ -371,11 +375,11 @@ struct TestScenewilfred : public Scene
 			SceneManager::Instance().ChangeScene("Test Scene 2");
 		}
 		if (AEInputCheckTriggered('P')) {
-			e2 = Factory::Instance().FF_SpriteMovableTile<Com_ArrowKeysTilemap>({ "test2", 1, 8, 8, 0.2f, 50.0f, 80.0f }, tilemap, 3.0f, 0.0f);
+			e2 = Factory::Instance().FF_SpriteMovableTile<Com_ArrowKeysTilemap>(data, tilemap, 3, 0);
 		}
 		/*if (AEInputCheckTriggered('O')) {
 			Factory::Instance()[e2].AddComponent<Com_ArrowKeysTilemap>();
->>>>>>> origin/Player-Wilf
+
 		}
 		if (AEInputCheckTriggered('M')) {
 			Entity& test = Factory::Instance()[tilemap];
@@ -395,10 +399,8 @@ struct TestScenewilfred : public Scene
 		}
 		if (AEInputCheckTriggered('R')) {
 			SceneManager::Instance().RestartScene();
-<<<<<<< HEAD
 		}
 
-=======
 		}*/
 	}
 	/*
