@@ -641,10 +641,12 @@ struct Com_Wave{
 
 //logic for spawning of enemies 
 struct Sys_EnemySpawning : public System {
+	Factory::SpriteData data = { "test3", 1,8, 8, 0.1f, 50.0f, 50.0f };
 	void UpdateComponent() override {
 		Com_EnemySpawn& Enemyspawn = get<Com_EnemySpawn>();
 		Com_Wave& wave = get<Com_Wave>();
 		Com_GameTimer& timer = get<Com_GameTimer>();
+		//std::cout << timer.timerinseconds << std::endl;
 		//if the timer hits for set time 
 		//if timer hit 0 spawn wave/ number of enemies hit 0 
 		if (timer.timerinseconds == wave.timerforwave || Enemyspawn.numberofenemies == 0) {
@@ -657,11 +659,9 @@ struct Sys_EnemySpawning : public System {
 	void spawn_enemies() {
 		//spawn enemy at a certain location
 		//create enemy entity 
-		/*Factory::Instance().CreateEntity<Com_Sprite, Com_Position, Com_BoundingBox, Com_Direction, 
-			Com_TilePosition, Com_Tilemap,Com_TypeEnemy,Com_EnemySpawn,Com_Wave>();*/
+		Factory::Instance().FF_CreateEnemy(data);
 	}
 };
-
 
 /*-------------------------------------
 			//for attack of enemies 
@@ -706,10 +706,12 @@ struct Sys_EnemyAttack : public Sys_Projectile {
 //frame rate non independent timer 
 struct Sys_GameTimer : public System {
 	void UpdateComponent() override {
-		++get<Com_GameTimer>().incrementer;
-		if (AEFrameRateControllerGetFrameRate() < get<Com_GameTimer>().incrementer) {
-			get<Com_GameTimer>().incrementer = 0; //reset incrementer 
-			++get<Com_GameTimer>().timerinseconds; //add 1 sec
+		Com_GameTimer& gametimer = get<Com_GameTimer>();
+		++gametimer.incrementer;
+		if (AEFrameRateControllerGetFrameRate() < gametimer.incrementer) {
+			std::cout << gametimer.timerinseconds << "\n";
+			gametimer.incrementer = 0; //reset incrementer 
+			++gametimer.timerinseconds; //add 1 sec
 		}
 	}
 };

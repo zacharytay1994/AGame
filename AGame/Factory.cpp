@@ -102,15 +102,13 @@ eid Factory::FF_Createproj(const SpriteData& data, const int& x, const int& y, c
 }
 
 
-eid Factory::FF_CreateEnemy(const SpriteData& data, const eid& tilemap, const int& x, const int& y) {
+eid Factory::FF_CreateEnemy(const SpriteData& data) {
     eid id = FF_Sprite(data, 0.0f, 0.0f);
-    Factory::Instance()[id].AddComponent<Com_TilePosition, Com_TilemapRef, Com_Direction,Com_EnemySpawn>();
+    Factory::Instance()[id].AddComponent<Com_TilePosition, Com_Direction>();
     Entity& e = Factory::Instance()[id];
-    e.Get<Com_TilePosition>() = { x,y,x,y };
-    e.Get<Com_TilemapRef>()._tilemap = &Factory::Instance()[tilemap].Get<Com_Tilemap>();
+    e.Get<Com_TilePosition>() = { 0,0,0,0 };
     return id;
 }
-
 //eid Factory::FF_SpriteRandomPosition(const SpriteData& data, const float& x, const float& y, const float& velX, const float& velY)
 //{
 //    eid id = CreateEntity<Com_Position, Com_Sprite, Com_Velocity>();
