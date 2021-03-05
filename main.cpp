@@ -122,7 +122,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	//AEGfxVertexAdd(300.0f, -100.0f, 0xFFFFFFFF, 1.0f, 0.0f);
 	//AEGfxVertexAdd(100.0f, -250.0f, 0xFFFFFFFF, 1.0f, 0.0f);
 	//AEGfxVertexList* mesh2 = AEGfxMeshEnd();
-
+	AEGfxSetBackgroundColor(0.0f, 0.0f, 0.0f);
 
 	// Game Loop
 	while (gGameRunning)
@@ -167,4 +167,5 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	// free the system
 	AESysExit();
 	SceneManager::Instance().Free();
+	SceneManager::Instance().Unload();
 }

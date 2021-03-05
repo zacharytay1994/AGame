@@ -40,8 +40,12 @@ struct TestScene : public Scene {
 	eid player = -1;
 	//Com_Tilemap tile;
 	eid tilemap = -1;
-	Factory::SpriteData data{ "test2", 1, 8, 8, 0.1f, 100.0f, 200.0f };
-	Inventory playerInv;
+	Factory::SpriteData data{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.15f };
+	Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
+	Factory::SpriteData data2{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.15f };
+	Factory::SpriteData data22{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.25f };
+	Factory::SpriteData data3{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
+	//Factory::SpriteData data{ 0,"test2", 1, 8, 8, 0.1f, 100.0f, 200.0f };
 	/*
 	Initialize Override (optional)
 	________________________________*/
@@ -50,8 +54,20 @@ struct TestScene : public Scene {
 		std::cout << sizeof(Com_Tilemap) << std::endl;
 
 		tilemap = Factory::Instance().FF_Tilemap("tilemap", "c_test.txt", "t_test.txt");
+		Factory::Instance()[tilemap].Get<Com_Position>().x = -5;
+		Factory::Instance()[tilemap].Get<Com_Position>().y = 2;
+		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
 		//SystemDatabase::Instance().GetSystem<Sys_Projectile>().tilemap = tilemap;
-		player = Factory::Instance().FF_Sprite(data, 0.0f, 0.0f);
+		player = Factory::Instance().FF_SpriteTile(data, tilemap, 5, 2);
+		Factory::Instance()[player].AddComponent<Com_YLayering>();
+		player = Factory::Instance().FF_SpriteTile(data2, tilemap, 8, 3);
+		Factory::Instance()[player].AddComponent<Com_YLayering>();
+		player = Factory::Instance().FF_SpriteTile(data22, tilemap, 1, 1);
+		Factory::Instance()[player].AddComponent<Com_YLayering>();
+		player = Factory::Instance().FF_SpriteTile(data1, tilemap, 0, 0);
+		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap>();
+		player = Factory::Instance().FF_SpriteTile(data3, tilemap, 5, 3);
+		Factory::Instance()[player].AddComponent<Com_YLayering>();
 		//player = Factory::Instance().CreateEntity<Com_Position>();
 		/*int* i = new int{ 0 };
 		std::shared_ptr<int> a{ i };
@@ -65,9 +81,9 @@ struct TestScene : public Scene {
 		//if (AEInputCheckTriggered('E')) {
 		//}
 
-		//if (AEInputCheckCurr('L')) {
-		//	SceneManager::Instance().ChangeScene("Test Scene 2");
-		//}
+		if (AEInputCheckCurr('L')) {
+			SceneManager::Instance().ChangeScene("Test Scene 2");
+		}
 		if (AEInputCheckTriggered('N')) {
 			/*std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i++ << std::endl;
 			std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i << std::endl;*/
@@ -79,6 +95,7 @@ struct TestScene : public Scene {
 		}
 		if (AEInputCheckTriggered('O')) {
 			Factory::Instance()[player].AddComponent<Com_ArrowKeys>();
+			Factory::Instance()[player].AddComponent<Com_YLayering>();
 		}
 		//if (AEInputCheckTriggered('U')) {
 		//	player = Factory::Instance().FF_Sprite({ "test2", 1, 8, 8, 0.2f, 50.0f, 80.0f }, 3.0f, 0.0f);
@@ -110,6 +127,9 @@ struct TestScene : public Scene {
 				std::cout << playerInv.Inventory_SetWeaponUnlocked("Pistol") << std::endl;
 			}
 #		endif
+		if (AEInputCheckTriggered('R')) {
+			SceneManager::Instance().RestartScene();
+		}
 	}
 	/*
 	Exit Override (optional)
@@ -127,7 +147,7 @@ struct TestScene2 : public Scene {
 	eid e;
 	void Initialize() override {
 		std::cout << test << " i came from test scene 1" << std::endl;
-		e = Factory::Instance().FF_Sprite({ "test2", 1, 8, 8, 0.1f, 100.0f, 200.0f }, 0, 0);
+		e = Factory::Instance().FF_Sprite({ "test2", 50.0f, 100.0f, 1, 8, 8 }, 0, 0);
 	}
 	void Update(const float& dt) override {
 		//std::cout << "hehe just keep printing" << std::endl;
@@ -234,7 +254,7 @@ struct TestScene3 : public Scene
 
 // Example Code
 struct ExampleScene : public Scene {
-	AEGfxTexture* scene_texture;	// scene persistent resource
+	AEGfxTexture* scene_texture{ nullptr };	// scene persistent resource
 	int* scene_variable;			// scene temporary resource
 	void Load() override {
 		scene_texture = AEGfxTextureLoad("Somerandomtexture.png");
