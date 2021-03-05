@@ -297,7 +297,7 @@ struct MainMenu : public Scene {
 	void Update(const float& dt) override {
 
 	}
-}
+};
 
 /*___________________________________________________________________
 	TEST FOR PATHFINDING - Created By : Aus
