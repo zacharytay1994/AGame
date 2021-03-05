@@ -163,8 +163,8 @@ struct Com_Node
 {
 	Com_PathFinding* nodeStart = nullptr;
 	Com_PathFinding* nodeEnd = nullptr;
-	/*int nMapWidth = 0; 
 	Com_PathFinding* nodes = nullptr;
+	/*int nMapWidth = 0; 
 	int nMapHeight = 0;*/
 
 };
@@ -732,17 +732,17 @@ void MapCreate(Com_Node& ode, const Com_Tilemap& tile)
 	int height = tile._height;
 	int width = tile._width;
 	int MapArea = width * height;
-	vector<Com_PathFinding> nodes(MapArea); // create vector with size MapArea
-	//ode.nodes = new Com_PathFinding[MapArea];
+	//vector<Com_PathFinding> nodes(MapArea); // create vector with size MapArea
+	ode.nodes = new Com_PathFinding[MapArea];
 	for (int y = 0; y < height; y++)
 		for (int x = 0; x < width; x++)
 		{
-			nodes[x * height + y].x = x; // to give each node its own coordinates
-			nodes[x * height + y].y = y;
+			ode.nodes[x * height + y].x = x; // to give each node its own coordinates
+			ode.nodes[x * height + y].y = y;
 			// set everything to default value 1st
-			nodes[x * height + y].bObstacle = false;
-			nodes[x * height + y].parent = nullptr;
-			nodes[x * height + y].bVisited = false;
+			ode.nodes[x * height + y].bObstacle = false;
+			ode.nodes[x * height + y].parent = nullptr;
+			ode.nodes[x * height + y].bVisited = false;
 		}
 
 	// Create connections - in this case nodes are on a regular grid
@@ -750,19 +750,19 @@ void MapCreate(Com_Node& ode, const Com_Tilemap& tile)
 		for (int x = 0; x < width; x++)
 		{
 			if (x > 0)
-				nodes[x * height + y].vecNeighbours.push_back(&nodes[(x - 1) * height + (y + 0)]);
+				ode.nodes[x * height + y].vecNeighbours.push_back(&ode.nodes[(x - 1) * height + (y + 0)]);
 			if (x < width - 1)
-				nodes[x * height + y].vecNeighbours.push_back(&nodes[(x + 1) * height + (y + 0)]);
+				ode.nodes[x * height + y].vecNeighbours.push_back(&ode.nodes[(x + 1) * height + (y + 0)]);
 			if (y > 0)
-				nodes[x * height + y].vecNeighbours.push_back(&nodes[(x + 0) * height + (y - 1)]);
+				ode.nodes[x * height + y].vecNeighbours.push_back(&ode.nodes[(x + 0) * height + (y - 1)]);
 			if (y < height - 1)
-				nodes[x * height + y].vecNeighbours.push_back(&nodes[(x + 0) * height + (y + 1)]);
+				ode.nodes[x * height + y].vecNeighbours.push_back(&ode.nodes[(x + 0) * height + (y + 1)]);
 
 		}
 
 	// Manually positio the start and end markers so they are not nullptr
-	ode.nodeStart = &nodes[(height / 2) * width + 1];
-	ode.nodeEnd = &nodes[(height / 2) * width + width - 2];
+	ode.nodeStart = &ode.nodes[(height / 2) * width + 1];
+	ode.nodeEnd = &ode.nodes[(height / 2) * width + width - 2];
 }
 
 bool Solve_AStar(Com_Node& ode, Com_Tilemap& tile)
@@ -770,15 +770,15 @@ bool Solve_AStar(Com_Node& ode, Com_Tilemap& tile)
 	int height = tile._height;
 	int width = tile._width;
 	int MapArea = width * height;
-	vector<Com_PathFinding> nodes(MapArea); // create vector with size MapArea
+	//vector<Com_PathFinding> nodes(MapArea); // create vector with size MapArea
 	// Reset Navigation Graph - default all node states
 	for (int y = 0; y < height; y++)
 		for (int x = 0; x < width; x++)
 		{
-			nodes[x * height + y].bVisited = false;
-			nodes[x * height + y].fGlobalGoal = INFINITY;
-			nodes[x * height + y].fLocalGoal = INFINITY;
-			nodes[x * height + y].parent = nullptr;	// No parents
+			ode.nodes[x * height + y].bVisited = false;
+			ode.nodes[x * height + y].fGlobalGoal = INFINITY;
+			ode.nodes[x * height + y].fLocalGoal = INFINITY;
+			ode.nodes[x * height + y].parent = nullptr;	// No parents
 		}
 
 	auto distance = [](Com_PathFinding* a, Com_PathFinding* b) // For convenience

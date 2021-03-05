@@ -94,6 +94,7 @@ void SceneManager::Initialize() {
 	AddScene<TestScenePF>("Test PathFinding");
 	AddScene<ExampleScene>("ExampleScene");
 	AddScene<TestScenewilfred>("TestScenewilfred");
+	AddScene<Menu>("Menu");
 }
 
 void SceneManager::Free()

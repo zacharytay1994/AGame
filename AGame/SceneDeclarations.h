@@ -9,6 +9,26 @@
 #include "Inventory.h"
 #include <string>
 
+/*___________________________________________________________________
+	MENU - Created By : Aus
+_____________________________________________________________________*/
+struct Menu : public Scene 
+{
+	std::string test = "hi";
+	eid e;
+	void Initialize() override {
+		std::cout << test << " Welcome, press enter to start" << std::endl;
+		e = Factory::Instance().FF_Sprite({ "test2", 1, 8, 8, 0.1f, 100.0f, 200.0f }, 0, 0);
+
+	}
+	void Update(const float& dt) override {
+		//std::cout << "hehe just keep printing" << std::endl;
+		if (AEInputCheckTriggered(VK_RETURN)) {
+			SceneManager::Instance().ChangeScene("Test PathFinding");
+		}
+	}
+};
+
 /*!___________________________________________________________________
 	TEST SCENE - Created By : Zac
 _____________________________________________________________________*/
