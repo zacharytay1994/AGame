@@ -155,3 +155,11 @@ struct ExampleScene : public Scene {
 		std::cout << "Example Scene Unloaded." << std::endl;
 	}
 };
+
+struct MainMenu : public Scene {
+	void Initialize() override {
+		std::cout << "SYSTEM MESSAGE: Now entering main menu." << std::endl;
+	}
+	void Update(const float& dt) override {
+	}
+};

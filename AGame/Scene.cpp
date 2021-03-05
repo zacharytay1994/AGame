@@ -75,6 +75,7 @@ void SceneManager::Initialize() {
 	AddScene<TestScene>("Test Scene");
 	AddScene<TestScene2>("Test Scene 2");
 	AddScene<ExampleScene>("ExampleScene");
+	AddScene<MainMenu>("Main Menu");
 }
 
 void SceneManager::Free()
