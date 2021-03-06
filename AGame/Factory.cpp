@@ -117,11 +117,11 @@ eid Factory::FF_CreateParticle(const SpriteData& data, const int& x, const int& 
     float lifetimemin{ 0.0f };
     float lifetimemax(10.0f);
     eid id = FF_Sprite(data, x, y);
-    Factory::Instance()[id].AddComponent<Com_Velocity, Com_Particle>();
+    Factory::Instance()[id].AddComponent<Com_Velocity, Com_Particle,Com_GameTimer>();
     Entity& e = Factory::Instance()[id];
     e.Get<Com_Velocity>().x = velx;
     e.Get<Com_Velocity>().y = vely;
-    e.Get<Com_Particle>().lifetime = lifetimemin + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (lifetimemax - (lifetimemin))));
+    //e.Get<Com_Particle>().lifetime = lifetimemin + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (lifetimemax - (lifetimemin))));
     return id;
 }
 

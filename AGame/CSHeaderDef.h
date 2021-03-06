@@ -709,7 +709,7 @@ struct Sys_GameTimer : public System {
 		Com_GameTimer& gametimer = get<Com_GameTimer>();
 		++gametimer.incrementer;
 		if (AEFrameRateControllerGetFrameRate() < gametimer.incrementer) {
-			std::cout << gametimer.timerinseconds << "\n";
+			//std::cout << gametimer.timerinseconds << "\n";
 			gametimer.incrementer = 0; //reset incrementer 
 			++gametimer.timerinseconds; //add 1 sec
 		}
@@ -866,7 +866,7 @@ bool Solve_AStar(Com_Node& ode, Com_Tilemap& tile)
 
 
 struct Com_Particle {
-	size_t lifetime{ 60 };
+	size_t lifetime{ 5 };
 };
 
 struct Sys_ParticleSys : public System {
@@ -883,8 +883,8 @@ struct Sys_ParticleSys : public System {
 
 
 struct Com_ParticleEmitter {
-	size_t timeforemitter{ 10 };
-	size_t numberofparticle{ 10 };
+	size_t timeforemitter{ 5 };
+	size_t numberofparticle{ 20 };
 };
 
 
