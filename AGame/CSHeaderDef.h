@@ -866,7 +866,7 @@ bool Solve_AStar(Com_Node& ode, Com_Tilemap& tile)
 
 
 struct Com_Particle {
-	size_t lifetime{ 5 };
+	size_t lifetime{ 2 };
 };
 
 struct Sys_ParticleSys : public System {
@@ -907,14 +907,14 @@ struct Sys_ParticleEmitter : public System {
 
 	void emitparticle() {
 		//create particle sprite 
-		float min{-200.0f };
-		float max{ 200.0f };
+		float min{-100.0f };
+		float max{ 100.0f };
 		//create random sprite data 
 		float rand_sizex = min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - ((min)))));
 		float rand_sizey = min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - ((min)))));
 		float rand_velocityx = min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - ((min)))));
 		float rand_velocityy = min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - ((min)))));
-		Factory::SpriteData data{ "skeleton", rand_sizex, rand_sizey, 2, 3, 8, 0.15f };
+		Factory::SpriteData data{ "box", rand_sizex, rand_sizey, 2, 3, 8, 0.15f };
 		//Factory::SpriteData data = { "test3", 1,8, 8, 0.1f, rand_sizex, rand_sizey };
 		//create particle 
 		Factory::Instance().FF_CreateParticle(data, get<Com_Position>().x, get<Com_Position>().y, rand_velocityx ,rand_velocityy);

@@ -380,7 +380,7 @@ ________________________________*/
 		player = Factory::Instance().FF_SpriteTile(data1, tilemap, 0, 0);
 		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Projectile, Com_WeaponAttack, Com_ParticleEmitter, Com_GameTimer>();
 		player = Factory::Instance().FF_SpriteTile(data3, tilemap, 5, 3);
-		Factory::Instance()[player].AddComponent<Com_YLayering>();
+		Factory::Instance()[player].AddComponent<Com_YLayering,Com_ParticleEmitter,Com_GameTimer>();
 		//player = Factory::Instance().CreateEntity<Com_Position>();
 		/*int* i = new int{ 0 };
 		std::shared_ptr<int> a{ i };
