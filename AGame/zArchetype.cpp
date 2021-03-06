@@ -2,6 +2,7 @@
 #include <stack>
 #include "zArchetype.h"
 #include "zChunk.h"
+#include "CSHeaderDef.h"
 
 int Archetype::Add(std::shared_ptr<Chunk>& chunk) {
 	// check if there are any empty chunks
@@ -41,6 +42,12 @@ bool ArchetypeDatabase::CloneArchetype(const std::bitset<64>& mask, Archetype* a
 }
 
 void ArchetypeDatabase::FlushEntities() {
+	std::vector<Com_PathFinding*> v = SystemDatabase::Instance().GetAllComponents<Com_PathFinding>();
+	for (auto t : v) 
+	{
+		t->~Com_PathFinding();
+	}
+	
 	for (auto& archetype : _database) {
 		for (auto& chunk : archetype.second->_chunk_database) {
 			// zero out memory

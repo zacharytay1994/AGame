@@ -164,8 +164,9 @@ struct Com_Node
 {
 	Com_PathFinding* nodeStart = nullptr;
 	Com_PathFinding* nodeEnd = nullptr;
-	Com_PathFinding* nodes = nullptr;
+	vector<Com_PathFinding> nodes;
 	/*int nMapWidth = 0; 
+	Com_PathFinding* nodes = nullptr;
 	int nMapHeight = 0;*/
 
 };
@@ -735,8 +736,8 @@ void MapCreate(Com_Node& ode, const Com_Tilemap& tile)
 	int height = tile._height;
 	int width = tile._width;
 	int MapArea = width * height;
-	//vector<Com_PathFinding> nodes(MapArea); // create vector with size MapArea
-	ode.nodes = new Com_PathFinding[MapArea];
+	ode.nodes.reserve(MapArea); // create vector with size MapArea
+	//ode.nodes = new Com_PathFinding[MapArea];
 	for (int y = 0; y < height; y++)
 		for (int x = 0; x < width; x++)
 		{
@@ -773,7 +774,6 @@ bool Solve_AStar(Com_Node& ode, Com_Tilemap& tile)
 	int height = tile._height;
 	int width = tile._width;
 	int MapArea = width * height;
-	//vector<Com_PathFinding> nodes(MapArea); // create vector with size MapArea
 	// Reset Navigation Graph - default all node states
 	for (int y = 0; y < height; y++)
 		for (int x = 0; x < width; x++)
