@@ -109,23 +109,20 @@ eid Factory::FF_CreateEnemy(const SpriteData& data) {
     e.Get<Com_TilePosition>() = { 0,0,0,0 };
     return id;
 }
-//eid Factory::FF_SpriteRandomPosition(const SpriteData& data, const float& x, const float& y, const float& velX, const float& velY)
-//{
-//    eid id = CreateEntity<Com_Position, Com_Sprite, Com_Velocity>();
-//    Entity& e = Factory::Instance()[id];
-//    Com_Sprite& sprite = e.Get<Com_Sprite>();
-//    // gets texture and mesh resources from resource manager
-//    ResourceManager::Instance().GetResource(sprite._texture, sprite._mesh, data.texturename, data.row, data.col, data.frames);
-//    sprite._x_scale = data.scalex;
-//    sprite._y_scale = data.scaley;
-//    sprite._row = data.row;
-//    sprite._col = data.col;
-//    sprite._frames = data.frames;
-//    sprite._frame_interval = data.interval;
-//
-//    e.Get<Com_Position>() = { x,y };
-//    e.Get<Com_Velocity>() = { velX,velY };
-//
-//    return id;
-//}
+
+
+eid Factory::FF_CreateParticle(const SpriteData& data, const int& x, const int& y,const float& velx, const float& vely) {
+    float min{ 200.0f };
+    float max{ 200.0f };
+    float lifetimemin{ 0.0f };
+    float lifetimemax(10.0f);
+    eid id = FF_Sprite(data, x, y);
+    Factory::Instance()[id].AddComponent<Com_Velocity, Com_Particle>();
+    Entity& e = Factory::Instance()[id];
+    e.Get<Com_Velocity>().x = velx;
+    e.Get<Com_Velocity>().y = vely;
+    e.Get<Com_Particle>().lifetime = lifetimemin + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (lifetimemax - (lifetimemin))));
+    return id;
+}
+
 

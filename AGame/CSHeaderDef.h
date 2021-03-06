@@ -548,7 +548,7 @@ struct Com_Projectile {
 
 
 struct Sys_Projectile : public System {
-	Factory::SpriteData data = { "test", 1, 1, 1, 100.0f, 50.0f, 50.0f };
+	Factory::SpriteData data = { "test", 20, 20, 1, 100.0f, 100.0f, 100.0f };
 	//passing in of player's data 
 	virtual void CreateProjectile(Com_Direction& direction,Com_Position& position) {
 		//calling the factory fnc
@@ -862,4 +862,61 @@ bool Solve_AStar(Com_Node& ode, Com_Tilemap& tile)
 }
 
 
+};
+
+
+struct Com_Particle {
+	size_t lifetime{ 60 };
+};
+
+struct Sys_ParticleSys : public System {
+	void UpdateComponent() override {
+		Com_Particle& particle = get<Com_Particle>();
+		Com_GameTimer& timer = get<Com_GameTimer>();
+		//if the particle reaches the end of it's short life 
+		if (timer.timerinseconds == particle.lifetime)
+		{
+			RemoveEntity();
+		}
+	}
+};
+
+
+struct Com_ParticleEmitter {
+	size_t timeforemitter{ 10 };
+	size_t numberofparticle{ 10 };
+};
+
+
+
+struct Sys_ParticleEmitter : public System {
+	void UpdateComponent() override {
+		Com_GameTimer& timer = get<Com_GameTimer>();
+		Com_ParticleEmitter& emitter = get<Com_ParticleEmitter>();
+		Com_Position& position = get<Com_Position>();
+		//if timer reaches 0 emit particles 
+		if (timer.timerinseconds == emitter.timeforemitter)
+		{
+			for (int i{ 0 }; i < emitter.numberofparticle; ++i) {
+				//create particles 
+				emitparticle();
+			}
+			timer.timerinseconds = 0;
+		}
+	}
+
+	void emitparticle() {
+		//create particle sprite 
+		float min{-200.0f };
+		float max{ 200.0f };
+		//create random sprite data 
+		float rand_sizex = min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - ((min)))));
+		float rand_sizey = min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - ((min)))));
+		float rand_velocityx = min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - ((min)))));
+		float rand_velocityy = min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - ((min)))));
+		Factory::SpriteData data{ "skeleton", rand_sizex, rand_sizey, 2, 3, 8, 0.15f };
+		//Factory::SpriteData data = { "test3", 1,8, 8, 0.1f, rand_sizex, rand_sizey };
+		//create particle 
+		Factory::Instance().FF_CreateParticle(data, get<Com_Position>().x, get<Com_Position>().y, rand_velocityx ,rand_velocityy);
+	}
 };

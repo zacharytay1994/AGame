@@ -71,6 +71,8 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Projectile>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GameTimer>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_YLayering>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_Particle>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_ParticleEmitter>();
 
 	// 3. Registering all systems for the game
 	// SystemDatabase::Instance().RegisterSystem<Example_UpdatePosition, Position, Example_Velocity>();
@@ -90,6 +92,8 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeysTilemap, Com_TilePosition, Com_ArrowKeysTilemap>();
 	SystemDatabase::Instance().RegisterSystem<Sys_YLayering, Com_Sprite, Com_Position, Com_YLayering>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Boundary, Com_Position, Com_Boundary>();
+	SystemDatabase::Instance().RegisterSystem<Sys_ParticleSys,Com_Particle, Com_GameTimer >();
+	SystemDatabase::Instance().RegisterSystem<Sys_ParticleEmitter, Com_ParticleEmitter, Com_GameTimer>();
 
 	// 4. Registering scenes
 	AddScene<TestScene>("Test Scene");
