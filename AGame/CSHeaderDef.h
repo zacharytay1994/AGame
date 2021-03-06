@@ -9,6 +9,9 @@
 #include "ResourceManager.h"
 #include "zComponent.h"
 #include "zSystem.h"
+
+#include "zMath.h"
+
 using namespace std;
 
 
@@ -168,6 +171,11 @@ struct Com_Node
 	/*int nMapWidth = 0; 
 	int nMapHeight = 0;*/
 
+};
+
+/*																				Component::GUI
+____________________________________________________________________________________________________*/
+struct Com_Button {
 };
 
 /*___________________________________________________________________________________________________________________________________

@@ -9,6 +9,8 @@
 #include "Inventory.h"
 #include <string>
 
+//#include "zMath.h"
+
 /*___________________________________________________________________
 	MENU - Created By : Aus
 _____________________________________________________________________*/
@@ -296,8 +298,13 @@ struct ExampleScene : public Scene {
 };
 
 struct MainMenu : public Scene {
+	Vec2f a{ 1.2f,1.3f };
+	Vec2f b{ 2.3,3.5 };
 	void Initialize() override {
 		std::cout << "SYSTEM MESSAGE: Now entering main menu." << std::endl;
+		/*std::cout << a - b << std::endl;
+		std::cout << b - a << std::endl;*/
+		a.Print();
 	}
 	void Update(const float& dt) override {
 		if (AEInputCheckTriggered('C')) {

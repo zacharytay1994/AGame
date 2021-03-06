@@ -1,6 +1,5 @@
 // ---------------------------------------------------------------------------
 // includes
-
 #include "AEEngine.h"
 #include "AGame/zEntity.h"
 #include "AGame/zSystem.h"
@@ -57,6 +56,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	int gGameRunning = 1;
 	
+	/*Vec2f a{ 1.0f, 1.0f };
+	Vec2f b{ 2.0f,2.0f };*/
+	//std::cout << "hgello" << std::endl;
+	//std::cout << a.x << ":" << a.y << std::endl;
+ 	//std::cout << a << std::endl;
 	/////////////////
 	// Initialization
 
