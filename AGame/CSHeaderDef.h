@@ -722,32 +722,29 @@ ________________________________________________________________________________
 struct Sys_PathFinding : public System
 {
 	void UpdateComponent() override {
-		Com_Node* ode = &get<Com_Node>();
-		Com_Tilemap* tile = &get<Com_Tilemap>();
-		Com_Position* PlayerPos = &get<Com_Position>();
-		while (1)
-		{
-			double timer = get<Com_GameTimer>().timerinseconds;
-			if (timer < AEFrameRateControllerGetFrameRate())
-			{
-				MapCreate(*ode, *tile);
-				MoveEnemy(*PlayerPos, *ode, *tile);
-				timer = 0; //add 1 sec
-				std::cout << "Heli" << std::endl;
-			}
-		}
+		Com_Node& ode = get<Com_Node>();
+		Com_TilemapRef& tilemapref = get<Com_TilemapRef>();
+		Com_Tilemap* tile = tilemapref._tilemap;
+		Com_TilePosition& PlayerPos = get<Com_TilePosition>();
+		//PlayerPos._grid_x += 1;
+	
+		MapCreate(ode, tile);
+		MoveEnemy(PlayerPos, ode, tile);
+		
+	
 	}
 	
 
-void MapCreate(Com_Node& ode, const Com_Tilemap& tile)
+void MapCreate(Com_Node& ode, const Com_Tilemap* tile)
 {
 	// Create a 2D array of nodes - this is for convenience of rendering and construction
 	// and is not required for the algorithm to work - the nodes could be placed anywhere
 	// in any space, in multiple dimension
 	std::cout << "Hello" << std::endl;
-	ode.MapHeight = tile._height;
-	ode.MapWidth = tile._width;
-	ode.nodes.reserve(ode.MapHeight * ode.MapWidth); // create vector with size MapArea
+	ode.MapHeight = tile->_height;
+	ode.MapWidth = tile->_width;
+	int MapArea = ode.MapHeight * ode.MapWidth;
+	ode.nodes.reserve(MapArea); // create vector with size MapArea
 	//ode.nodes = new Com_PathFinding[MapArea];
 	for (int y = 0; y < ode.MapHeight; y++)
 		for (int x = 0; x < ode.MapWidth; x++)
@@ -868,11 +865,12 @@ bool Solve_AStar(Com_Node& ode)
 	return true;
 }
 
-void MoveEnemy(Com_Position& playerPos, Com_Node& ode, Com_Tilemap& tile) 
+void MoveEnemy(Com_TilePosition& playerPos, Com_Node& ode, Com_Tilemap* tile)
 {
 	if (Solve_AStar(ode) == true) 
 	{
-		playerPos.x = 0;
+		playerPos._grid_x += 1;
+		playerPos._grid_y += 1;
 	}
 }
 
