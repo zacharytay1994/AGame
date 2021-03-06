@@ -165,9 +165,9 @@ struct Com_Node
 	Com_PathFinding* nodeStart = nullptr;
 	Com_PathFinding* nodeEnd = nullptr;
 	vector<Com_PathFinding> nodes;
-	/*int nMapWidth = 0; 
-	Com_PathFinding* nodes = nullptr;
-	int nMapHeight = 0;*/
+	int MapWidth = 0; 
+	int MapHeight = 0;
+	//Com_PathFinding* nodes = nullptr;
 
 };
 
@@ -723,8 +723,19 @@ struct Sys_PathFinding : public System
 {
 	void UpdateComponent() override {
 		Com_Node* ode = &get<Com_Node>();
-		Com_Tilemap& tile = get<Com_Tilemap>();
-		Com_Position& PlayerPos = get<Com_Position>();
+		Com_Tilemap* tile = &get<Com_Tilemap>();
+		Com_Position* PlayerPos = &get<Com_Position>();
+		while (1)
+		{
+			double timer = get<Com_GameTimer>().timerinseconds;
+			if (timer < AEFrameRateControllerGetFrameRate())
+			{
+				MapCreate(*ode, *tile);
+				MoveEnemy(*PlayerPos, *ode, *tile);
+				timer = 0; //add 1 sec
+				std::cout << "Heli" << std::endl;
+			}
+		}
 	}
 	
 
@@ -733,55 +744,53 @@ void MapCreate(Com_Node& ode, const Com_Tilemap& tile)
 	// Create a 2D array of nodes - this is for convenience of rendering and construction
 	// and is not required for the algorithm to work - the nodes could be placed anywhere
 	// in any space, in multiple dimension
-	int height = tile._height;
-	int width = tile._width;
-	int MapArea = width * height;
-	ode.nodes.reserve(MapArea); // create vector with size MapArea
+	std::cout << "Hello" << std::endl;
+	ode.MapHeight = tile._height;
+	ode.MapWidth = tile._width;
+	ode.nodes.reserve(ode.MapHeight * ode.MapWidth); // create vector with size MapArea
 	//ode.nodes = new Com_PathFinding[MapArea];
-	for (int y = 0; y < height; y++)
-		for (int x = 0; x < width; x++)
+	for (int y = 0; y < ode.MapHeight; y++)
+		for (int x = 0; x < ode.MapWidth; x++)
 		{
-			ode.nodes[x * height + y].x = x; // to give each node its own coordinates
-			ode.nodes[x * height + y].y = y;
+			ode.nodes[x * ode.MapHeight + y].x = x; // to give each node its own coordinates
+			ode.nodes[x * ode.MapHeight + y].y = y;
 			// set everything to default value 1st
-			ode.nodes[x * height + y].bObstacle = false;
-			ode.nodes[x * height + y].parent = nullptr;
-			ode.nodes[x * height + y].bVisited = false;
+			ode.nodes[x * ode.MapHeight + y].bObstacle = false;
+			ode.nodes[x * ode.MapHeight + y].parent = nullptr;
+			ode.nodes[x * ode.MapHeight + y].bVisited = false;
 		}
 
 	// Create connections - in this case nodes are on a regular grid
-	for (int y = 0; y < height; y++)
-		for (int x = 0; x < width; x++)
+	for (int y = 0; y < ode.MapHeight; y++)
+		for (int x = 0; x < ode.MapWidth; x++)
 		{
 			if (x > 0)
-				ode.nodes[x * height + y].vecNeighbours.push_back(&ode.nodes[(x - 1) * height + (y + 0)]);
-			if (x < width - 1)
-				ode.nodes[x * height + y].vecNeighbours.push_back(&ode.nodes[(x + 1) * height + (y + 0)]);
+				ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x - 1) * ode.MapHeight + (y + 0)]);
+			if (x < ode.MapWidth - 1)
+				ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x + 1) * ode.MapHeight + (y + 0)]);
 			if (y > 0)
-				ode.nodes[x * height + y].vecNeighbours.push_back(&ode.nodes[(x + 0) * height + (y - 1)]);
-			if (y < height - 1)
-				ode.nodes[x * height + y].vecNeighbours.push_back(&ode.nodes[(x + 0) * height + (y + 1)]);
+				ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x + 0) * ode.MapHeight + (y - 1)]);
+			if (y < ode.MapHeight - 1)
+				ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x + 0) * ode.MapHeight + (y + 1)]);
 
 		}
 
 	// Manually positio the start and end markers so they are not nullptr
-	ode.nodeStart = &ode.nodes[(height / 2) * width + 1];
-	ode.nodeEnd = &ode.nodes[(height / 2) * width + width - 2];
+	ode.nodeStart = &ode.nodes[(ode.MapHeight / 2) * ode.MapWidth + 1];
+	ode.nodeEnd = &ode.nodes[(ode.MapHeight / 2) * ode.MapWidth + ode.MapWidth - 2];
 }
 
-bool Solve_AStar(Com_Node& ode, Com_Tilemap& tile)
+bool Solve_AStar(Com_Node& ode)
 {
-	int height = tile._height;
-	int width = tile._width;
-	int MapArea = width * height;
+	
 	// Reset Navigation Graph - default all node states
-	for (int y = 0; y < height; y++)
-		for (int x = 0; x < width; x++)
+	for (int y = 0; y < ode.MapHeight; y++)
+		for (int x = 0; x < ode.MapWidth; x++)
 		{
-			ode.nodes[x * height + y].bVisited = false;
-			ode.nodes[x * height + y].fGlobalGoal = INFINITY;
-			ode.nodes[x * height + y].fLocalGoal = INFINITY;
-			ode.nodes[x * height + y].parent = nullptr;	// No parents
+			ode.nodes[x * ode.MapHeight + y].bVisited = false;
+			ode.nodes[x * ode.MapHeight + y].fGlobalGoal = INFINITY;
+			ode.nodes[x * ode.MapHeight + y].fLocalGoal = INFINITY;
+			ode.nodes[x * ode.MapHeight + y].parent = nullptr;	// No parents
 		}
 
 	auto distance = [](Com_PathFinding* a, Com_PathFinding* b) // For convenience
@@ -859,5 +868,12 @@ bool Solve_AStar(Com_Node& ode, Com_Tilemap& tile)
 	return true;
 }
 
+void MoveEnemy(Com_Position& playerPos, Com_Node& ode, Com_Tilemap& tile) 
+{
+	if (Solve_AStar(ode) == true) 
+	{
+		playerPos.x = 0;
+	}
+}
 
 };
