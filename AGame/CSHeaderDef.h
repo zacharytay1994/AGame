@@ -164,10 +164,10 @@ struct Com_Node
 {
 	Com_PathFinding* nodeStart = nullptr;
 	Com_PathFinding* nodeEnd = nullptr;
-	vector<Com_PathFinding> nodes;
+	//vector<Com_PathFinding> nodes;
 	int MapWidth = 0; 
 	int MapHeight = 0;
-	//Com_PathFinding* nodes = nullptr;
+	Com_PathFinding* nodes = nullptr;
 
 };
 
@@ -740,13 +740,12 @@ void MapCreate(Com_Node& ode, const Com_Tilemap* tile)
 	// Create a 2D array of nodes - this is for convenience of rendering and construction
 	// and is not required for the algorithm to work - the nodes could be placed anywhere
 	// in any space, in multiple dimension
-	std::cout << "Hello" << std::endl;
 	ode.MapHeight = tile->_height;
 	ode.MapWidth = tile->_width;
 	int MapArea = ode.MapHeight * ode.MapWidth;
-	ode.nodes.reserve(MapArea); // create vector with size MapArea
-	//ode.nodes = new Com_PathFinding[MapArea];
+	ode.nodes = new Com_PathFinding[MapArea];
 	for (int y = 0; y < ode.MapHeight; y++)
+	{
 		for (int x = 0; x < ode.MapWidth; x++)
 		{
 			ode.nodes[x * ode.MapHeight + y].x = x; // to give each node its own coordinates
@@ -756,7 +755,7 @@ void MapCreate(Com_Node& ode, const Com_Tilemap* tile)
 			ode.nodes[x * ode.MapHeight + y].parent = nullptr;
 			ode.nodes[x * ode.MapHeight + y].bVisited = false;
 		}
-
+	}
 	// Create connections - in this case nodes are on a regular grid
 	for (int y = 0; y < ode.MapHeight; y++)
 		for (int x = 0; x < ode.MapWidth; x++)
@@ -869,8 +868,14 @@ void MoveEnemy(Com_TilePosition& playerPos, Com_Node& ode, Com_Tilemap* tile)
 {
 	if (Solve_AStar(ode) == true) 
 	{
-		playerPos._grid_x += 1;
-		playerPos._grid_y += 1;
+		static float alarm = 0;
+		alarm += _dt;
+		if(alarm > 1.0f)
+		{
+			playerPos._grid_x += 1; // need to based on the player pos but not yet
+			playerPos._grid_y += 1;
+			alarm = 0;
+		}
 	}
 }
 
