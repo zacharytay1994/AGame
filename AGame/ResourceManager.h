@@ -1,10 +1,26 @@
 #pragma once
 #include <unordered_map>
 #include <string>
+#include <queue>
 #include "AEEngine.h"
 
 // forward deckaratuibs
 struct Com_Tilemap;
+
+struct RenderPack {
+	int					_layer{ 0 };
+	AEMtx33				_transform{ 0 };
+	AEGfxVertexList*	_mesh{ nullptr };
+	AEGfxTexture*		_texture{ nullptr };
+	float				_offset_x;
+	float				_offset_y;
+	//bool operator>(const RenderPack& rhs) const { return _layer > rhs._layer; }
+};
+
+struct RM_Compare {
+	bool operator()(RenderPack lhs, RenderPack rhs) { return lhs._layer > rhs._layer; }
+};
+
 
 struct ResourceManager {
 	static ResourceManager& Instance();
@@ -16,12 +32,18 @@ private:
 	std::string asset_path = "../bin/Assets/";
 	std::string texture_path = "Textures/";
 	std::string tilemap_path = "Tilemaps/";
+
+	std::priority_queue <RenderPack, std::vector<RenderPack>, RM_Compare> _render_queue;
 public:
+	// render queue
+	void DrawQueue(RenderPack pack);
+	void FlushDraw();
+	void ResetRenderQueue();
 	// texture functions
 	void LoadTexture(const std::string& name, const std::string& path);
 	AEGfxVertexList* CreateMesh(const int& x, const int& y);				// gets a mesh based on how many frames there are
 	std::unordered_map<std::string, AEGfxTexture*>		_textures;
-	std::unordered_map<float, AEGfxVertexList*>	_meshes;
+	std::unordered_map<float, AEGfxVertexList*>			_meshes;
 
 	// tilemap functions
 	void ReadTilemapBin(const std::string& path, Com_Tilemap& tilemap);

@@ -10,18 +10,18 @@
 * Used:		Entity instances are not meant to be defined as is. Look at Factory.h
 *			Factory::CreateEntity(), Factory::FF_CreateBasicSprite() as examples
 *			of how to instantiate an entity.
-* 
+*
 * Relation:	Factory
 *			- std::vector<Entity> _entities;
 ____________________________________________________________________________________*/
 struct Entity {
-	std::shared_ptr<Chunk>	_chunk{ nullptr };
+	std::shared_ptr<Chunk>	_chunk;
 	int						_id{ 0 };
 	Entity() {}
 	/*______________________________________________________
 	* Brief:	Initializes the entity and creates/fetches a unique
 	*			Archetype generated with its component combination.
-	*			A chunk of that archetype will be returned 
+	*			A chunk of that archetype will be returned
 	*
 	* Access:	public (called by factory, might make private and
 	*			friend in future)
@@ -40,7 +40,7 @@ struct Entity {
 	* Brief:	Gets a component that an entity has. There
 	*			is no underlying check, up to user to validate.
 	*			Will UDB if getting non-existing component.
-	* 
+	*
 	* Access:	public
 	*
 	* Use e.g:	Entity& e1 = Factory::CreateEntity<Com_Position>();
@@ -67,6 +67,7 @@ struct Entity {
 		// get mask
 		std::bitset<64> mask = _chunk->_owning_archetype->_mask;
 		int flag = 0;
+		// if already has components in it
 		((flag = flag ? flag : mask[component_description_v<T>._bit]), ...);
 		if (flag) {
 			return *this;

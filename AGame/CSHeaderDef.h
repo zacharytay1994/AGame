@@ -1,10 +1,16 @@
 #pragma once
 #include <iostream>
 #include <string>
+#include <vector>
+#include <queue>
 #include "AEEngine.h"
+#include "Factory.h"
 
+#include "ResourceManager.h"
 #include "zComponent.h"
 #include "zSystem.h"
+using namespace std;
+
 
 /*___________________________________________________________________________________________________________________________________
 	COMPONENT DECLARATIONS & DEFINITONS																	<<	COMPONENT DEFINITIONS  >>
@@ -26,9 +32,18 @@ struct Com_BoundingBox;
 struct Com_CollisionData;
 // attack
 struct Com_WeaponAttack;
+// Nodes
+struct Com_PathFinding;
+struct Com_Node;
 /*__________________________________________________________________________________________________
 																				Component::BASIC DATA
 ____________________________________________________________________________________________________*/
+
+//timer
+struct Com_GameTimer {
+	size_t timerinseconds{ 0 };
+	size_t incrementer{ 0 };
+};
 
 struct Com_Position {
 	float x{ 0.0f };
@@ -41,8 +56,7 @@ struct Com_Velocity {
 };
 
 struct Com_Sprite {
-	AEGfxTexture* _texture = nullptr;
-	AEGfxVertexList* _mesh = nullptr;
+	RenderPack			_render_pack;
 	float				_x_scale = 1.0f;
 	float				_y_scale = 1.0f;
 	float				_rotation = 0.0f;
@@ -52,14 +66,19 @@ struct Com_Sprite {
 	float				_frame_interval_counter = 0.0f;
 	int					_row = 1;
 	int					_col = 1;
-	float				_offset_x = 0.0f;
-	float				_offset_y = 0.0f;
-	AEMtx33				_transform{ 0 };
 };
 
 struct Com_Direction {
 	enum Direction { up, down, left, right };
-	int currdir;
+	int currdir = up;
+};
+
+struct Com_Boundary {
+	char _filler = 0; //filler 
+};
+
+struct Com_YLayering {
+	char filler = 0;
 };
 
 /*																				Component::INPUT
@@ -76,16 +95,15 @@ struct Com_ArrowKeysTilemap {
 ____________________________________________________________________________________________________*/
 
 struct Com_Tilemap {
+	RenderPack		_render_pack;
 	std::vector<int> _map;
 	std::vector<int> _floor_mask;
-	float _offset_x = 0.0f;
-	float _offset_y = 0.0f;
+	float _offset_x{ 0.0f };
+	float _offset_y{ 0.0f };
 	int _width = 0;
 	int _height = 0;
 	float _scale_x = 1.0f;
 	float _scale_y = 1.0f;
-	AEGfxTexture* _texture = nullptr;
-	AEGfxVertexList* _mesh = nullptr;
 	bool _initialized = false;
 };
 
@@ -122,7 +140,34 @@ struct Com_WeaponAttack
 		sword,
 		pistol
 	};
-	int currentweapon{ 0 };
+	int currentweapon{ 1 };
+};;
+
+/*																				Component::ENEMY
+____________________________________________________________________________________________________*/
+
+/*																Component::PATH FINDING
+____________________________________________________________________________________________________*/
+struct Com_PathFinding
+{
+	bool bObstacle = false;			// Is the node an obstruction?
+	bool bVisited = false;			// Have we searched this node before?
+	float fGlobalGoal = 0.0f;				// Distance to goal so far
+	float fLocalGoal = 0.0f;				// Distance to goal if we took the alternative route
+	int x = 0;							// Nodes position in 2D space
+	int y = 0;
+	vector<Com_PathFinding*> vecNeighbours;	// Connections to neighbours
+	Com_PathFinding* parent = nullptr;					// Node connecting to this node that offers shortest parent
+};
+
+struct Com_Node
+{
+	Com_PathFinding* nodeStart = nullptr;
+	Com_PathFinding* nodeEnd = nullptr;
+	Com_PathFinding* nodes = nullptr;
+	/*int nMapWidth = 0; 
+	int nMapHeight = 0;*/
+
 };
 
 /*___________________________________________________________________________________________________________________________________
@@ -169,11 +214,24 @@ struct Sys_AABB;
 ____________________________________________________________________________________________________*/
 struct Sys_WeaponAttack;
 
+/*																				system::PATHFINDING
+____________________________________________________________________________________________________*/
+struct Sys_PathFinding;
+
 /*___________________________________________________________________________________________________________________________________
 	SYSTEM DEFINITIONS																						<<	SYSTEM DEFINITIONS  >>
 _____________________________________________________________________________________________________________________________________*/
 /*																				system::BASIC SYSTEMS
 ____________________________________________________________________________________________________*/
+
+struct Sys_Velocity : public System {
+	void UpdateComponent() override {
+		Com_Velocity& velocity = get<Com_Velocity>();
+		Com_Position& position = get<Com_Position>();
+		position.x += velocity.x * _dt;
+		position.y += velocity.y * _dt;
+	}
+};
 
 struct Sys_DrawSprite : public System {
 	std::vector<Com_Sprite*> con;
@@ -187,8 +245,8 @@ struct Sys_DrawSprite : public System {
 		// increment frame
 		if (sprite._frame_interval_counter > sprite._frame_interval) {
 			sprite._current_frame = ++sprite._current_frame >= sprite._frames ? 0 : sprite._current_frame;
-			sprite._offset_x = (sprite._current_frame % sprite._col) * 1.0f / (float)sprite._col;
-			sprite._offset_y = (sprite._current_frame / sprite._col) * 1.0f / (float)sprite._row;
+			sprite._render_pack._offset_x = (sprite._current_frame % sprite._col) * 1.0f / (float)sprite._col;
+			sprite._render_pack._offset_y = (sprite._current_frame / sprite._col) * 1.0f / (float)sprite._row;
 			sprite._frame_interval_counter = 0.0f;
 		}
 		else {
@@ -197,14 +255,10 @@ struct Sys_DrawSprite : public System {
 		AEMtx33Scale(&scale, sprite._x_scale, sprite._y_scale);
 		AEMtx33Rot(&rot, sprite._rotation);
 		AEMtx33Trans(&trans, position.x, position.y);
-		AEMtx33Concat(&sprite._transform, &rot, &scale);
-		AEMtx33Concat(&sprite._transform, &trans, &sprite._transform);
+		AEMtx33Concat(&sprite._render_pack._transform, &rot, &scale);
+		AEMtx33Concat(&sprite._render_pack._transform, &trans, &sprite._render_pack._transform);
 		// set aegfx variables
-		AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
-		AEGfxSetTransform(sprite._transform.m);
-		AEGfxTextureSet(sprite._texture, sprite._offset_x, sprite._offset_y);
-		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
-		AEGfxMeshDraw(sprite._mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
+		ResourceManager::Instance().DrawQueue(sprite._render_pack);
 	}
 };
 
@@ -234,22 +288,29 @@ struct Sys_Boundary : public System {
 	}
 };
 
+struct Sys_YLayering : public System {
+	void UpdateComponent() override {
+		// sets the layer to the position
+		get<Com_Sprite>()._render_pack._layer = -get<Com_Position>().y;
+	}
+};
+
 /*																				system::INPUT
 ____________________________________________________________________________________________________*/
 
 struct Sys_ArrowKeys : public System {
 	void UpdateComponent() override {
 		if (AEInputCheckCurr(VK_LEFT)) {
-			get<Com_Position>().x -= 1.0f * _dt;
+			get<Com_Position>().x -= 10.0f * _dt;
 		}
 		if (AEInputCheckCurr(VK_RIGHT)) {
-			get<Com_Position>().x += 1.0f * _dt;
+			get<Com_Position>().x += 10.0f * _dt;
 		}
 		if (AEInputCheckCurr(VK_UP)) {
-			get<Com_Position>().y += 1.0f * _dt;
+			get<Com_Position>().y += 10.0f * _dt;
 		}
 		if (AEInputCheckCurr(VK_DOWN)) {
-			get<Com_Position>().y -= 1.0f * _dt;
+			get<Com_Position>().y -= 10.0f * _dt;
 		}
 	}
 };
@@ -257,17 +318,39 @@ struct Sys_ArrowKeys : public System {
 struct Sys_ArrowKeysTilemap : public System {
 	void UpdateComponent() override {
 		Com_TilePosition& pos = get<Com_TilePosition>();
+		Com_Direction& direction = get<Com_Direction>();
 		if (AEInputCheckTriggered(VK_LEFT)) {
-			pos._grid_x -= 1;
+			//if already left 
+			if (direction.currdir == direction.left) {
+				pos._grid_x -= 1;
+			}
+			else {
+				direction.currdir = direction.left;
+			}
 		}
 		if (AEInputCheckTriggered(VK_RIGHT)) {
-			pos._grid_x += 1;
+			if (direction.currdir == direction.right) {
+				pos._grid_x += 1;
+			}
+			else {
+				direction.currdir = direction.right;
+			}
 		}
 		if (AEInputCheckTriggered(VK_UP)) {
-			pos._grid_y -= 1;
+			if (direction.currdir == direction.up) {
+				pos._grid_y -= 1;
+			}
+			else {
+				direction.currdir = direction.up;
+			}
 		}
 		if (AEInputCheckTriggered(VK_DOWN)) {
-			pos._grid_y += 1;
+			if (direction.currdir == direction.down) {
+				pos._grid_y += 1;
+			}
+			else {
+				direction.currdir = direction.down;
+			}
 		}
 	}
 };
@@ -283,23 +366,22 @@ struct Sys_Tilemap : public System {
 			DrawTilemap(tilemap, position);
 		}
 	}
-	void DrawTilemap(const Com_Tilemap& tilemap, const Com_Position& position) {
+	void DrawTilemap(Com_Tilemap& tilemap, const Com_Position& position) {
 		AEMtx33 trans, scale, transform;
-		AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
 		AEMtx33Scale(&scale, tilemap._scale_x, tilemap._scale_y);
 		for (size_t y = 0; y < (size_t)tilemap._height; ++y) {
 			for (size_t x = 0; x < (size_t)tilemap._width; ++x) {
 				if (tilemap._floor_mask[x * (size_t)tilemap._height + y] == -1) { continue; }
 				AEMtx33Trans(&trans, (float)x + tilemap._offset_x, -(float)y + tilemap._offset_y);
 				AEMtx33Concat(&transform, &scale, &trans);
-				AEGfxSetTransform(transform.m);
+				tilemap._render_pack._transform = transform;
 				if (tilemap._floor_mask[x * (size_t)tilemap._height + y]) {
 					// sample texture according to collision mask
-					float offset_x = (tilemap._floor_mask[x * (size_t)tilemap._height + y] % 4) * 1.0f / (float)4;
-					float offset_y = (tilemap._floor_mask[x * (size_t)tilemap._height + y] / 4) * 1.0f / (float)4;
-					AEGfxTextureSet(tilemap._texture, offset_x, offset_y);
-					AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
-					AEGfxMeshDraw(tilemap._mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
+					float _offset_x = (tilemap._floor_mask[x * (size_t)tilemap._height + y] % 4) * 1.0f / (float)4;
+					float _offset_y = (tilemap._floor_mask[x * (size_t)tilemap._height + y] / 4) * 1.0f / (float)4;
+					tilemap._render_pack._offset_x = (tilemap._floor_mask[x * (size_t)tilemap._height + y] % 4) * 1.0f / (float)4;
+					tilemap._render_pack._offset_y = (tilemap._floor_mask[x * (size_t)tilemap._height + y] / 4) * 1.0f / (float)4;
+					ResourceManager::Instance().DrawQueue(tilemap._render_pack);
 				}
 			}
 		}
@@ -460,54 +542,322 @@ struct Sys_AABB : public System {
 /*																				system::ATTACK
 ____________________________________________________________________________________________________*/
 
-struct Sys_Projectile : public System {
-	void UpdateComponent() override {
-		Com_Direction& direction = get<Com_Direction>();
-		//if space triggered 
-		if (AEInputCheckCurr(VK_SPACE)) {
-			if (direction.currdir == direction.right) {
-				//create an entity of bullet 
-				CreateProjectile(get<Com_Position>(), get<Com_Velocity>(), get<Com_Direction>());
-			}
-			if (direction.currdir == direction.left) {
-				//create an entity of bullet 
-				CreateProjectile(get<Com_Position>(), get<Com_Velocity>(), get<Com_Direction>());
-			}
-			if (direction.currdir == direction.up) {
-				//create an entity of bullet 
-				CreateProjectile(get<Com_Position>(), get<Com_Velocity>(), get<Com_Direction>());
-			}
-			if (direction.currdir == direction.down) {
-				//create an entity of bullet 
-				CreateProjectile(get<Com_Position>(), get<Com_Velocity>(), get<Com_Direction>());
-			}
+struct Com_Projectile {
+	char _filler = 0; //filler
+};
 
-		}
-	}
-	void CreateProjectile(Com_Position& position, Com_Velocity& velocity, Com_Direction& direction) {
-		//creat projectile based on direction
-		//Factory::Instance().CreateEntity<Com_Sprite, Com_Velocity, Com_Position, Com_BoundingBox, Com_Direction>();
-		//set entity sprite, position, velocity, direction
+
+struct Sys_Projectile : public System {
+	Factory::SpriteData data = { "test", 1, 1, 1, 100.0f, 50.0f, 50.0f };
+	//passing in of player's data 
+	virtual void CreateProjectile(Com_Direction& direction,Com_Position& position) {
+		//calling the factory fnc
+		Factory::Instance().FF_Createproj(data, position.x, position.y,direction);
 	}
 };
 
-struct Sys_WeaponAttack : public System {
+
+struct Sys_PlayerAttack : public Sys_Projectile {
 	void UpdateComponent() override {
+
 		if (AEInputCheckCurr(VK_SPACE)) {
-			//if character holding to sword 
-			if (get<Com_WeaponAttack>().currentweapon == Com_WeaponAttack::sword) {
-				//attack the grid infront 
+			Com_Direction& direction = get<Com_Direction>();
+			Com_WeaponAttack& weapon = get<Com_WeaponAttack>();
+			Com_Position& position = get<Com_Position>();
+			if (direction.currdir == direction.up) {
+				//if character holding to sword 
+				if (weapon.currentweapon == weapon.sword) {
+					//attack the grid infront or shoort invisible bullet 
+					sword_attack(direction, position);
+
+				}
+				//if character holding to pistol 
+				if (weapon.currentweapon == weapon.pistol) {
+					//shoot out projectile 
+					CreateProjectile(direction, position);
+				}
 
 			}
-			//if character holding to pistol 
-			if (get<Com_WeaponAttack>().currentweapon == Com_WeaponAttack::pistol) {
-				//shoot out projectile 
-				//Sys_Projectile::CreateProjectile(Com_Position & position, Com_Velocity & velocity, Com_Direction & direction);
+			if (direction.currdir == direction.down) {
+				//if character holding to sword 
+				if (weapon.currentweapon == weapon.sword) {
+					//attack the grid infront or shoort invisible bullet 
+					sword_attack(direction, position);
+
+				}
+				//if character holding to pistol 
+				if (weapon.currentweapon == weapon.pistol) {
+					//shoot out projectile 
+					CreateProjectile(direction, position);
+				}
+			}
+			if (direction.currdir == direction.left) {
+				//if character holding to sword 
+				if (weapon.currentweapon == weapon.sword) {
+					//attack the grid infront or shoort invisible bullet 
+					sword_attack(direction, position);
+
+				}
+				//if character holding to pistol 
+				if (weapon.currentweapon == weapon.pistol) {
+					//shoot out projectile 
+					CreateProjectile(direction, position);
+				}
+			}
+			if (direction.currdir == direction.right) {
+				//if character holding to sword 
+				if (weapon.currentweapon == weapon.sword) {
+					//attack the grid infront or shoort invisible bullet 
+					sword_attack(direction, position);
+
+				}
+				//if character holding to pistol 
+				if (weapon.currentweapon == weapon.pistol) {
+					//shoot out projectile 
+					CreateProjectile(direction, position);
+				}
+			}
+		}
+	}
+	void sword_attack(Com_Direction& direction, Com_Position& position) {
+		//pending 
+	}
+};
+
+
+ /////////Edits  
+
+/*-------------------------------------
+//for spawning of enemies 
+-------------------------------------------*/
+struct Com_EnemySpawn{
+	size_t numberofenemies{ 5 }; //number of enemies to spawn 
+};
+
+struct Com_Wave{
+	size_t timerforwave{ 60 }; //if timer hits 0 in secsm spawn new wave 
+	size_t numberofwaves{ 3 }; //if number of wave hit 0, level unlocked 
+};
+
+//logic for spawning of enemies 
+struct Sys_EnemySpawning : public System {
+	void UpdateComponent() override {
+		Com_EnemySpawn& Enemyspawn = get<Com_EnemySpawn>();
+		Com_Wave& wave = get<Com_Wave>();
+		Com_GameTimer& timer = get<Com_GameTimer>();
+		//if the timer hits for set time 
+		//if timer hit 0 spawn wave/ number of enemies hit 0 
+		if (timer.timerinseconds == wave.timerforwave || Enemyspawn.numberofenemies == 0) {
+			//spawning of enemies 
+			spawn_enemies();
+			--wave.numberofwaves; //decrease the number of waves left 
+			timer.timerinseconds = 0;
+		}
+	}
+	void spawn_enemies() {
+		//spawn enemy at a certain location
+		//create enemy entity 
+		/*Factory::Instance().CreateEntity<Com_Sprite, Com_Position, Com_BoundingBox, Com_Direction, 
+			Com_TilePosition, Com_Tilemap,Com_TypeEnemy,Com_EnemySpawn,Com_Wave>();*/
+	}
+};
+
+
+/*-------------------------------------
+			//for attack of enemies 
+-------------------------------------------*/
+
+struct Com_TypeEnemy {
+	enum EnemyType
+	{
+		Alien1, //melee
+		Alien2  //range
+	};
+	size_t Alientype{ 0 };
+};
+
+
+//logic for attack of enemies 
+struct Sys_EnemyAttack : public Sys_Projectile {
+	void UpdateComponent() override {
+		//if enemy is melee
+		if (get<Com_TypeEnemy>().Alientype == Com_TypeEnemy::Alien1) {
+			//check 4 sides if player is 1 tile away
+			//if () {
+			//	//shoot invisible that direction 
+			//	//create projectile system
+			//}
+		}
+		//if enemy is range
+		if (get<Com_TypeEnemy>().Alientype == Com_TypeEnemy::Alien2) {
+			//check 4 sides if player is x/y aligned 
+			//if () {
+			//	//shoot that direction
+			//	//createprojectile system
+			//}
+		}
+	}
+};
+
+/*-------------------------------------
+			//timing for game/wave
+-------------------------------------------*/
+
+//frame rate non independent timer 
+struct Sys_GameTimer : public System {
+	void UpdateComponent() override {
+		++get<Com_GameTimer>().incrementer;
+		if (AEFrameRateControllerGetFrameRate() < get<Com_GameTimer>().incrementer) {
+			get<Com_GameTimer>().incrementer = 0; //reset incrementer 
+			++get<Com_GameTimer>().timerinseconds; //add 1 sec
+		}
+	}
+};
+
+
+/*																			system::PATH FINDING
+____________________________________________________________________________________________________*/
+
+struct Sys_PathFinding : public System
+{
+	void UpdateComponent() override {
+		Com_Node* ode = &get<Com_Node>();
+		Com_Tilemap& tile = get<Com_Tilemap>();
+		Com_Position& PlayerPos = get<Com_Position>();
+	}
+	
+
+void MapCreate(Com_Node& ode, const Com_Tilemap& tile)
+{
+	// Create a 2D array of nodes - this is for convenience of rendering and construction
+	// and is not required for the algorithm to work - the nodes could be placed anywhere
+	// in any space, in multiple dimension
+	int height = tile._height;
+	int width = tile._width;
+	int MapArea = width * height;
+	//vector<Com_PathFinding> nodes(MapArea); // create vector with size MapArea
+	ode.nodes = new Com_PathFinding[MapArea];
+	for (int y = 0; y < height; y++)
+		for (int x = 0; x < width; x++)
+		{
+			ode.nodes[x * height + y].x = x; // to give each node its own coordinates
+			ode.nodes[x * height + y].y = y;
+			// set everything to default value 1st
+			ode.nodes[x * height + y].bObstacle = false;
+			ode.nodes[x * height + y].parent = nullptr;
+			ode.nodes[x * height + y].bVisited = false;
+		}
+
+	// Create connections - in this case nodes are on a regular grid
+	for (int y = 0; y < height; y++)
+		for (int x = 0; x < width; x++)
+		{
+			if (x > 0)
+				ode.nodes[x * height + y].vecNeighbours.push_back(&ode.nodes[(x - 1) * height + (y + 0)]);
+			if (x < width - 1)
+				ode.nodes[x * height + y].vecNeighbours.push_back(&ode.nodes[(x + 1) * height + (y + 0)]);
+			if (y > 0)
+				ode.nodes[x * height + y].vecNeighbours.push_back(&ode.nodes[(x + 0) * height + (y - 1)]);
+			if (y < height - 1)
+				ode.nodes[x * height + y].vecNeighbours.push_back(&ode.nodes[(x + 0) * height + (y + 1)]);
+
+		}
+
+	// Manually positio the start and end markers so they are not nullptr
+	ode.nodeStart = &ode.nodes[(height / 2) * width + 1];
+	ode.nodeEnd = &ode.nodes[(height / 2) * width + width - 2];
+}
+
+bool Solve_AStar(Com_Node& ode, Com_Tilemap& tile)
+{
+	int height = tile._height;
+	int width = tile._width;
+	int MapArea = width * height;
+	//vector<Com_PathFinding> nodes(MapArea); // create vector with size MapArea
+	// Reset Navigation Graph - default all node states
+	for (int y = 0; y < height; y++)
+		for (int x = 0; x < width; x++)
+		{
+			ode.nodes[x * height + y].bVisited = false;
+			ode.nodes[x * height + y].fGlobalGoal = INFINITY;
+			ode.nodes[x * height + y].fLocalGoal = INFINITY;
+			ode.nodes[x * height + y].parent = nullptr;	// No parents
+		}
+
+	auto distance = [](Com_PathFinding* a, Com_PathFinding* b) // For convenience
+	{
+		return sqrtf((a->x - b->x) * (a->x - b->x) + (a->y - b->y) * (a->y - b->y));
+	};
+
+	auto heuristic = [distance](Com_PathFinding* a, Com_PathFinding* b) // So we can experiment with heuristic
+	{
+		return distance(a, b);
+	};
+
+	// Setup starting conditions
+	Com_PathFinding* nodeCurrent = ode.nodeStart;
+	ode.nodeStart->fLocalGoal = 0.0f;
+	ode.nodeStart->fGlobalGoal = heuristic(ode.nodeStart, ode.nodeEnd);
+
+	// Add start node to not tested list - this will ensure it gets tested.
+	// As the algorithm progresses, newly discovered nodes get added to this
+	// list, and will themselves be tested later
+	list<Com_PathFinding*> listNotTestedNodes;
+	listNotTestedNodes.push_back(ode.nodeStart);
+
+	// if the not tested list contains nodes, there may be better paths
+	// which have not yet been explored. However, we will also stop 
+	// searching when we reach the target - there may well be better
+	// paths but this one will do - it wont be the longest.
+	while (!listNotTestedNodes.empty() && nodeCurrent != ode.nodeEnd)// Find absolutely shortest path // && nodeCurrent != nodeEnd)
+	{
+		// Sort Untested nodes by global goal, so lowest is first
+		listNotTestedNodes.sort([](const Com_PathFinding* lhs, const Com_PathFinding* rhs) { return lhs->fGlobalGoal < rhs->fGlobalGoal; });
+
+		// Front of listNotTestedNodes is potentially the lowest distance node. Our
+		// list may also contain nodes that have been visited, so ditch these...
+		while (!listNotTestedNodes.empty() && listNotTestedNodes.front()->bVisited)
+			listNotTestedNodes.pop_front();
+
+		// ...or abort because there are no valid nodes left to test
+		if (listNotTestedNodes.empty())
+			break;
+
+		nodeCurrent = listNotTestedNodes.front();
+		nodeCurrent->bVisited = true; // We only explore a node once
+
+
+		// Check each of this node's neighbours...
+		for (auto nodeNeighbour : nodeCurrent->vecNeighbours)
+		{
+			// ... and only if the neighbour is not visited and is 
+			// not an obstacle, add it to NotTested List
+			if (!nodeNeighbour->bVisited && nodeNeighbour->bObstacle == 0)
+				listNotTestedNodes.push_back(nodeNeighbour);
+
+			// Calculate the neighbours potential lowest parent distance
+			float fPossiblyLowerGoal = nodeCurrent->fLocalGoal + distance(nodeCurrent, nodeNeighbour);
+
+			// If choosing to path through this node is a lower distance than what 
+			// the neighbour currently has set, update the neighbour to use this node
+			// as the path source, and set its distance scores as necessary
+			if (fPossiblyLowerGoal < nodeNeighbour->fLocalGoal)
+			{
+				nodeNeighbour->parent = nodeCurrent;
+				nodeNeighbour->fLocalGoal = fPossiblyLowerGoal;
+
+				// The best path length to the neighbour being tested has changed, so
+				// update the neighbour's score. The heuristic is used to globally bias
+				// the path algorithm, so it knows if its getting better or worse. At some
+				// point the algo will realise this path is worse and abandon it, and then go
+				// and search along the next best path.
+				nodeNeighbour->fGlobalGoal = nodeNeighbour->fLocalGoal + heuristic(nodeNeighbour, ode.nodeEnd);
 			}
 		}
 	}
 
-	void sword_attack() {
+	return true;
+}
 
-	}
+
 };

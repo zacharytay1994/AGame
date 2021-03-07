@@ -18,7 +18,7 @@ struct Archetype {
 		_descriptions.push_back(&component_description_v<T_COMPONENT>);
 		_type_offset[typeid(T_COMPONENT).name()] = _chunk_stride;
 		_chunk_stride += sizeof(T_COMPONENT);
- 	}
+	}
 	int Add(std::shared_ptr<Chunk>& chunk);
 };
 
@@ -32,13 +32,12 @@ struct ArchetypeDatabase {
 		if (_database.find(mask) != _database.end()) {
 			return _database[mask];
 		} // else creates it
-		auto archetype_ptr = std::make_shared<Archetype>();
-		((archetype_ptr->AddDescriptions<T_COMPONENTS>()), ...);
-		_database[mask] = archetype_ptr;
-		archetype_ptr->_mask = mask;
+		_database[mask] = std::make_shared<Archetype>();
+		((_database[mask]->AddDescriptions<T_COMPONENTS>()), ...);
+		_database[mask]->_mask = mask;
 		return _database[mask];
 	}
-	bool CloneArchetype(const std::bitset<64>& mask, const std::shared_ptr<Archetype>& archetype, std::shared_ptr<Archetype>& outarche);
+	bool CloneArchetype(const std::bitset<64>& mask, Archetype* archetype, std::shared_ptr<Archetype>& outarche);
 	void FlushEntities();
 	std::unordered_map<std::bitset<64>, std::shared_ptr<Archetype>> _database;
 private:
