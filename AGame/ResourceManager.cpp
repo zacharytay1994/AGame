@@ -243,6 +243,7 @@ void ResourceManager::Initialize()
 	LoadTexture("skeleton", "temp1.png");
 	LoadTexture("coolguy", "temp2.png");
 	LoadTexture("box", "box.png");
+	LoadTexture("kaboom", "kaboom.png");
 }
 
 bool RenderComparator(RenderPack* p1, RenderPack* p2)

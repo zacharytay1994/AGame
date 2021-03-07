@@ -138,9 +138,10 @@ struct Com_WeaponAttack
 {
 	enum Weapons {
 		sword,
-		pistol
+		pistol,
+		bomb
 	};
-	int currentweapon{ 1 };
+	int currentweapon{ 2 };
 };;
 
 /*																				Component::ENEMY
@@ -576,7 +577,6 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 					//shoot out projectile 
 					CreateProjectile(direction, position);
 				}
-
 			}
 			if (direction.currdir == direction.down) {
 				//if character holding to sword 
@@ -617,10 +617,21 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 					CreateProjectile(direction, position);
 				}
 			}
+			//if it's a bomb
+			if (weapon.currentweapon == weapon.bomb) {
+				//create a bomb on current tile 
+				Plant_Bomb(position);
+			}
 		}
 	}
 	void sword_attack(Com_Direction& direction, Com_Position& position) {
 		//pending 
+	}
+	void Plant_Bomb(Com_Position& position) {
+		//setting the sprite data to pass in 
+		Factory::SpriteData data{ "kaboom", 40.0f, 40.0f, 2, 3, 8, 0.15f };
+		//creating the bomb 
+		Factory::Instance().FF_CreateBomb(data, position.x,position.y);
 	}
 };
 

@@ -125,4 +125,12 @@ eid Factory::FF_CreateParticle(const SpriteData& data, const int& x, const int& 
     return id;
 }
 
-
+eid Factory::FF_CreateBomb(const SpriteData& data, const int& x, const int& y)
+{
+    eid id = FF_Sprite(data, x, y);
+    //for the projectile not the entity calling it 
+    Factory::Instance()[id].AddComponent<Com_WeaponAttack, Com_Velocity, Com_Boundary, Com_ParticleEmitter,Com_GameTimer >();
+    Entity& e = Factory::Instance()[id];
+    //setting of velocity which is not initialized 
+    return id;
+}
