@@ -560,7 +560,7 @@ struct Sys_Projectile : public System {
 struct Sys_PlayerAttack : public Sys_Projectile {
 	void UpdateComponent() override {
 
-		if (AEInputCheckCurr(VK_SPACE)) {
+		if (AEInputCheckTriggered(VK_SPACE)) {
 			Com_Direction& direction = get<Com_Direction>();
 			Com_WeaponAttack& weapon = get<Com_WeaponAttack>();
 			Com_Position& position = get<Com_Position>();

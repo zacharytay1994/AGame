@@ -76,7 +76,7 @@ eid Factory::FF_Createproj(const SpriteData& data, const int& x, const int& y, c
 {
     eid id = FF_Sprite(data, x, y);
     //for the projectile not the entity calling it 
-    Factory::Instance()[id].AddComponent<Com_WeaponAttack,Com_Velocity>();
+    Factory::Instance()[id].AddComponent<Com_WeaponAttack,Com_Velocity,Com_Boundary>();
     Entity& e = Factory::Instance()[id];
     //setting of velocity which is not initialized 
     //Com_Direction& direction = e.Get<Com_Direction>();
@@ -117,7 +117,7 @@ eid Factory::FF_CreateParticle(const SpriteData& data, const int& x, const int& 
     float lifetimemin{ 0.0f };
     float lifetimemax(10.0f);
     eid id = FF_Sprite(data, x, y);
-    Factory::Instance()[id].AddComponent<Com_Velocity, Com_Particle,Com_GameTimer>();
+    Factory::Instance()[id].AddComponent<Com_Velocity, Com_Particle,Com_GameTimer,Com_Boundary>();
     Entity& e = Factory::Instance()[id];
     e.Get<Com_Velocity>().x = velx;
     e.Get<Com_Velocity>().y = vely;
