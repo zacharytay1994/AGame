@@ -243,6 +243,13 @@ void ResourceManager::Initialize()
 	LoadTexture("skeleton", "temp1.png");
 	LoadTexture("coolguy", "temp2.png");
 	LoadTexture("box", "box.png");
+	LoadTexture("menubutton", "testgui.png");
+	// gui textures
+	LoadTexture("menubackground", "mainmenubackground.png");
+	LoadTexture("buttonsurface", "buttonsurface.png");
+	LoadTexture("button1", "button1.png");
+	LoadTexture("button2", "button2.png");
+	LoadTexture("button3", "button3.png");
 }
 
 bool RenderComparator(RenderPack* p1, RenderPack* p2)

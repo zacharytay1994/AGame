@@ -9,6 +9,9 @@
 #include "ResourceManager.h"
 #include "zComponent.h"
 #include "zSystem.h"
+
+#include "zMath.h"
+
 using namespace std;
 
 
@@ -35,6 +38,9 @@ struct Com_WeaponAttack;
 // Nodes
 struct Com_PathFinding;
 struct Com_Node;
+// GUI
+struct Com_GUISurface;
+struct Com_GUIOnClick;
 /*__________________________________________________________________________________________________
 																				Component::BASIC DATA
 ____________________________________________________________________________________________________*/
@@ -170,6 +176,21 @@ struct Com_Node
 
 };
 
+/*																				Component::GUI
+____________________________________________________________________________________________________*/
+struct Com_GUISurface {
+	Vec2f			_position		{ 0.0f, 0.0f };
+	Vec2f			_dimensions		{ 1.0f, 1.0f };
+	Vec2f			_ph_dimensions	{ 1.0f, 1.0f };
+	Com_GUISurface*	_parent_surface	{ nullptr };
+	Com_Position*	_parent_position{ nullptr };
+};
+
+using OnClick = void(*)(Com_GUISurface* surface);
+struct Com_GUIOnClick {
+	OnClick _click_event{ nullptr };
+};
+
 /*___________________________________________________________________________________________________________________________________
 	SYSTEM DECLARATIONS				<< RIGHT CLICK ON DECLARATION TO NAVIGATE TO DEFINITION!! >>			<<	SYSTEM DECLARATIONS  >>
 	_________________________________________________________________________________________________________________________________
@@ -188,6 +209,8 @@ struct Com_Node
 		- Sys_AABB
 	>> attack
 		- Sys_Projectile
+	>> GUI
+		- Sys_GUISurfaceRender
 ________________________________________________________________________*/
 /*																				system::BASIC SYSTEMS
 ____________________________________________________________________________________________________*/
@@ -217,6 +240,10 @@ struct Sys_WeaponAttack;
 /*																				system::PATHFINDING
 ____________________________________________________________________________________________________*/
 struct Sys_PathFinding;
+
+/*																				system::GUI
+____________________________________________________________________________________________________*/
+struct Sys_GUISurfaceRender;
 
 /*___________________________________________________________________________________________________________________________________
 	SYSTEM DEFINITIONS																						<<	SYSTEM DEFINITIONS  >>
@@ -860,4 +887,48 @@ bool Solve_AStar(Com_Node& ode, Com_Tilemap& tile)
 }
 
 
+};
+
+/*																				system::GUI
+____________________________________________________________________________________________________*/
+struct Sys_GUISurfaceRender : public System {
+	float _screen_width = (float)AEGetWindowWidth();
+	float _screen_height = (float)AEGetWindowHeight();
+	void UpdateComponent() override {
+		Com_GUISurface& surface = get<Com_GUISurface>();
+		Com_Position& position = get<Com_Position>();
+		if (surface._parent_surface) {
+			// offset with parent
+			position.x = surface._parent_position->x - surface._parent_surface->_ph_dimensions.x + surface._position.x*surface._parent_surface->_ph_dimensions.x*2.0f;
+			position.y = surface._parent_position->y + surface._parent_surface->_ph_dimensions.y - surface._position.y*surface._parent_surface->_ph_dimensions.y*2.0f;
+		}
+		else {
+			// update sprite position with button
+			position.x = (surface._position.x - 0.5f) * _screen_width;
+			position.y = -((surface._position.y - 0.5f) * _screen_height);
+		}
+	}
+};
+
+struct Sys_GUISurfaceOnClick : public System {
+	bool _left_mouse{ false };
+	Vec2i _mouse_position{ 0,0 };
+	Vec2f _screen_dimensions{ AEGetWindowWidth()/2.0f,AEGetWindowHeight()/2.0f };
+	void OncePerFrame() override {
+		_left_mouse = AEInputCheckTriggered(AEVK_LBUTTON);
+		AEInputGetCursorPosition(&_mouse_position.x, &_mouse_position.y);
+		_mouse_position.x -= _screen_dimensions.x;
+		_mouse_position.y -= _screen_dimensions.y;
+		_mouse_position.y *= -1;
+	}
+	void UpdateComponent() override {
+		Com_GUIOnClick& on_click = get<Com_GUIOnClick>();
+		Com_GUISurface& surface = get<Com_GUISurface>();
+		Com_Position& position = get<Com_Position>();
+		// do bounding box check
+		if (_left_mouse && !(_mouse_position.x < position.x - surface._ph_dimensions.x || _mouse_position.x > position.x + surface._ph_dimensions.x ||
+			_mouse_position.y < position.y - surface._ph_dimensions.y || _mouse_position.y > position.y + surface._ph_dimensions.y)) { 
+			on_click._click_event(&surface);
+		}
+	}
 };

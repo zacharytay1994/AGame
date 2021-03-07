@@ -25,6 +25,7 @@ struct System {
 		((_mask[component_description_v<T>._bit] = 1), ...);
 	}
 	System() = default;
+	virtual ~System() = default;
 	virtual void OncePerFrame() {}
 	virtual void UpdateComponent() {
 		if (_update) {
@@ -69,7 +70,7 @@ public:
 			if ((mask & archetype.second->_mask) == mask) {
 				// loop through
 				for (auto& chunk : archetype.second->_chunk_database) {
-					for (int i = 0; i < chunk->_number_of_entities; ++i) {
+					for (int i = 0; i < (int)chunk->_number_of_entities; ++i) {
 						out.emplace_back(&chunk->GetComponent<T>(i));
 					}
 				}
@@ -81,6 +82,6 @@ public:
 	template <typename T>
 	T* GetSystem() {
 		System* system = _database[typeid(T).name()].get();
-		return *(dynamic_cast<T*>(system));
+		return (dynamic_cast<T*>(system));
 	}
 };
