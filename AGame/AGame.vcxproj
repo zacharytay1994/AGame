@@ -27,9 +27,11 @@
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="Factory.h" />
     <ClInclude Include="Inventory.h" />
+    <ClInclude Include="zMath.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneDeclarations.h" />
+    <ClInclude Include="Vec2.h" />
     <ClInclude Include="Weapon.h" />
     <ClInclude Include="zChunk.h" />
     <ClInclude Include="zComponent.h" />

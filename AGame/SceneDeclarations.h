@@ -9,6 +9,8 @@
 #include "Inventory.h"
 #include <string>
 
+//#include "zMath.h"
+
 /*___________________________________________________________________
 	MENU - Created By : Aus
 _____________________________________________________________________*/
@@ -58,8 +60,12 @@ struct TestScene : public Scene {
 		Factory::Instance()[tilemap].Get<Com_Position>().x = -5;
 		Factory::Instance()[tilemap].Get<Com_Position>().y = 2;
 		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
+
+		//tilemap = Factory::Instance().FF_Sprite(data, 0.0f, 0.0f);
+
 		//SystemDatabase::Instance().GetSystem<Sys_Projectile>().tilemap = tilemap;
-		player = Factory::Instance().FF_SpriteTile(data, tilemap, 5, 2);
+
+		/*player = Factory::Instance().FF_SpriteTile(data, tilemap, 5, 2);
 		Factory::Instance()[player].AddComponent<Com_YLayering>();
 		player = Factory::Instance().FF_SpriteTile(data2, tilemap, 8, 3);
 		Factory::Instance()[player].AddComponent<Com_YLayering>();
@@ -68,7 +74,8 @@ struct TestScene : public Scene {
 		player = Factory::Instance().FF_SpriteTile(data1, tilemap, 0, 0);
 		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap>();
 		player = Factory::Instance().FF_SpriteTile(data3, tilemap, 5, 3);
-		Factory::Instance()[player].AddComponent<Com_YLayering>();
+		Factory::Instance()[player].AddComponent<Com_YLayering>();*/
+
 		//player = Factory::Instance().CreateEntity<Com_Position>();
 		/*int* i = new int{ 0 };
 		std::shared_ptr<int> a{ i };
@@ -85,19 +92,19 @@ struct TestScene : public Scene {
 		if (AEInputCheckCurr('L')) {
 			SceneManager::Instance().ChangeScene("Test Scene 2");
 		}
-		if (AEInputCheckTriggered('N')) {
-			/*std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i++ << std::endl;
-			std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i << std::endl;*/
-		}
-		if (AEInputCheckTriggered('P')) {
-			player = Factory::Instance().FF_Sprite(data, 100.0f, 100.0f);
-			//Factory::Instance().GetEntity(player).Get<Com_Sprite>()._frame_interval -= dt;
-			//Com_Sprite& s = player->Get<Com_Sprite>();
-		}
-		if (AEInputCheckTriggered('O')) {
-			Factory::Instance()[player].AddComponent<Com_ArrowKeys>();
-			Factory::Instance()[player].AddComponent<Com_YLayering>();
-		}
+		//if (AEInputCheckTriggered('N')) {
+		//	/*std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i++ << std::endl;
+		//	std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i << std::endl;*/
+		//}
+		//if (AEInputCheckTriggered('P')) {
+		//	player = Factory::Instance().FF_Sprite(data, 100.0f, 100.0f);
+		//	//Factory::Instance().GetEntity(player).Get<Com_Sprite>()._frame_interval -= dt;
+		//	//Com_Sprite& s = player->Get<Com_Sprite>();
+		//}
+		//if (AEInputCheckTriggered('O')) {
+		//	Factory::Instance()[player].AddComponent<Com_ArrowKeys>();
+		//	Factory::Instance()[player].AddComponent<Com_YLayering>();
+		//}
 		//if (AEInputCheckTriggered('U')) {
 		//	player = Factory::Instance().FF_Sprite({ "test2", 1, 8, 8, 0.2f, 50.0f, 80.0f }, 3.0f, 0.0f);
 		//	Factory::Instance()[player].AddComponent<Com_ArrowKeys>();
@@ -290,6 +297,21 @@ struct ExampleScene : public Scene {
 	}
 };
 
+struct MainMenu : public Scene {
+	Vec2f a{ 1.2f,1.3f };
+	Vec2f b{ 2.3,3.5 };
+	void Initialize() override {
+		std::cout << "SYSTEM MESSAGE: Now entering main menu." << std::endl;
+		/*std::cout << a - b << std::endl;
+		std::cout << b - a << std::endl;*/
+		a.Print();
+	}
+	void Update(const float& dt) override {
+		if (AEInputCheckTriggered('C')) {
+			SceneManager::Instance().ChangeScene("Test Scene");
+		}
+	}
+};
 
 /*___________________________________________________________________
 	TEST FOR PATHFINDING - Created By : Aus

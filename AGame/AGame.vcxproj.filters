@@ -72,6 +72,8 @@
     <ClInclude Include="Weapon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Vec2.h" />
+    <ClInclude Include="zMath.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

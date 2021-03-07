@@ -1,10 +1,10 @@
 // ---------------------------------------------------------------------------
 // includes
-
 #include "AEEngine.h"
 #include "AGame/zEntity.h"
 #include "AGame/zSystem.h"
 #include "AGame/Scene.h"
+#include "AGame/CSHeaderDef.h"
 
 #include <iostream>
 #include <string>
@@ -41,22 +41,28 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
+	///////////////////////////////////////////////////////////////////////////
+	// DEBUGGER			(2 /2)
+	// Enable run-time memory check for debug builds.
+	#if defined(DEBUG) | defined(_DEBUG)
+		_CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDOUT);
+		_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	#endif
+	// END OF DEBUGGER	(2 /2)
+	///////////////////////////////////////////////////////////////////////////
 
 	///////////////////////
 	// Variable declaration
 
 	int gGameRunning = 1;
-
-	// Variable declaration end
-	///////////////////////////
-	/*zEntity entity;
-	ComponentMask mask;
-	mask[0] = 1;
-	zSystem system{ mask };*/
 	
+	/*Vec2f a{ 1.0f, 1.0f };
+	Vec2f b{ 2.0f,2.0f };*/
+	//std::cout << "hgello" << std::endl;
+	//std::cout << a.x << ":" << a.y << std::endl;
+ 	//std::cout << a << std::endl;
 	/////////////////
 	// Initialization
-
 
 	// Using custom window procedure
 	AESysInit(hInstance, nCmdShow, 800, 600, 1, 60, true, NULL);
@@ -133,20 +139,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		// Handling Input
 		AEInputUpdate();
 
-		SceneManager::Instance().Update((float)AEFrameRateControllerGetFrameTime());
-		//std::cout << com.y << std::endl;
-		/*AEGfxSetRenderMode(AE_GFX_RM_TEXTURE);
-		AEGfxSetPosition(0.0f, 0.0f);
-		AEGfxTextureSet(tex1, 0.0f, 0.0f);
-		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
-		AEGfxMeshDraw(mesh2, AE_GFX_MDM_LINES_STRIP);
-		AEGfxMeshDraw(mesh2, AE_GFX_MDM_TRIANGLES);*/
 		///////////////////
 		// Game loop update
-
+		SceneManager::Instance().Update((float)AEFrameRateControllerGetFrameTime());
 		// Game loop update end
 		///////////////////////
-
 
 		//////////////////
 		// Game loop draw
@@ -162,10 +159,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		if (AEInputCheckTriggered(AEVK_ESCAPE) || !AESysDoesWindowExist())
 			gGameRunning = 0;
 	}
-
-
 	// free the system
 	AESysExit();
+	// free singleton resources
 	SceneManager::Instance().Free();
 	SceneManager::Instance().Unload();
+	// free chunk data resources
 }
