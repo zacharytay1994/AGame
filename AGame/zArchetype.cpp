@@ -42,10 +42,10 @@ bool ArchetypeDatabase::CloneArchetype(const std::bitset<64>& mask, Archetype* a
 }
 
 void ArchetypeDatabase::FlushEntities() {
-	std::vector<Com_PathFinding*> v = SystemDatabase::Instance().GetAllComponents<Com_PathFinding>();
-	for (auto t : v) 
+	std::vector<Com_PathFinding*> pf = SystemDatabase::Instance().GetAllComponents<Com_PathFinding>();
+	for (auto pft : pf) 
 	{
-		t->~Com_PathFinding();
+		pft->~Com_PathFinding();
 	}
 	
 	// manual destruction calling, for allocated data in components
