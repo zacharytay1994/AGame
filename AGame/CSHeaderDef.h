@@ -948,3 +948,19 @@ struct Sys_ParticleEmitter : public System {
 		Factory::Instance().FF_CreateParticle(data, get<Com_Position>().x, get<Com_Position>().y, rand_velocityx ,rand_velocityy);
 	}
 };
+
+
+
+struct Com_Health {
+	size_t health{ 3 };
+};
+
+struct Sys_HealthUpdate : public System {
+	void UpdateComponent() override {
+		Com_Health& health = get<Com_Health>();
+		//if no more health remove entity 
+		if (health.health == 0) {
+			RemoveEntity();
+		}
+	}
+};
