@@ -73,7 +73,7 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_YLayering>();
 
 	// 3. Registering all systems for the game
-	// SystemDatabase::Instance().RegisterSystem<Example_UpdatePosition, Position, Example_Velocity>();
+	//SystemDatabase::Instance().RegisterSystem<Example_UpdatePosition, Position, Example_Velocity>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Tilemap, Com_Tilemap>();
 	SystemDatabase::Instance().RegisterSystem<Sys_DrawSprite, Com_Position, Com_Sprite>();
 	SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeys, Com_Position, Com_ArrowKeys>();
@@ -226,6 +226,7 @@ void SceneManager::Draw(const float& dt)
 
 void SceneManager::Unload()
 {
+	ArchetypeDatabase::Instance().FlushEntities();
 	ResourceManager::Instance().ResetRenderQueue();
 }
 

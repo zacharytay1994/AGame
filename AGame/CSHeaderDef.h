@@ -9,6 +9,9 @@
 #include "ResourceManager.h"
 #include "zComponent.h"
 #include "zSystem.h"
+
+#include "zMath.h"
+
 using namespace std;
 
 
@@ -169,6 +172,11 @@ struct Com_Node
 	int MapHeight = 0;
 	Com_PathFinding* nodes = nullptr;
 
+};
+
+/*																				Component::GUI
+____________________________________________________________________________________________________*/
+struct Com_Button {
 };
 
 /*___________________________________________________________________________________________________________________________________

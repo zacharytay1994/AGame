@@ -48,6 +48,13 @@ void ArchetypeDatabase::FlushEntities() {
 		t->~Com_PathFinding();
 	}
 	
+	// manual destruction calling, for allocated data in components
+	std::vector<Com_Tilemap*> v = SystemDatabase::Instance().GetAllComponents<Com_Tilemap>();
+	for (auto t : v) {
+		t->~Com_Tilemap();
+	}
+
+	// freeing of resources
 	for (auto& archetype : _database) {
 		for (auto& chunk : archetype.second->_chunk_database) {
 			// zero out memory
