@@ -63,9 +63,9 @@ struct TestScene : public Scene {
 
 		//tilemap = Factory::Instance().FF_Sprite(data, 0.0f, 0.0f);
 
-		//SystemDatabase::Instance().GetSystem<Sys_Projectile>().tilemap = tilemap;
+		//SystemDatabase::Instance().GetSystem<Sys_GUISurfaceOnClick>()->_left_mouse = true;
 
-		/*player = Factory::Instance().FF_SpriteTile(data, tilemap, 5, 2);
+		player = Factory::Instance().FF_SpriteTile(data, tilemap, 5, 2);
 		Factory::Instance()[player].AddComponent<Com_YLayering>();
 		player = Factory::Instance().FF_SpriteTile(data2, tilemap, 8, 3);
 		Factory::Instance()[player].AddComponent<Com_YLayering>();
@@ -74,7 +74,7 @@ struct TestScene : public Scene {
 		player = Factory::Instance().FF_SpriteTile(data1, tilemap, 0, 0);
 		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap>();
 		player = Factory::Instance().FF_SpriteTile(data3, tilemap, 5, 3);
-		Factory::Instance()[player].AddComponent<Com_YLayering>();*/
+		Factory::Instance()[player].AddComponent<Com_YLayering>();
 
 		//player = Factory::Instance().CreateEntity<Com_Position>();
 		/*int* i = new int{ 0 };
@@ -297,14 +297,33 @@ struct ExampleScene : public Scene {
 	}
 };
 
+void TestFunction(Com_GUISurface* surface) {
+	std::cout << "button1" << std::endl;
+}
+
+void TestFunction2(Com_GUISurface* surface) {
+	std::cout << "button2" << std::endl;
+}
+
+void TestFunction3(Com_GUISurface* surface) {
+	std::cout << "button3" << std::endl;
+	SceneManager::Instance().ChangeScene("Test Scene");
+}
+
 struct MainMenu : public Scene {
-	Vec2f a{ 1.2f,1.3f };
-	Vec2f b{ 2.3,3.5 };
+	eid i{ -1 };
+	Factory::SpriteData data1{ "menubackground" };
+	Factory::SpriteData data2{ "buttonsurface" };
+	Factory::SpriteData data3{ "button1" };
+	Factory::SpriteData data4{ "button2" };
+	Factory::SpriteData data5{ "button3" };
 	void Initialize() override {
 		std::cout << "SYSTEM MESSAGE: Now entering main menu." << std::endl;
-		/*std::cout << a - b << std::endl;
-		std::cout << b - a << std::endl;*/
-		a.Print();
+		i = Factory::Instance().FF_CreateGUISurface(data1, 0.5f, 0.5f, 1.0f, 1.0f);									// surface
+		i = Factory::Instance().FF_CreateGUIChildSurface(i, data2, 0.5f, 0.6f, 0.3f, 0.4f);							// non clickable child surface
+		Factory::Instance().FF_CreateGUIChildClickableSurface(i, data3, 0.5f, 0.25f, 0.75f, 0.2f, TestFunction);	// clickable child surface
+		Factory::Instance().FF_CreateGUIChildClickableSurface(i, data4, 0.5f, 0.5f, 0.75f, 0.2f, TestFunction2);	// clickable child surface
+		Factory::Instance().FF_CreateGUIChildClickableSurface(i, data5, 0.5f, 0.75f, 0.75f, 0.2f, TestFunction3);	// clickable child surface
 	}
 	void Update(const float& dt) override {
 		if (AEInputCheckTriggered('C')) {

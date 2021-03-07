@@ -7,6 +7,7 @@
 typedef int eid; // entity id
 //forward declare to draw from cpp 
 struct Com_Direction;
+struct Com_GUISurface;
 
 class Factory {
 	uint64_t _unique_ids = 0;
@@ -40,7 +41,7 @@ public:
 		float _interval;
 		float _scalex;
 		float _scaley;
-		SpriteData(const std::string& name, const float& scalex = 1.0f, const float& scaley = 1.0f, int row = 1.0, int col = 1.0, int frames = 1.0f, const float& interval = 0.5f, int layer = 0)
+		SpriteData(const std::string& name, const float& scalex = 1.0f, const float& scaley = 1.0f, int row = 1.0, int col = 1.0, int frames = 1.0f, const float& interval = 1.0f, int layer = 0)
 			:
 			_texturename(name),
 			_scalex(scalex),
@@ -64,6 +65,11 @@ public:
 		return id;
 	}
 
+	// gui ffs
+	eid FF_CreateGUISurface(const SpriteData& data, const float& x, const float& y, const float& width, const float& height);
+	eid FF_CreateGUIClickableSurface(const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*));
+	eid FF_CreateGUIChildSurface(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height);
+	eid FF_CreateGUIChildClickableSurface(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*));
 
 	//created by wilf for testing 
 	eid FF_Createproj(const SpriteData& data, const int& x, const int& y,const Com_Direction& direction); //create projectile 
