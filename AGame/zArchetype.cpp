@@ -47,6 +47,12 @@ void ArchetypeDatabase::FlushEntities() {
 	{
 		pft->~Com_PathFinding();
 	}
+
+	std::vector<Com_Node*> cn = SystemDatabase::Instance().GetAllComponents<Com_Node>();
+	for (auto cnft : cn)
+	{
+		cnft->~Com_Node();
+	}
 	
 	// manual destruction calling, for allocated data in components
 	std::vector<Com_Tilemap*> v = SystemDatabase::Instance().GetAllComponents<Com_Tilemap>();
