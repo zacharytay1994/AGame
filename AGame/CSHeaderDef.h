@@ -149,6 +149,16 @@ struct Com_WeaponAttack
 /*																				Component::ENEMY
 ____________________________________________________________________________________________________*/
 
+struct Com_TypeEnemy {
+	enum EnemyType
+	{
+		Alien1, //melee
+		Alien2  //range
+	};
+	size_t Alientype{ 0 };
+};
+
+
 /*																Component::PATH FINDING
 ____________________________________________________________________________________________________*/
 struct Com_PathFinding
@@ -670,24 +680,24 @@ struct Sys_EnemySpawning : public System {
 		Com_EnemySpawn& Enemyspawn = get<Com_EnemySpawn>();
 		Com_Wave& wave = get<Com_Wave>();
 		Com_GameTimer& timer = get<Com_GameTimer>();
-		eid tile = Factory::Instance().FF_Tilemap("tilemap", "c_test.txt", "t_test.txt");
 		//if the timer hits for set time 
 		//if timer hit 0 spawn wave/ number of enemies hit 0 
 		if (timer.timerinseconds == wave.timerforwave || Enemyspawn.numberofenemies == 0) {
 			//spawning of enemies 
-			spawn_enemies(tile);
+			spawn_enemies();
 			--wave.numberofwaves; //decrease the number of waves left 
 			timer.timerinseconds = 0;
 		}
 	}
-	void spawn_enemies(eid& tilemap) {
+	void spawn_enemies() {
 		//spawn enemy at a certain location
 		//create enemy entity 
 		/*Factory::Instance().CreateEntity<Com_Sprite, Com_Position, Com_BoundingBox, Com_Direction, 
 			Com_TilePosition, Com_Tilemap,Com_TypeEnemy,Com_EnemySpawn,Com_Wave>();*/
-		eid e = -1;
 		Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
-		e = Factory::Instance().FF_SpriteTile(data1, tilemap, 6, 3);
+		eid id = Factory::Instance().CreateEntity<Com_Position, Com_Sprite, Com_BoundingBox, Com_Direction, Com_TilePosition, Com_Tilemap, Com_TypeEnemy, Com_EnemySpawn, Com_Wave>();
+		eid enemy = Factory::Instance().FF_CreateEnemy(data1, id , 5,2);
+		Factory::Instance()[enemy].AddComponent<Com_YLayering, Com_Node, Com_PathFinding>();
 	}
 };
 
@@ -695,16 +705,6 @@ struct Sys_EnemySpawning : public System {
 /*-------------------------------------
 			//for attack of enemies 
 -------------------------------------------*/
-
-struct Com_TypeEnemy {
-	enum EnemyType
-	{
-		Alien1, //melee
-		Alien2  //range
-	};
-	size_t Alientype{ 0 };
-};
-
 
 //logic for attack of enemies 
 struct Sys_EnemyAttack : public Sys_Projectile {
@@ -756,14 +756,15 @@ struct Sys_PathFinding : public System
 		Com_TilePosition& PlayerPos = get<Com_TilePosition>();
 		//PlayerPos._grid_x += 1;
 	
-		MapCreate(ode, tile);
-		MoveEnemy(PlayerPos, ode, tile);
+		MapCreate(ode, tile, PlayerPos);
+		Solve_AStar(ode, PlayerPos);
+		//MoveEnemy(PlayerPos, ode, tile);
 		
 	
 	}
 	
 
-void MapCreate(Com_Node& ode, const Com_Tilemap* tile)
+void MapCreate(Com_Node& ode, const Com_Tilemap* tile, Com_TilePosition& enemyPos)
 {
 	// Create a 2D array of nodes - this is for convenience of rendering and construction
 	// and is not required for the algorithm to work - the nodes could be placed anywhere
@@ -802,9 +803,14 @@ void MapCreate(Com_Node& ode, const Com_Tilemap* tile)
 	// Manually positio the start and end markers so they are not nullptr
 	ode.nodeStart = &ode.nodes[(ode.MapHeight / 2) * ode.MapWidth + 1];
 	ode.nodeEnd = &ode.nodes[(ode.MapHeight / 2) * ode.MapWidth + ode.MapWidth - 2];
+	ode.nodeStart->x = enemyPos._grid_x;
+	ode.nodeStart->y = enemyPos._grid_y;
+	ode.nodeEnd->x = 0;
+	ode.nodeEnd->y = 0;
+
 }
 
-bool Solve_AStar(Com_Node& ode)
+void Solve_AStar(Com_Node& ode, Com_TilePosition& enemyPos)
 {
 	
 	// Reset Navigation Graph - default all node states
@@ -851,6 +857,7 @@ bool Solve_AStar(Com_Node& ode)
 		// list may also contain nodes that have been visited, so ditch these...
 		while (!listNotTestedNodes.empty() && listNotTestedNodes.front()->bVisited)
 			listNotTestedNodes.pop_front();
+			
 
 		// ...or abort because there are no valid nodes left to test
 		if (listNotTestedNodes.empty())
@@ -886,25 +893,35 @@ bool Solve_AStar(Com_Node& ode)
 				// and search along the next best path.
 				nodeNeighbour->fGlobalGoal = nodeNeighbour->fLocalGoal + heuristic(nodeNeighbour, ode.nodeEnd);
 			}
+			static float alarm = 0;
+			alarm += _dt;
+			if(alarm > 20.0f)
+			{
+				std::cout << nodeNeighbour->x << std::endl;
+				std::cout << nodeNeighbour->y << std::endl;
+				enemyPos._grid_x = nodeNeighbour->x; // need to based on the player pos but not yet
+				enemyPos._grid_y = nodeNeighbour->y;
+				alarm = 0;
+			}
 		}
 	}
 
-	return true;
+	//return true;
 }
 
-void MoveEnemy(Com_TilePosition& playerPos, Com_Node& ode, Com_Tilemap* tile)
-{
-	if (Solve_AStar(ode) == true) 
-	{
-		static float alarm = 0;
-		alarm += _dt;
-		if(alarm > 1.0f)
-		{
-			playerPos._grid_x += 1; // need to based on the player pos but not yet
-			playerPos._grid_y += 1;
-			alarm = 0;
-		}
-	}
-}
+//void MoveEnemy(Com_TilePosition& enemyPos, Com_Node& ode, Com_Tilemap* tile)
+//{
+//	if (Solve_AStar(ode) == true) 
+//	{
+//		static float alarm = 0;
+//		alarm += _dt;
+//		if(alarm > 1.0f)
+//		{
+//			enemyPos._grid_x += 1; // need to based on the player pos but not yet
+//			enemyPos._grid_y += 1;
+//			alarm = 0;
+//		}
+//	}
+//}
 
 };
