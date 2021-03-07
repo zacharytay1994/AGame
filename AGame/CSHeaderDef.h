@@ -144,7 +144,7 @@ struct Com_WeaponAttack
 		pistol,
 		bomb
 	};
-	int currentweapon{ 2 };
+	int currentweapon{ 1 };
 };;
 
 /*																				Component::ENEMY
@@ -471,7 +471,6 @@ struct Sys_AABB : public System {
 		}
 		AABBTest.emplace_back(CollisionData{ AABB,vel });
 	}
-
 	/*-----------------------------------------
 	@brief does an AABB Collision check
 	@param Com_BoundingBox obj 1
@@ -569,10 +568,10 @@ struct Sys_Projectile : public System {
 struct Sys_PlayerAttack : public Sys_Projectile {
 	void UpdateComponent() override {
 
+		Com_Direction& direction = get<Com_Direction>();
+		Com_WeaponAttack& weapon = get<Com_WeaponAttack>();
+		Com_Position& position = get<Com_Position>();
 		if (AEInputCheckTriggered(VK_SPACE)) {
-			Com_Direction& direction = get<Com_Direction>();
-			Com_WeaponAttack& weapon = get<Com_WeaponAttack>();
-			Com_Position& position = get<Com_Position>();
 			if (direction.currdir == direction.up) {
 				//if character holding to sword 
 				if (weapon.currentweapon == weapon.sword) {
@@ -630,6 +629,16 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 				//create a bomb on current tile 
 				Plant_Bomb(position);
 			}
+		}
+		//change weapon 
+		if (AEInputCheckTriggered(AEVK_0)) {
+			weapon.currentweapon = weapon.sword;
+		}
+		if (AEInputCheckTriggered(AEVK_1)) {
+			weapon.currentweapon = weapon.pistol;
+		}
+		if (AEInputCheckTriggered(AEVK_2)) {
+			weapon.currentweapon = weapon.bomb;
 		}
 	}
 	void sword_attack(Com_Direction& direction, Com_Position& position) {
@@ -926,14 +935,14 @@ struct Sys_ParticleEmitter : public System {
 
 	void emitparticle() {
 		//create particle sprite 
-		float min{-100.0f };
-		float max{ 100.0f };
+		float min{-50.0f };
+		float max{ 50.0f };
 		//create random sprite data 
 		float rand_sizex = min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - ((min)))));
 		float rand_sizey = min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - ((min)))));
 		float rand_velocityx = min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - ((min)))));
 		float rand_velocityy = min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - ((min)))));
-		Factory::SpriteData data{ "box", rand_sizex, rand_sizey, 2, 3, 8, 0.15f };
+		Factory::SpriteData data{ "test", rand_sizex, rand_sizey, 2, 3, 8, 0.15f };
 		//Factory::SpriteData data = { "test3", 1,8, 8, 0.1f, rand_sizex, rand_sizey };
 		//create particle 
 		Factory::Instance().FF_CreateParticle(data, get<Com_Position>().x, get<Com_Position>().y, rand_velocityx ,rand_velocityy);
