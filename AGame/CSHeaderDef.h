@@ -666,39 +666,51 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 //for spawning of enemies 
 -------------------------------------------*/
 struct Com_EnemySpawn{
-	size_t numberofenemies{ 5 }; //number of enemies to spawn 
+	size_t numberofenemies{ 2 }; //number of enemies to spawn 
 };
 
 struct Com_Wave{
-	size_t timerforwave{ 60 }; //if timer hits 0 in secsm spawn new wave 
+	size_t timerforwave{ 10 }; //if timer hits 0 in secsm spawn new wave 
 	size_t numberofwaves{ 3 }; //if number of wave hit 0, level unlocked 
 };
 
 //logic for spawning of enemies 
 struct Sys_EnemySpawning : public System {
+	// Initialization
+	eid _tilemap = {-1};
+
+
 	void UpdateComponent() override {
 		Com_EnemySpawn& Enemyspawn = get<Com_EnemySpawn>();
 		Com_Wave& wave = get<Com_Wave>();
-		Com_GameTimer& timer = get<Com_GameTimer>();
+		//Com_GameTimer& timer = get<Com_GameTimer>();
+		static float alarm = 0;
+		alarm += _dt;
 		//if the timer hits for set time 
 		//if timer hit 0 spawn wave/ number of enemies hit 0 
-		if (timer.timerinseconds == wave.timerforwave || Enemyspawn.numberofenemies == 0) {
+		if (alarm > wave.timerforwave || Enemyspawn.numberofenemies == 0) {
 			//spawning of enemies 
-			spawn_enemies();
+			spawn_enemies(Enemyspawn);
 			--wave.numberofwaves; //decrease the number of waves left 
-			timer.timerinseconds = 0;
+			alarm = 0;
+			
 		}
 	}
-	void spawn_enemies() {
+	void spawn_enemies(Com_EnemySpawn& enem) {
 		//spawn enemy at a certain location
 		//create enemy entity 
 		/*Factory::Instance().CreateEntity<Com_Sprite, Com_Position, Com_BoundingBox, Com_Direction, 
 			Com_TilePosition, Com_Tilemap,Com_TypeEnemy,Com_EnemySpawn,Com_Wave>();*/
-		Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
-		eid id = Factory::Instance().CreateEntity<Com_Position, Com_Sprite, Com_BoundingBox, Com_Direction, Com_TilePosition, Com_Tilemap, Com_TypeEnemy, Com_EnemySpawn, Com_Wave>();
-		eid enemy = Factory::Instance().FF_CreateEnemy(data1, id , 5,2);
-		Factory::Instance()[enemy].AddComponent<Com_YLayering, Com_Node, Com_PathFinding>();
+		int i = 0;
+		while (i < enem.numberofenemies) 
+		{
+			Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
+			eid enemy = Factory::Instance().FF_CreateEnemy(data1, _tilemap, 5,2);
+			Factory::Instance()[enemy].AddComponent<Com_YLayering, Com_Node, Com_PathFinding>();
+			++i;
+		}
 	}
+
 };
 
 
@@ -897,8 +909,8 @@ void Solve_AStar(Com_Node& ode, Com_TilePosition& enemyPos)
 			alarm += _dt;
 			if(alarm > 20.0f)
 			{
-				std::cout << nodeNeighbour->x << std::endl;
-				std::cout << nodeNeighbour->y << std::endl;
+				//std::cout << nodeNeighbour->x << std::endl;
+				//std::cout << nodeNeighbour->y << std::endl;
 				enemyPos._grid_x = nodeNeighbour->x; // need to based on the player pos but not yet
 				enemyPos._grid_y = nodeNeighbour->y;
 				alarm = 0;

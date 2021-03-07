@@ -82,6 +82,6 @@ public:
 	template <typename T>
 	T* GetSystem() {
 		System* system = _database[typeid(T).name()].get();
-		return *(dynamic_cast<T*>(system));
+		return (dynamic_cast<T*>(system));
 	}
 };

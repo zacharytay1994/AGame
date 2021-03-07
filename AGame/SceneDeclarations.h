@@ -324,6 +324,7 @@ struct TestScenePF : public Scene
 	std::string test = "hello";
 	eid player = -1;
 	//Com_Tilemap tile;
+	//eid tilemap = -1;
 	eid tilemap = -1;
 	Factory::SpriteData data{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.15f };
 	Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
@@ -342,9 +343,11 @@ struct TestScenePF : public Scene
 		Factory::Instance()[tilemap].Get<Com_Position>().x = -5;
 		Factory::Instance()[tilemap].Get<Com_Position>().y = 2;
 		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
-		//SystemDatabase::Instance().GetSystem<Sys_Projectile>().tilemap = tilemap;
+		SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->_tilemap = tilemap;
+		//SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()._tilemap = tilemap;
+		
 		player = Factory::Instance().FF_SpriteTile(data1, tilemap, 5, 2);
-		Factory::Instance()[player].AddComponent<Com_YLayering,Com_Node, Com_EnemySpawn>();
+		Factory::Instance()[player].AddComponent<Com_YLayering,Com_Node, Com_EnemySpawn, Com_Wave>();
 		player = Factory::Instance().FF_SpriteTile(data2, tilemap, 0, 0);
 		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap>();
 		//player = Factory::Instance().CreateEntity<Com_Position>();
