@@ -670,20 +670,24 @@ struct Sys_EnemySpawning : public System {
 		Com_EnemySpawn& Enemyspawn = get<Com_EnemySpawn>();
 		Com_Wave& wave = get<Com_Wave>();
 		Com_GameTimer& timer = get<Com_GameTimer>();
+		eid tile = Factory::Instance().FF_Tilemap("tilemap", "c_test.txt", "t_test.txt");
 		//if the timer hits for set time 
 		//if timer hit 0 spawn wave/ number of enemies hit 0 
 		if (timer.timerinseconds == wave.timerforwave || Enemyspawn.numberofenemies == 0) {
 			//spawning of enemies 
-			spawn_enemies();
+			spawn_enemies(tile);
 			--wave.numberofwaves; //decrease the number of waves left 
 			timer.timerinseconds = 0;
 		}
 	}
-	void spawn_enemies() {
+	void spawn_enemies(eid& tilemap) {
 		//spawn enemy at a certain location
 		//create enemy entity 
 		/*Factory::Instance().CreateEntity<Com_Sprite, Com_Position, Com_BoundingBox, Com_Direction, 
 			Com_TilePosition, Com_Tilemap,Com_TypeEnemy,Com_EnemySpawn,Com_Wave>();*/
+		eid e = -1;
+		Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
+		e = Factory::Instance().FF_SpriteTile(data1, tilemap, 6, 3);
 	}
 };
 

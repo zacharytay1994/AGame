@@ -343,9 +343,9 @@ struct TestScenePF : public Scene
 		Factory::Instance()[tilemap].Get<Com_Position>().y = 2;
 		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
 		//SystemDatabase::Instance().GetSystem<Sys_Projectile>().tilemap = tilemap;
-		player = Factory::Instance().FF_SpriteTile(data2, tilemap, 5, 2);
+		player = Factory::Instance().FF_SpriteTile(data1, tilemap, 5, 2);
 		Factory::Instance()[player].AddComponent<Com_YLayering,Com_Node>();
-		player = Factory::Instance().FF_SpriteTile(data1, tilemap, 0, 0);
+		player = Factory::Instance().FF_SpriteTile(data2, tilemap, 0, 0);
 		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap>();
 		//player = Factory::Instance().CreateEntity<Com_Position>();
 		/*int* i = new int{ 0 };
@@ -386,6 +386,7 @@ struct TestScenePF : public Scene
 	________________________________*/
 	void Exit() override {
 		std::cout << "woo switching to scene 2!" << std::endl;
+		
 	}
 };
 
