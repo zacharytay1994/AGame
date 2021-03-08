@@ -40,7 +40,9 @@ struct Com_PathFinding;
 struct Com_Node;
 // GUI
 struct Com_GUISurface;
+struct Com_GUIMouseCheck;
 struct Com_GUIOnClick;
+struct Com_GUIDrag;
 struct Com_Text;
 /*__________________________________________________________________________________________________
 																				Component::BASIC DATA
@@ -190,9 +192,18 @@ struct Com_GUISurface {
 	bool			_active			{ true };
 };
 
+struct Com_GUIMouseCheck {
+	bool _over{ false };
+};
+
 using OnClick = void(*)(Com_GUISurface* surface);
 struct Com_GUIOnClick {
 	OnClick _click_event{ nullptr };
+};
+
+struct Com_GUIDrag {
+	bool _held{ false };
+	Vec2f _click_position{ 0.0f,0.0f };
 };
 
 struct Com_Text {
@@ -253,6 +264,8 @@ struct Sys_PathFinding;
 /*																				system::GUI
 ____________________________________________________________________________________________________*/
 struct Sys_GUISurfaceRender;
+struct Sys_GUISurfaceMouseCheck;
+struct Sys_GUISurfaceOnClick;
 struct Sys_GUITextRender;
 
 /*___________________________________________________________________________________________________________________________________
@@ -931,25 +944,38 @@ struct Sys_GUISurfaceRender : public System {
 	}
 };
 
-struct Sys_GUISurfaceOnClick : public System {
-	bool _left_mouse{ false };
+struct Sys_GUISurfaceMouseCheck : public System {
 	Vec2i _mouse_position{ 0,0 };
-	Vec2f _screen_dimensions{ AEGetWindowWidth()/2.0f,AEGetWindowHeight()/2.0f };
+	Vec2f _screen_dimensions{ AEGetWindowWidth() / 2.0f,AEGetWindowHeight() / 2.0f };
 	void OncePerFrame() override {
-		_left_mouse = AEInputCheckTriggered(AEVK_LBUTTON);
 		AEInputGetCursorPosition(&_mouse_position.x, &_mouse_position.y);
 		_mouse_position.x -= _screen_dimensions.x;
 		_mouse_position.y -= _screen_dimensions.y;
 		_mouse_position.y *= -1;
 	}
 	void UpdateComponent() override {
-		Com_GUIOnClick& on_click = get<Com_GUIOnClick>();
+		Com_GUIMouseCheck& mouse = get<Com_GUIMouseCheck>();
 		Com_GUISurface& surface = get<Com_GUISurface>();
 		if (!surface._active) { return; }
 		Com_Position& position = get<Com_Position>();
 		// do bounding box check
-		if (_left_mouse && !(_mouse_position.x < position.x - surface._ph_dimensions.x || _mouse_position.x > position.x + surface._ph_dimensions.x ||
-			_mouse_position.y < position.y - surface._ph_dimensions.y || _mouse_position.y > position.y + surface._ph_dimensions.y)) { 
+		mouse._over = !(_mouse_position.x < position.x - surface._ph_dimensions.x || _mouse_position.x > position.x + surface._ph_dimensions.x ||
+			_mouse_position.y < position.y - surface._ph_dimensions.y || _mouse_position.y > position.y + surface._ph_dimensions.y);
+	}
+};
+
+struct Sys_GUISurfaceOnClick : public System {
+	bool _left_mouse{ false };
+	void OncePerFrame() override {
+		_left_mouse = AEInputCheckTriggered(AEVK_LBUTTON);
+	}
+	void UpdateComponent() override {
+		Com_GUIOnClick& on_click = get<Com_GUIOnClick>();
+		Com_GUIMouseCheck& mouse = get<Com_GUIMouseCheck>();
+		Com_GUISurface& surface = get<Com_GUISurface>();
+		if (!surface._active) { return; }
+		// do bounding box check
+		if (mouse._over && _left_mouse) { 
 			on_click._click_event(&surface);
 		}
 	}
@@ -973,5 +999,48 @@ struct Sys_GUITextRender : public System {
 		//sprintf_s(str_buffer, text._text.c_str());
 		//AEGfxGetPrintSize(text._font, str_buffer, 1.0f, text._width, text._height);
 		//AEGfxPrint(text._font, const_cast<s8*>(text._text.c_str()), surface._position.x*2.0f-1.0f, -(surface._position.y*2.0f-1.0f), text._scale, 1.0f, text._g, text._b);
+	}
+};
+
+struct Sys_GUIDrag : public System {
+	bool _left_mouse{ false };
+	bool _left_mouse_triggered{ false };
+	Vec2f _n_mouse_position{ 0.0f,0.0f };
+	Vec2f _click_position{ 0.0f,0.0f };
+	Vec2f _offset{ 0.0f,0.0f };
+	void OncePerFrame() override {
+		_left_mouse = AEInputCheckCurr(AEVK_LBUTTON);
+		_left_mouse_triggered = AEInputCheckTriggered(AEVK_LBUTTON);
+		int x, y;
+		AEInputGetCursorPosition(&x, &y);
+		_n_mouse_position = { (float)x/(float)AEGetWindowWidth(), (float)y/(float)AEGetWindowHeight() };
+		if (_left_mouse_triggered) {
+			_click_position = _n_mouse_position;
+		}
+		if (_left_mouse) {
+			_offset = _n_mouse_position - _click_position;
+		}
+		else {
+			_offset = { 0.0f,0.0f };
+		}
+	}
+	void UpdateComponent() override {
+		Com_GUIMouseCheck& check = get<Com_GUIMouseCheck>();
+		Com_GUIDrag& drag = get<Com_GUIDrag>();
+		Com_GUISurface& surface = get<Com_GUISurface>();
+		if (check._over) {
+			if (_left_mouse_triggered) {
+				drag._held = true;
+				drag._click_position = surface._position;
+			}
+		}
+		// if released free all drag
+		if (!_left_mouse) {
+			drag._held = false;
+			drag._click_position = { 0.0f,0.0f };
+		}
+		if (drag._held && !surface._parent_surface) {
+			surface._position = drag._click_position + _offset;
+		}
 	}
 };

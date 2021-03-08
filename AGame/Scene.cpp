@@ -71,9 +71,13 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Projectile>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GameTimer>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_YLayering>();
+
+	// GUI COMPONENTS
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUISurface>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_GUIMouseCheck>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUIOnClick>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Text>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_GUIDrag>();
 
 	// 3. Registering all systems for the game
 	//SystemDatabase::Instance().RegisterSystem<Example_UpdatePosition, Position, Example_Velocity>();
@@ -92,8 +96,12 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_Velocity, Com_Position, Com_Velocity>();
 	SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeysTilemap, Com_TilePosition, Com_ArrowKeysTilemap>();
 	SystemDatabase::Instance().RegisterSystem<Sys_YLayering, Com_Sprite, Com_Position, Com_YLayering>();
+
+	// GUI SYSTEMS
 	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceRender, Com_Position, Com_GUISurface, Com_Sprite>();
-	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceOnClick, Com_GUIOnClick, Com_GUISurface, Com_Position>();
+	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceMouseCheck, Com_GUIMouseCheck, Com_Position, Com_GUISurface>();
+	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceOnClick, Com_GUIOnClick, Com_GUIMouseCheck, Com_GUISurface>();
+	SystemDatabase::Instance().RegisterSystem<Sys_GUIDrag, Com_GUIMouseCheck, Com_GUIDrag, Com_GUISurface>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUITextRender, Com_Position, Com_GUISurface, Com_Text>();
 
 	// 4. Registering scenes

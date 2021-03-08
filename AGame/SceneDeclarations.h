@@ -321,17 +321,22 @@ struct MainMenu : public Scene {
 	Factory::SpriteData data6{ "transparent" };
 	void Initialize() override {
 		std::cout << "SYSTEM MESSAGE: Now entering main menu." << std::endl;
-		//i = Factory::Instance().FF_CreateGUISurface(data1, 0.5f, 0.5f, 1.0f, 1.0f);									// surface
-		//parent = i;
-		//i = Factory::Instance().FF_CreateGUIChildSurface(i, data2, 0.5f, 0.6f, 0.3f, 0.4f);							// non clickable child surface
-		//Factory::Instance().FF_CreateGUIChildClickableSurface(i, data3, 0.5f, 0.25f, 0.75f, 0.2f, TestFunction);	// clickable child surface
-		//Factory::Instance().FF_CreateGUIChildClickableSurface(i, data4, 0.5f, 0.5f, 0.75f, 0.2f, TestFunction2);	// clickable child surface
-		//Factory::Instance().FF_CreateGUIChildClickableSurface(i, data5, 0.5f, 0.75f, 0.75f, 0.2f, TestFunction3);	// clickable child surface
-		i = Factory::Instance().FF_CreateGUISurfaceText(data6, 0.5f, 0.3f, 0.4f, 0.3f, "Something", "strawberry");
+		i = Factory::Instance().FF_CreateGUISurface(data1, 0.5f, 0.5f, 1.0f, 1.0f);									// surface
 		parent = i;
+		Factory::Instance()[parent].AddComponent<Com_GUIDrag, Com_GUIMouseCheck>();
+		i = Factory::Instance().FF_CreateGUIChildSurface(i, data2, 0.5f, 0.6f, 0.3f, 0.4f);							// non clickable child surface
+		Factory::Instance().FF_CreateGUIChildClickableSurface(i, data3, 0.5f, 0.25f, 0.75f, 0.2f, TestFunction);	// clickable child surface
+		Factory::Instance().FF_CreateGUIChildClickableSurface(i, data4, 0.5f, 0.5f, 0.75f, 0.2f, TestFunction2);	// clickable child surface
+		Factory::Instance().FF_CreateGUIChildClickableSurface(i, data5, 0.5f, 0.75f, 0.75f, 0.2f, TestFunction3);	// clickable child surface
+
+		/*i = Factory::Instance().FF_CreateGUISurfaceText(data6, 0.5f, 0.3f, 0.4f, 0.3f, "Something", "strawberry");
+		parent = i;
+		Factory::Instance()[parent].AddComponent<Com_GUIDrag, Com_GUIMouseCheck>();
 		i = Factory::Instance().FF_CreateGUIChildSurfaceText(i, data6, 0.2f, 0.6f, 0.4f, 0.4f, "test2", "strawberry");
 		i = Factory::Instance().FF_CreateGUIChildSurfaceText(i, data6, 0.2f, 0.6f, 0.4f, 0.4f, "test2", "strawberry");
-		i = Factory::Instance().FF_CreateGUIChildSurfaceText(i, data6, 0.8f, 0.8f, 0.4f, 0.4f, "test2", "strawberry");
+		i = Factory::Instance().FF_CreateGUIChildSurfaceText(i, data6, 0.8f, 0.8f, 0.4f, 0.4f, "test2", "strawberry");*/
+
+		//Factory::Instance().FF_CreateGUISurface(data6, 0.5f, 0.5f, 0.2f, 0.2f);
 	}
 	void Update(const float& dt) override {
 		if (AEInputCheckTriggered('C')) {
