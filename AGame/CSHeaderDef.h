@@ -666,7 +666,8 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 //for spawning of enemies 
 -------------------------------------------*/
 struct Com_EnemySpawn{
-	size_t numberofenemies{ 2 }; //number of enemies to spawn 
+	size_t numberofenemies{ 2 }; //number of enemies to spawn
+	size_t CurrNoOfEnemies{ 0 }; //keep track of enemies on map
 };
 
 struct Com_Wave{
@@ -688,11 +689,15 @@ struct Sys_EnemySpawning : public System {
 		alarm += _dt;
 		//if the timer hits for set time 
 		//if timer hit 0 spawn wave/ number of enemies hit 0 
-		if (alarm > wave.timerforwave || Enemyspawn.numberofenemies == 0) {
+		if (alarm > wave.timerforwave || Enemyspawn.numberofenemies == 0) 
+		{
 			//spawning of enemies 
-			spawn_enemies(Enemyspawn);
-			--wave.numberofwaves; //decrease the number of waves left 
-			alarm = 0;
+			if (Enemyspawn.CurrNoOfEnemies < 6) 
+			{
+				spawn_enemies(Enemyspawn);
+				--wave.numberofwaves; //decrease the number of waves left 
+				alarm = 0;
+			}
 			
 		}
 	}
@@ -707,6 +712,7 @@ struct Sys_EnemySpawning : public System {
 			Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
 			eid enemy = Factory::Instance().FF_CreateEnemy(data1, _tilemap, 5,2);
 			Factory::Instance()[enemy].AddComponent<Com_YLayering, Com_Node, Com_PathFinding>();
+			++enem.CurrNoOfEnemies;
 			++i;
 		}
 	}

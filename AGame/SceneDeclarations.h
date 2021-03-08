@@ -348,6 +348,8 @@ struct TestScenePF : public Scene
 		
 		player = Factory::Instance().FF_SpriteTile(data1, tilemap, 5, 2);
 		Factory::Instance()[player].AddComponent<Com_YLayering,Com_Node, Com_EnemySpawn, Com_Wave>();
+		++Factory::Instance()[player].Get<Com_EnemySpawn>().CurrNoOfEnemies;
+
 		player = Factory::Instance().FF_SpriteTile(data2, tilemap, 0, 0);
 		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap>();
 		SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos =  player;
