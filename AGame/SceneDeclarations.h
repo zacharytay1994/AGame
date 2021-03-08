@@ -426,16 +426,26 @@ ________________________________*/
 		Factory::Instance()[tilemap].Get<Com_Position>().y = 2;
 		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
 		//SystemDatabase::Instance().GetSystem<Sys_Projectile>().tilemap = tilemap;
+
 		player = Factory::Instance().FF_SpriteTile(data, tilemap, 5, 2);
 		Factory::Instance()[player].AddComponent<Com_YLayering>();
+
 		player = Factory::Instance().FF_SpriteTile(data2, tilemap, 8, 3);
 		Factory::Instance()[player].AddComponent<Com_YLayering>();
+
 		player = Factory::Instance().FF_SpriteTile(data22, tilemap, 1, 1);
 		Factory::Instance()[player].AddComponent<Com_YLayering>();
+
 		player = Factory::Instance().FF_SpriteTile(data1, tilemap, 0, 0);
-		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Projectile, Com_WeaponAttack, Com_GameTimer>();
+		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Projectile, Com_WeaponAttack, Com_GameTimer,Com_objecttype>();
+		Entity& e = Factory::Instance()[player];
+		e.Get<Com_objecttype>().objtype = Com_objecttype::playert;
+
 		player = Factory::Instance().FF_SpriteTile(data3, tilemap, 5, 3);
-		Factory::Instance()[player].AddComponent<Com_YLayering,Com_GameTimer,Com_BoundingBox>();
+		Factory::Instance()[player].AddComponent<Com_YLayering,Com_GameTimer,Com_BoundingBox,Com_objecttype>();
+		Entity& e1 = Factory::Instance()[player];
+		e1.Get<Com_objecttype>().objtype = Com_objecttype::obstaclest;
+
 		//player = Factory::Instance().CreateEntity<Com_Position>();
 		/*int* i = new int{ 0 };
 		std::shared_ptr<int> a{ i };

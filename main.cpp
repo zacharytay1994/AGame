@@ -75,7 +75,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	AESysReset();
 
 	SceneManager::Instance();
-	SceneManager::Instance().ChangeScene("Test PathFinding");
+	SceneManager::Instance().ChangeScene("TestScenewilfred");
 	AEGfxSetBackgroundColor(0.0f, 0.0f, 0.0f);
 
 	// Game Loop

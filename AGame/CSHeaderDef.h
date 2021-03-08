@@ -130,6 +130,63 @@ struct Com_BoundingBox
 	float scale;
 };
 
+
+// testing for wilfred ////////////////////////////
+struct Com_objecttype {
+	enum type
+	{
+		playert,
+		enemyt,
+		bullett,
+		obstaclest
+	};
+	eid objtype{ playert };
+	bool updated{ false };
+	//to store id of all player 
+	//static std::vector<eid> player;
+	//static std::vector<eid> enemy;
+	//static std::vector<eid> bullet;
+	//static std::vector<eid> obstacle;
+};
+
+//global 
+static std::vector<eid> player;
+static std::vector<eid> enemy;
+static std::vector<eid> bullet;
+static std::vector<eid> obstacle;
+
+struct Sys_RegisteringEntity :public System{
+	void UpdateComponent() override {
+		Com_objecttype& obtype = get<Com_objecttype>();
+		if (obtype.updated == false) {
+			//if it's a player 
+			if (obtype.objtype == obtype.playert) {
+				player.emplace_back(player.size()+1);
+				std::cout << "assigning player" << std::endl;
+			}
+			//if it's a enemy 
+			if (obtype.objtype == obtype.enemyt) {
+				enemy.emplace_back(enemy.size() + 1);
+				std::cout << "assigning enemy" << std::endl;
+			}
+			//if it's a bullet
+			if (obtype.objtype == obtype.bullett) {
+				bullet.emplace_back(bullet.size() + 1);
+				std::cout << "assigning bullet" << std::endl;
+			}
+			//if it's a obstacle
+			if (obtype.objtype == obtype.obstaclest) {
+				obstacle.emplace_back(obstacle.size() + 1);
+				std::cout << "assigning obstacle" << std::endl;
+			}
+			obtype.updated = true;
+		}
+	}
+};
+
+
+// testing for wilfred ////////////////////////////
+
 struct CollisionData {
 	Com_BoundingBox* aabb;
 	Com_Velocity* vel;
@@ -198,7 +255,6 @@ struct Com_Node
 		delete nodeStart;
 		delete nodeEnd;
 	}
-
 };
 
 /*																				Component::GUI
@@ -497,6 +553,8 @@ struct Sys_AABB : public System {
 			collisionflag = CollisionAABB(*AABB, *vel, *AABBTest[i].aabb, *AABBTest[i].vel);
 		}
 		AABBTest.emplace_back(CollisionData{ AABB,vel });
+
+		//check with diff type objects 
 	}
 	/*-----------------------------------------
 	@brief does an AABB Collision check

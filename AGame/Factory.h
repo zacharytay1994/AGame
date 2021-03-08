@@ -22,6 +22,7 @@ public:
 	eid CreateEntity() {
 		_entities.emplace_back();
 		_entities.back().Initialize<T...>();
+		std::cout << "entity created" << std::endl;
 		return (eid)_unique_ids++;
 	}
 	void RemoveEntity(Entity* entity);
