@@ -19,7 +19,7 @@ class Weapon
 		~Weapon();						// Default destructor
 
 		virtual void Weapon_Shoot();	// What happens when weapon is fired
-		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction) const;
+		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap) const;
 		virtual void Weapon_Reload();	// What happens when weapon is reloaded
 
 		const unsigned int	GetWeapon_ID() const;

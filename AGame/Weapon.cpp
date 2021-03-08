@@ -53,13 +53,13 @@ void Weapon::Weapon_Shoot()
 	}
 }
 
-void Weapon::Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction) const
+void Weapon::Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap) const
 {
 	Factory::SpriteData data{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
 	for (unsigned int i = 0; i < weapon_Pattern.size(); i++)
 	{
 		// Spawn bullet at weapon_Pattern[i] relative to player
-		Factory::Instance().FF_Createproj(data, spawn.x, spawn.y, direction);
+		Factory::Instance().FF_Createproj2(data, spawn.x, spawn.y, direction, tilemap);
 	}
 }
 

@@ -554,7 +554,7 @@ struct ShootingRange : public Scene {
 		}
 
 		if (AEInputCheckTriggered(AEVK_D)) {
-			playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ static_cast<int>(Factory::Instance()[player].Get<Com_Position>().x), static_cast<int>(Factory::Instance()[player].Get<Com_Position>().y) }, Factory::Instance()[player].Get<Com_Direction>());
+			playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ static_cast<int>(Factory::Instance()[player].Get<Com_TilePosition>()._grid_x), static_cast<int>(Factory::Instance()[player].Get<Com_TilePosition>()._grid_y) }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
 		}
 #endif
 		if (AEInputCheckTriggered('R')) {

@@ -651,6 +651,28 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 	}
 };
 
+struct Sys_Projectile2 : public System {
+	void UpdateComponent() override {
+		Com_Direction& direction = get<Com_Direction>();
+		Com_TilePosition& tileposition = get<Com_TilePosition>();
+		if (direction.currdir == direction.left)
+		{
+			tileposition._grid_x--;
+		}
+		else if (direction.currdir == direction.right)
+		{
+			tileposition._grid_x++;
+		}
+		else if (direction.currdir == direction.up)
+		{
+			tileposition._grid_y--;
+		}
+		else if (direction.currdir == direction.down)
+		{
+			tileposition._grid_y++;
+		}
+	}
+};
 
  /////////Edits  
 
