@@ -84,6 +84,7 @@ struct Com_YLayering {
 	char filler = 0;
 };
 
+
 /*																				Component::INPUT
 ____________________________________________________________________________________________________*/
 
@@ -125,9 +126,10 @@ struct Com_TilePosition {
 ____________________________________________________________________________________________________*/
 struct Com_BoundingBox
 {
-	Com_Position min;
-	Com_Position max;
-	float scale;
+	float minx;
+	float miny;
+	float maxx;
+	float maxy;
 };
 
 
@@ -187,9 +189,10 @@ struct Sys_RegisteringEntity :public System{
 
 // testing for wilfred ////////////////////////////
 
-struct CollisionData {
+struct Com_CollisionData {
 	Com_BoundingBox* aabb;
 	Com_Velocity* vel;
+	bool emplacedvec{ false };
 };
 
 /*																				Component::ATTACK
@@ -518,7 +521,8 @@ ________________________________________________________________________________
 struct Sys_Boundingbox : public System {
 	void UpdateComponent() override {
 		//calculate AABB bounding box 
-		calculateAABB(get<Com_BoundingBox>(), get<Com_Position>(), get<Com_BoundingBox>());
+		calculateAABB(get<Com_BoundingBox>(), get<Com_Position>(), get<Com_Sprite>());
+
 	}
 	/*-----------------------------------------
 
@@ -532,27 +536,74 @@ struct Sys_Boundingbox : public System {
 	@return void
 
 	------------------------------------------*/
-	void calculateAABB(Com_BoundingBox& boundingbox, Com_Position& position, Com_BoundingBox& scale)
+	void calculateAABB(Com_BoundingBox& boundingbox, Com_Position& position, Com_Sprite& sprite)
 	{
 		//calculate min max
-		boundingbox.max.x = -0.5f * boundingbox.scale + position.x;
-		boundingbox.min.x = 0.5f * boundingbox.scale + position.x;
-		boundingbox.min.y = -0.5f * boundingbox.scale + position.y;
-		boundingbox.max.y = 0.5f * boundingbox.scale + position.y;
+		boundingbox.maxx = 0.5f * sprite._x_scale + position.x;
+		boundingbox.minx = -0.5f * sprite._x_scale + position.x;
+		boundingbox.miny = -0.5f * sprite._y_scale + position.y;
+		boundingbox.maxy = 0.5f * sprite._y_scale + position.y;
 	}
 };
 
+
+
+
 struct Sys_AABB : public System {
-	std::vector<CollisionData> AABBTest; //to store all collision data 
+	std::vector<Com_CollisionData> AABBTestplayer; //to store all collision data of player
+	std::vector<Com_CollisionData> AABBTestEnemy; //to store all collision data of player
+	std::vector<Com_CollisionData> AABBTestBullet; //to store all collision data of player
 	void UpdateComponent() override {
 		//calculate AABB detection
-		int collisionflag = 0;
+		bool collisionflag = false;
 		Com_BoundingBox* AABB = &get<Com_BoundingBox>();
 		Com_Velocity* vel = &get<Com_Velocity>();
-		for (int i{ 0 }; i < AABBTest.size(); ++i) {
-			collisionflag = CollisionAABB(*AABB, *vel, *AABBTest[i].aabb, *AABBTest[i].vel);
+		Com_CollisionData& coldata = get<Com_CollisionData>();
+		//for (int i{ 0 }; i < AABBTest.size(); ++i) {
+		//	collisionflag = CollisionAABB(*AABB, *vel, *AABBTest[i].aabb, *AABBTest[i].vel);
+		//}
+		//AABBTest.emplace_back(Com_CollisionData{ AABB,vel });
+		//edits for testing 
+		//collision testing for player
+		Com_objecttype& objtype = get<Com_objecttype>();
+		if (objtype.objtype == objtype.playert && coldata.emplacedvec == false) {
+			AABBTestplayer.emplace_back(Com_CollisionData{ AABB,vel });
+			coldata.emplacedvec = true;
 		}
-		AABBTest.emplace_back(CollisionData{ AABB,vel });
+		if (objtype.objtype == objtype.playert && coldata.emplacedvec == true) {
+			//test with enemy
+			for (int i{ 0 }; i < AABBTestEnemy.size(); ++i) {
+				//test with enemy
+				collisionflag = CollisionAABB(*AABB, *vel, *AABBTestEnemy[i].aabb, *AABBTestEnemy[i].vel);
+			}
+		}
+
+		//for enemy 
+		if (objtype.objtype == objtype.enemyt && coldata.emplacedvec == false) {
+			AABBTestEnemy.emplace_back(Com_CollisionData{ AABB,vel });
+			coldata.emplacedvec = true;
+		}
+		if (objtype.objtype == objtype.enemyt && coldata.emplacedvec == true) {
+			//tbc
+		}
+
+		//for bullet 
+		if (objtype.objtype == objtype.bullett && coldata.emplacedvec == false) {
+			AABBTestBullet.emplace_back(Com_CollisionData{ AABB,vel });
+			coldata.emplacedvec = true;
+		}
+		if (objtype.objtype == objtype.bullett && coldata.emplacedvec == true) {
+			//test with enemy
+			for (int i{ 0 }; i < AABBTestEnemy.size(); ++i) {
+				//test with enemy
+				collisionflag = CollisionAABB(*AABB, *vel, *AABBTestEnemy[i].aabb, *AABBTestEnemy[i].vel);
+				//if collide 
+				if (collisionflag == true) {
+					RemoveEntity();
+					//std::cout << "collidde" << std::endl;
+				}
+			}
+		}
 
 		//check with diff type objects 
 	}
@@ -568,68 +619,104 @@ struct Sys_AABB : public System {
 	bool CollisionAABB(const Com_BoundingBox& object1, const Com_Velocity& objvel1,
 		const Com_BoundingBox& object2, const Com_Velocity& objvel2)
 	{
-		if ((object1.max.x < object2.min.x || object1.min.x > object2.max.x) || (object1.max.y < object2.min.y || object1.min.y > object2.max.y)) { // check static collision
+		if ((object1.maxx < object2.minx) || (object1.minx > object2.maxx) || (object1.maxy < object2.miny) || (object1.miny > object2.maxy)) // check static collision
+		{
+
+
 			// initialzing time of first and last contact 
 			float tFirst = 0.0f; //init tfirst 
 			float tLast = (float)AEFrameRateControllerGetFrameTime(); //inti tlast 
 			AEVec2 Rvel;
 			Rvel.x = objvel2.x - objvel1.x;
 			Rvel.y = objvel2.y - objvel1.y;
-			if (Rvel.x < 0.0) { // if relative velocity x < 0
-				if (object2.max.x < object1.min.x) {
+
+			if (Rvel.x < 0.0) // if relative velocity x < 0
+			{
+				if (object2.maxx < object1.minx)
+				{
 					return 0;//no collision
 				}
-				if (object1.max.x < object2.min.x) {
-					tFirst = max((object1.max.x - object2.min.x) / Rvel.x, tFirst); //calculate tfirst touch
+				if (object1.maxx < object2.minx)
+				{
+					tFirst = max((object1.maxx - object2.minx) / Rvel.x, tFirst); //calculate tfirst touch
 				}
-				if (object2.max.x > object1.min.x) {
-					tLast = min((object1.min.x - object2.max.x) / Rvel.x, tLast); //calculate tlast touch
+				if (object2.maxx > object1.minx)
+				{
+					tLast = min((object1.minx - object2.maxx) / Rvel.x, tLast); //calculate tlast touch
 				}
 			}
-			if (Rvel.x > 0.0) { //if relative velocity x > 0
-				if (object2.min.x > object1.max.x) {
+
+			if (Rvel.x > 0.0) //if relative velocity x > 0
+			{
+				if (object2.minx > object1.maxx)
+				{
 					return 0;//no collision
 				}
-				if (object2.max.x < object1.min.x) {
-					tFirst = max((object1.min.x - object2.max.x) / Rvel.x, tFirst);  // calculate tfirst touch
+				if (object2.maxx < object1.minx)
+				{
+					tFirst = max((object1.minx - object2.maxx) / Rvel.x, tFirst);  // calculate tfirst touch
 				}
-				if (object1.max.x > object2.min.x) {
-					tLast = min((object1.max.x - object2.min.x) / Rvel.x, tLast); //calculate tlast touch 
+				if (object1.maxx > object2.minx)
+				{
+					tLast = min((object1.maxx - object2.minx) / Rvel.x, tLast); //calculate tlast touch 
 				}
-			}
-			if (Rvel.y < 0.0) //if relative velocity y < 0
-			{
-				if (object2.max.y < object1.min.y) {
-					return 0; // not collison moving apart 
-				}
-				if (object1.max.y < object2.min.y) {
-					tFirst = max((object1.max.y - object2.min.y) / Rvel.y, tFirst); //calculate tfirst touch
-				}
-				if (object2.max.y > object1.min.y) {
-					tLast = min((object1.min.y - object2.max.y) / Rvel.y, tLast); //calculate tlast touch
-				}
-			}
-			if (Rvel.y > 0.0)
-			{
-				if (object2.min.y > object1.max.y) {
-					return 0; // not collison moving apart 
 
-				}
-				if (object2.max.y < object1.min.y) {
-					tFirst = max((object1.min.y - object2.max.y) / Rvel.y, tFirst);  // cacluate tfirst touch
-
-				}
-				if (object1.max.y > object2.min.y) {
-					tLast = min((object1.max.y - object2.min.y) / Rvel.y, tLast);  //calculate tlast touch
-				}
 			}
-			if (tFirst > tLast) {
+
+			if (tFirst > tLast)
+			{
 				return 0; //no collision
 			}
-			else { return 1; }  //dynamic collision
+
+			if (Rvel.y < 0.0) //if relative velocity y < 0
+			{
+				if (object2.maxy < object1.miny)
+				{
+					return 0; // not collison moving apart 
+				}
+				if (object1.maxy < object2.miny)
+				{
+					tFirst = max((object1.maxy - object2.miny) / Rvel.y, tFirst); //calculate tfirst touch
+				}
+				if (object2.maxy > object1.miny)
+				{
+					tLast = min((object1.miny - object2.maxy) / Rvel.y, tLast); //calculate tlast touch
+				}
+			}
+
+			if (Rvel.y > 0.0)
+			{
+				if (object2.miny > object1.maxy)
+				{
+					return 0; // not collison moving apart 
+
+				}
+				if (object2.maxy < object1.miny)
+				{
+					tFirst = max((object1.miny - object2.maxy) / Rvel.y, tFirst);  // cacluate tfirst touch
+
+				}
+				if (object1.maxy > object2.miny)
+				{
+					tLast = min((object1.maxy - object2.miny) / Rvel.y, tLast);  //calculate tlast touch
+				}
+
+			}
+
+			if (tFirst > tLast || tFirst == 0)
+			{
+				return 0; //no collision
+			}
+
+			else
+			{
+				return 1;  //dynamic collision
+			}
 		}
+
 		return 1;  //static collision 
 	}
+
 };
 
 /*																				system::ATTACK

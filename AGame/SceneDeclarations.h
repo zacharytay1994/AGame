@@ -437,14 +437,13 @@ ________________________________*/
 		Factory::Instance()[player].AddComponent<Com_YLayering>();
 
 		player = Factory::Instance().FF_SpriteTile(data1, tilemap, 0, 0);
-		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Projectile, Com_WeaponAttack, Com_GameTimer,Com_objecttype>();
+		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Projectile, Com_WeaponAttack, Com_GameTimer>();
 		Entity& e = Factory::Instance()[player];
-		e.Get<Com_objecttype>().objtype = Com_objecttype::playert;
 
 		player = Factory::Instance().FF_SpriteTile(data3, tilemap, 5, 3);
-		Factory::Instance()[player].AddComponent<Com_YLayering,Com_GameTimer,Com_BoundingBox,Com_objecttype>();
+		Factory::Instance()[player].AddComponent<Com_YLayering,Com_GameTimer,Com_objecttype, Com_BoundingBox, Com_CollisionData, Com_Velocity>();
 		Entity& e1 = Factory::Instance()[player];
-		e1.Get<Com_objecttype>().objtype = Com_objecttype::obstaclest;
+		e1.Get<Com_objecttype>().objtype = Com_objecttype::enemyt;
 
 		//player = Factory::Instance().CreateEntity<Com_Position>();
 		/*int* i = new int{ 0 };
