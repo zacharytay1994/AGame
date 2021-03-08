@@ -707,7 +707,7 @@ struct Sys_EnemySpawning : public System {
 		/*Factory::Instance().CreateEntity<Com_Sprite, Com_Position, Com_BoundingBox, Com_Direction, 
 			Com_TilePosition, Com_Tilemap,Com_TypeEnemy,Com_EnemySpawn,Com_Wave>();*/
 		
-		/*int i = 0;
+		int i = 0;
 		while (i < enem.numberofenemies) 
 		{
 			Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
@@ -715,7 +715,7 @@ struct Sys_EnemySpawning : public System {
 			Factory::Instance()[enemy].AddComponent<Com_YLayering, Com_Node, Com_PathFinding>();
 			++enem.CurrNoOfEnemies;
 			++i;
-		}*/
+		}
 	}
 
 };
