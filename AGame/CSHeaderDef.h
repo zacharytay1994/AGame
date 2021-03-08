@@ -913,6 +913,7 @@ struct Sys_ParticleSys : public System {
 struct Com_ParticleEmitter {
 	size_t timeforemitter{ 5 };
 	size_t numberofparticle{ 20 };
+	bool active{true};
 };
 
 
@@ -923,13 +924,16 @@ struct Sys_ParticleEmitter : public System {
 		Com_ParticleEmitter& emitter = get<Com_ParticleEmitter>();
 		Com_Position& position = get<Com_Position>();
 		//if timer reaches 0 emit particles 
-		if (timer.timerinseconds == emitter.timeforemitter)
-		{
-			for (int i{ 0 }; i < emitter.numberofparticle; ++i) {
-				//create particles 
-				emitparticle();
+		if (emitter.active == true) {
+			if (timer.timerinseconds == emitter.timeforemitter)
+			{
+				for (int i{ 0 }; i < emitter.numberofparticle; ++i) {
+					//create particles 
+					emitparticle();
+				}
+				timer.timerinseconds = 0;
+				RemoveEntity();
 			}
-			timer.timerinseconds = 0;
 		}
 	}
 
