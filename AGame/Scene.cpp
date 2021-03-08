@@ -1,5 +1,6 @@
 #include "Scene.h"
 #include "SceneDeclarations.h"
+#include "MainMenu.h"
 #include "zSystem.h"
 #include "CSHeaderDef.h"
 #include "ResourceManager.h"

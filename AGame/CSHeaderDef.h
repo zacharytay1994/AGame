@@ -183,13 +183,15 @@ struct Com_Node
 /*																				Component::GUI
 ____________________________________________________________________________________________________*/
 struct Com_GUISurface {
-	Vec2f			_position		{ 0.0f, 0.0f };
-	Vec2f			_n_position		{ 0.0f,0.0f };
-	Vec2f			_dimensions		{ 1.0f, 1.0f };
-	Vec2f			_ph_dimensions	{ 1.0f, 1.0f };
-	Com_GUISurface*	_parent_surface	{ nullptr };
+	Vec2f			_position{ 0.0f, 0.0f };
+	Vec2f			_n_position{ 0.0f,0.0f };
+	Vec2f			_dimensions{ 1.0f, 1.0f };
+	Vec2f			_ph_dimensions{ 1.0f, 1.0f };
+	Com_GUISurface* _parent_surface{ nullptr };
 	Com_Position*	_parent_position{ nullptr };
-	bool			_active			{ true };
+	bool			_active{ true };
+	bool			_parent_active{ true };
+	int				_layer{ 0 };
 };
 
 struct Com_GUIMouseCheck {
@@ -312,7 +314,7 @@ struct Sys_DrawSprite : public System {
 		AEMtx33Concat(&sprite._render_pack._transform, &rot, &scale);
 		AEMtx33Concat(&sprite._render_pack._transform, &trans, &sprite._render_pack._transform);
 		// set aegfx variables
-		ResourceManager::Instance().DrawQueue(sprite._render_pack);
+		ResourceManager::Instance().DrawQueue(&sprite._render_pack);
 	}
 };
 
@@ -423,6 +425,8 @@ struct Sys_Tilemap : public System {
 	void DrawTilemap(Com_Tilemap& tilemap, const Com_Position& position) {
 		AEMtx33 trans, scale, transform;
 		AEMtx33Scale(&scale, tilemap._scale_x, tilemap._scale_y);
+		AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
+		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
 		for (size_t y = 0; y < (size_t)tilemap._height; ++y) {
 			for (size_t x = 0; x < (size_t)tilemap._width; ++x) {
 				if (tilemap._floor_mask[x * (size_t)tilemap._height + y] == -1) { continue; }
@@ -435,7 +439,10 @@ struct Sys_Tilemap : public System {
 					float _offset_y = (tilemap._floor_mask[x * (size_t)tilemap._height + y] / 4) * 1.0f / (float)4;
 					tilemap._render_pack._offset_x = (tilemap._floor_mask[x * (size_t)tilemap._height + y] % 4) * 1.0f / (float)4;
 					tilemap._render_pack._offset_y = (tilemap._floor_mask[x * (size_t)tilemap._height + y] / 4) * 1.0f / (float)4;
-					ResourceManager::Instance().DrawQueue(tilemap._render_pack);
+					//ResourceManager::Instance().DrawQueue(&tilemap._render_pack);
+					AEGfxSetTransform(tilemap._render_pack._transform.m);
+					AEGfxTextureSet(tilemap._render_pack._texture, tilemap._render_pack._offset_x, tilemap._render_pack._offset_y);
+					AEGfxMeshDraw(tilemap._render_pack._mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
 				}
 			}
 		}
@@ -927,7 +934,11 @@ struct Sys_GUISurfaceRender : public System {
 		Com_Sprite& sprite = get<Com_Sprite>();
 		if (surface._parent_surface) {
 			// set self active to parent active
-			surface._active = surface._parent_surface->_active;
+			if (surface._parent_active != surface._parent_surface->_active) {
+				surface._active = surface._parent_surface->_active;
+				surface._parent_active = surface._parent_surface->_active;
+			}
+			//surface._active = surface._parent_surface->_active ? surface._active : surface._parent_surface->_active;
 			surface._n_position.x = surface._parent_surface->_n_position.x + surface._parent_surface->_dimensions.x * (surface._position.x - 0.5f);
 			surface._n_position.y = surface._parent_surface->_n_position.y + surface._parent_surface->_dimensions.y * (surface._position.y - 0.5f);
 			// offset with parent

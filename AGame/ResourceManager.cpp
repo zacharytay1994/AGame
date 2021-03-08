@@ -2,6 +2,7 @@
 #include "CSHeaderDef.h"
 #include <assert.h>
 #include <fstream>
+#include <algorithm>
 
 #define MY_PI 3.142f
 
@@ -24,48 +25,80 @@ void ResourceManager::GetResource(AEGfxTexture*& tex, AEGfxVertexList*& mesh, co
 	}
 }
 
-void ResourceManager::DrawQueue(RenderPack pack)
+void ResourceManager::DrawQueue(RenderPack* pack)
 {
-	_render_queue.push(pack);
+	_render_queue_vector.push_back(pack);
+	//_render_queue.push(pack);
 }
 
 void ResourceManager::DrawStackText(TextPack& pack)
 {
-	_text_pack.push(&pack);
+	_text_pack.push_back(&pack);
 }
 
 void ResourceManager::FlushDraw()
 {
 	AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
 	AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
-	while (!_render_queue.empty()) {
-		const RenderPack& rp = _render_queue.top();
+	auto cmp = [](RenderPack const* const a, RenderPack const* const b) { return a->_layer < b->_layer; };
+	auto cmp2 = [](TextPack const* const a, TextPack const* const b) { return a->_layer > b->_layer; };
+	//std::priority_queue <RenderPack*, RM_Compare> _somequeue( _render_queue_vector );
+	//std::make_heap<RenderPack*>(_render_queue_vector.begin(), _render_queue_vector.end(), RM_Compare);
+	std::sort(_render_queue_vector.begin(), _render_queue_vector.end(), cmp);
+	std::sort(_text_pack.begin(), _text_pack.end(), cmp2);
+	/*while (!_render_queue_vector.empty()) {
+		const RenderPack& rp = *_render_queue.top();
 		AEGfxSetTransform(const_cast<RenderPack&>(rp)._transform.m);
 		AEGfxTextureSet(rp._texture, rp._offset_x, rp._offset_y);
 		AEGfxMeshDraw(rp._mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
 		_render_queue.pop();
+	}*/
+	int i = -10000000;
+	for (auto r : _render_queue_vector) {
+		if (r->_layer > i) {
+			i = r->_layer;
+			FlushDrawTextLayer(i);
+		}
+		AEGfxSetTransform(r->_transform.m);
+		AEGfxTextureSet(r->_texture, r->_offset_x, r->_offset_y);
+		AEGfxMeshDraw(r->_mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
 	}
+	FlushDrawText();
+	_render_queue_vector.resize(0);
 }
 
 void ResourceManager::FlushDrawText() {
 	float width{ 0 };
 	float height{ 0 };
 	while (!_text_pack.empty()) {
-		TextPack* pack = _text_pack.top();
+		TextPack* pack = _text_pack.back();
 		AEGfxGetPrintSize(pack->_font, const_cast<s8*>(pack->_text.c_str()), 1.0f, width, height);
 		AEGfxPrint(pack->_font, const_cast<s8*>(pack->_text.c_str()), pack->_position.x - width/2.0f, pack->_position.y - height/2.0f, pack->_scale, pack->_r, pack->_g, pack->_b);
-		_text_pack.pop();
+		_text_pack.pop_back();
+	}
+}
+
+void ResourceManager::FlushDrawTextLayer(int layer)
+{
+	float width{ 0 };
+	float height{ 0 };
+	while (!_text_pack.empty() && _text_pack.back()->_layer < layer) {
+		TextPack* pack = _text_pack.back();
+		AEGfxGetPrintSize(pack->_font, const_cast<s8*>(pack->_text.c_str()), 1.0f, width, height);
+		AEGfxPrint(pack->_font, const_cast<s8*>(pack->_text.c_str()), pack->_position.x - width/2.0f, pack->_position.y - height/2.0f, pack->_scale, pack->_r, pack->_g, pack->_b);
+		_text_pack.pop_back();
 	}
 }
 
 void ResourceManager::ResetRenderQueue()
 {
-	_render_queue = std::priority_queue <RenderPack, std::vector<RenderPack>, RM_Compare>();
+	_render_queue_vector.resize(0);
+	//_render_queue = std::priority_queue <RenderPack*, std::vector<RenderPack*>, RM_Compare>();
 }
 
 void ResourceManager::ResetTextStack()
 {
-	_text_pack = std::stack<TextPack*>();
+	_text_pack = std::vector<TextPack*>();
 }
 
 void ResourceManager::LoadTexture(const std::string& name, const std::string& path)
@@ -287,8 +320,11 @@ void ResourceManager::Initialize()
 	LoadTexture("button2", "button2.png");
 	LoadTexture("button3", "button3.png");
 	LoadTexture("transparent", "transparent.png");
+	LoadTexture("settings", "settingsbutton.png");
+	LoadTexture("cross", "crossbutton.png");
+	LoadTexture("background1", "background1.png");
 	// load all fonts
-	LoadFont("strawberry", "Strawberry_Muffins_Demo.ttf", 20);
+	LoadFont("courier", "COURIER.TTF", 20);
 }
 
 bool RenderComparator(RenderPack* p1, RenderPack* p2)

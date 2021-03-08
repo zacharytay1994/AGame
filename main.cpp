@@ -89,6 +89,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 		///////////////////
 		// Game loop update
+		SceneManager::Instance().CheckGame(gGameRunning);
 		SceneManager::Instance().Update((float)AEFrameRateControllerGetFrameTime());
 		// Game loop update end
 		///////////////////////
