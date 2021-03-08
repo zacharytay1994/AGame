@@ -41,6 +41,7 @@ struct Com_Node;
 // GUI
 struct Com_GUISurface;
 struct Com_GUIOnClick;
+struct Com_Text;
 /*__________________________________________________________________________________________________
 																				Component::BASIC DATA
 ____________________________________________________________________________________________________*/
@@ -181,6 +182,7 @@ struct Com_Node
 ____________________________________________________________________________________________________*/
 struct Com_GUISurface {
 	Vec2f			_position		{ 0.0f, 0.0f };
+	Vec2f			_n_position		{ 0.0f,0.0f };
 	Vec2f			_dimensions		{ 1.0f, 1.0f };
 	Vec2f			_ph_dimensions	{ 1.0f, 1.0f };
 	Com_GUISurface*	_parent_surface	{ nullptr };
@@ -191,6 +193,10 @@ struct Com_GUISurface {
 using OnClick = void(*)(Com_GUISurface* surface);
 struct Com_GUIOnClick {
 	OnClick _click_event{ nullptr };
+};
+
+struct Com_Text {
+	TextPack _data;
 };
 
 /*___________________________________________________________________________________________________________________________________
@@ -213,6 +219,7 @@ struct Com_GUIOnClick {
 		- Sys_Projectile
 	>> GUI
 		- Sys_GUISurfaceRender
+		- Sys_GUIFontRender
 ________________________________________________________________________*/
 /*																				system::BASIC SYSTEMS
 ____________________________________________________________________________________________________*/
@@ -246,6 +253,7 @@ struct Sys_PathFinding;
 /*																				system::GUI
 ____________________________________________________________________________________________________*/
 struct Sys_GUISurfaceRender;
+struct Sys_GUITextRender;
 
 /*___________________________________________________________________________________________________________________________________
 	SYSTEM DEFINITIONS																						<<	SYSTEM DEFINITIONS  >>
@@ -907,12 +915,15 @@ struct Sys_GUISurfaceRender : public System {
 		if (surface._parent_surface) {
 			// set self active to parent active
 			surface._active = surface._parent_surface->_active;
+			surface._n_position.x = surface._parent_surface->_n_position.x + surface._parent_surface->_dimensions.x * (surface._position.x - 0.5f);
+			surface._n_position.y = surface._parent_surface->_n_position.y + surface._parent_surface->_dimensions.y * (surface._position.y - 0.5f);
 			// offset with parent
 			position.x = surface._parent_position->x - surface._parent_surface->_ph_dimensions.x + surface._position.x*surface._parent_surface->_ph_dimensions.x*2.0f;
 			position.y = surface._parent_position->y + surface._parent_surface->_ph_dimensions.y - surface._position.y*surface._parent_surface->_ph_dimensions.y*2.0f;
 		}
 		else {
 			// update sprite position with button
+			surface._n_position = surface._position;
 			position.x = (surface._position.x - 0.5f) * _screen_width;
 			position.y = -((surface._position.y - 0.5f) * _screen_height);
 		}
@@ -941,5 +952,26 @@ struct Sys_GUISurfaceOnClick : public System {
 			_mouse_position.y < position.y - surface._ph_dimensions.y || _mouse_position.y > position.y + surface._ph_dimensions.y)) { 
 			on_click._click_event(&surface);
 		}
+	}
+};
+
+struct Sys_GUITextRender : public System {
+	char str_buffer[100];
+	void UpdateComponent() override {
+		Com_Position& position = get<Com_Position>();
+		Com_GUISurface& surface = get<Com_GUISurface>();
+		Com_Text& text = get<Com_Text>();
+		if (!surface._active) {
+			return;
+		}
+		Draw(position, text, surface);
+		text._data._position.x = surface._n_position.x * 2.0f - 1.0f;
+		text._data._position.y = -(surface._n_position.y * 2.0f - 1.0f);
+		ResourceManager::Instance().DrawStackText(text._data);
+	}
+	void Draw(const Com_Position& position, Com_Text& text, const Com_GUISurface& surface) {
+		//sprintf_s(str_buffer, text._text.c_str());
+		//AEGfxGetPrintSize(text._font, str_buffer, 1.0f, text._width, text._height);
+		//AEGfxPrint(text._font, const_cast<s8*>(text._text.c_str()), surface._position.x*2.0f-1.0f, -(surface._position.y*2.0f-1.0f), text._scale, 1.0f, text._g, text._b);
 	}
 };

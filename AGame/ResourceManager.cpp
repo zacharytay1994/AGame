@@ -29,6 +29,11 @@ void ResourceManager::DrawQueue(RenderPack pack)
 	_render_queue.push(pack);
 }
 
+void ResourceManager::DrawStackText(TextPack& pack)
+{
+	_text_pack.push(&pack);
+}
+
 void ResourceManager::FlushDraw()
 {
 	AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
@@ -42,9 +47,25 @@ void ResourceManager::FlushDraw()
 	}
 }
 
+void ResourceManager::FlushDrawText() {
+	float width{ 0 };
+	float height{ 0 };
+	while (!_text_pack.empty()) {
+		TextPack* pack = _text_pack.top();
+		AEGfxGetPrintSize(pack->_font, const_cast<s8*>(pack->_text.c_str()), 1.0f, width, height);
+		AEGfxPrint(pack->_font, const_cast<s8*>(pack->_text.c_str()), pack->_position.x - width/2.0f, pack->_position.y - height/2.0f, pack->_scale, pack->_r, pack->_g, pack->_b);
+		_text_pack.pop();
+	}
+}
+
 void ResourceManager::ResetRenderQueue()
 {
 	_render_queue = std::priority_queue <RenderPack, std::vector<RenderPack>, RM_Compare>();
+}
+
+void ResourceManager::ResetTextStack()
+{
+	_text_pack = std::stack<TextPack*>();
 }
 
 void ResourceManager::LoadTexture(const std::string& name, const std::string& path)
@@ -54,6 +75,18 @@ void ResourceManager::LoadTexture(const std::string& name, const std::string& pa
 	assert(_textures[name]);
 }
 
+void ResourceManager::LoadFont(const std::string& name, const std::string& path, int size)
+{
+	_fonts[name] = AEGfxCreateFont((asset_path + font_path + path).c_str(), size);
+	assert(_fonts[name]);
+}
+
+char ResourceManager::GetFont(const std::string& name)
+{
+	assert(_fonts[name]);
+	return _fonts[name];
+}
+
 void ResourceManager::FreeResources()
 {
 	for (auto m : _meshes) {
@@ -61,6 +94,9 @@ void ResourceManager::FreeResources()
 	}
 	for (auto t : _textures) {
 		AEGfxTextureUnload(t.second);
+	}
+	for (auto f : _fonts) {
+		AEGfxDestroyFont(f.second);
 	}
 }
 
@@ -250,6 +286,9 @@ void ResourceManager::Initialize()
 	LoadTexture("button1", "button1.png");
 	LoadTexture("button2", "button2.png");
 	LoadTexture("button3", "button3.png");
+	LoadTexture("transparent", "transparent.png");
+	// load all fonts
+	LoadFont("strawberry", "Strawberry_Muffins_Demo.ttf", 20);
 }
 
 bool RenderComparator(RenderPack* p1, RenderPack* p2)
