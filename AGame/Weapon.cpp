@@ -147,7 +147,7 @@ void Weapon::SetWeapon_Pattern(std::vector<BulletSpawn> const& rhs)
 	}
 }
 
-NoWeapon::NoWeapon() : Weapon()
+NoWeapon::NoWeapon() : Weapon(0)
 {
 	SetWeapon_Name("NoWeapon");
 	Weapon_Unlock();

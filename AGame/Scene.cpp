@@ -103,6 +103,7 @@ void SceneManager::Initialize() {
 	AddScene<MainMenu>("Main Menu");
 	AddScene<TestScenewilfred>("TestScenewilfred");
 	AddScene<Menu>("Menu");
+	AddScene<ShootingRange>("ShootingRange");
 }
 
 void SceneManager::Free()
