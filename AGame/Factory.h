@@ -67,7 +67,7 @@ public:
 
 	//created by wilf for testing 
 	eid FF_Createproj(const SpriteData& data, const int& x, const int& y,const Com_Direction& direction); //create projectile 
-	eid FF_CreateEnemy(const SpriteData& data);
+	eid FF_CreateEnemy(const SpriteData& data, const eid& tilemap, const int& x, const int& y); //create enemy
 	eid FF_CreateParticle(const SpriteData& data, const int& x , const int& y,const float& velx , const float& vely); // create particle
 	eid FF_CreateBomb(const SpriteData& data, const int& x, const int& y);//create bomb
 };
