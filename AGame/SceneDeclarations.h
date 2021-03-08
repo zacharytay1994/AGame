@@ -65,7 +65,7 @@ struct TestScene : public Scene {
 
 		//SystemDatabase::Instance().GetSystem<Sys_Projectile>().tilemap = tilemap;
 
-		/*player = Factory::Instance().FF_SpriteTile(data, tilemap, 5, 2);
+		player = Factory::Instance().FF_SpriteTile(data, tilemap, 5, 2);
 		Factory::Instance()[player].AddComponent<Com_YLayering>();
 		player = Factory::Instance().FF_SpriteTile(data2, tilemap, 8, 3);
 		Factory::Instance()[player].AddComponent<Com_YLayering>();
@@ -74,7 +74,7 @@ struct TestScene : public Scene {
 		player = Factory::Instance().FF_SpriteTile(data1, tilemap, 0, 0);
 		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap>();
 		player = Factory::Instance().FF_SpriteTile(data3, tilemap, 5, 3);
-		Factory::Instance()[player].AddComponent<Com_YLayering>();*/
+		Factory::Instance()[player].AddComponent<Com_YLayering>();
 
 		//player = Factory::Instance().CreateEntity<Com_Position>();
 		/*int* i = new int{ 0 };
@@ -346,7 +346,7 @@ struct TestScenePF : public Scene
 		SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->_tilemap = tilemap;
 		//SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()._tilemap = tilemap;
 		
-		player = Factory::Instance().FF_SpriteTile(data1, tilemap, 5, 2);
+		player = Factory::Instance().FF_SpriteTile(data1, tilemap, 9, 4);
 		Factory::Instance()[player].AddComponent<Com_YLayering,Com_Node, Com_EnemySpawn, Com_Wave>();
 		++Factory::Instance()[player].Get<Com_EnemySpawn>().CurrNoOfEnemies;
 

@@ -163,14 +163,14 @@ struct Com_TypeEnemy {
 ____________________________________________________________________________________________________*/
 struct Com_PathFinding
 {
-	bool bObstacle = false;			// Is the node an obstruction?
-	bool bVisited = false;			// Have we searched this node before?
+	bool bObstacle = false;					// Is the node an obstruction?
+	bool bVisited = false;					// Have we searched this node before?
 	float fGlobalGoal = 0.0f;				// Distance to goal so far
 	float fLocalGoal = 0.0f;				// Distance to goal if we took the alternative route
-	int x = 0;							// Nodes position in 2D space
+	int x = 0;								// Nodes position in 2D space
 	int y = 0;
 	vector<Com_PathFinding*> vecNeighbours;	// Connections to neighbours
-	Com_PathFinding* parent = nullptr;					// Node connecting to this node that offers shortest parent
+	Com_PathFinding* parent = nullptr;		// Node connecting to this node that offers shortest parent
 	
 	~Com_PathFinding()
 	{
@@ -706,7 +706,8 @@ struct Sys_EnemySpawning : public System {
 		//create enemy entity 
 		/*Factory::Instance().CreateEntity<Com_Sprite, Com_Position, Com_BoundingBox, Com_Direction, 
 			Com_TilePosition, Com_Tilemap,Com_TypeEnemy,Com_EnemySpawn,Com_Wave>();*/
-		int i = 0;
+		
+		/*int i = 0;
 		while (i < enem.numberofenemies) 
 		{
 			Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
@@ -714,7 +715,7 @@ struct Sys_EnemySpawning : public System {
 			Factory::Instance()[enemy].AddComponent<Com_YLayering, Com_Node, Com_PathFinding>();
 			++enem.CurrNoOfEnemies;
 			++i;
-		}
+		}*/
 	}
 
 };
@@ -773,12 +774,9 @@ struct Sys_PathFinding : public System
 		Com_TilemapRef& tilemapref = get<Com_TilemapRef>();
 		Com_Tilemap* tile = tilemapref._tilemap;
 		Com_TilePosition& EnemyPos = get<Com_TilePosition>();
-		//PlayerPos._grid_x += 1;
-
+		
 		MapCreate(ode, tile, EnemyPos, playerPos);
 		Solve_AStar(ode, EnemyPos);
-		//MoveEnemy(PlayerPos, ode, tile);
-		
 	
 	}
 	
@@ -808,20 +806,18 @@ void MapCreate(Com_Node& ode, const Com_Tilemap* tile, Com_TilePosition& enemyPo
 	for (int y = 0; y < ode.MapHeight; y++)
 		for (int x = 0; x < ode.MapWidth; x++)
 		{
-			if (x > 0)
-				ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x - 1) * ode.MapHeight + (y + 0)]);
-			if (x < ode.MapWidth - 1)
-				ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x + 1) * ode.MapHeight + (y + 0)]);
 			if (y > 0)
 				ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x + 0) * ode.MapHeight + (y - 1)]);
 			if (y < ode.MapHeight - 1)
 				ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x + 0) * ode.MapHeight + (y + 1)]);
+			if (x > 0)
+				ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x - 1) * ode.MapHeight + (y + 0)]);
+			if (x < ode.MapWidth - 1)
+				ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x + 1) * ode.MapHeight + (y + 0)]);
 
 		}
 
 	// Manually positio the start and end markers so they are not nullptr
-	//ode.nodeStart = &ode.nodes[(ode.MapHeight / 2) * ode.MapWidth + 1];
-	//ode.nodeEnd = &ode.nodes[(ode.MapHeight / 2) * ode.MapWidth + ode.MapWidth - 2];
 	ode.nodeStart = &ode.nodes[(enemyPos._grid_x * ode.MapHeight) + enemyPos._grid_y];
 	ode.nodeEnd = &ode.nodes[(Factory::Instance()[player].Get<Com_TilePosition>()._grid_x * ode.MapHeight) + (Factory::Instance()[player].Get<Com_TilePosition>()._grid_y)];
 	/*ode.nodeStart->x = enemyPos._grid_x;
@@ -833,6 +829,7 @@ void MapCreate(Com_Node& ode, const Com_Tilemap* tile, Com_TilePosition& enemyPo
 
 void Solve_AStar(Com_Node& ode, Com_TilePosition& enemyPos)
 {
+	static float alarm = 0;
 	
 	// Reset Navigation Graph - default all node states
 	for (int y = 0; y < ode.MapHeight; y++)
@@ -866,7 +863,7 @@ void Solve_AStar(Com_Node& ode, Com_TilePosition& enemyPos)
 	listNotTestedNodes.push_back(ode.nodeStart);
 
 	// if the not tested list contains nodes, there may be better paths
-	// which have not yet been explored. However, we will also stop 
+	// which have not yet been explored. However, we will also stop  oo
 	// searching when we reach the target - there may well be better
 	// paths but this one will do - it wont be the longest.
 	while (!listNotTestedNodes.empty() && nodeCurrent != ode.nodeEnd)// Find absolutely shortest path // && nodeCurrent != nodeEnd)
@@ -914,35 +911,36 @@ void Solve_AStar(Com_Node& ode, Com_TilePosition& enemyPos)
 				// and search along the next best path.
 				nodeNeighbour->fGlobalGoal = nodeNeighbour->fLocalGoal + heuristic(nodeNeighbour, ode.nodeEnd);
 			}
-			static float alarm = 0;
 			alarm += _dt;
-			if(alarm > 15.0f)
+			if(nodeNeighbour->parent != nullptr && alarm > 20.0f)
 			{
-				//std::cout << nodeNeighbour->x << std::endl;
-				//std::cout << nodeNeighbour->y << std::endl;
-				enemyPos._grid_x = nodeNeighbour->x; // with this code is just teleporting
+				enemyPos._grid_x = nodeNeighbour->parent->x; // with this code is just teleporting but at least following 
+				enemyPos._grid_y = nodeNeighbour->parent->y; // only some block it go diagonal, maybe due to the empty hole in the tilemap
+				
+				enemyPos._grid_x = nodeNeighbour->x; // to make sure it can reach the player
+				enemyPos._grid_y = nodeNeighbour->y; 
+
+				alarm = 0;
+				std::cout << "Checked" << std::endl;
+				std::cout << "nodeNeighbour->parent->x & y " << nodeNeighbour->parent->x << " + ";
+				std::cout << nodeNeighbour->parent->y << std::endl;
+				std::cout << "enemypos x & y " << enemyPos._grid_x << " + ";
+				std::cout << enemyPos._grid_y << std::endl;
+				std::cout << std::endl;
+
+			}
+			else if (nodeNeighbour->parent == nullptr && alarm > 20.0f)
+			{
+				enemyPos._grid_x = nodeNeighbour->x; // to make sure it can reach the player
 				enemyPos._grid_y = nodeNeighbour->y;
 				alarm = 0;
+				std::cout << "Not Checked" << std::endl;
+				std::cout << "enemypos x & y " << enemyPos._grid_x << " + ";
+				std::cout << enemyPos._grid_y << std::endl;
+				std::cout << std::endl;
 			}
 		}
 	}
-
-	//return true;
 }
-
-//void MoveEnemy(Com_TilePosition& enemyPos, Com_Node& ode, Com_Tilemap* tile)
-//{
-//	if (Solve_AStar(ode) == true) 
-//	{
-//		static float alarm = 0;
-//		alarm += _dt;
-//		if(alarm > 1.0f)
-//		{
-//			enemyPos._grid_x += 1; // need to based on the player pos but not yet
-//			enemyPos._grid_y += 1;
-//			alarm = 0;
-//		}
-//	}
-//}
 
 };
