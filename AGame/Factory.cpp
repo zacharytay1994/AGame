@@ -116,7 +116,7 @@ eid Factory::FF_CreateGUIChildClickableSurface(eid parent, const SpriteData& dat
 
 eid Factory::FF_Createproj(const SpriteData& data, const int& x, const int& y, const Com_Direction& direction)
 {
-    eid id = FF_Sprite(data, x, y);
+    eid id = FF_Sprite(data, static_cast<float>(x), static_cast<float>(y));
     //for the projectile not the entity calling it 
     Factory::Instance()[id].AddComponent<Com_WeaponAttack,Com_Velocity>();
     Entity& e = Factory::Instance()[id];

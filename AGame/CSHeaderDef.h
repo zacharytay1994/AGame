@@ -571,7 +571,7 @@ ________________________________________________________________________________
 
 struct Com_Projectile {
 	char _filler = 0; //filler
-	float time = AEGetTime(nullptr);
+	float time = static_cast<float>(AEGetTime(nullptr));
 	int grid_vel_x = 0;
 	int grid_vel_y = 0;
 };
@@ -659,8 +659,7 @@ struct Sys_Projectile2 : public System {
 		Com_Projectile& proj = get<Com_Projectile>();
 		if (AEGetTime(nullptr) - proj.time > AEFrameRateControllerGetFrameTime() * 10)
 		{
-			proj.time = AEGetTime(nullptr);
-			Com_Direction& direction = get<Com_Direction>();
+			proj.time = static_cast<float>(AEGetTime(nullptr));
 			Com_TilePosition& tileposition = get<Com_TilePosition>();
 			if (proj.grid_vel_x > 0)
 			{
@@ -678,23 +677,6 @@ struct Sys_Projectile2 : public System {
 			{
 				tileposition._grid_y++;
 			}
-
-			/*if (direction.currdir == direction.left)
-			{
-				tileposition._grid_x--;
-			}
-			else if (direction.currdir == direction.right)
-			{
-				tileposition._grid_x++;
-			}
-			else if (direction.currdir == direction.up)
-			{
-				tileposition._grid_y--;
-			}
-			else if (direction.currdir == direction.down)
-			{
-				tileposition._grid_y++;
-			}*/
 
 			Com_TilemapRef& tilemapref = get<Com_TilemapRef>();
 			Com_Tilemap* tilemap = tilemapref._tilemap;

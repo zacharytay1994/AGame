@@ -93,7 +93,7 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_YLayering, Com_Sprite, Com_Position, Com_YLayering>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceRender, Com_Position, Com_GUISurface>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceOnClick, Com_GUIOnClick, Com_GUISurface, Com_Position>();
-	SystemDatabase::Instance().RegisterSystem<Sys_Projectile2, Com_TilePosition, Com_Direction, Com_Projectile>();
+	SystemDatabase::Instance().RegisterSystem<Sys_Projectile2, Com_TilePosition, Com_Projectile>();
 
 	// 4. Registering scenes
 	AddScene<TestScene>("Test Scene");
