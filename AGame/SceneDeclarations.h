@@ -472,7 +472,7 @@ struct ShootingRange : public Scene {
 	eid tilemap = -1;
 	Factory::SpriteData data{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.25f };
 	Factory::SpriteData data1{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
-	Inventory playerInv;
+	Inventory playerInv; 
 	/*
 	Initialize Override (optional)
 	________________________________*/
@@ -493,11 +493,6 @@ struct ShootingRange : public Scene {
 		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap>();
 		//player = Factory::Instance().FF_SpriteTile(data1, tilemap, 0, 0);
 		//Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap>();
-
-		//player = Factory::Instance().CreateEntity<Com_Position>();
-		/*int* i = new int{ 0 };
-		std::shared_ptr<int> a{ i };
-		std::shared_ptr<int> b{ i };*/
 	}
 	/*
 	Update Override (optional)
@@ -554,7 +549,7 @@ struct ShootingRange : public Scene {
 		}
 
 		if (AEInputCheckTriggered(AEVK_D)) {
-			playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ static_cast<int>(Factory::Instance()[player].Get<Com_TilePosition>()._grid_x), static_cast<int>(Factory::Instance()[player].Get<Com_TilePosition>()._grid_y) }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
+			playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
 		}
 #endif
 		if (AEInputCheckTriggered('R')) {

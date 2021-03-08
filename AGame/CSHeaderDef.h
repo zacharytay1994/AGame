@@ -571,6 +571,7 @@ ________________________________________________________________________________
 
 struct Com_Projectile {
 	char _filler = 0; //filler
+	float time = AEGetTime(nullptr);
 };
 
 
@@ -653,23 +654,46 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 
 struct Sys_Projectile2 : public System {
 	void UpdateComponent() override {
-		Com_Direction& direction = get<Com_Direction>();
-		Com_TilePosition& tileposition = get<Com_TilePosition>();
-		if (direction.currdir == direction.left)
+		Com_Projectile& proj = get<Com_Projectile>();
+		if (AEGetTime(nullptr) - proj.time > AEFrameRateControllerGetFrameTime() * 10)
 		{
-			tileposition._grid_x--;
+			proj.time = AEGetTime(nullptr);
+			Com_Direction& direction = get<Com_Direction>();
+			Com_TilePosition& tileposition = get<Com_TilePosition>();
+			if (direction.currdir == direction.left)
+			{
+				tileposition._grid_x--;
+			}
+			else if (direction.currdir == direction.right)
+			{
+				tileposition._grid_x++;
+			}
+			else if (direction.currdir == direction.up)
+			{
+				tileposition._grid_y--;
+			}
+			else if (direction.currdir == direction.down)
+			{
+				tileposition._grid_y++;
+			}
+
+			Com_TilemapRef& tilemapref = get<Com_TilemapRef>();
+			Com_Tilemap* tilemap = tilemapref._tilemap;
+			if (tilemap) {
+				// check if new tile position is within grid - would be checked with collision_mask after
+				if (tileposition._grid_x >= 0 && tileposition._grid_x < tilemap->_width && tileposition._grid_y >= 0 && tileposition._grid_y < tilemap->_height &&
+					tilemap->_floor_mask[(size_t)tileposition._grid_x * (size_t)tilemap->_height + (size_t)tileposition._grid_y] >= 0) {
+					// Do nothing
+				}
+				else {
+					RemoveEntity();
+				}
+			}
 		}
-		else if (direction.currdir == direction.right)
+		else
 		{
-			tileposition._grid_x++;
-		}
-		else if (direction.currdir == direction.up)
-		{
-			tileposition._grid_y--;
-		}
-		else if (direction.currdir == direction.down)
-		{
-			tileposition._grid_y++;
+			//AEGetTime(nullptr) - proj.time > AEFrameRateControllerGetFrameRate() * 3
+			std::cout << std::endl << AEGetTime(nullptr) << " - " << proj.time << " is not more than " << AEFrameRateControllerGetFrameTime() << " * 3" << std::endl;
 		}
 	}
 };
