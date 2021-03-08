@@ -2,7 +2,10 @@
 
 Inventory::Inventory() : equipped_weapon{ nullptr }
 {
+	inventory_weapon.insert(std::make_pair("NoWeapon", new NoWeapon()));
 	inventory_weapon.insert(std::make_pair("Pistol", new Pistol()));
+
+	Inventory_EquipWeapon("NoWeapon");
 }
 
 Inventory::~Inventory()

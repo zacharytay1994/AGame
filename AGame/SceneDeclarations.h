@@ -49,7 +49,7 @@ struct TestScene : public Scene {
 	Factory::SpriteData data22{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.25f };
 	Factory::SpriteData data3{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
 	//Factory::SpriteData data{ 0,"test2", 1, 8, 8, 0.1f, 100.0f, 200.0f };
-	//Inventory playerInv;
+	Inventory playerInv;
 	/*
 	Initialize Override (optional)
 	________________________________*/
@@ -123,7 +123,7 @@ struct TestScene : public Scene {
 		//	SceneManager::Instance().RestartScene();
 		//}
 
-		/*#if defined(DEBUG) | defined(_DEBUG)
+		#if defined(DEBUG) | defined(_DEBUG)
 			if (AEInputCheckTriggered(AEVK_G)) {
 				playerInv.Inventory_PrintCurrentWeapon();
 			}
@@ -135,7 +135,11 @@ struct TestScene : public Scene {
 			if (AEInputCheckTriggered(AEVK_F)) {
 				std::cout << playerInv.Inventory_SetWeaponUnlocked("Pistol") << std::endl;
 			}
-#		endif*/
+
+			if (AEInputCheckTriggered(AEVK_D)) {
+				playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ static_cast<int>(Factory::Instance()[player].Get<Com_Position>().x), static_cast<int>(Factory::Instance()[player].Get<Com_Position>().y) }, Factory::Instance()[player].Get<Com_Direction>());
+			}
+		#endif
 		if (AEInputCheckTriggered('R')) {
 			SceneManager::Instance().RestartScene();
 		}

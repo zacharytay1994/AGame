@@ -46,9 +46,20 @@ Weapon::~Weapon()
 
 void Weapon::Weapon_Shoot()
 {
+	Factory::SpriteData data{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
 	for (unsigned int i = 0; i < weapon_Pattern.size(); i++)
 	{
 		// Spawn bullet at weapon_Pattern[i] relative to player
+	}
+}
+
+void Weapon::Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction) const
+{
+	Factory::SpriteData data{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
+	for (unsigned int i = 0; i < weapon_Pattern.size(); i++)
+	{
+		// Spawn bullet at weapon_Pattern[i] relative to player
+		Factory::Instance().FF_Createproj(data, spawn.x, spawn.y, direction);
 	}
 }
 
@@ -134,6 +145,12 @@ void Weapon::SetWeapon_Pattern(std::vector<BulletSpawn> const& rhs)
 	{
 		weapon_Pattern.push_back(rhs[i]);
 	}
+}
+
+NoWeapon::NoWeapon() : Weapon()
+{
+	SetWeapon_Name("NoWeapon");
+	Weapon_Unlock();
 }
 
 Pistol::Pistol() : Weapon(1)

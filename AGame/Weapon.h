@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include "Factory.h"
 
 struct BulletSpawn
 {
@@ -18,6 +19,7 @@ class Weapon
 		~Weapon();						// Default destructor
 
 		virtual void Weapon_Shoot();	// What happens when weapon is fired
+		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction) const;
 		virtual void Weapon_Reload();	// What happens when weapon is reloaded
 
 		const unsigned int	GetWeapon_ID() const;
@@ -53,6 +55,12 @@ class Weapon
 		bool weapon_unlocked;
 
 		std::vector<BulletSpawn> weapon_Pattern;
+};
+
+class NoWeapon : public Weapon
+{
+	public:
+		NoWeapon();				// Default constructor
 };
 
 class Pistol : public Weapon
