@@ -72,6 +72,7 @@ struct Com_Sprite {
 	float				_frame_interval_counter = 0.0f;
 	int					_row = 1;
 	int					_col = 1;
+	bool				_visible{ true };
 };
 
 struct Com_Direction {
@@ -184,6 +185,7 @@ struct Com_GUISurface {
 	Vec2f			_ph_dimensions	{ 1.0f, 1.0f };
 	Com_GUISurface*	_parent_surface	{ nullptr };
 	Com_Position*	_parent_position{ nullptr };
+	bool			_active			{ true };
 };
 
 using OnClick = void(*)(Com_GUISurface* surface);
@@ -263,9 +265,13 @@ struct Sys_Velocity : public System {
 struct Sys_DrawSprite : public System {
 	std::vector<Com_Sprite*> con;
 	void UpdateComponent() override {
+		Com_Sprite& sprite = get<Com_Sprite>();
+		if (!sprite._visible) {
+			return;
+		}
 		//	// form the matrix
 		AEMtx33 trans{ 0 }, scale{ 0 }, rot{ 0 };
-		Draw(get<Com_Sprite>(), get<Com_Position>());
+		Draw(sprite, get<Com_Position>());
 	}
 	void Draw(Com_Sprite& sprite, Com_Position& position) {
 		AEMtx33 trans, scale, rot;
@@ -897,7 +903,10 @@ struct Sys_GUISurfaceRender : public System {
 	void UpdateComponent() override {
 		Com_GUISurface& surface = get<Com_GUISurface>();
 		Com_Position& position = get<Com_Position>();
+		Com_Sprite& sprite = get<Com_Sprite>();
 		if (surface._parent_surface) {
+			// set self active to parent active
+			surface._active = surface._parent_surface->_active;
 			// offset with parent
 			position.x = surface._parent_position->x - surface._parent_surface->_ph_dimensions.x + surface._position.x*surface._parent_surface->_ph_dimensions.x*2.0f;
 			position.y = surface._parent_position->y + surface._parent_surface->_ph_dimensions.y - surface._position.y*surface._parent_surface->_ph_dimensions.y*2.0f;
@@ -907,6 +916,7 @@ struct Sys_GUISurfaceRender : public System {
 			position.x = (surface._position.x - 0.5f) * _screen_width;
 			position.y = -((surface._position.y - 0.5f) * _screen_height);
 		}
+		sprite._visible = surface._active;
 	}
 };
 
@@ -924,6 +934,7 @@ struct Sys_GUISurfaceOnClick : public System {
 	void UpdateComponent() override {
 		Com_GUIOnClick& on_click = get<Com_GUIOnClick>();
 		Com_GUISurface& surface = get<Com_GUISurface>();
+		if (!surface._active) { return; }
 		Com_Position& position = get<Com_Position>();
 		// do bounding box check
 		if (_left_mouse && !(_mouse_position.x < position.x - surface._ph_dimensions.x || _mouse_position.x > position.x + surface._ph_dimensions.x ||

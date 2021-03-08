@@ -312,6 +312,7 @@ void TestFunction3(Com_GUISurface* surface) {
 
 struct MainMenu : public Scene {
 	eid i{ -1 };
+	eid parent{ -1 };
 	Factory::SpriteData data1{ "menubackground" };
 	Factory::SpriteData data2{ "buttonsurface" };
 	Factory::SpriteData data3{ "button1" };
@@ -320,6 +321,7 @@ struct MainMenu : public Scene {
 	void Initialize() override {
 		std::cout << "SYSTEM MESSAGE: Now entering main menu." << std::endl;
 		i = Factory::Instance().FF_CreateGUISurface(data1, 0.5f, 0.5f, 1.0f, 1.0f);									// surface
+		parent = i;
 		i = Factory::Instance().FF_CreateGUIChildSurface(i, data2, 0.5f, 0.6f, 0.3f, 0.4f);							// non clickable child surface
 		Factory::Instance().FF_CreateGUIChildClickableSurface(i, data3, 0.5f, 0.25f, 0.75f, 0.2f, TestFunction);	// clickable child surface
 		Factory::Instance().FF_CreateGUIChildClickableSurface(i, data4, 0.5f, 0.5f, 0.75f, 0.2f, TestFunction2);	// clickable child surface
@@ -328,6 +330,12 @@ struct MainMenu : public Scene {
 	void Update(const float& dt) override {
 		if (AEInputCheckTriggered('C')) {
 			SceneManager::Instance().ChangeScene("Test Scene");
+		}
+		if (AEInputCheckTriggered('P')) {
+			Factory::Instance()[parent].Get<Com_GUISurface>()._active = false;
+		}
+		if (AEInputCheckTriggered('O')) {
+			Factory::Instance()[parent].Get<Com_GUISurface>()._active = true;
 		}
 	}
 };
