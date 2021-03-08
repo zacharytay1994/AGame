@@ -572,6 +572,8 @@ ________________________________________________________________________________
 struct Com_Projectile {
 	char _filler = 0; //filler
 	float time = AEGetTime(nullptr);
+	int grid_vel_x = 0;
+	int grid_vel_y = 0;
 };
 
 
@@ -660,7 +662,24 @@ struct Sys_Projectile2 : public System {
 			proj.time = AEGetTime(nullptr);
 			Com_Direction& direction = get<Com_Direction>();
 			Com_TilePosition& tileposition = get<Com_TilePosition>();
-			if (direction.currdir == direction.left)
+			if (proj.grid_vel_x > 0)
+			{
+				tileposition._grid_x++;
+			}
+			else if (proj.grid_vel_x < 0)
+			{
+				tileposition._grid_x--;
+			}
+			if (proj.grid_vel_y > 0)
+			{
+				tileposition._grid_y--;
+			}
+			else if (proj.grid_vel_y < 0)
+			{
+				tileposition._grid_y++;
+			}
+
+			/*if (direction.currdir == direction.left)
 			{
 				tileposition._grid_x--;
 			}
@@ -675,7 +694,7 @@ struct Sys_Projectile2 : public System {
 			else if (direction.currdir == direction.down)
 			{
 				tileposition._grid_y++;
-			}
+			}*/
 
 			Com_TilemapRef& tilemapref = get<Com_TilemapRef>();
 			Com_Tilemap* tilemap = tilemapref._tilemap;
@@ -689,11 +708,6 @@ struct Sys_Projectile2 : public System {
 					RemoveEntity();
 				}
 			}
-		}
-		else
-		{
-			//AEGetTime(nullptr) - proj.time > AEFrameRateControllerGetFrameRate() * 3
-			std::cout << std::endl << AEGetTime(nullptr) << " - " << proj.time << " is not more than " << AEFrameRateControllerGetFrameTime() << " * 3" << std::endl;
 		}
 	}
 };

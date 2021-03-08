@@ -43,6 +43,8 @@ class Weapon
 		void SetWeapon_Capacity(unsigned int new_Capacity);
 		void SetWeapon_Pattern(std::vector<BulletSpawn> const& rhs);
 
+		std::vector<BulletSpawn> weapon_Pattern;
+
 	private:
 		const unsigned int weapon_ID;
 		std::string weapon_Name;
@@ -53,8 +55,6 @@ class Weapon
 		int weapon_curr_ReloadTimer;
 		int weapon_curr_Capacity;
 		bool weapon_unlocked;
-
-		std::vector<BulletSpawn> weapon_Pattern;
 };
 
 class NoWeapon : public Weapon
@@ -67,4 +67,24 @@ class Pistol : public Weapon
 {
 	public:
 		Pistol();				// Default constructor
+};
+
+class TrickPistol : public Weapon
+{
+	public:
+		TrickPistol();
+		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap) const;
+};
+
+class DualPistol : public Weapon
+{
+	public:
+		DualPistol();
+};
+
+class DualDiagPistol : public Weapon
+{
+	public:
+		DualDiagPistol();
+		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap) const;
 };

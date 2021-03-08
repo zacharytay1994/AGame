@@ -4,6 +4,9 @@ Inventory::Inventory() : equipped_weapon{ nullptr }
 {
 	inventory_weapon.insert(std::make_pair("NoWeapon", new NoWeapon()));
 	inventory_weapon.insert(std::make_pair("Pistol", new Pistol()));
+	inventory_weapon.insert(std::make_pair("TrickPistol", new TrickPistol()));
+	inventory_weapon.insert(std::make_pair("DualPistol", new DualPistol()));
+	inventory_weapon.insert(std::make_pair("DualDiagPistol", new DualDiagPistol()));
 
 	Inventory_EquipWeapon("NoWeapon");
 }
