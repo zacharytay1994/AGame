@@ -150,6 +150,16 @@ struct Com_WeaponAttack
 /*																				Component::ENEMY
 ____________________________________________________________________________________________________*/
 
+struct Com_TypeEnemy {
+	enum EnemyType
+	{
+		Alien1, //melee
+		Alien2  //range
+	};
+	size_t Alientype{ 0 };
+};
+
+
 /*																Component::PATH FINDING
 ____________________________________________________________________________________________________*/
 struct Com_PathFinding
@@ -162,15 +172,32 @@ struct Com_PathFinding
 	int y = 0;
 	vector<Com_PathFinding*> vecNeighbours;	// Connections to neighbours
 	Com_PathFinding* parent = nullptr;					// Node connecting to this node that offers shortest parent
+	
+	~Com_PathFinding()
+	{
+		delete parent;
+		while (!vecNeighbours.empty()) 
+		{
+			delete vecNeighbours.back();
+			vecNeighbours.pop_back();
+		}
+	}
 };
 
 struct Com_Node
 {
 	Com_PathFinding* nodeStart = nullptr;
 	Com_PathFinding* nodeEnd = nullptr;
+	//vector<Com_PathFinding> nodes;
+	int MapWidth = 0; 
+	int MapHeight = 0;
 	Com_PathFinding* nodes = nullptr;
-	/*int nMapWidth = 0; 
-	int nMapHeight = 0;*/
+	~Com_Node()
+	{
+		delete nodes;
+		delete nodeStart;
+		delete nodeEnd;
+	}
 
 };
 
@@ -659,51 +686,62 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 //for spawning of enemies 
 -------------------------------------------*/
 struct Com_EnemySpawn{
-	size_t numberofenemies{ 5 }; //number of enemies to spawn 
+	size_t numberofenemies{ 2 }; //number of enemies to spawn
+	size_t CurrNoOfEnemies{ 0 }; //keep track of enemies on map
 };
 
 struct Com_Wave{
-	size_t timerforwave{ 60 }; //if timer hits 0 in secsm spawn new wave 
+	size_t timerforwave{ 10 }; //if timer hits 0 in secsm spawn new wave 
 	size_t numberofwaves{ 3 }; //if number of wave hit 0, level unlocked 
 };
 
 //logic for spawning of enemies 
 struct Sys_EnemySpawning : public System {
-	Factory::SpriteData data = { "test3", 1,8, 8, 0.1f, 50.0f, 50.0f };
+	// Initialization
+	eid _tilemap = {-1};
+
+
 	void UpdateComponent() override {
 		Com_EnemySpawn& Enemyspawn = get<Com_EnemySpawn>();
 		Com_Wave& wave = get<Com_Wave>();
-		Com_GameTimer& timer = get<Com_GameTimer>();
-		//std::cout << timer.timerinseconds << std::endl;
+		//Com_GameTimer& timer = get<Com_GameTimer>();
+		static float alarm = 0;
+		alarm += _dt;
 		//if the timer hits for set time 
 		//if timer hit 0 spawn wave/ number of enemies hit 0 
-		if (timer.timerinseconds == wave.timerforwave || Enemyspawn.numberofenemies == 0) {
+		if (alarm > wave.timerforwave || Enemyspawn.numberofenemies == 0) 
+		{
 			//spawning of enemies 
-			spawn_enemies();
-			--wave.numberofwaves; //decrease the number of waves left 
-			timer.timerinseconds = 0;
+			if (Enemyspawn.CurrNoOfEnemies < 6) 
+			{
+				spawn_enemies(Enemyspawn);
+				--wave.numberofwaves; //decrease the number of waves left 
+				alarm = 0;
+			}
+			
 		}
 	}
-	void spawn_enemies() {
+	void spawn_enemies(Com_EnemySpawn& enem) {
 		//spawn enemy at a certain location
 		//create enemy entity 
-		Factory::Instance().FF_CreateEnemy(data);
+		/*Factory::Instance().CreateEntity<Com_Sprite, Com_Position, Com_BoundingBox, Com_Direction, 
+			Com_TilePosition, Com_Tilemap,Com_TypeEnemy,Com_EnemySpawn,Com_Wave>();*/
+		int i = 0;
+		while (i < enem.numberofenemies) 
+		{
+			Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
+			eid enemy = Factory::Instance().FF_CreateEnemy(data1, _tilemap, 5,2);
+			Factory::Instance()[enemy].AddComponent<Com_YLayering, Com_Node, Com_PathFinding>();
+			++enem.CurrNoOfEnemies;
+			++i;
+		}
 	}
+
 };
 
 /*-------------------------------------
 			//for attack of enemies 
 -------------------------------------------*/
-
-struct Com_TypeEnemy {
-	enum EnemyType
-	{
-		Alien1, //melee
-		Alien2  //range
-	};
-	size_t Alientype{ 0 };
-};
-
 
 //logic for attack of enemies 
 struct Sys_EnemyAttack : public Sys_Projectile {
@@ -750,68 +788,81 @@ ________________________________________________________________________________
 
 struct Sys_PathFinding : public System
 {
+		eid playerPos{ -1 };
 	void UpdateComponent() override {
-		Com_Node* ode = &get<Com_Node>();
-		Com_Tilemap& tile = get<Com_Tilemap>();
-		Com_Position& PlayerPos = get<Com_Position>();
+		Com_Node& ode = get<Com_Node>();
+		Com_TilemapRef& tilemapref = get<Com_TilemapRef>();
+		Com_Tilemap* tile = tilemapref._tilemap;
+		Com_TilePosition& EnemyPos = get<Com_TilePosition>();
+		//PlayerPos._grid_x += 1;
+
+		MapCreate(ode, tile, EnemyPos, playerPos);
+		Solve_AStar(ode, EnemyPos);
+		//MoveEnemy(PlayerPos, ode, tile);
+		
+	
 	}
 	
 
-void MapCreate(Com_Node& ode, const Com_Tilemap& tile)
+void MapCreate(Com_Node& ode, const Com_Tilemap* tile, Com_TilePosition& enemyPos, eid& player)
 {
 	// Create a 2D array of nodes - this is for convenience of rendering and construction
 	// and is not required for the algorithm to work - the nodes could be placed anywhere
 	// in any space, in multiple dimension
-	int height = tile._height;
-	int width = tile._width;
-	int MapArea = width * height;
-	//vector<Com_PathFinding> nodes(MapArea); // create vector with size MapArea
+	ode.MapHeight = tile->_height;
+	ode.MapWidth = tile->_width;
+	int MapArea = ode.MapHeight * ode.MapWidth;
 	ode.nodes = new Com_PathFinding[MapArea];
-	for (int y = 0; y < height; y++)
-		for (int x = 0; x < width; x++)
+	for (int y = 0; y < ode.MapHeight; y++)
+	{
+		for (int x = 0; x < ode.MapWidth; x++)
 		{
-			ode.nodes[x * height + y].x = x; // to give each node its own coordinates
-			ode.nodes[x * height + y].y = y;
+			ode.nodes[x * ode.MapHeight + y].x = x; // to give each node its own coordinates
+			ode.nodes[x * ode.MapHeight + y].y = y;
 			// set everything to default value 1st
-			ode.nodes[x * height + y].bObstacle = false;
-			ode.nodes[x * height + y].parent = nullptr;
-			ode.nodes[x * height + y].bVisited = false;
+			ode.nodes[x * ode.MapHeight + y].bObstacle = false;
+			ode.nodes[x * ode.MapHeight + y].parent = nullptr;
+			ode.nodes[x * ode.MapHeight + y].bVisited = false;
 		}
-
+	}
 	// Create connections - in this case nodes are on a regular grid
-	for (int y = 0; y < height; y++)
-		for (int x = 0; x < width; x++)
+	for (int y = 0; y < ode.MapHeight; y++)
+		for (int x = 0; x < ode.MapWidth; x++)
 		{
 			if (x > 0)
-				ode.nodes[x * height + y].vecNeighbours.push_back(&ode.nodes[(x - 1) * height + (y + 0)]);
-			if (x < width - 1)
-				ode.nodes[x * height + y].vecNeighbours.push_back(&ode.nodes[(x + 1) * height + (y + 0)]);
+				ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x - 1) * ode.MapHeight + (y + 0)]);
+			if (x < ode.MapWidth - 1)
+				ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x + 1) * ode.MapHeight + (y + 0)]);
 			if (y > 0)
-				ode.nodes[x * height + y].vecNeighbours.push_back(&ode.nodes[(x + 0) * height + (y - 1)]);
-			if (y < height - 1)
-				ode.nodes[x * height + y].vecNeighbours.push_back(&ode.nodes[(x + 0) * height + (y + 1)]);
+				ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x + 0) * ode.MapHeight + (y - 1)]);
+			if (y < ode.MapHeight - 1)
+				ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x + 0) * ode.MapHeight + (y + 1)]);
 
 		}
 
 	// Manually positio the start and end markers so they are not nullptr
-	ode.nodeStart = &ode.nodes[(height / 2) * width + 1];
-	ode.nodeEnd = &ode.nodes[(height / 2) * width + width - 2];
+	//ode.nodeStart = &ode.nodes[(ode.MapHeight / 2) * ode.MapWidth + 1];
+	//ode.nodeEnd = &ode.nodes[(ode.MapHeight / 2) * ode.MapWidth + ode.MapWidth - 2];
+	ode.nodeStart = &ode.nodes[(enemyPos._grid_x * ode.MapHeight) + enemyPos._grid_y];
+	ode.nodeEnd = &ode.nodes[(Factory::Instance()[player].Get<Com_TilePosition>()._grid_x * ode.MapHeight) + (Factory::Instance()[player].Get<Com_TilePosition>()._grid_y)];
+	/*ode.nodeStart->x = enemyPos._grid_x;
+	ode.nodeStart->y = enemyPos._grid_y;
+	ode.nodeEnd->x = 0;
+	ode.nodeEnd->y = 0;*/
+
 }
 
-bool Solve_AStar(Com_Node& ode, Com_Tilemap& tile)
+void Solve_AStar(Com_Node& ode, Com_TilePosition& enemyPos)
 {
-	int height = tile._height;
-	int width = tile._width;
-	int MapArea = width * height;
-	//vector<Com_PathFinding> nodes(MapArea); // create vector with size MapArea
+	
 	// Reset Navigation Graph - default all node states
-	for (int y = 0; y < height; y++)
-		for (int x = 0; x < width; x++)
+	for (int y = 0; y < ode.MapHeight; y++)
+		for (int x = 0; x < ode.MapWidth; x++)
 		{
-			ode.nodes[x * height + y].bVisited = false;
-			ode.nodes[x * height + y].fGlobalGoal = INFINITY;
-			ode.nodes[x * height + y].fLocalGoal = INFINITY;
-			ode.nodes[x * height + y].parent = nullptr;	// No parents
+			ode.nodes[x * ode.MapHeight + y].bVisited = false;
+			ode.nodes[x * ode.MapHeight + y].fGlobalGoal = INFINITY;
+			ode.nodes[x * ode.MapHeight + y].fLocalGoal = INFINITY;
+			ode.nodes[x * ode.MapHeight + y].parent = nullptr;	// No parents
 		}
 
 	auto distance = [](Com_PathFinding* a, Com_PathFinding* b) // For convenience
@@ -848,6 +899,7 @@ bool Solve_AStar(Com_Node& ode, Com_Tilemap& tile)
 		// list may also contain nodes that have been visited, so ditch these...
 		while (!listNotTestedNodes.empty() && listNotTestedNodes.front()->bVisited)
 			listNotTestedNodes.pop_front();
+			
 
 		// ...or abort because there are no valid nodes left to test
 		if (listNotTestedNodes.empty())
@@ -883,12 +935,36 @@ bool Solve_AStar(Com_Node& ode, Com_Tilemap& tile)
 				// and search along the next best path.
 				nodeNeighbour->fGlobalGoal = nodeNeighbour->fLocalGoal + heuristic(nodeNeighbour, ode.nodeEnd);
 			}
+			static float alarm = 0;
+			alarm += _dt;
+			if(alarm > 15.0f)
+			{
+				//std::cout << nodeNeighbour->x << std::endl;
+				//std::cout << nodeNeighbour->y << std::endl;
+				enemyPos._grid_x = nodeNeighbour->x; // with this code is just teleporting
+				enemyPos._grid_y = nodeNeighbour->y;
+				alarm = 0;
+			}
 		}
 	}
 
-	return true;
+	//return true;
 }
 
+//void MoveEnemy(Com_TilePosition& enemyPos, Com_Node& ode, Com_Tilemap* tile)
+//{
+//	if (Solve_AStar(ode) == true) 
+//	{
+//		static float alarm = 0;
+//		alarm += _dt;
+//		if(alarm > 1.0f)
+//		{
+//			enemyPos._grid_x += 1; // need to based on the player pos but not yet
+//			enemyPos._grid_y += 1;
+//			alarm = 0;
+//		}
+//	}
+//}
 
 };
 

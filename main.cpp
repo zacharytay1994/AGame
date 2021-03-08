@@ -75,59 +75,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	AESysReset();
 
 	SceneManager::Instance();
-	SceneManager::Instance().ChangeScene("TestScenewilfred");
-
-
-	// Initialization end
-	/////////////////////
-	/*ComponentDescription_DB _cdb;
-	_cdb.RegisterComponent<Position>();
-	_cdb.RegisterComponent<Velocity>();
-
-	SystemDatabase::Instance().AddSystem<Position,Velocity>(UpdatePosition);
-	SystemDatabase::Instance().AddSystem<Position>(PrintPosition);
-
-	Entity<Position, Velocity> e1;
-	Entity<Position, Velocity> e2;*/
-
-	////////////////////////////////
-	// Creating the objects (Shapes)
-
-	// Creating the objects (Shapes) end
-	////////////////////////////////////
-
-
-
-	////////////////////////////
-	// Loading textures (images)
-
-	// Loading textures (images) end
-	//////////////////////////////////
-
-	//////////////////////////////////
-	// Creating Fonts	
-
-	// Creating Fonts end
-	//////////////////////////////////
-	//AEGfxTexture* tex1 = AEGfxTextureLoad("../bin/Assets/test2.png");
-	//AEGfxMeshStart();
-	//// create triangle one
-	//AEGfxTriAdd(-100.0f, -100.0f, 0x00FF00FF, 1.0f, 0.0f,
-	//	100.0f, -100.0f, 0x00FF00FF, 1.0f, 1.0f,
-	//	-100.0f, 100.0f, 0x00FF00FF, 0.0f, 0.0f);
-	//AEGfxTriAdd(100.0f, -100.0f, 0x00FF00FF, 1.0f, 1.0f,
-	//	100.0f, 100.0f, 0x00FF00FF, 1.0f, 0.0f,
-	//	-100.0f, 100.0f, 0x00FF00FF, 0.0f, 0.0f);
-	//AEGfxVertexList* mesh = AEGfxMeshEnd();
-
-	//AEGfxMeshStart();
-	//// This shape has 5 vertices
-	//AEGfxVertexAdd(0.0f, 0.0f, 0xFFFFFFFF, 0.0f, 0.0f);
-	//AEGfxVertexAdd(100.0f, 0.0f, 0xFFFFFFFF, 0.0f, 1.0f);
-	//AEGfxVertexAdd(200.0f, 150.0f, 0xFFFFFFFF, 0.0f, 1.0f);
-	//AEGfxVertexAdd(300.0f, -100.0f, 0xFFFFFFFF, 1.0f, 0.0f);
-	//AEGfxVertexAdd(100.0f, -250.0f, 0xFFFFFFFF, 1.0f, 0.0f);
-	//AEGfxVertexList* mesh2 = AEGfxMeshEnd();
+	SceneManager::Instance().ChangeScene("Test PathFinding");
 	AEGfxSetBackgroundColor(0.0f, 0.0f, 0.0f);
 
 	// Game Loop
