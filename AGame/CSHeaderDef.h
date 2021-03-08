@@ -119,6 +119,7 @@ struct Com_TilePosition {
 	int _grid_y = 0;
 	int _vgrid_x = 0;	// verified grid positions - do not set
 	int _vgrid_y = 0;	// verified grid positions - do not set
+
 };
 
 /*																				Component::COLLISION
@@ -692,7 +693,7 @@ struct Sys_EnemySpawning : public System {
 		if (alarm > wave.timerforwave || Enemyspawn.numberofenemies == 0) 
 		{
 			//spawning of enemies 
-			if (Enemyspawn.CurrNoOfEnemies < 6) 
+			if (Enemyspawn.CurrNoOfEnemies < 5) 
 			{
 				spawn_enemies(Enemyspawn);
 				--wave.numberofwaves; //decrease the number of waves left 
