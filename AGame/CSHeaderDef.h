@@ -761,22 +761,23 @@ ________________________________________________________________________________
 
 struct Sys_PathFinding : public System
 {
+		eid playerPos{ -1 };
 	void UpdateComponent() override {
 		Com_Node& ode = get<Com_Node>();
 		Com_TilemapRef& tilemapref = get<Com_TilemapRef>();
 		Com_Tilemap* tile = tilemapref._tilemap;
-		Com_TilePosition& PlayerPos = get<Com_TilePosition>();
+		Com_TilePosition& EnemyPos = get<Com_TilePosition>();
 		//PlayerPos._grid_x += 1;
-	
-		MapCreate(ode, tile, PlayerPos);
-		Solve_AStar(ode, PlayerPos);
+
+		MapCreate(ode, tile, EnemyPos, playerPos);
+		Solve_AStar(ode, EnemyPos);
 		//MoveEnemy(PlayerPos, ode, tile);
 		
 	
 	}
 	
 
-void MapCreate(Com_Node& ode, const Com_Tilemap* tile, Com_TilePosition& enemyPos)
+void MapCreate(Com_Node& ode, const Com_Tilemap* tile, Com_TilePosition& enemyPos, eid& player)
 {
 	// Create a 2D array of nodes - this is for convenience of rendering and construction
 	// and is not required for the algorithm to work - the nodes could be placed anywhere
@@ -813,12 +814,14 @@ void MapCreate(Com_Node& ode, const Com_Tilemap* tile, Com_TilePosition& enemyPo
 		}
 
 	// Manually positio the start and end markers so they are not nullptr
-	ode.nodeStart = &ode.nodes[(ode.MapHeight / 2) * ode.MapWidth + 1];
-	ode.nodeEnd = &ode.nodes[(ode.MapHeight / 2) * ode.MapWidth + ode.MapWidth - 2];
-	ode.nodeStart->x = enemyPos._grid_x;
+	//ode.nodeStart = &ode.nodes[(ode.MapHeight / 2) * ode.MapWidth + 1];
+	//ode.nodeEnd = &ode.nodes[(ode.MapHeight / 2) * ode.MapWidth + ode.MapWidth - 2];
+	ode.nodeStart = &ode.nodes[(enemyPos._grid_x * ode.MapHeight) + enemyPos._grid_y];
+	ode.nodeEnd = &ode.nodes[(Factory::Instance()[player].Get<Com_TilePosition>()._grid_x * ode.MapHeight) + (Factory::Instance()[player].Get<Com_TilePosition>()._grid_y)];
+	/*ode.nodeStart->x = enemyPos._grid_x;
 	ode.nodeStart->y = enemyPos._grid_y;
 	ode.nodeEnd->x = 0;
-	ode.nodeEnd->y = 0;
+	ode.nodeEnd->y = 0;*/
 
 }
 
@@ -907,11 +910,11 @@ void Solve_AStar(Com_Node& ode, Com_TilePosition& enemyPos)
 			}
 			static float alarm = 0;
 			alarm += _dt;
-			if(alarm > 20.0f)
+			if(alarm > 15.0f)
 			{
 				//std::cout << nodeNeighbour->x << std::endl;
 				//std::cout << nodeNeighbour->y << std::endl;
-				enemyPos._grid_x = nodeNeighbour->x; // need to based on the player pos but not yet
+				enemyPos._grid_x = nodeNeighbour->x; // with this code is just teleporting
 				enemyPos._grid_y = nodeNeighbour->y;
 				alarm = 0;
 			}
