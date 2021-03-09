@@ -32,6 +32,7 @@ public:
 * LookAt:	AddScene(), ChangeScene()
 ____________________________________________________________________________________*/
 class SceneManager {
+	int _gamerunning = 1;
 	SceneManager();
 	std::unordered_map<std::string, std::shared_ptr<Scene>> _scenes;	// container to all added scenes
 	std::shared_ptr<Scene>	_current_scene = nullptr;					// current scene being processed, if nullptr, scene state won't update
@@ -41,6 +42,12 @@ public:
 	static SceneManager& Instance();
 	void ChangeScene(const std::string& name);
 	void Free();
+	void CheckGame(int& gamerunning) {
+		gamerunning = _gamerunning;
+	}
+	void StopGame() {
+		_gamerunning = 0;
+	}
 	/*___________________________________________________________________________________
 	* Brief:	Creates a scene of type derived scene.
 	*

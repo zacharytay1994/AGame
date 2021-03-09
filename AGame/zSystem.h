@@ -70,7 +70,7 @@ public:
 			if ((mask & archetype.second->_mask) == mask) {
 				// loop through
 				for (auto& chunk : archetype.second->_chunk_database) {
-					for (int i = 0; i < chunk->_number_of_entities; ++i) {
+					for (int i = 0; i < (int)chunk->_number_of_entities; ++i) {
 						out.emplace_back(&chunk->GetComponent<T>(i));
 					}
 				}
