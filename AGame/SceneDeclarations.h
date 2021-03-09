@@ -11,27 +11,6 @@
 
 //#include "zMath.h"
 
-/*___________________________________________________________________
-	MENU - Created By : Aus
-_____________________________________________________________________*/
-struct Menu : public Scene 
-{
-	std::string test = "hi";
-	eid e;
-	Factory::SpriteData data{ "test2", 100.0f, 160.0f, 2, 3, 8, 0.15f };
-	void Initialize() override {
-		std::cout << test << " Welcome, press enter to start" << std::endl;
-		e = Factory::Instance().FF_Sprite(data, 0, 0);
-
-	}
-	void Update(const float& dt) override {
-		//std::cout << "hehe just keep printing" << std::endl;
-		if (AEInputCheckTriggered(VK_RETURN)) {
-			SceneManager::Instance().ChangeScene("Test PathFinding");
-		}
-	}
-};
-
 /*!___________________________________________________________________
 	TEST SCENE - Created By : Zac
 _____________________________________________________________________*/
@@ -340,7 +319,7 @@ struct TestScenePF : public Scene
 		SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->_tilemap = tilemap;
 		//SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()._tilemap = tilemap;
 		
-		player = Factory::Instance().FF_SpriteTile(data1, tilemap, 5, 2);
+		player = Factory::Instance().FF_SpriteTile(data1, tilemap, 9, 4);
 		Factory::Instance()[player].AddComponent<Com_YLayering,Com_Node, Com_EnemySpawn, Com_Wave>();
 		++Factory::Instance()[player].Get<Com_EnemySpawn>().CurrNoOfEnemies;
 

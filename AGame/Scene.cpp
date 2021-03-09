@@ -129,7 +129,7 @@ void SceneManager::Initialize() {
 	AddScene<ExampleScene>("ExampleScene");
 	AddScene<MainMenu>("Main Menu");
 	AddScene<TestScenewilfred>("TestScenewilfred");
-	AddScene<Menu>("Menu");
+	//AddScene<Menu>("Menu");
 	AddScene<ShootingRange>("ShootingRange");
 }
 
@@ -187,6 +187,9 @@ void SceneManager::Update(const float& dt)
 {
 	if (_current_scene) {
 		_current_scene->Update(dt);
+		if (AEInputCheckTriggered('H')) {
+			SceneManager::Instance().ChangeScene("Main Menu");
+		}
 		SystemDatabase::Instance().SystemDatabaseUpdate((float)AEFrameRateControllerGetFrameTime());
 		ResourceManager::Instance().FlushDraw();
 		ResourceManager::Instance().FlushDrawText();
