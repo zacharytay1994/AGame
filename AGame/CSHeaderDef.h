@@ -415,19 +415,19 @@ struct Sys_Boundary : public System {
 		//if outside the view port 
 		if (position.x > AEGfxGetWinMaxX()) {
 			//destroy the entity
-			//RemoveEntity();
+			RemoveEntity();
 		}
 		if (position.x < AEGfxGetWinMinX()) {
 			//destroy the entity
-			//RemoveEntity();
+			RemoveEntity();
 		}
 		if (position.y > AEGfxGetWinMaxY()) {
 			//destroy the entity
-			//RemoveEntity();
+			RemoveEntity();
 		}
 		if (position.y < AEGfxGetWinMinY()) {
 			//destroy the entity
-			//RemoveEntity();
+			RemoveEntity();
 		}
 	}
 };
@@ -653,7 +653,7 @@ struct Sys_AABB : public System {
 				collisionflag = CollisionAABB(*AABB, *vel, *AABBTestEnemy[i].aabb, *AABBTestEnemy[i].vel);
 				//if collide 
 				if (collisionflag == true) {
-					//RemoveEntity();
+					RemoveEntity();
 					//std::cout << "collidde" << std::endl;
 				}
 			}
@@ -914,7 +914,7 @@ struct Sys_Projectile2 : public System {
 					// Do nothing
 				}
 				else {
-					//RemoveEntity();
+					RemoveEntity();
 				}
 			}
 		}
@@ -1219,7 +1219,7 @@ struct Sys_ParticleSys : public System {
 		//if the particle reaches the end of it's short life 
 		if (timer.timerinseconds == particle.lifetime)
 		{
-			//RemoveEntity();
+			RemoveEntity();
 		}
 	}
 };
@@ -1247,7 +1247,7 @@ struct Sys_ParticleEmitter : public System {
 					emitparticle();
 				}
 				timer.timerinseconds = 0;
-				//RemoveEntity();
+				RemoveEntity();
 			}
 		}
 	}
@@ -1279,7 +1279,7 @@ struct Sys_HealthUpdate : public System {
 		Com_Health& health = get<Com_Health>();
 		//if no more health remove entity 
 		if (health.health == 0) {
-			//RemoveEntity();
+			RemoveEntity();
 		}
 	}
 };

@@ -32,6 +32,12 @@ struct System {
 			_update(*this);
 		}
 	}
+	struct ToBeRemoved {
+		Chunk* _chunk;
+		int		_id;
+	};
+	std::vector<ToBeRemoved> _to_be_removed;
+	virtual void RemoveAllEntities();
 	template <typename T>
 	T& get() {
 		return _current_chunk->GetComponent<T>(_current_id);
@@ -84,4 +90,5 @@ public:
 		System* system = _database[typeid(T).name()].get();
 		return (dynamic_cast<T*>(system));
 	}
+	void RemoveAllEntities();
 };

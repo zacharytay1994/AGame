@@ -30,9 +30,25 @@ void SystemDatabase::SystemDatabaseUpdate(const float& dt) {
 	}
 }
 
+void SystemDatabase::RemoveAllEntities()
+{
+	for (auto& system : _database) {
+		system.second->RemoveAllEntities();
+	}
+}
+
+void System::RemoveAllEntities()
+{
+	for (auto tbr : _to_be_removed) {
+		tbr._chunk->Remove(tbr._id);
+	}
+	_to_be_removed.clear();
+}
+
 void System::RemoveEntity()
 {
 	if (_current_chunk) {
-		_current_chunk->Remove(_current_id);
+		_to_be_removed.push_back({ _current_chunk,_current_id });
+		//_current_chunk->Remove(_current_id);
 	}
 }
