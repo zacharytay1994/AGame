@@ -26,6 +26,7 @@ void ChangeTestScene(Com_GUISurface* surface) {
 
 void ChangeShootingRangeScene(Com_GUISurface* surface) {
 	SceneManager::Instance().ChangeScene("ShootingRange");
+}
 	
 void ChangeWilf(Com_GUISurface* surface) {
 	SceneManager::Instance().ChangeScene("TestScenewilfred");
