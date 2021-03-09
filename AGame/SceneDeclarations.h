@@ -9,7 +9,72 @@
 #include "Inventory.h"
 #include <string>
 
-//#include "zMath.h"
+// GUI CODE
+eid _settings, _change_scene;
+
+void TestFunction(Com_GUISurface* surface) {
+	std::cout << "button1" << std::endl;
+}
+
+static bool _change_scene_toggle{ false };
+void ToggleChangeSceneButton(Com_GUISurface* surface) {
+	_change_scene_toggle = !_change_scene_toggle;
+}
+
+static bool _settings_toggle{ false };
+void SettingsButton(Com_GUISurface* surface) {
+	_settings_toggle = !_settings_toggle;
+}
+
+void QuitGame(Com_GUISurface* surface) {
+	std::cout << "button3" << std::endl;
+	SceneManager::Instance().StopGame();
+}
+
+void ChangeTestScene(Com_GUISurface* surface) {
+	SceneManager::Instance().ChangeScene("Test Scene");
+}
+
+void ChangeTestScenePF(Com_GUISurface* surface) {
+	SceneManager::Instance().ChangeScene("Test PathFinding");
+}
+
+void ChangeShootingRangeScene(Com_GUISurface* surface) {
+	SceneManager::Instance().ChangeScene("ShootingRange");
+}
+
+void ChangeWilf(Com_GUISurface* surface) {
+	SceneManager::Instance().ChangeScene("TestScenewilfred");
+}
+
+void ChangeMainMenu(Com_GUISurface* surface) {
+	SceneManager::Instance().ChangeScene("Main Menu");
+}
+
+void GUISettingsInitialize() {
+	_settings_toggle = false;
+	_change_scene_toggle = false;
+	Factory::Instance().FF_CreateGUIClickableSurface( { "settings" }, 0.96f, 0.04f, 0.04f, 0.04f, SettingsButton, 150);									// settings button
+	// settings menu
+	_settings = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.84f, 0.38f, 0.3f, 0.6f, 150);
+	Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, { "background1" }, 0.5f, 0.2f, 0.9f, 0.08f, ToggleChangeSceneButton, "Change Scene", "courier");	// clickable child surface text
+
+	// change scene menu
+	_change_scene = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.5f, 0.5f, 0.3f, 0.6f, 200);
+	Factory::Instance()[_change_scene].AddComponent<Com_GUIDrag, Com_GUIMouseCheck>();
+	Factory::Instance().FF_CreateGUIChildSurfaceText(_change_scene, { "transparent" }, 0.5f, 0.08f, 0.9f, 0.05f, "Select Scene", "courier");					// clickable child surface text
+	Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, { "background1" }, 0.5f, 0.2f, 0.9f, 0.08f, ChangeMainMenu, "Main", "courier");	// clickable child surface text
+	Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, { "background1" }, 0.5f, 0.35f, 0.9f, 0.08f, ChangeTestScenePF, "Aus", "courier");	// clickable child surface text
+	Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, { "background1" }, 0.5f, 0.5f, 0.9f, 0.08f, ChangeShootingRangeScene, "Noel", "courier");	// clickable child surface text
+	Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, { "background1" }, 0.5f, 0.65f, 0.9f, 0.08f, ChangeWilf, "Wilf", "courier");	// clickable child surface text
+	Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, { "background1" }, 0.5f, 0.8f, 0.9f, 0.08f, ChangeTestScene, "Zac", "courier");	// clickable child surface text
+	Factory::Instance().FF_CreateGUIChildClickableSurface(_change_scene, { "cross" }, 0.9f, 0.05f, 0.08f, 0.04f, ToggleChangeSceneButton);						// clickable child surface text
+}
+
+void GUISettingsUpdate() {
+	Factory::Instance()[_settings].Get<Com_GUISurface>()._active = _settings_toggle;
+	Factory::Instance()[_change_scene].Get<Com_GUISurface>()._active = _change_scene_toggle;
+}
 
 /*!___________________________________________________________________
 	TEST SCENE - Created By : Zac
@@ -60,6 +125,7 @@ struct TestScene : public Scene {
 		/*int* i = new int{ 0 };
 		std::shared_ptr<int> a{ i };
 		std::shared_ptr<int> b{ i };*/
+		GUISettingsInitialize();
 	}
 	/*
 	Update Override (optional)
@@ -68,7 +134,7 @@ struct TestScene : public Scene {
 		//Entity& testing = Factory::Instance()[tilemap];
 		//if (AEInputCheckTriggered('E')) {
 		//}
-
+		GUISettingsUpdate();
 		if (AEInputCheckCurr('L')) {
 			SceneManager::Instance().ChangeScene("Test Scene 2");
 		}
@@ -330,6 +396,7 @@ struct TestScenePF : public Scene
 		/*int* i = new int{ 0 };
 		std::shared_ptr<int> a{ i };
 		std::shared_ptr<int> b{ i };*/
+		GUISettingsInitialize();
 	}
 	/*
 	Update Override (optional)
@@ -359,6 +426,7 @@ struct TestScenePF : public Scene
 		if (AEInputCheckTriggered('R')) {
 			SceneManager::Instance().RestartScene();
 		}
+		GUISettingsUpdate();
 	}
 	/*
 	Exit Override (optional)
@@ -422,6 +490,7 @@ ________________________________*/
 		/*int* i = new int{ 0 };
 		std::shared_ptr<int> a{ i };
 		std::shared_ptr<int> b{ i };*/
+		GUISettingsInitialize();
 	}
 	/*
 	Update Override (optional)
@@ -480,6 +549,7 @@ ________________________________*/
 		if (AEInputCheckTriggered('R')) {
 			SceneManager::Instance().RestartScene();
 		}
+		GUISettingsUpdate();
 	}
 	/*
 	Exit Override (optional)
@@ -522,6 +592,7 @@ struct ShootingRange : public Scene {
 		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap>();
 		//player = Factory::Instance().FF_SpriteTile(data1, tilemap, 0, 0);
 		//Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap>();
+		GUISettingsInitialize();
 	}
 	/*
 	Update Override (optional)
@@ -571,6 +642,7 @@ struct ShootingRange : public Scene {
 		if (AEInputCheckTriggered('R')) {
 			SceneManager::Instance().RestartScene();
 		}
+		GUISettingsUpdate();
 	}
 	/*
 	Exit Override (optional)
