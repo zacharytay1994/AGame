@@ -72,7 +72,7 @@ eid Factory::FF_SpriteTile(const SpriteData& data, const eid& tilemap, const int
     return id;
 }
 
-eid Factory::FF_CreateGUISurface(const SpriteData& data, const float& x, const float& y, const float& width, const float& height)
+eid Factory::FF_CreateGUISurface(const SpriteData& data, const float& x, const float& y, const float& width, const float& height, int layer)
 {
     eid id = FF_Sprite(data, 0.0f, 0.0f);
     Entity& e = Factory::Instance()[id].AddComponent<Com_GUISurface>();
@@ -81,24 +81,47 @@ eid Factory::FF_CreateGUISurface(const SpriteData& data, const float& x, const f
     surface._position = { x,y };
     surface._dimensions = { width, height };
     surface._ph_dimensions = { width * (float)AEGetWindowWidth() / 2.0f, height * (float)AEGetWindowHeight() / 2.0f };
+    surface._layer = layer;
     sprite._x_scale = AEGetWindowWidth() * width;
     sprite._y_scale = AEGetWindowHeight() * height;
-    sprite._render_pack._layer = 1000;
+    sprite._render_pack._layer = layer;
     return id;
 }
 
-eid Factory::FF_CreateGUIClickableSurface(const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*))
+eid Factory::FF_CreateGUISurfaceText(const SpriteData& data, const float& x, const float& y, const float& width, const float& height, const std::string& text, const std::string& font, int layer)
 {
-    eid id = FF_CreateGUISurface(data, x, y, width, height);
-    Entity& e = Factory::Instance()[id].AddComponent<Com_GUIOnClick>();
+    eid id = FF_CreateGUISurface(data, x, y, width, height, layer);
+    Entity& e = Factory::Instance()[id].AddComponent<Com_Text>();
+    Com_Text& com_text = e.Get<Com_Text>();
+    com_text._data._text = text;
+    com_text._data._font = ResourceManager::Instance().GetFont(font);
+    com_text._data._layer = layer + 1;
+    return id;
+}
+
+eid Factory::FF_CreateGUIClickableSurface(const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), int layer)
+{
+    eid id = FF_CreateGUISurface(data, x, y, width, height, layer);
+    Entity& e = Factory::Instance()[id].AddComponent<Com_GUIOnClick, Com_GUIMouseCheck>();
     e.Get<Com_GUIOnClick>()._click_event = onclick;
+    return id;
+}
+
+eid Factory::FF_CreateGUIClickableSurfaceText(const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string& text, const std::string& font, int layer)
+{
+    eid id = FF_CreateGUIClickableSurface(data, x, y, width, height, onclick, layer);
+    Entity& e = Factory::Instance()[id].AddComponent<Com_Text>();
+    Com_Text& com_text = e.Get<Com_Text>();
+    com_text._data._text = text;
+    com_text._data._font = ResourceManager::Instance().GetFont(font);
+    com_text._data._layer = layer + 1;
     return id;
 }
 
 eid Factory::FF_CreateGUIChildSurface(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height)
 {
     Com_GUISurface& parent_surface = Factory::Instance()[parent].Get<Com_GUISurface>();
-    eid id = FF_CreateGUISurface(data, x, y, parent_surface._dimensions.x*width, parent_surface._dimensions.y*height);
+    eid id = FF_CreateGUISurface(data, x, y, parent_surface._dimensions.x*width, parent_surface._dimensions.y*height, parent_surface._layer+1);
     // set parent surface
     Factory::Instance()[id].Get<Com_GUISurface>()._parent_surface = &parent_surface;
     Factory::Instance()[id].Get<Com_GUISurface>()._parent_position = &Factory::Instance()[parent].Get<Com_Position>();
@@ -106,12 +129,39 @@ eid Factory::FF_CreateGUIChildSurface(eid parent, const SpriteData& data, const 
     return id;
 }
 
+eid Factory::FF_CreateGUIChildSurfaceText(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, const std::string& text, const std::string& font)
+{
+    eid id = FF_CreateGUIChildSurface(parent, data, x, y, width, height);
+    Entity& e = Factory::Instance()[id].AddComponent<Com_Text>();
+    Com_Text& com_text = e.Get<Com_Text>();
+    com_text._data._text = text;
+    com_text._data._font = ResourceManager::Instance().GetFont(font);
+    com_text._data._layer = Factory::Instance()[parent].Get<Com_GUISurface>()._layer + 2;
+    return id;
+}
+
 eid Factory::FF_CreateGUIChildClickableSurface(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*))
 {
     eid id = FF_CreateGUIChildSurface(parent, data, x, y, width, height);
-    Entity& e = Factory::Instance()[id].AddComponent<Com_GUIOnClick>();
+    Entity& e = Factory::Instance()[id].AddComponent<Com_GUIOnClick, Com_GUIMouseCheck>();
     e.Get<Com_GUIOnClick>()._click_event = onclick;
     return id;
+}
+
+eid Factory::FF_CreateGUIChildClickableSurfaceText(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string& text, const std::string& font)
+{
+    eid id = FF_CreateGUIChildClickableSurface(parent, data, x, y, width, height, onclick);
+    Entity& e = Factory::Instance()[id].AddComponent<Com_Text>();
+    Com_Text& com_text = e.Get<Com_Text>();
+    com_text._data._text = text;
+    com_text._data._font = ResourceManager::Instance().GetFont(font);
+    com_text._data._layer = Factory::Instance()[parent].Get<Com_GUISurface>()._layer + 2;
+    return id;
+}
+
+eid Factory::FF_CreateGUISettings()
+{
+    return -1;
 }
 
 eid Factory::FF_Createproj(const SpriteData& data, const int& x, const int& y, const Com_Direction& direction)

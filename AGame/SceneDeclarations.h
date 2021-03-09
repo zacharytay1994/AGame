@@ -305,40 +305,7 @@ struct ExampleScene : public Scene {
 	}
 };
 
-void TestFunction(Com_GUISurface* surface) {
-	std::cout << "button1" << std::endl;
-}
-
-void TestFunction2(Com_GUISurface* surface) {
-	std::cout << "button2" << std::endl;
-}
-
-void TestFunction3(Com_GUISurface* surface) {
-	std::cout << "button3" << std::endl;
-	SceneManager::Instance().ChangeScene("Test Scene");
-}
-
-struct MainMenu : public Scene {
-	eid i{ -1 };
-	Factory::SpriteData data1{ "menubackground" };
-	Factory::SpriteData data2{ "buttonsurface" };
-	Factory::SpriteData data3{ "button1" };
-	Factory::SpriteData data4{ "button2" };
-	Factory::SpriteData data5{ "button3" };
-	void Initialize() override {
-		std::cout << "SYSTEM MESSAGE: Now entering main menu." << std::endl;
-		i = Factory::Instance().FF_CreateGUISurface(data1, 0.5f, 0.5f, 1.0f, 1.0f);									// surface
-		i = Factory::Instance().FF_CreateGUIChildSurface(i, data2, 0.5f, 0.6f, 0.3f, 0.4f);							// non clickable child surface
-		Factory::Instance().FF_CreateGUIChildClickableSurface(i, data3, 0.5f, 0.25f, 0.75f, 0.2f, TestFunction);	// clickable child surface
-		Factory::Instance().FF_CreateGUIChildClickableSurface(i, data4, 0.5f, 0.5f, 0.75f, 0.2f, TestFunction2);	// clickable child surface
-		Factory::Instance().FF_CreateGUIChildClickableSurface(i, data5, 0.5f, 0.75f, 0.75f, 0.2f, TestFunction3);	// clickable child surface
-	}
-	void Update(const float& dt) override {
-		if (AEInputCheckTriggered('C')) {
-			SceneManager::Instance().ChangeScene("Test Scene");
-		}
-	}
-};
+struct MainMenu;
 
 /*___________________________________________________________________
 	TEST FOR PATHFINDING - Created By : Aus
