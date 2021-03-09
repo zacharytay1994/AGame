@@ -78,7 +78,10 @@
     <ClInclude Include="zMath.h">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="MainMenu.h">
+    <ClInclude Include="Scene_MainMenu.h">
+      <Filter>Header Files\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene_Zac.h">
       <Filter>Header Files\Scenes</Filter>
     </ClInclude>
   </ItemGroup>
