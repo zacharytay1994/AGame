@@ -91,6 +91,7 @@ struct Com_YLayering {
 	char filler = 0;
 };
 
+
 /*																				Component::INPUT
 ____________________________________________________________________________________________________*/
 
@@ -132,14 +133,73 @@ struct Com_TilePosition {
 ____________________________________________________________________________________________________*/
 struct Com_BoundingBox
 {
-	Com_Position min;
-	Com_Position max;
-	float scale;
+	float minx;
+	float miny;
+	float maxx;
+	float maxy;
 };
 
-struct CollisionData {
+
+// testing for wilfred ////////////////////////////
+struct Com_objecttype {
+	enum type
+	{
+		playert,
+		enemyt,
+		bullett,
+		obstaclest
+	};
+	eid objtype{ playert };
+	bool updated{ false };
+	//to store id of all player 
+	//static std::vector<eid> player;
+	//static std::vector<eid> enemy;
+	//static std::vector<eid> bullet;
+	//static std::vector<eid> obstacle;
+};
+
+//global 
+static std::vector<eid> player;
+static std::vector<eid> enemy;
+static std::vector<eid> bullet;
+static std::vector<eid> obstacle;
+
+struct Sys_RegisteringEntity :public System{
+	void UpdateComponent() override {
+		Com_objecttype& obtype = get<Com_objecttype>();
+		if (obtype.updated == false) {
+			//if it's a player 
+			if (obtype.objtype == obtype.playert) {
+				player.emplace_back(player.size()+1);
+				std::cout << "assigning player" << std::endl;
+			}
+			//if it's a enemy 
+			if (obtype.objtype == obtype.enemyt) {
+				enemy.emplace_back(enemy.size() + 1);
+				std::cout << "assigning enemy" << std::endl;
+			}
+			//if it's a bullet
+			if (obtype.objtype == obtype.bullett) {
+				bullet.emplace_back(bullet.size() + 1);
+				std::cout << "assigning bullet" << std::endl;
+			}
+			//if it's a obstacle
+			if (obtype.objtype == obtype.obstaclest) {
+				obstacle.emplace_back(obstacle.size() + 1);
+				std::cout << "assigning obstacle" << std::endl;
+			}
+			obtype.updated = true;
+		}
+	}
+};
+
+
+// testing for wilfred ////////////////////////////
+
+struct Com_CollisionData {
 	Com_BoundingBox* aabb;
 	Com_Velocity* vel;
+	bool emplacedvec{ false };
 };
 
 /*																				Component::ATTACK
@@ -148,13 +208,24 @@ struct Com_WeaponAttack
 {
 	enum Weapons {
 		sword,
-		pistol
+		pistol,
+		bomb
 	};
 	int currentweapon{ 1 };
 };;
 
 /*																				Component::ENEMY
 ____________________________________________________________________________________________________*/
+
+struct Com_TypeEnemy {
+	enum EnemyType
+	{
+		Alien1, //melee
+		Alien2  //range
+	};
+	size_t Alientype{ 0 };
+};
+
 
 /*																Component::PATH FINDING
 ____________________________________________________________________________________________________*/
@@ -168,16 +239,32 @@ struct Com_PathFinding
 	int y = 0;
 	vector<Com_PathFinding*> vecNeighbours;	// Connections to neighbours
 	Com_PathFinding* parent = nullptr;					// Node connecting to this node that offers shortest parent
+	
+	~Com_PathFinding()
+	{
+		delete parent;
+		while (!vecNeighbours.empty()) 
+		{
+			delete vecNeighbours.back();
+			vecNeighbours.pop_back();
+		}
+	}
 };
 
 struct Com_Node
 {
 	Com_PathFinding* nodeStart = nullptr;
 	Com_PathFinding* nodeEnd = nullptr;
+	//vector<Com_PathFinding> nodes;
+	int MapWidth = 0; 
+	int MapHeight = 0;
 	Com_PathFinding* nodes = nullptr;
-	/*int nMapWidth = 0; 
-	int nMapHeight = 0;*/
-
+	~Com_Node()
+	{
+		delete nodes;
+		delete nodeStart;
+		delete nodeEnd;
+	}
 };
 
 /*																				Component::GUI
@@ -327,19 +414,19 @@ struct Sys_Boundary : public System {
 		//if outside the view port 
 		if (position.x > AEGfxGetWinMaxX()) {
 			//destroy the entity
-			RemoveEntity();
+			//RemoveEntity();
 		}
 		if (position.x < AEGfxGetWinMinX()) {
 			//destroy the entity
-			RemoveEntity();
+			//RemoveEntity();
 		}
 		if (position.y > AEGfxGetWinMaxY()) {
 			//destroy the entity
-			RemoveEntity();
+			//RemoveEntity();
 		}
 		if (position.y < AEGfxGetWinMinY()) {
 			//destroy the entity
-			RemoveEntity();
+			//RemoveEntity();
 		}
 	}
 };
@@ -487,7 +574,8 @@ ________________________________________________________________________________
 struct Sys_Boundingbox : public System {
 	void UpdateComponent() override {
 		//calculate AABB bounding box 
-		calculateAABB(get<Com_BoundingBox>(), get<Com_Position>(), get<Com_BoundingBox>());
+		calculateAABB(get<Com_BoundingBox>(), get<Com_Position>(), get<Com_Sprite>());
+
 	}
 	/*-----------------------------------------
 
@@ -501,29 +589,77 @@ struct Sys_Boundingbox : public System {
 	@return void
 
 	------------------------------------------*/
-	void calculateAABB(Com_BoundingBox& boundingbox, Com_Position& position, Com_BoundingBox& scale)
+	void calculateAABB(Com_BoundingBox& boundingbox, Com_Position& position, Com_Sprite& sprite)
 	{
 		//calculate min max
-		boundingbox.max.x = -0.5f * boundingbox.scale + position.x;
-		boundingbox.min.x = 0.5f * boundingbox.scale + position.x;
-		boundingbox.min.y = -0.5f * boundingbox.scale + position.y;
-		boundingbox.max.y = 0.5f * boundingbox.scale + position.y;
+		boundingbox.maxx = 0.5f * sprite._x_scale + position.x;
+		boundingbox.minx = -0.5f * sprite._x_scale + position.x;
+		boundingbox.miny = -0.5f * sprite._y_scale + position.y;
+		boundingbox.maxy = 0.5f * sprite._y_scale + position.y;
 	}
 };
 
+
+
+
 struct Sys_AABB : public System {
-	std::vector<CollisionData> AABBTest; //to store all collision data 
+	std::vector<Com_CollisionData> AABBTestplayer; //to store all collision data of player
+	std::vector<Com_CollisionData> AABBTestEnemy; //to store all collision data of player
+	std::vector<Com_CollisionData> AABBTestBullet; //to store all collision data of player
 	void UpdateComponent() override {
 		//calculate AABB detection
-		int collisionflag = 0;
+		bool collisionflag = false;
 		Com_BoundingBox* AABB = &get<Com_BoundingBox>();
 		Com_Velocity* vel = &get<Com_Velocity>();
-		for (int i{ 0 }; i < AABBTest.size(); ++i) {
-			collisionflag = CollisionAABB(*AABB, *vel, *AABBTest[i].aabb, *AABBTest[i].vel);
+		Com_CollisionData& coldata = get<Com_CollisionData>();
+		//for (int i{ 0 }; i < AABBTest.size(); ++i) {
+		//	collisionflag = CollisionAABB(*AABB, *vel, *AABBTest[i].aabb, *AABBTest[i].vel);
+		//}
+		//AABBTest.emplace_back(Com_CollisionData{ AABB,vel });
+		//edits for testing 
+		//collision testing for player
+		Com_objecttype& objtype = get<Com_objecttype>();
+		if (objtype.objtype == objtype.playert && coldata.emplacedvec == false) {
+			AABBTestplayer.emplace_back(Com_CollisionData{ AABB,vel });
+			coldata.emplacedvec = true;
 		}
-		AABBTest.emplace_back(CollisionData{ AABB,vel });
-	}
+		if (objtype.objtype == objtype.playert && coldata.emplacedvec == true) {
+			//test with enemy
+			for (int i{ 0 }; i < AABBTestEnemy.size(); ++i) {
+				//test with enemy
+				collisionflag = CollisionAABB(*AABB, *vel, *AABBTestEnemy[i].aabb, *AABBTestEnemy[i].vel);
+			}
+		}
 
+		//for enemy 
+		if (objtype.objtype == objtype.enemyt && coldata.emplacedvec == false) {
+			AABBTestEnemy.emplace_back(Com_CollisionData{ AABB,vel });
+			coldata.emplacedvec = true;
+		}
+		if (objtype.objtype == objtype.enemyt && coldata.emplacedvec == true) {
+			//tbc
+		}
+
+		//for bullet 
+		if (objtype.objtype == objtype.bullett && coldata.emplacedvec == false) {
+			AABBTestBullet.emplace_back(Com_CollisionData{ AABB,vel });
+			coldata.emplacedvec = true;
+		}
+		if (objtype.objtype == objtype.bullett && coldata.emplacedvec == true) {
+			//test with enemy
+			for (int i{ 0 }; i < AABBTestEnemy.size(); ++i) {
+				//test with enemy
+				collisionflag = CollisionAABB(*AABB, *vel, *AABBTestEnemy[i].aabb, *AABBTestEnemy[i].vel);
+				//if collide 
+				if (collisionflag == true) {
+					//RemoveEntity();
+					//std::cout << "collidde" << std::endl;
+				}
+			}
+		}
+
+		//check with diff type objects 
+	}
 	/*-----------------------------------------
 	@brief does an AABB Collision check
 	@param Com_BoundingBox obj 1
@@ -536,68 +672,104 @@ struct Sys_AABB : public System {
 	bool CollisionAABB(const Com_BoundingBox& object1, const Com_Velocity& objvel1,
 		const Com_BoundingBox& object2, const Com_Velocity& objvel2)
 	{
-		if ((object1.max.x < object2.min.x || object1.min.x > object2.max.x) || (object1.max.y < object2.min.y || object1.min.y > object2.max.y)) { // check static collision
+		if ((object1.maxx < object2.minx) || (object1.minx > object2.maxx) || (object1.maxy < object2.miny) || (object1.miny > object2.maxy)) // check static collision
+		{
+
+
 			// initialzing time of first and last contact 
 			float tFirst = 0.0f; //init tfirst 
 			float tLast = (float)AEFrameRateControllerGetFrameTime(); //inti tlast 
 			AEVec2 Rvel;
 			Rvel.x = objvel2.x - objvel1.x;
 			Rvel.y = objvel2.y - objvel1.y;
-			if (Rvel.x < 0.0) { // if relative velocity x < 0
-				if (object2.max.x < object1.min.x) {
+
+			if (Rvel.x < 0.0) // if relative velocity x < 0
+			{
+				if (object2.maxx < object1.minx)
+				{
 					return 0;//no collision
 				}
-				if (object1.max.x < object2.min.x) {
-					tFirst = max((object1.max.x - object2.min.x) / Rvel.x, tFirst); //calculate tfirst touch
+				if (object1.maxx < object2.minx)
+				{
+					tFirst = max((object1.maxx - object2.minx) / Rvel.x, tFirst); //calculate tfirst touch
 				}
-				if (object2.max.x > object1.min.x) {
-					tLast = min((object1.min.x - object2.max.x) / Rvel.x, tLast); //calculate tlast touch
+				if (object2.maxx > object1.minx)
+				{
+					tLast = min((object1.minx - object2.maxx) / Rvel.x, tLast); //calculate tlast touch
 				}
 			}
-			if (Rvel.x > 0.0) { //if relative velocity x > 0
-				if (object2.min.x > object1.max.x) {
+
+			if (Rvel.x > 0.0) //if relative velocity x > 0
+			{
+				if (object2.minx > object1.maxx)
+				{
 					return 0;//no collision
 				}
-				if (object2.max.x < object1.min.x) {
-					tFirst = max((object1.min.x - object2.max.x) / Rvel.x, tFirst);  // calculate tfirst touch
+				if (object2.maxx < object1.minx)
+				{
+					tFirst = max((object1.minx - object2.maxx) / Rvel.x, tFirst);  // calculate tfirst touch
 				}
-				if (object1.max.x > object2.min.x) {
-					tLast = min((object1.max.x - object2.min.x) / Rvel.x, tLast); //calculate tlast touch 
+				if (object1.maxx > object2.minx)
+				{
+					tLast = min((object1.maxx - object2.minx) / Rvel.x, tLast); //calculate tlast touch 
 				}
-			}
-			if (Rvel.y < 0.0) //if relative velocity y < 0
-			{
-				if (object2.max.y < object1.min.y) {
-					return 0; // not collison moving apart 
-				}
-				if (object1.max.y < object2.min.y) {
-					tFirst = max((object1.max.y - object2.min.y) / Rvel.y, tFirst); //calculate tfirst touch
-				}
-				if (object2.max.y > object1.min.y) {
-					tLast = min((object1.min.y - object2.max.y) / Rvel.y, tLast); //calculate tlast touch
-				}
-			}
-			if (Rvel.y > 0.0)
-			{
-				if (object2.min.y > object1.max.y) {
-					return 0; // not collison moving apart 
 
-				}
-				if (object2.max.y < object1.min.y) {
-					tFirst = max((object1.min.y - object2.max.y) / Rvel.y, tFirst);  // cacluate tfirst touch
-
-				}
-				if (object1.max.y > object2.min.y) {
-					tLast = min((object1.max.y - object2.min.y) / Rvel.y, tLast);  //calculate tlast touch
-				}
 			}
-			if (tFirst > tLast) {
+
+			if (tFirst > tLast)
+			{
 				return 0; //no collision
 			}
-			else { return 1; }  //dynamic collision
+
+			if (Rvel.y < 0.0) //if relative velocity y < 0
+			{
+				if (object2.maxy < object1.miny)
+				{
+					return 0; // not collison moving apart 
+				}
+				if (object1.maxy < object2.miny)
+				{
+					tFirst = max((object1.maxy - object2.miny) / Rvel.y, tFirst); //calculate tfirst touch
+				}
+				if (object2.maxy > object1.miny)
+				{
+					tLast = min((object1.miny - object2.maxy) / Rvel.y, tLast); //calculate tlast touch
+				}
+			}
+
+			if (Rvel.y > 0.0)
+			{
+				if (object2.miny > object1.maxy)
+				{
+					return 0; // not collison moving apart 
+
+				}
+				if (object2.maxy < object1.miny)
+				{
+					tFirst = max((object1.miny - object2.maxy) / Rvel.y, tFirst);  // cacluate tfirst touch
+
+				}
+				if (object1.maxy > object2.miny)
+				{
+					tLast = min((object1.maxy - object2.miny) / Rvel.y, tLast);  //calculate tlast touch
+				}
+
+			}
+
+			if (tFirst > tLast || tFirst == 0)
+			{
+				return 0; //no collision
+			}
+
+			else
+			{
+				return 1;  //dynamic collision
+			}
 		}
+
 		return 1;  //static collision 
 	}
+
 };
 
 /*																				system::ATTACK
@@ -612,7 +784,7 @@ struct Com_Projectile {
 
 
 struct Sys_Projectile : public System {
-	Factory::SpriteData data = { "test", 1, 1, 1, 100.0f, 50.0f, 50.0f };
+	Factory::SpriteData data = { "test", 20, 20, 1, 100.0f, 100.0f, 100.0f };
 	//passing in of player's data 
 	virtual void CreateProjectile(Com_Direction& direction,Com_Position& position) {
 		//calling the factory fnc
@@ -624,10 +796,10 @@ struct Sys_Projectile : public System {
 struct Sys_PlayerAttack : public Sys_Projectile {
 	void UpdateComponent() override {
 
-		if (AEInputCheckCurr(VK_SPACE)) {
-			Com_Direction& direction = get<Com_Direction>();
-			Com_WeaponAttack& weapon = get<Com_WeaponAttack>();
-			Com_Position& position = get<Com_Position>();
+		Com_Direction& direction = get<Com_Direction>();
+		Com_WeaponAttack& weapon = get<Com_WeaponAttack>();
+		Com_Position& position = get<Com_Position>();
+		if (AEInputCheckTriggered(VK_SPACE)) {
 			if (direction.currdir == direction.up) {
 				//if character holding to sword 
 				if (weapon.currentweapon == weapon.sword) {
@@ -640,7 +812,6 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 					//shoot out projectile 
 					CreateProjectile(direction, position);
 				}
-
 			}
 			if (direction.currdir == direction.down) {
 				//if character holding to sword 
@@ -681,10 +852,31 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 					CreateProjectile(direction, position);
 				}
 			}
+			//if it's a bomb
+			if (weapon.currentweapon == weapon.bomb) {
+				//create a bomb on current tile 
+				Plant_Bomb(position);
+			}
+		}
+		//change weapon 
+		if (AEInputCheckTriggered(AEVK_0)) {
+			weapon.currentweapon = weapon.sword;
+		}
+		if (AEInputCheckTriggered(AEVK_1)) {
+			weapon.currentweapon = weapon.pistol;
+		}
+		if (AEInputCheckTriggered(AEVK_2)) {
+			weapon.currentweapon = weapon.bomb;
 		}
 	}
 	void sword_attack(Com_Direction& direction, Com_Position& position) {
 		//pending 
+	}
+	void Plant_Bomb(Com_Position& position) {
+		//setting the sprite data to pass in 
+		Factory::SpriteData data{ "kaboom", 40.0f, 40.0f, 1, 1, 1, 0.15f };
+		//creating the bomb 
+		Factory::Instance().FF_CreateBomb(data, position.x,position.y);
 	}
 };
 
@@ -734,51 +926,62 @@ struct Sys_Projectile2 : public System {
 //for spawning of enemies 
 -------------------------------------------*/
 struct Com_EnemySpawn{
-	size_t numberofenemies{ 5 }; //number of enemies to spawn 
+	size_t numberofenemies{ 2 }; //number of enemies to spawn
+	size_t CurrNoOfEnemies{ 0 }; //keep track of enemies on map
 };
 
 struct Com_Wave{
-	size_t timerforwave{ 60 }; //if timer hits 0 in secsm spawn new wave 
+	size_t timerforwave{ 10 }; //if timer hits 0 in secsm spawn new wave 
 	size_t numberofwaves{ 3 }; //if number of wave hit 0, level unlocked 
 };
 
 //logic for spawning of enemies 
 struct Sys_EnemySpawning : public System {
+	// Initialization
+	eid _tilemap = {-1};
+
+
 	void UpdateComponent() override {
 		Com_EnemySpawn& Enemyspawn = get<Com_EnemySpawn>();
 		Com_Wave& wave = get<Com_Wave>();
-		Com_GameTimer& timer = get<Com_GameTimer>();
+		//Com_GameTimer& timer = get<Com_GameTimer>();
+		static float alarm = 0;
+		alarm += _dt;
 		//if the timer hits for set time 
 		//if timer hit 0 spawn wave/ number of enemies hit 0 
-		if (timer.timerinseconds == wave.timerforwave || Enemyspawn.numberofenemies == 0) {
+		if (alarm > wave.timerforwave || Enemyspawn.numberofenemies == 0) 
+		{
 			//spawning of enemies 
-			spawn_enemies();
-			--wave.numberofwaves; //decrease the number of waves left 
-			timer.timerinseconds = 0;
+			if (Enemyspawn.CurrNoOfEnemies < 6) 
+			{
+				spawn_enemies(Enemyspawn);
+				--wave.numberofwaves; //decrease the number of waves left 
+				alarm = 0;
+			}
+			
 		}
 	}
-	void spawn_enemies() {
+	void spawn_enemies(Com_EnemySpawn& enem) {
 		//spawn enemy at a certain location
 		//create enemy entity 
 		/*Factory::Instance().CreateEntity<Com_Sprite, Com_Position, Com_BoundingBox, Com_Direction, 
 			Com_TilePosition, Com_Tilemap,Com_TypeEnemy,Com_EnemySpawn,Com_Wave>();*/
+		int i = 0;
+		while (i < enem.numberofenemies) 
+		{
+			Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
+			eid enemy = Factory::Instance().FF_CreateEnemy(data1, _tilemap, 5,2);
+			Factory::Instance()[enemy].AddComponent<Com_YLayering, Com_Node, Com_PathFinding>();
+			++enem.CurrNoOfEnemies;
+			++i;
+		}
 	}
-};
 
+};
 
 /*-------------------------------------
 			//for attack of enemies 
 -------------------------------------------*/
-
-struct Com_TypeEnemy {
-	enum EnemyType
-	{
-		Alien1, //melee
-		Alien2  //range
-	};
-	size_t Alientype{ 0 };
-};
-
 
 //logic for attack of enemies 
 struct Sys_EnemyAttack : public Sys_Projectile {
@@ -809,10 +1012,12 @@ struct Sys_EnemyAttack : public Sys_Projectile {
 //frame rate non independent timer 
 struct Sys_GameTimer : public System {
 	void UpdateComponent() override {
-		++get<Com_GameTimer>().incrementer;
-		if (AEFrameRateControllerGetFrameRate() < get<Com_GameTimer>().incrementer) {
-			get<Com_GameTimer>().incrementer = 0; //reset incrementer 
-			++get<Com_GameTimer>().timerinseconds; //add 1 sec
+		Com_GameTimer& gametimer = get<Com_GameTimer>();
+		++gametimer.incrementer;
+		if (AEFrameRateControllerGetFrameRate() < gametimer.incrementer) {
+			//std::cout << gametimer.timerinseconds << "\n";
+			gametimer.incrementer = 0; //reset incrementer 
+			++gametimer.timerinseconds; //add 1 sec
 		}
 	}
 };
@@ -823,68 +1028,81 @@ ________________________________________________________________________________
 
 struct Sys_PathFinding : public System
 {
+		eid playerPos{ -1 };
 	void UpdateComponent() override {
-		Com_Node* ode = &get<Com_Node>();
-		Com_Tilemap& tile = get<Com_Tilemap>();
-		Com_Position& PlayerPos = get<Com_Position>();
+		Com_Node& ode = get<Com_Node>();
+		Com_TilemapRef& tilemapref = get<Com_TilemapRef>();
+		Com_Tilemap* tile = tilemapref._tilemap;
+		Com_TilePosition& EnemyPos = get<Com_TilePosition>();
+		//PlayerPos._grid_x += 1;
+
+		MapCreate(ode, tile, EnemyPos, playerPos);
+		Solve_AStar(ode, EnemyPos);
+		//MoveEnemy(PlayerPos, ode, tile);
+		
+	
 	}
 	
 
-void MapCreate(Com_Node& ode, const Com_Tilemap& tile)
+void MapCreate(Com_Node& ode, const Com_Tilemap* tile, Com_TilePosition& enemyPos, eid& player)
 {
 	// Create a 2D array of nodes - this is for convenience of rendering and construction
 	// and is not required for the algorithm to work - the nodes could be placed anywhere
 	// in any space, in multiple dimension
-	int height = tile._height;
-	int width = tile._width;
-	int MapArea = width * height;
-	//vector<Com_PathFinding> nodes(MapArea); // create vector with size MapArea
+	ode.MapHeight = tile->_height;
+	ode.MapWidth = tile->_width;
+	int MapArea = ode.MapHeight * ode.MapWidth;
 	ode.nodes = new Com_PathFinding[MapArea];
-	for (int y = 0; y < height; y++)
-		for (int x = 0; x < width; x++)
+	for (int y = 0; y < ode.MapHeight; y++)
+	{
+		for (int x = 0; x < ode.MapWidth; x++)
 		{
-			ode.nodes[x * height + y].x = x; // to give each node its own coordinates
-			ode.nodes[x * height + y].y = y;
+			ode.nodes[x * ode.MapHeight + y].x = x; // to give each node its own coordinates
+			ode.nodes[x * ode.MapHeight + y].y = y;
 			// set everything to default value 1st
-			ode.nodes[x * height + y].bObstacle = false;
-			ode.nodes[x * height + y].parent = nullptr;
-			ode.nodes[x * height + y].bVisited = false;
+			ode.nodes[x * ode.MapHeight + y].bObstacle = false;
+			ode.nodes[x * ode.MapHeight + y].parent = nullptr;
+			ode.nodes[x * ode.MapHeight + y].bVisited = false;
 		}
-
+	}
 	// Create connections - in this case nodes are on a regular grid
-	for (int y = 0; y < height; y++)
-		for (int x = 0; x < width; x++)
+	for (int y = 0; y < ode.MapHeight; y++)
+		for (int x = 0; x < ode.MapWidth; x++)
 		{
 			if (x > 0)
-				ode.nodes[x * height + y].vecNeighbours.push_back(&ode.nodes[(x - 1) * height + (y + 0)]);
-			if (x < width - 1)
-				ode.nodes[x * height + y].vecNeighbours.push_back(&ode.nodes[(x + 1) * height + (y + 0)]);
+				ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x - 1) * ode.MapHeight + (y + 0)]);
+			if (x < ode.MapWidth - 1)
+				ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x + 1) * ode.MapHeight + (y + 0)]);
 			if (y > 0)
-				ode.nodes[x * height + y].vecNeighbours.push_back(&ode.nodes[(x + 0) * height + (y - 1)]);
-			if (y < height - 1)
-				ode.nodes[x * height + y].vecNeighbours.push_back(&ode.nodes[(x + 0) * height + (y + 1)]);
+				ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x + 0) * ode.MapHeight + (y - 1)]);
+			if (y < ode.MapHeight - 1)
+				ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x + 0) * ode.MapHeight + (y + 1)]);
 
 		}
 
 	// Manually positio the start and end markers so they are not nullptr
-	ode.nodeStart = &ode.nodes[(height / 2) * width + 1];
-	ode.nodeEnd = &ode.nodes[(height / 2) * width + width - 2];
+	//ode.nodeStart = &ode.nodes[(ode.MapHeight / 2) * ode.MapWidth + 1];
+	//ode.nodeEnd = &ode.nodes[(ode.MapHeight / 2) * ode.MapWidth + ode.MapWidth - 2];
+	ode.nodeStart = &ode.nodes[(enemyPos._grid_x * ode.MapHeight) + enemyPos._grid_y];
+	ode.nodeEnd = &ode.nodes[(Factory::Instance()[player].Get<Com_TilePosition>()._grid_x * ode.MapHeight) + (Factory::Instance()[player].Get<Com_TilePosition>()._grid_y)];
+	/*ode.nodeStart->x = enemyPos._grid_x;
+	ode.nodeStart->y = enemyPos._grid_y;
+	ode.nodeEnd->x = 0;
+	ode.nodeEnd->y = 0;*/
+
 }
 
-bool Solve_AStar(Com_Node& ode, Com_Tilemap& tile)
+void Solve_AStar(Com_Node& ode, Com_TilePosition& enemyPos)
 {
-	int height = tile._height;
-	int width = tile._width;
-	int MapArea = width * height;
-	//vector<Com_PathFinding> nodes(MapArea); // create vector with size MapArea
+	
 	// Reset Navigation Graph - default all node states
-	for (int y = 0; y < height; y++)
-		for (int x = 0; x < width; x++)
+	for (int y = 0; y < ode.MapHeight; y++)
+		for (int x = 0; x < ode.MapWidth; x++)
 		{
-			ode.nodes[x * height + y].bVisited = false;
-			ode.nodes[x * height + y].fGlobalGoal = INFINITY;
-			ode.nodes[x * height + y].fLocalGoal = INFINITY;
-			ode.nodes[x * height + y].parent = nullptr;	// No parents
+			ode.nodes[x * ode.MapHeight + y].bVisited = false;
+			ode.nodes[x * ode.MapHeight + y].fGlobalGoal = INFINITY;
+			ode.nodes[x * ode.MapHeight + y].fLocalGoal = INFINITY;
+			ode.nodes[x * ode.MapHeight + y].parent = nullptr;	// No parents
 		}
 
 	auto distance = [](Com_PathFinding* a, Com_PathFinding* b) // For convenience
@@ -921,6 +1139,7 @@ bool Solve_AStar(Com_Node& ode, Com_Tilemap& tile)
 		// list may also contain nodes that have been visited, so ditch these...
 		while (!listNotTestedNodes.empty() && listNotTestedNodes.front()->bVisited)
 			listNotTestedNodes.pop_front();
+			
 
 		// ...or abort because there are no valid nodes left to test
 		if (listNotTestedNodes.empty())
@@ -956,15 +1175,115 @@ bool Solve_AStar(Com_Node& ode, Com_Tilemap& tile)
 				// and search along the next best path.
 				nodeNeighbour->fGlobalGoal = nodeNeighbour->fLocalGoal + heuristic(nodeNeighbour, ode.nodeEnd);
 			}
+			static float alarm = 0;
+			alarm += _dt;
+			if(alarm > 15.0f)
+			{
+				//std::cout << nodeNeighbour->x << std::endl;
+				//std::cout << nodeNeighbour->y << std::endl;
+				enemyPos._grid_x = nodeNeighbour->x; // with this code is just teleporting
+				enemyPos._grid_y = nodeNeighbour->y;
+				alarm = 0;
+			}
 		}
 	}
 
-	return true;
+	//return true;
 }
 
+//void MoveEnemy(Com_TilePosition& enemyPos, Com_Node& ode, Com_Tilemap* tile)
+//{
+//	if (Solve_AStar(ode) == true) 
+//	{
+//		static float alarm = 0;
+//		alarm += _dt;
+//		if(alarm > 1.0f)
+//		{
+//			enemyPos._grid_x += 1; // need to based on the player pos but not yet
+//			enemyPos._grid_y += 1;
+//			alarm = 0;
+//		}
+//	}
+//}
 
 };
 
+
+struct Com_Particle {
+	size_t lifetime{ 2 };
+};
+
+struct Sys_ParticleSys : public System {
+	void UpdateComponent() override {
+		Com_Particle& particle = get<Com_Particle>();
+		Com_GameTimer& timer = get<Com_GameTimer>();
+		//if the particle reaches the end of it's short life 
+		if (timer.timerinseconds == particle.lifetime)
+		{
+			//RemoveEntity();
+		}
+	}
+};
+
+
+struct Com_ParticleEmitter {
+	size_t timeforemitter{ 5 };
+	size_t numberofparticle{ 20 };
+	bool active{true};
+};
+
+
+
+struct Sys_ParticleEmitter : public System {
+	void UpdateComponent() override {
+		Com_GameTimer& timer = get<Com_GameTimer>();
+		Com_ParticleEmitter& emitter = get<Com_ParticleEmitter>();
+		Com_Position& position = get<Com_Position>();
+		//if timer reaches 0 emit particles 
+		if (emitter.active == true) {
+			if (timer.timerinseconds == emitter.timeforemitter)
+			{
+				for (int i{ 0 }; i < emitter.numberofparticle; ++i) {
+					//create particles 
+					emitparticle();
+				}
+				timer.timerinseconds = 0;
+				//RemoveEntity();
+			}
+		}
+	}
+
+	void emitparticle() {
+		//create particle sprite 
+		float min{-50.0f };
+		float max{ 50.0f };
+		//create random sprite data 
+		float rand_sizex = min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - ((min)))));
+		float rand_sizey = min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - ((min)))));
+		float rand_velocityx = min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - ((min)))));
+		float rand_velocityy = min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - ((min)))));
+		Factory::SpriteData data{ "test", rand_sizex, rand_sizey, 2, 3, 8, 0.15f };
+		//Factory::SpriteData data = { "test3", 1,8, 8, 0.1f, rand_sizex, rand_sizey };
+		//create particle 
+		Factory::Instance().FF_CreateParticle(data, get<Com_Position>().x, get<Com_Position>().y, rand_velocityx ,rand_velocityy);
+	}
+};
+
+
+
+struct Com_Health {
+	size_t health{ 3 };
+};
+
+struct Sys_HealthUpdate : public System {
+	void UpdateComponent() override {
+		Com_Health& health = get<Com_Health>();
+		//if no more health remove entity 
+		if (health.health == 0) {
+			//RemoveEntity();
+		}
+	}
+};
 /*																				system::GUI
 ____________________________________________________________________________________________________*/
 struct Sys_GUISurfaceRender : public System {

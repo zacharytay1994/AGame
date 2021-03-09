@@ -26,6 +26,9 @@ void ChangeTestScene(Com_GUISurface* surface) {
 
 void ChangeShootingRangeScene(Com_GUISurface* surface) {
 	SceneManager::Instance().ChangeScene("ShootingRange");
+	
+void ChangeWilf(Com_GUISurface* surface) {
+	SceneManager::Instance().ChangeScene("TestScenewilfred");
 }
 
 struct MainMenu : public Scene {
@@ -63,7 +66,7 @@ struct MainMenu : public Scene {
 		Factory::Instance().FF_CreateGUIChildSurfaceText(_change_scene, { "transparent" }, 0.5f, 0.08f, 0.9f, 0.05f, "Select Scene", "courier");					// clickable child surface text
 		Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, { "background1" }, 0.5f, 0.2f, 0.9f, 0.08f, ChangeTestScene, "Aus", "courier");	// clickable child surface text
 		Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, { "background1" }, 0.5f, 0.4f, 0.9f, 0.08f, ChangeShootingRangeScene, "Noel", "courier");	// clickable child surface text
-		Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, { "background1" }, 0.5f, 0.6f, 0.9f, 0.08f, ChangeTestScene, "Wilf", "courier");	// clickable child surface text
+		Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, { "background1" }, 0.5f, 0.6f, 0.9f, 0.08f, ChangeWilf, "Wilf", "courier");	// clickable child surface text
 		Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, { "background1" }, 0.5f, 0.8f, 0.9f, 0.08f, ChangeTestScene, "Zac", "courier");	// clickable child surface text
 		Factory::Instance().FF_CreateGUIChildClickableSurface(_change_scene, { "cross" }, 0.9f, 0.05f, 0.08f, 0.04f, ToggleChangeSceneButton);						// clickable child surface text
 

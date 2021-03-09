@@ -168,8 +168,9 @@ eid Factory::FF_Createproj(const SpriteData& data, const int& x, const int& y, c
 {
     eid id = FF_Sprite(data, static_cast<float>(x), static_cast<float>(y));
     //for the projectile not the entity calling it 
-    Factory::Instance()[id].AddComponent<Com_WeaponAttack,Com_Velocity>();
+    Factory::Instance()[id].AddComponent<Com_WeaponAttack,Com_Velocity,Com_Boundary, Com_objecttype, Com_CollisionData, Com_BoundingBox>();
     Entity& e = Factory::Instance()[id];
+    e.Get<Com_objecttype>().objtype = Com_objecttype::bullett;
     //setting of velocity which is not initialized 
     //Com_Direction& direction = e.Get<Com_Direction>();
     Com_Velocity& velocity = e.Get<Com_Velocity>();
@@ -207,30 +208,35 @@ eid Factory::FF_Createproj2(const SpriteData& data, const int& x, const int& y, 
 
 eid Factory::FF_CreateEnemy(const SpriteData& data, const eid& tilemap, const int& x, const int& y) {
     eid id = FF_Sprite(data, 0.0f, 0.0f);
-    Factory::Instance()[id].AddComponent<Com_TilePosition, Com_TilemapRef, Com_Direction,Com_EnemySpawn>();
+    Factory::Instance()[id].AddComponent<Com_TilePosition, Com_TilemapRef, Com_Direction, Com_EnemySpawn>();
     Entity& e = Factory::Instance()[id];
     e.Get<Com_TilePosition>() = { x,y,x,y };
     e.Get<Com_TilemapRef>()._tilemap = &Factory::Instance()[tilemap].Get<Com_Tilemap>();
     return id;
 }
 
-//eid Factory::FF_SpriteRandomPosition(const SpriteData& data, const float& x, const float& y, const float& velX, const float& velY)
-//{
-//    eid id = CreateEntity<Com_Position, Com_Sprite, Com_Velocity>();
-//    Entity& e = Factory::Instance()[id];
-//    Com_Sprite& sprite = e.Get<Com_Sprite>();
-//    // gets texture and mesh resources from resource manager
-//    ResourceManager::Instance().GetResource(sprite._texture, sprite._mesh, data.texturename, data.row, data.col, data.frames);
-//    sprite._x_scale = data.scalex;
-//    sprite._y_scale = data.scaley;
-//    sprite._row = data.row;
-//    sprite._col = data.col;
-//    sprite._frames = data.frames;
-//    sprite._frame_interval = data.interval;
-//
-//    e.Get<Com_Position>() = { x,y };
-//    e.Get<Com_Velocity>() = { velX,velY };
-//
-//    return id;
-//}
 
+
+eid Factory::FF_CreateParticle(const SpriteData& data, const int& x, const int& y,const float& velx, const float& vely) {
+    float min{ 200.0f };
+    float max{ 200.0f };
+    float lifetimemin{ 0.0f };
+    float lifetimemax(10.0f);
+    eid id = FF_Sprite(data, x, y);
+    Factory::Instance()[id].AddComponent<Com_Velocity, Com_Particle,Com_GameTimer,Com_Boundary, Com_BoundingBox>();
+    Entity& e = Factory::Instance()[id];
+    e.Get<Com_Velocity>().x = velx;
+    e.Get<Com_Velocity>().y = vely;
+    //e.Get<Com_Particle>().lifetime = lifetimemin + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (lifetimemax - (lifetimemin))));
+    return id;
+}
+
+eid Factory::FF_CreateBomb(const SpriteData& data, const int& x, const int& y)
+{
+    eid id = FF_Sprite(data, x, y);
+    //for the projectile not the entity calling it 
+    Factory::Instance()[id].AddComponent<Com_WeaponAttack, Com_Velocity, Com_Boundary, Com_ParticleEmitter,Com_GameTimer>();
+    Entity& e = Factory::Instance()[id];
+    //setting of velocity which is not initialized 
+    return id;
+}

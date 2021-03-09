@@ -312,6 +312,7 @@ void ResourceManager::Initialize()
 	LoadTexture("skeleton", "temp1.png");
 	LoadTexture("coolguy", "temp2.png");
 	LoadTexture("box", "box.png");
+	LoadTexture("kaboom", "kaboom.png");
 	LoadTexture("menubutton", "testgui.png");
 	// gui textures
 	LoadTexture("menubackground", "mainmenubackground.png");
