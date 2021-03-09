@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include "Factory.h"
 
 struct BulletSpawn
 {
@@ -18,6 +19,7 @@ class Weapon
 		~Weapon();						// Default destructor
 
 		virtual void Weapon_Shoot();	// What happens when weapon is fired
+		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap) const;
 		virtual void Weapon_Reload();	// What happens when weapon is reloaded
 
 		const unsigned int	GetWeapon_ID() const;
@@ -41,6 +43,8 @@ class Weapon
 		void SetWeapon_Capacity(unsigned int new_Capacity);
 		void SetWeapon_Pattern(std::vector<BulletSpawn> const& rhs);
 
+		std::vector<BulletSpawn> weapon_Pattern;
+
 	private:
 		const unsigned int weapon_ID;
 		std::string weapon_Name;
@@ -51,12 +55,36 @@ class Weapon
 		int weapon_curr_ReloadTimer;
 		int weapon_curr_Capacity;
 		bool weapon_unlocked;
+};
 
-		std::vector<BulletSpawn> weapon_Pattern;
+class NoWeapon : public Weapon
+{
+	public:
+		NoWeapon();				// Default constructor
 };
 
 class Pistol : public Weapon
 {
 	public:
 		Pistol();				// Default constructor
+};
+
+class TrickPistol : public Weapon
+{
+	public:
+		TrickPistol();
+		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap) const;
+};
+
+class DualPistol : public Weapon
+{
+	public:
+		DualPistol();
+};
+
+class DualDiagPistol : public Weapon
+{
+	public:
+		DualDiagPistol();
+		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap) const;
 };

@@ -166,7 +166,7 @@ eid Factory::FF_CreateGUISettings()
 
 eid Factory::FF_Createproj(const SpriteData& data, const int& x, const int& y, const Com_Direction& direction)
 {
-    eid id = FF_Sprite(data, x, y);
+    eid id = FF_Sprite(data, static_cast<float>(x), static_cast<float>(y));
     //for the projectile not the entity calling it 
     Factory::Instance()[id].AddComponent<Com_WeaponAttack,Com_Velocity,Com_Boundary, Com_objecttype, Com_CollisionData, Com_BoundingBox>();
     Entity& e = Factory::Instance()[id];
@@ -191,6 +191,17 @@ eid Factory::FF_Createproj(const SpriteData& data, const int& x, const int& y, c
         velocity.x = 0.0f;
         velocity.y = -100.0f;
 	}
+    return id;
+}
+
+eid Factory::FF_Createproj2(const SpriteData& data, const int& x, const int& y, const int& vel_x, const int& vel_y, eid const& tilemap)
+{
+    eid id = FF_SpriteTile(data, tilemap, x, y);
+    //for the projectile not the entity calling it 
+    Entity& e = Factory::Instance()[id].AddComponent<Com_Projectile>();
+    Com_Projectile& proj = e.Get<Com_Projectile>();
+    proj.grid_vel_x = vel_x;
+    proj.grid_vel_y = vel_y;
     return id;
 }
 

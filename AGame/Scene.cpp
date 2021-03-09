@@ -110,12 +110,16 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem <Sys_Boundingbox, Com_BoundingBox, Com_Position,Com_Sprite>();
 	SystemDatabase::Instance().RegisterSystem <Sys_AABB, Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_objecttype>();
 
+	SystemDatabase::Instance().RegisterSystem<Sys_Projectile2, Com_TilePosition, Com_Projectile>();
+
+
 	// GUI SYSTEMS
 	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceRender, Com_Position, Com_GUISurface, Com_Sprite>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceMouseCheck, Com_GUIMouseCheck, Com_Position, Com_GUISurface>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceOnClick, Com_GUIOnClick, Com_GUIMouseCheck, Com_GUISurface>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUIDrag, Com_GUIMouseCheck, Com_GUIDrag, Com_GUISurface>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUITextRender, Com_Position, Com_GUISurface, Com_Text>();
+
 
 	// 4. Registering scenes
 	AddScene<TestScene>("Test Scene");
@@ -126,6 +130,7 @@ void SceneManager::Initialize() {
 	AddScene<MainMenu>("Main Menu");
 	AddScene<TestScenewilfred>("TestScenewilfred");
 	AddScene<Menu>("Menu");
+	AddScene<ShootingRange>("ShootingRange");
 }
 
 void SceneManager::Free()
