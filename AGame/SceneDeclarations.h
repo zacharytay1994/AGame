@@ -63,7 +63,7 @@ struct TestScene : public Scene {
 
 		//tilemap = Factory::Instance().FF_Sprite(data, 0.0f, 0.0f);
 
-		//SystemDatabase::Instance().GetSystem<Sys_Projectile>().tilemap = tilemap;
+		//SystemDatabase::Instance().GetSystem<Sys_GUISurfaceOnClick>()->_left_mouse = true;
 
 		player = Factory::Instance().FF_SpriteTile(data, tilemap, 5, 2);
 		Factory::Instance()[player].AddComponent<Com_YLayering>();
@@ -297,21 +297,7 @@ struct ExampleScene : public Scene {
 	}
 };
 
-struct MainMenu : public Scene {
-	Vec2f a{ 1.2f,1.3f };
-	Vec2f b{ 2.3,3.5 };
-	void Initialize() override {
-		std::cout << "SYSTEM MESSAGE: Now entering main menu." << std::endl;
-		/*std::cout << a - b << std::endl;
-		std::cout << b - a << std::endl;*/
-		a.Print();
-	}
-	void Update(const float& dt) override {
-		if (AEInputCheckTriggered('C')) {
-			SceneManager::Instance().ChangeScene("Test Scene");
-		}
-	}
-};
+struct MainMenu;
 
 /*___________________________________________________________________
 	TEST FOR PATHFINDING - Created By : Aus

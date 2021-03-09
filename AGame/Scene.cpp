@@ -1,5 +1,6 @@
 #include "Scene.h"
 #include "SceneDeclarations.h"
+#include "MainMenu.h"
 #include "zSystem.h"
 #include "CSHeaderDef.h"
 #include "ResourceManager.h"
@@ -72,6 +73,13 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GameTimer>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_YLayering>();
 
+	// GUI COMPONENTS
+	ComponentDescription_DB::Instance().RegisterComponent<Com_GUISurface>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_GUIMouseCheck>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_GUIOnClick>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_Text>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_GUIDrag>();
+
 	// 3. Registering all systems for the game
 	//SystemDatabase::Instance().RegisterSystem<Example_UpdatePosition, Position, Example_Velocity>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Tilemap, Com_Tilemap>();
@@ -90,6 +98,13 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeysTilemap, Com_TilePosition, Com_ArrowKeysTilemap>();
 	SystemDatabase::Instance().RegisterSystem<Sys_YLayering, Com_Sprite, Com_Position, Com_YLayering>();
 
+	// GUI SYSTEMS
+	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceRender, Com_Position, Com_GUISurface, Com_Sprite>();
+	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceMouseCheck, Com_GUIMouseCheck, Com_Position, Com_GUISurface>();
+	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceOnClick, Com_GUIOnClick, Com_GUIMouseCheck, Com_GUISurface>();
+	SystemDatabase::Instance().RegisterSystem<Sys_GUIDrag, Com_GUIMouseCheck, Com_GUIDrag, Com_GUISurface>();
+	SystemDatabase::Instance().RegisterSystem<Sys_GUITextRender, Com_Position, Com_GUISurface, Com_Text>();
+
 	// 4. Registering scenes
 	AddScene<TestScene>("Test Scene");
 	AddScene<TestScene2>("Test Scene 2");
@@ -104,6 +119,7 @@ void SceneManager::Initialize() {
 void SceneManager::Free()
 {
 	ResourceManager::Instance().ResetRenderQueue();
+	ResourceManager::Instance().ResetTextStack();
 	ResourceManager::Instance().FreeResources();
 }
 
@@ -130,6 +146,7 @@ void SceneManager::ChangeScene(const std::string& name) {
 		//_scenes[_current_scene_name] = std::make_shared<Scene>();
 	}
 	ResourceManager::Instance().ResetRenderQueue();
+	ResourceManager::Instance().ResetTextStack();
 	ArchetypeDatabase::Instance().FlushEntities();
 	_current_scene = _scenes[name];
 	_current_scene_name = name;
@@ -155,6 +172,7 @@ void SceneManager::Update(const float& dt)
 		_current_scene->Update(dt);
 		SystemDatabase::Instance().SystemDatabaseUpdate((float)AEFrameRateControllerGetFrameTime());
 		ResourceManager::Instance().FlushDraw();
+		ResourceManager::Instance().FlushDrawText();
 	}
 }
 

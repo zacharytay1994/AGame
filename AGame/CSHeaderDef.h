@@ -38,6 +38,12 @@ struct Com_WeaponAttack;
 // Nodes
 struct Com_PathFinding;
 struct Com_Node;
+// GUI
+struct Com_GUISurface;
+struct Com_GUIMouseCheck;
+struct Com_GUIOnClick;
+struct Com_GUIDrag;
+struct Com_Text;
 /*__________________________________________________________________________________________________
 																				Component::BASIC DATA
 ____________________________________________________________________________________________________*/
@@ -69,6 +75,7 @@ struct Com_Sprite {
 	float				_frame_interval_counter = 0.0f;
 	int					_row = 1;
 	int					_col = 1;
+	bool				_visible{ true };
 };
 
 struct Com_Direction {
@@ -203,7 +210,34 @@ struct Com_Node
 
 /*																				Component::GUI
 ____________________________________________________________________________________________________*/
-struct Com_Button {
+struct Com_GUISurface {
+	Vec2f			_position{ 0.0f, 0.0f };
+	Vec2f			_n_position{ 0.0f,0.0f };
+	Vec2f			_dimensions{ 1.0f, 1.0f };
+	Vec2f			_ph_dimensions{ 1.0f, 1.0f };
+	Com_GUISurface* _parent_surface{ nullptr };
+	Com_Position*	_parent_position{ nullptr };
+	bool			_active{ true };
+	bool			_parent_active{ true };
+	int				_layer{ 0 };
+};
+
+struct Com_GUIMouseCheck {
+	bool _over{ false };
+};
+
+using OnClick = void(*)(Com_GUISurface* surface);
+struct Com_GUIOnClick {
+	OnClick _click_event{ nullptr };
+};
+
+struct Com_GUIDrag {
+	bool _held{ false };
+	Vec2f _click_position{ 0.0f,0.0f };
+};
+
+struct Com_Text {
+	TextPack _data;
 };
 
 /*___________________________________________________________________________________________________________________________________
@@ -224,6 +258,9 @@ struct Com_Button {
 		- Sys_AABB
 	>> attack
 		- Sys_Projectile
+	>> GUI
+		- Sys_GUISurfaceRender
+		- Sys_GUIFontRender
 ________________________________________________________________________*/
 /*																				system::BASIC SYSTEMS
 ____________________________________________________________________________________________________*/
@@ -254,6 +291,13 @@ struct Sys_WeaponAttack;
 ____________________________________________________________________________________________________*/
 struct Sys_PathFinding;
 
+/*																				system::GUI
+____________________________________________________________________________________________________*/
+struct Sys_GUISurfaceRender;
+struct Sys_GUISurfaceMouseCheck;
+struct Sys_GUISurfaceOnClick;
+struct Sys_GUITextRender;
+
 /*___________________________________________________________________________________________________________________________________
 	SYSTEM DEFINITIONS																						<<	SYSTEM DEFINITIONS  >>
 _____________________________________________________________________________________________________________________________________*/
@@ -272,9 +316,13 @@ struct Sys_Velocity : public System {
 struct Sys_DrawSprite : public System {
 	std::vector<Com_Sprite*> con;
 	void UpdateComponent() override {
+		Com_Sprite& sprite = get<Com_Sprite>();
+		if (!sprite._visible) {
+			return;
+		}
 		//	// form the matrix
 		AEMtx33 trans{ 0 }, scale{ 0 }, rot{ 0 };
-		Draw(get<Com_Sprite>(), get<Com_Position>());
+		Draw(sprite, get<Com_Position>());
 	}
 	void Draw(Com_Sprite& sprite, Com_Position& position) {
 		AEMtx33 trans, scale, rot;
@@ -294,7 +342,7 @@ struct Sys_DrawSprite : public System {
 		AEMtx33Concat(&sprite._render_pack._transform, &rot, &scale);
 		AEMtx33Concat(&sprite._render_pack._transform, &trans, &sprite._render_pack._transform);
 		// set aegfx variables
-		ResourceManager::Instance().DrawQueue(sprite._render_pack);
+		ResourceManager::Instance().DrawQueue(&sprite._render_pack);
 	}
 };
 
@@ -405,6 +453,8 @@ struct Sys_Tilemap : public System {
 	void DrawTilemap(Com_Tilemap& tilemap, const Com_Position& position) {
 		AEMtx33 trans, scale, transform;
 		AEMtx33Scale(&scale, tilemap._scale_x, tilemap._scale_y);
+		AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
+		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
 		for (size_t y = 0; y < (size_t)tilemap._height; ++y) {
 			for (size_t x = 0; x < (size_t)tilemap._width; ++x) {
 				if (tilemap._floor_mask[x * (size_t)tilemap._height + y] == -1) { continue; }
@@ -417,7 +467,10 @@ struct Sys_Tilemap : public System {
 					float _offset_y = (tilemap._floor_mask[x * (size_t)tilemap._height + y] / 4) * 1.0f / (float)4;
 					tilemap._render_pack._offset_x = (tilemap._floor_mask[x * (size_t)tilemap._height + y] % 4) * 1.0f / (float)4;
 					tilemap._render_pack._offset_y = (tilemap._floor_mask[x * (size_t)tilemap._height + y] / 4) * 1.0f / (float)4;
-					ResourceManager::Instance().DrawQueue(tilemap._render_pack);
+					//ResourceManager::Instance().DrawQueue(&tilemap._render_pack);
+					AEGfxSetTransform(tilemap._render_pack._transform.m);
+					AEGfxTextureSet(tilemap._render_pack._texture, tilemap._render_pack._offset_x, tilemap._render_pack._offset_y);
+					AEGfxMeshDraw(tilemap._render_pack._mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
 				}
 			}
 		}
@@ -944,4 +997,137 @@ void Solve_AStar(Com_Node& ode, Com_TilePosition& enemyPos)
 	}
 }
 
+};
+
+/*																				system::GUI
+____________________________________________________________________________________________________*/
+struct Sys_GUISurfaceRender : public System {
+	float _screen_width = (float)AEGetWindowWidth();
+	float _screen_height = (float)AEGetWindowHeight();
+	void UpdateComponent() override {
+		Com_GUISurface& surface = get<Com_GUISurface>();
+		Com_Position& position = get<Com_Position>();
+		Com_Sprite& sprite = get<Com_Sprite>();
+		if (surface._parent_surface) {
+			// set self active to parent active
+			if (surface._parent_active != surface._parent_surface->_active) {
+				surface._active = surface._parent_surface->_active;
+				surface._parent_active = surface._parent_surface->_active;
+			}
+			//surface._active = surface._parent_surface->_active ? surface._active : surface._parent_surface->_active;
+			surface._n_position.x = surface._parent_surface->_n_position.x + surface._parent_surface->_dimensions.x * (surface._position.x - 0.5f);
+			surface._n_position.y = surface._parent_surface->_n_position.y + surface._parent_surface->_dimensions.y * (surface._position.y - 0.5f);
+			// offset with parent
+			position.x = surface._parent_position->x - surface._parent_surface->_ph_dimensions.x + surface._position.x*surface._parent_surface->_ph_dimensions.x*2.0f;
+			position.y = surface._parent_position->y + surface._parent_surface->_ph_dimensions.y - surface._position.y*surface._parent_surface->_ph_dimensions.y*2.0f;
+		}
+		else {
+			// update sprite position with button
+			surface._n_position = surface._position;
+			position.x = (surface._position.x - 0.5f) * _screen_width;
+			position.y = -((surface._position.y - 0.5f) * _screen_height);
+		}
+		sprite._visible = surface._active;
+	}
+};
+
+struct Sys_GUISurfaceMouseCheck : public System {
+	Vec2i _mouse_position{ 0,0 };
+	Vec2f _screen_dimensions{ AEGetWindowWidth() / 2.0f,AEGetWindowHeight() / 2.0f };
+	void OncePerFrame() override {
+		AEInputGetCursorPosition(&_mouse_position.x, &_mouse_position.y);
+		_mouse_position.x -= _screen_dimensions.x;
+		_mouse_position.y -= _screen_dimensions.y;
+		_mouse_position.y *= -1;
+	}
+	void UpdateComponent() override {
+		Com_GUIMouseCheck& mouse = get<Com_GUIMouseCheck>();
+		Com_GUISurface& surface = get<Com_GUISurface>();
+		if (!surface._active) { return; }
+		Com_Position& position = get<Com_Position>();
+		// do bounding box check
+		mouse._over = !(_mouse_position.x < position.x - surface._ph_dimensions.x || _mouse_position.x > position.x + surface._ph_dimensions.x ||
+			_mouse_position.y < position.y - surface._ph_dimensions.y || _mouse_position.y > position.y + surface._ph_dimensions.y);
+	}
+};
+
+struct Sys_GUISurfaceOnClick : public System {
+	bool _left_mouse{ false };
+	void OncePerFrame() override {
+		_left_mouse = AEInputCheckTriggered(AEVK_LBUTTON);
+	}
+	void UpdateComponent() override {
+		Com_GUIOnClick& on_click = get<Com_GUIOnClick>();
+		Com_GUIMouseCheck& mouse = get<Com_GUIMouseCheck>();
+		Com_GUISurface& surface = get<Com_GUISurface>();
+		if (!surface._active) { return; }
+		// do bounding box check
+		if (mouse._over && _left_mouse) { 
+			on_click._click_event(&surface);
+		}
+	}
+};
+
+struct Sys_GUITextRender : public System {
+	char str_buffer[100];
+	void UpdateComponent() override {
+		Com_Position& position = get<Com_Position>();
+		Com_GUISurface& surface = get<Com_GUISurface>();
+		Com_Text& text = get<Com_Text>();
+		if (!surface._active) {
+			return;
+		}
+		Draw(position, text, surface);
+		text._data._position.x = surface._n_position.x * 2.0f - 1.0f;
+		text._data._position.y = -(surface._n_position.y * 2.0f - 1.0f);
+		ResourceManager::Instance().DrawStackText(text._data);
+	}
+	void Draw(const Com_Position& position, Com_Text& text, const Com_GUISurface& surface) {
+		//sprintf_s(str_buffer, text._text.c_str());
+		//AEGfxGetPrintSize(text._font, str_buffer, 1.0f, text._width, text._height);
+		//AEGfxPrint(text._font, const_cast<s8*>(text._text.c_str()), surface._position.x*2.0f-1.0f, -(surface._position.y*2.0f-1.0f), text._scale, 1.0f, text._g, text._b);
+	}
+};
+
+struct Sys_GUIDrag : public System {
+	bool _left_mouse{ false };
+	bool _left_mouse_triggered{ false };
+	Vec2f _n_mouse_position{ 0.0f,0.0f };
+	Vec2f _click_position{ 0.0f,0.0f };
+	Vec2f _offset{ 0.0f,0.0f };
+	void OncePerFrame() override {
+		_left_mouse = AEInputCheckCurr(AEVK_LBUTTON);
+		_left_mouse_triggered = AEInputCheckTriggered(AEVK_LBUTTON);
+		int x, y;
+		AEInputGetCursorPosition(&x, &y);
+		_n_mouse_position = { (float)x/(float)AEGetWindowWidth(), (float)y/(float)AEGetWindowHeight() };
+		if (_left_mouse_triggered) {
+			_click_position = _n_mouse_position;
+		}
+		if (_left_mouse) {
+			_offset = _n_mouse_position - _click_position;
+		}
+		else {
+			_offset = { 0.0f,0.0f };
+		}
+	}
+	void UpdateComponent() override {
+		Com_GUIMouseCheck& check = get<Com_GUIMouseCheck>();
+		Com_GUIDrag& drag = get<Com_GUIDrag>();
+		Com_GUISurface& surface = get<Com_GUISurface>();
+		if (check._over) {
+			if (_left_mouse_triggered) {
+				drag._held = true;
+				drag._click_position = surface._position;
+			}
+		}
+		// if released free all drag
+		if (!_left_mouse) {
+			drag._held = false;
+			drag._click_position = { 0.0f,0.0f };
+		}
+		if (drag._held && !surface._parent_surface) {
+			surface._position = drag._click_position + _offset;
+		}
+	}
 };

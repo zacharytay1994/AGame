@@ -72,8 +72,15 @@
     <ClInclude Include="Weapon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Vec2.h" />
-    <ClInclude Include="zMath.h" />
+    <ClInclude Include="Vec2.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="zMath.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="MainMenu.h">
+      <Filter>Header Files\Scenes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
@@ -90,6 +97,12 @@
     </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{ad9fb691-7574-4a50-b878-d6f64668a381}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Math">
+      <UniqueIdentifier>{b31cd2a5-62fb-44df-b0e4-45ff6b560935}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Scenes">
+      <UniqueIdentifier>{9de75edc-95c3-4ef6-b188-774898db1dcc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
