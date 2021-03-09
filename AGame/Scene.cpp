@@ -169,6 +169,9 @@ void SceneManager::Update(const float& dt)
 {
 	if (_current_scene) {
 		_current_scene->Update(dt);
+		if (AEInputCheckTriggered('H')) {
+			SceneManager::Instance().ChangeScene("Main Menu");
+		}
 		SystemDatabase::Instance().SystemDatabaseUpdate((float)AEFrameRateControllerGetFrameTime());
 		ResourceManager::Instance().FlushDraw();
 		ResourceManager::Instance().FlushDrawText();
