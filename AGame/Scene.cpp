@@ -6,6 +6,7 @@
 
 #include "Scene_MainMenu.h"
 #include "Scene_Zac.h"
+#include "Scene_Wilfred.h"
 
 #include <iostream>
 
