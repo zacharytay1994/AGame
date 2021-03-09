@@ -180,7 +180,7 @@ struct Com_PathFinding
 	vector<Com_PathFinding*> vecNeighbours;	// Connections to neighbours
 	Com_PathFinding* parent = nullptr;		// Node connecting to this node that offers shortest parent
 	
-	~Com_PathFinding()
+	/*~Com_PathFinding()
 	{
 		delete parent;
 		while (!vecNeighbours.empty()) 
@@ -188,7 +188,7 @@ struct Com_PathFinding
 			delete vecNeighbours.back();
 			vecNeighbours.pop_back();
 		}
-	}
+	}*/
 };
 
 struct Com_Node
@@ -199,12 +199,12 @@ struct Com_Node
 	int MapWidth = 0; 
 	int MapHeight = 0;
 	Com_PathFinding* nodes = nullptr;
-	~Com_Node()
+	/*~Com_Node()
 	{
 		delete nodes;
 		delete nodeStart;
 		delete nodeEnd;
-	}
+	}*/
 
 };
 
@@ -897,7 +897,8 @@ void Solve_AStar(Com_Node& ode, Com_TilePosition& enemyPos)
 
 	auto distance = [](Com_PathFinding* a, Com_PathFinding* b) // For convenience
 	{
-		return sqrtf((a->x - b->x) * (a->x - b->x) + (a->y - b->y) * (a->y - b->y));
+		return sqrtf((static_cast<float>(a->x) - static_cast<float>(b->x)) * (static_cast<float>(a->x) - static_cast<float>(b->x))
+			+ (static_cast<float>(a->y) - static_cast<float>(b->y)) * (static_cast<float>(a->y) - static_cast<float>(b->y)));
 	};
 
 	auto heuristic = [distance](Com_PathFinding* a, Com_PathFinding* b) // So we can experiment with heuristic
