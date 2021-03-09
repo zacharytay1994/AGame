@@ -975,12 +975,12 @@ void Solve_AStar(Com_Node& ode, Com_TilePosition& enemyPos)
 				enemyPos._grid_y = nodeNeighbour->y; 
 
 				alarm = 0;
-				std::cout << "Checked" << std::endl;
+				/*std::cout << "Checked" << std::endl;
 				std::cout << "nodeNeighbour->parent->x & y " << nodeNeighbour->parent->x << " + ";
 				std::cout << nodeNeighbour->parent->y << std::endl;
 				std::cout << "enemypos x & y " << enemyPos._grid_x << " + ";
 				std::cout << enemyPos._grid_y << std::endl;
-				std::cout << std::endl;
+				std::cout << std::endl;*/
 
 			}
 			else if (nodeNeighbour->parent == nullptr && alarm > 20.0f)
@@ -988,10 +988,10 @@ void Solve_AStar(Com_Node& ode, Com_TilePosition& enemyPos)
 				enemyPos._grid_x = nodeNeighbour->x; // to make sure it can reach the player
 				enemyPos._grid_y = nodeNeighbour->y;
 				alarm = 0;
-				std::cout << "Not Checked" << std::endl;
+				/*std::cout << "Not Checked" << std::endl;
 				std::cout << "enemypos x & y " << enemyPos._grid_x << " + ";
 				std::cout << enemyPos._grid_y << std::endl;
-				std::cout << std::endl;
+				std::cout << std::endl;*/
 			}
 		}
 	}
