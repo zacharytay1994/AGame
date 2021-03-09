@@ -818,7 +818,7 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 	}
 	void Plant_Bomb(Com_Position& position) {
 		//setting the sprite data to pass in 
-		Factory::SpriteData data{ "kaboom", 40.0f, 40.0f, 2, 3, 8, 0.15f };
+		Factory::SpriteData data{ "kaboom", 40.0f, 40.0f, 1, 1, 1, 0.15f };
 		//creating the bomb 
 		Factory::Instance().FF_CreateBomb(data, position.x,position.y);
 	}
