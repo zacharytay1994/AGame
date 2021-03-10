@@ -1416,3 +1416,36 @@ struct Sys_GUIDrag : public System {
 		}
 	}
 };
+
+
+//edits by wilfred
+struct Com_Obstacle {
+	enum obst {
+		bombbarrel,
+		breakablewall,
+	};
+	size_t obstacletype{ 0 };
+	size_t numofhitstodestroy{ 1 };
+};
+
+struct Sys_Obstacle : public System {
+
+	void UpdateComponent() override {
+		Com_Obstacle& obstacle = get<Com_Obstacle>();
+		//if it's a bomb barrel 
+		if (obstacle.obstacletype == obstacle.bombbarrel) {
+			//if hit, explode 
+			if (obstacle.numofhitstodestroy == 0) {
+				//explode 
+			}
+		}
+		//if it's a breakable wall 
+		if (obstacle.obstacletype == obstacle.breakablewall) {
+			if (obstacle.numofhitstodestroy == 0) {
+				//destroy wall, free space to walk on 
+			}
+		}
+	}
+};
+
+
