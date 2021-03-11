@@ -1,9 +1,12 @@
 #include "Scene.h"
 #include "SceneDeclarations.h"
-#include "MainMenu.h"
 #include "zSystem.h"
 #include "CSHeaderDef.h"
 #include "ResourceManager.h"
+
+#include "Scene_MainMenu.h"
+#include "Scene_Zac.h"
+
 #include <iostream>
 
 /*______________________________________________________
@@ -124,12 +127,10 @@ void SceneManager::Initialize() {
 	// 4. Registering scenes
 	AddScene<TestScene>("Test Scene");
 	AddScene<TestScene2>("Test Scene 2");
-	AddScene<TestScene3>("Test Scene 3");
 	AddScene<TestScenePF>("Test PathFinding");
 	AddScene<ExampleScene>("ExampleScene");
 	AddScene<MainMenu>("Main Menu");
 	AddScene<TestScenewilfred>("TestScenewilfred");
-	//AddScene<Menu>("Menu");
 	AddScene<ShootingRange>("ShootingRange");
 }
 
@@ -193,6 +194,7 @@ void SceneManager::Update(const float& dt)
 		SystemDatabase::Instance().SystemDatabaseUpdate((float)AEFrameRateControllerGetFrameTime());
 		ResourceManager::Instance().FlushDraw();
 		ResourceManager::Instance().FlushDrawText();
+		SystemDatabase::Instance().RemoveAllEntities();
 	}
 }
 

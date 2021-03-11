@@ -9,130 +9,76 @@
 #include "Inventory.h"
 #include <string>
 
-//#include "zMath.h"
+// GUI CODE
+eid _settings, _change_scene;
+
+void TestFunction(Com_GUISurface* surface) {
+	std::cout << "button1" << std::endl;
+}
+
+static bool _change_scene_toggle{ false };
+void ToggleChangeSceneButton(Com_GUISurface* surface) {
+	_change_scene_toggle = !_change_scene_toggle;
+}
+
+static bool _settings_toggle{ false };
+void SettingsButton(Com_GUISurface* surface) {
+	_settings_toggle = !_settings_toggle;
+}
+
+void QuitGame(Com_GUISurface* surface) {
+	std::cout << "button3" << std::endl;
+	SceneManager::Instance().StopGame();
+}
+
+void ChangeTestScene(Com_GUISurface* surface) {
+	SceneManager::Instance().ChangeScene("Test Scene");
+}
+
+void ChangeTestScenePF(Com_GUISurface* surface) {
+	SceneManager::Instance().ChangeScene("Test PathFinding");
+}
+
+void ChangeShootingRangeScene(Com_GUISurface* surface) {
+	SceneManager::Instance().ChangeScene("ShootingRange");
+}
+
+void ChangeWilf(Com_GUISurface* surface) {
+	SceneManager::Instance().ChangeScene("TestScenewilfred");
+}
+
+void ChangeMainMenu(Com_GUISurface* surface) {
+	SceneManager::Instance().ChangeScene("Main Menu");
+}
+
+void GUISettingsInitialize() {
+	_settings_toggle = false;
+	_change_scene_toggle = false;
+	Factory::Instance().FF_CreateGUIClickableSurface( { "settings" }, 0.96f, 0.04f, 0.04f, 0.04f, SettingsButton, 150);									// settings button
+	// settings menu
+	_settings = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.84f, 0.38f, 0.3f, 0.6f, 150);
+	Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, { "background1" }, 0.5f, 0.2f, 0.9f, 0.08f, ToggleChangeSceneButton, "Change Scene", "courier");	// clickable child surface text
+
+	// change scene menu
+	_change_scene = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.16f, 0.38f, 0.3f, 0.6f, 200);
+	Factory::Instance()[_change_scene].AddComponent<Com_GUIDrag, Com_GUIMouseCheck>();
+	Factory::Instance().FF_CreateGUIChildSurfaceText(_change_scene, { "transparent" }, 0.5f, 0.08f, 0.9f, 0.05f, "Select Scene", "courier");					// clickable child surface text
+	Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, { "background1" }, 0.5f, 0.2f, 0.9f, 0.08f, ChangeMainMenu, "Main", "courier");	// clickable child surface text
+	Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, { "background1" }, 0.5f, 0.35f, 0.9f, 0.08f, ChangeTestScenePF, "Aus", "courier");	// clickable child surface text
+	Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, { "background1" }, 0.5f, 0.5f, 0.9f, 0.08f, ChangeShootingRangeScene, "Noel", "courier");	// clickable child surface text
+	Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, { "background1" }, 0.5f, 0.65f, 0.9f, 0.08f, ChangeWilf, "Wilf", "courier");	// clickable child surface text
+	Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, { "background1" }, 0.5f, 0.8f, 0.9f, 0.08f, ChangeTestScene, "Zac", "courier");	// clickable child surface text
+	Factory::Instance().FF_CreateGUIChildClickableSurface(_change_scene, { "cross" }, 0.9f, 0.05f, 0.08f, 0.04f, ToggleChangeSceneButton);						// clickable child surface text
+}
+
+void GUISettingsUpdate() {
+	Factory::Instance()[_settings].Get<Com_GUISurface>()._active = _settings_toggle;
+	Factory::Instance()[_change_scene].Get<Com_GUISurface>()._active = _change_scene_toggle;
+}
 
 /*!___________________________________________________________________
 	TEST SCENE - Created By : Zac
 _____________________________________________________________________*/
-struct TestScene : public Scene {
-	/* 
-	Member Variables
-	________________________________*/
-	std::string test = "hello";
-	eid player = -1;
-	//Com_Tilemap tile;
-	eid tilemap = -1;
-	Factory::SpriteData data{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.15f };
-	Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
-	Factory::SpriteData data2{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.15f };
-	Factory::SpriteData data22{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.25f };
-	Factory::SpriteData data3{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
-	//Factory::SpriteData data{ 0,"test2", 1, 8, 8, 0.1f, 100.0f, 200.0f };
-	//Inventory playerInv;
-	/*
-	Initialize Override (optional)
-	________________________________*/
-	void Initialize() override {
-		std::cout << test << " this is a test scene" << std::endl;
-		std::cout << sizeof(Com_Tilemap) << std::endl;
-
-		tilemap = Factory::Instance().FF_Tilemap("tilemap", "c_test.txt", "t_test.txt");
-		Factory::Instance()[tilemap].Get<Com_Position>().x = -5;
-		Factory::Instance()[tilemap].Get<Com_Position>().y = 2;
-		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
-
-		//tilemap = Factory::Instance().FF_Sprite(data, 0.0f, 0.0f);
-
-		//SystemDatabase::Instance().GetSystem<Sys_GUISurfaceOnClick>()->_left_mouse = true;
-
-		player = Factory::Instance().FF_SpriteTile(data, tilemap, 5, 2);
-		Factory::Instance()[player].AddComponent<Com_YLayering>();
-		player = Factory::Instance().FF_SpriteTile(data2, tilemap, 8, 3);
-		Factory::Instance()[player].AddComponent<Com_YLayering>();
-		player = Factory::Instance().FF_SpriteTile(data22, tilemap, 1, 1);
-		Factory::Instance()[player].AddComponent<Com_YLayering>();
-		player = Factory::Instance().FF_SpriteTile(data1, tilemap, 0, 0);
-		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap>();
-		player = Factory::Instance().FF_SpriteTile(data3, tilemap, 5, 3);
-		Factory::Instance()[player].AddComponent<Com_YLayering>();
-
-		//player = Factory::Instance().CreateEntity<Com_Position>();
-		/*int* i = new int{ 0 };
-		std::shared_ptr<int> a{ i };
-		std::shared_ptr<int> b{ i };*/
-	}
-	/*
-	Update Override (optional)
-	________________________________*/
-	void Update(const float& dt) override {
-		//Entity& testing = Factory::Instance()[tilemap];
-		//if (AEInputCheckTriggered('E')) {
-		//}
-
-		if (AEInputCheckCurr('L')) {
-			SceneManager::Instance().ChangeScene("Test Scene 2");
-		}
-		//if (AEInputCheckTriggered('N')) {
-		//	/*std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i++ << std::endl;
-		//	std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i << std::endl;*/
-		//}
-		//if (AEInputCheckTriggered('P')) {
-		//	player = Factory::Instance().FF_Sprite(data, 100.0f, 100.0f);
-		//	//Factory::Instance().GetEntity(player).Get<Com_Sprite>()._frame_interval -= dt;
-		//	//Com_Sprite& s = player->Get<Com_Sprite>();
-		//}
-		//if (AEInputCheckTriggered('O')) {
-		//	Factory::Instance()[player].AddComponent<Com_ArrowKeys>();
-		//	Factory::Instance()[player].AddComponent<Com_YLayering>();
-		//}
-		//if (AEInputCheckTriggered('U')) {
-		//	player = Factory::Instance().FF_Sprite({ "test2", 1, 8, 8, 0.2f, 50.0f, 80.0f }, 3.0f, 0.0f);
-		//	Factory::Instance()[player].AddComponent<Com_ArrowKeys>();
-		//}
-		//if (AEInputCheckTriggered('M')) {
-		//	Entity& test = Factory::Instance()[tilemap];
-		//	Factory::Instance()[tilemap].AddComponent<Com_Position>();
-		//	Factory::Instance()[tilemap].AddComponent<Com_ArrowKeys>();
-		//}
-		//if (AEInputCheckCurr('I')) {
-		//	int e1 =
-		//		tilemap = Factory::Instance().FF_Tilemap("tilemap", "c_test.txt", "t_test.txt");
-		//}
-		//if (AEInputCheckTriggered('R')) {
-		//	SceneManager::Instance().RestartScene();
-		//}
-
-		if (AEInputCheckTriggered(AEVK_G)) {
-			SceneManager::Instance().ChangeScene("ShootingRange");
-		}
-		/*#if defined(DEBUG) | defined(_DEBUG)
-			if (AEInputCheckTriggered(AEVK_G)) {
-				playerInv.Inventory_PrintCurrentWeapon();
-			}
-
-			if (AEInputCheckTriggered(AEVK_H)) {
-				std::cout << playerInv.Inventory_EquipWeapon("Pistol") << std::endl;
-			}
-
-			if (AEInputCheckTriggered(AEVK_F)) {
-				std::cout << playerInv.Inventory_SetWeaponUnlocked("Pistol") << std::endl;
-			}
-
-			if (AEInputCheckTriggered(AEVK_D)) {
-				playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ static_cast<int>(Factory::Instance()[player].Get<Com_Position>().x), static_cast<int>(Factory::Instance()[player].Get<Com_Position>().y) }, Factory::Instance()[player].Get<Com_Direction>());
-			}
-		#endif*/
-		if (AEInputCheckTriggered('R')) {
-			SceneManager::Instance().RestartScene();
-		}
-	}
-	/*
-	Exit Override (optional)
-	________________________________*/
-	void Exit() override {
-		std::cout << "woo switching to scene 2!" << std::endl;
-	}
-};
 
 /*___________________________________________________________________
 	TEST SCENE 2 - Created By : Zac
@@ -152,101 +98,6 @@ struct TestScene2 : public Scene {
 	}
 	// overriding initialize/update/exit is optional
 };
-
-/*___________________________________________________________________
-	TEST SCENE 3 - Created By : Aus
-_____________________________________________________________________*/
-struct TestScene3 : public Scene
-{
-	std::string test = "hi";
-	eid e2 = -1;
-	eid e3[5] = { -1,-1,-1,-1,-1 };
-	//Com_Tilemap tile;
-	eid tilemap = -1;
-	Factory::SpriteData data{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.15f };
-	void Initialize() override {
-		srand(100);
-
-		tilemap = Factory::Instance().FF_Tilemap("tilemap", "c_test.txt", "t_test.txt");
-		Entity& testing = Factory::Instance()[tilemap];
-		Com_Tilemap& test = Factory::Instance()[tilemap].Get<Com_Tilemap>();
-		e2 = Factory::Instance().FF_SpriteTile(data, tilemap, 0, 0);
-		//e2 = Factory::Instance().FF_Sprite({ "test2", 1, 8, 8, 0.1f , 50.0f, 80.0f }, 0 ,0);
-		Com_Sprite& test2 = Factory::Instance()[e2].Get<Com_Sprite>();
-		for (int i{ 0 }; i < 1; ++i)
-		{
-			float randomPosx = static_cast<float>(rand() % 4);
-			float randomPosy = static_cast<float>(rand() % 3);
-			e3[i] = Factory::Instance().FF_SpriteTile(data, tilemap, 4, 3);
-
-		}
-		int i = 0;
-
-	}
-	void Update(const float& dt) override {
-
-		/*Com_Sprite& s = Factory::Instance().GetEntity(e3[0]).Get<Com_Sprite>();
-		if (!s._texture) {
-			int i = 0;
-		}*/
-		if (AEInputCheckCurr('L')) {
-			SceneManager::Instance().ChangeScene("ExampleScene");
-		}
-		if (AEInputCheckTriggered('P')) {
-			e2 = Factory::Instance().FF_SpriteTile(data, tilemap, 3.0f, 0.0f);
-			//Factory::Instance().GetEntity(e2).Get<Com_Sprite>()._frame_interval -= dt;
-			//Com_Sprite& s = e2->Get<Com_Sprite>();
-		}
-		if (AEInputCheckTriggered('O')) {
-			Factory::Instance()[e2].AddComponent<Com_ArrowKeys>();
-		}
-		if (AEInputCheckTriggered('M')) {
-			Entity& test = Factory::Instance()[tilemap];
-			Factory::Instance()[tilemap].AddComponent<Com_Position>();
-			Factory::Instance()[tilemap].AddComponent<Com_ArrowKeys>();
-		}
-		/*if (AEInputCheckCurr('I')) {
-			Entity& e = Factory::Instance().GetEntity(e2);
-			e.AddComponent<Com_Tilemap>();
-			ResourceManager::Instance().GetResource(e.Get<Com_Tilemap>()._texture, e.Get<Com_Tilemap>()._mesh, "tilemap", 4, 4, 16);
-			ResourceManager::Instance().ReadTilemapTxt("t_test.txt", e.Get<Com_Tilemap>());
-			ResourceManager::Instance().ReadFloorMapTxt("c_test.txt", e.Get<Com_Tilemap>());
-			Com_Tilemap& tilemap = e.Get<Com_Tilemap>();
-			e.Get<Com_Tilemap>()._scale_x = 100.0f;
-			e.Get<Com_Tilemap>()._scale_y = 100.0f;
-			e.Get<Com_Tilemap>()._initialized = true;
-		}*/
-		if (AEInputCheckTriggered('R')) {
-			SceneManager::Instance().RestartScene();
-		}
-
-		for (int j{ 0 }; j < 1; j++)
-		{
-			Entity& enemy = Factory::Instance().GetEntity(e3[j]);
-			Com_TilePosition& tilemap = enemy.Get<Com_TilePosition>();
-
-			//warping so that enemy dont go out of bound
-			if (enemy.Get<Com_Position>().x <= tilemap._grid_x)
-			{
-				enemy.Get<Com_Position>().x -= 1;
-			}
-			else if (enemy.Get<Com_Position>().x >= 0)
-			{
-				enemy.Get<Com_Position>().x += 1;
-			}
-			else if (enemy.Get<Com_Position>().y <= tilemap._grid_y)
-			{
-				enemy.Get<Com_Position>().y -= 1;
-			}
-			else if (enemy.Get<Com_Position>().y >= 0)
-			{
-				enemy.Get<Com_Position>().y += 1;
-			}
-		}
-
-	}
-};
-	// overriding initialize/update/exit is optional
 
 // Example Code
 struct ExampleScene : public Scene {
@@ -284,7 +135,8 @@ struct ExampleScene : public Scene {
 	}
 };
 
-struct MainMenu;
+//struct MainMenu;
+//struct TestScene;
 
 /*___________________________________________________________________
 	TEST FOR PATHFINDING - Created By : Aus
@@ -330,6 +182,7 @@ struct TestScenePF : public Scene
 		/*int* i = new int{ 0 };
 		std::shared_ptr<int> a{ i };
 		std::shared_ptr<int> b{ i };*/
+		GUISettingsInitialize();
 	}
 	/*
 	Update Override (optional)
@@ -359,6 +212,7 @@ struct TestScenePF : public Scene
 		if (AEInputCheckTriggered('R')) {
 			SceneManager::Instance().RestartScene();
 		}
+		GUISettingsUpdate();
 	}
 	/*
 	Exit Override (optional)
@@ -422,6 +276,7 @@ ________________________________*/
 		/*int* i = new int{ 0 };
 		std::shared_ptr<int> a{ i };
 		std::shared_ptr<int> b{ i };*/
+		GUISettingsInitialize();
 	}
 	/*
 	Update Override (optional)
@@ -480,6 +335,7 @@ ________________________________*/
 		if (AEInputCheckTriggered('R')) {
 			SceneManager::Instance().RestartScene();
 		}
+		GUISettingsUpdate();
 	}
 	/*
 	Exit Override (optional)
@@ -522,6 +378,7 @@ struct ShootingRange : public Scene {
 		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap>();
 		//player = Factory::Instance().FF_SpriteTile(data1, tilemap, 0, 0);
 		//Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap>();
+		GUISettingsInitialize();
 	}
 	/*
 	Update Override (optional)
@@ -571,6 +428,7 @@ struct ShootingRange : public Scene {
 		if (AEInputCheckTriggered('R')) {
 			SceneManager::Instance().RestartScene();
 		}
+		GUISettingsUpdate();
 	}
 	/*
 	Exit Override (optional)
