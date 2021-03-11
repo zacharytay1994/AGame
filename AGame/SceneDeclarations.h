@@ -397,13 +397,13 @@ struct ShootingRange : public Scene {
 			playerInv.Inventory_PrintCurrentWeapon();
 		}
 
-		if (AEInputCheckTriggered(AEVK_H)) {
+		if (AEInputCheckTriggered(AEVK_F)) {
 			playerInv.Inventory_SetWeaponUnlocked("Pistol");
 			playerInv.Inventory_EquipWeapon("Pistol");
 			std::cout << "EQUIPPED PISTOL" << std::endl;
 		}
 
-		if (AEInputCheckTriggered(AEVK_F)) {
+		if (AEInputCheckTriggered(AEVK_H)) {
 			playerInv.Inventory_SetWeaponUnlocked("TrickPistol");
 			playerInv.Inventory_EquipWeapon("TrickPistol");
 			std::cout << "EQUIPPED TRICKPISTOL" << std::endl;
@@ -419,6 +419,12 @@ struct ShootingRange : public Scene {
 			playerInv.Inventory_SetWeaponUnlocked("DualDiagPistol");
 			playerInv.Inventory_EquipWeapon("DualDiagPistol");
 			std::cout << "EQUIPPED DUALDIAGPISTOL" << std::endl;
+		}
+
+		if (AEInputCheckTriggered(AEVK_B)) {
+			playerInv.Inventory_SetWeaponUnlocked("Dagger");
+			playerInv.Inventory_EquipWeapon("Dagger");
+			std::cout << "EQUIPPED DAGGER" << std::endl;
 		}
 
 		if (AEInputCheckTriggered(AEVK_D)) {

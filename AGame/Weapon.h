@@ -88,3 +88,10 @@ class DualDiagPistol : public Weapon
 		DualDiagPistol();
 		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap) const;
 };
+
+class Dagger : public Weapon
+{
+	public:
+		Dagger();
+		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap) const;
+};

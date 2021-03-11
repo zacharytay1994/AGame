@@ -779,6 +779,7 @@ ________________________________________________________________________________
 struct Com_Projectile {
 	char _filler = 0; //filler
 	float time = static_cast<float>(AEGetTime(nullptr));
+	int lifetime = -1;
 	int grid_vel_x = 0;
 	int grid_vel_y = 0;
 };
@@ -886,6 +887,17 @@ struct Sys_Projectile2 : public System {
 		Com_Projectile& proj = get<Com_Projectile>();
 		if (AEGetTime(nullptr) - proj.time > AEFrameRateControllerGetFrameTime() * 10)
 		{
+			if (proj.lifetime > -1)
+			{
+				proj.lifetime--;
+			}
+
+			if (proj.lifetime == 0)
+			{
+				RemoveEntity();
+				return;
+			}
+
 			Com_TilemapRef& tilemapref = get<Com_TilemapRef>();
 			Com_Tilemap* tilemap = tilemapref._tilemap;
 
@@ -900,6 +912,7 @@ struct Sys_Projectile2 : public System {
 				}
 				else {
 					RemoveEntity();
+					return;
 				}
 			}
 			
