@@ -9,6 +9,7 @@
 #include "ResourceManager.h"
 #include "zComponent.h"
 #include "zSystem.h"
+#include "GlobalGameData.h"
 
 #include "zMath.h"
 
