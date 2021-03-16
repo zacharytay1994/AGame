@@ -241,7 +241,7 @@ struct Com_PathFinding
 	vector<Com_PathFinding*> vecNeighbours;	// Connections to neighbours
 	Com_PathFinding* parent = nullptr;		// Node connecting to this node that offers shortest parent
 	
-	/*~Com_PathFinding()
+	~Com_PathFinding()
 	{
 		delete parent;
 		while (!vecNeighbours.empty()) 
@@ -249,7 +249,7 @@ struct Com_PathFinding
 			delete vecNeighbours.back();
 			vecNeighbours.pop_back();
 		}
-	}*/
+	}
 };
 
 struct Com_Node
@@ -260,12 +260,12 @@ struct Com_Node
 	int MapWidth = 0; 
 	int MapHeight = 0;
 	Com_PathFinding* nodes = nullptr;
-	/*~Com_Node()
+	~Com_Node()
 	{
 		delete nodes;
 		delete nodeStart;
 		delete nodeEnd;
-	}*/
+	}
 
 };
 
