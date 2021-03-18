@@ -983,7 +983,7 @@ struct Sys_EnemySpawning : public System {
 		/*Factory::Instance().CreateEntity<Com_Sprite, Com_Position, Com_BoundingBox, Com_Direction, 
 			Com_TilePosition, Com_Tilemap,Com_TypeEnemy,Com_EnemySpawn,Com_Wave>();*/
 		
-		int i = 0;
+		/*int i = 0;
 		while (i < enem.numberofenemies) 
 		{
 			Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
@@ -991,7 +991,7 @@ struct Sys_EnemySpawning : public System {
 			Factory::Instance()[enemy].AddComponent<Com_YLayering, Com_Node, Com_PathFinding>();
 			++enem.CurrNoOfEnemies;
 			++i;
-		}
+		}*/
 	}
 
 };
@@ -1046,6 +1046,7 @@ ________________________________________________________________________________
 struct Sys_PathFinding : public System
 {
 		eid playerPos{ -1 };
+		Com_PathFinding* PathTravel;
 	void UpdateComponent() override {
 		Com_Node& ode = get<Com_Node>();
 		Com_TilemapRef& tilemapref = get<Com_TilemapRef>();
@@ -1053,7 +1054,7 @@ struct Sys_PathFinding : public System
 		Com_TilePosition& EnemyPos = get<Com_TilePosition>();
 		
 		MapCreate(ode, tile, EnemyPos, playerPos);
-		Solve_AStar(ode, EnemyPos);
+		if(Solve_AStar(ode, EnemyPos, PathTravel));
 	
 	}
 	
@@ -1104,10 +1105,11 @@ void MapCreate(Com_Node& ode, const Com_Tilemap* tile, Com_TilePosition& enemyPo
 
 }
 
-void Solve_AStar(Com_Node& ode, Com_TilePosition& enemyPos)
+bool Solve_AStar(Com_Node& ode, Com_TilePosition& enemyPos, Com_PathFinding* PathArray)
 {
 	static float alarm = 0;
-	
+	int maparea = ode.MapHeight * ode.MapWidth;
+	PathArray[maparea];
 	// Reset Navigation Graph - default all node states
 	for (int y = 0; y < ode.MapHeight; y++)
 		for (int x = 0; x < ode.MapWidth; x++)
@@ -1153,7 +1155,7 @@ void Solve_AStar(Com_Node& ode, Com_TilePosition& enemyPos)
 		// list may also contain nodes that have been visited, so ditch these...
 		while (!listNotTestedNodes.empty() && listNotTestedNodes.front()->bVisited)
 			listNotTestedNodes.pop_front();
-			
+
 
 		// ...or abort because there are no valid nodes left to test
 		if (listNotTestedNodes.empty())
@@ -1181,46 +1183,20 @@ void Solve_AStar(Com_Node& ode, Com_TilePosition& enemyPos)
 			{
 				nodeNeighbour->parent = nodeCurrent;
 				nodeNeighbour->fLocalGoal = fPossiblyLowerGoal;
-
 				// The best path length to the neighbour being tested has changed, so
 				// update the neighbour's score. The heuristic is used to globally bias
 				// the path algorithm, so it knows if its getting better or worse. At some
 				// point the algo will realise this path is worse and abandon it, and then go
 				// and search along the next best path.
 				nodeNeighbour->fGlobalGoal = nodeNeighbour->fLocalGoal + heuristic(nodeNeighbour, ode.nodeEnd);
-			}
-			alarm += _dt;
-			if(nodeNeighbour->parent != nullptr && alarm > 20.0f)
-			{
-				enemyPos._grid_x = nodeNeighbour->parent->x; // with this code is just teleporting but at least following 
-				enemyPos._grid_y = nodeNeighbour->parent->y; // only some block it go diagonal, maybe due to the empty hole in the tilemap
-				
-				enemyPos._grid_x = nodeNeighbour->x; // to make sure it can reach the player
-				enemyPos._grid_y = nodeNeighbour->y; 
 
-				alarm = 0;
-				/*std::cout << "Checked" << std::endl;
-				std::cout << "nodeNeighbour->parent->x & y " << nodeNeighbour->parent->x << " + ";
-				std::cout << nodeNeighbour->parent->y << std::endl;
-				std::cout << "enemypos x & y " << enemyPos._grid_x << " + ";
-				std::cout << enemyPos._grid_y << std::endl;
-				std::cout << std::endl;*/
 
 			}
-			else if (nodeNeighbour->parent == nullptr && alarm > 20.0f)
-			{
-				enemyPos._grid_x = nodeNeighbour->x; // to make sure it can reach the player
-				enemyPos._grid_y = nodeNeighbour->y;
-				alarm = 0;
-				/*std::cout << "Not Checked" << std::endl;
-				std::cout << "enemypos x & y " << enemyPos._grid_x << " + ";
-				std::cout << enemyPos._grid_y << std::endl;
-				std::cout << std::endl;*/
-			}
+
 		}
 	}
+	return true;
 }
-
 };
 
 
