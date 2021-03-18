@@ -12,6 +12,7 @@ struct MainMenu : public Scene {
 	Factory::SpriteData data4{ "button2" };
 	Factory::SpriteData data5{ "button3" };
 	Factory::SpriteData data6{ "transparent" };
+	Sys_Pathfinding_v2 _pathfinding;
 
 	bool _gui_change_scene{ false };
 	void Initialize() override {
@@ -25,22 +26,13 @@ struct MainMenu : public Scene {
 		Factory::Instance().FF_CreateGUIChildClickableSurfaceText(buttons, { "background1" }, 0.5f, 0.5f, 0.75f, 0.2f, SettingsButton, "Credits", "courier");		// clickable child surface
 		Factory::Instance().FF_CreateGUIChildClickableSurfaceText(buttons, { "background1" }, 0.5f, 0.75f, 0.75f, 0.2f, QuitGame, "Exit", "courier");				// clickable child surface
 
-		//// settings menu
-		//_settings = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.84f, 0.38f, 0.3f, 0.6f, 150);
-		//Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, { "background1" }, 0.5f, 0.2f, 0.9f, 0.08f, ToggleChangeSceneButton, "Change Scene", "courier");	// clickable child surface text
-
-		//// change scene menu
-		//_change_scene = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.5f, 0.5f, 0.3f, 0.6f, 200);
-		//Factory::Instance()[_change_scene].AddComponent<Com_GUIDrag, Com_GUIMouseCheck>();
-		//Factory::Instance().FF_CreateGUIChildSurfaceText(_change_scene, { "transparent" }, 0.5f, 0.08f, 0.9f, 0.05f, "Select Scene", "courier");					// clickable child surface text
-		//Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, { "background1" }, 0.5f, 0.2f, 0.9f, 0.08f, ChangeTestScenePF, "Aus", "courier");	// clickable child surface text
-		//Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, { "background1" }, 0.5f, 0.4f, 0.9f, 0.08f, ChangeShootingRangeScene, "Noel", "courier");	// clickable child surface text
-		//Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, { "background1" }, 0.5f, 0.6f, 0.9f, 0.08f, ChangeWilf, "Wilf", "courier");	// clickable child surface text
-		//Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, { "background1" }, 0.5f, 0.8f, 0.9f, 0.08f, ChangeTestScene, "Zac", "courier");	// clickable child surface text
-		//Factory::Instance().FF_CreateGUIChildClickableSurface(_change_scene, { "cross" }, 0.9f, 0.05f, 0.08f, 0.04f, ToggleChangeSceneButton);						// clickable child surface text
+		// initialize gui settings
 		GUISettingsInitialize();
 
-		//Factory::Instance().FF_CreateGUISurface(data6, 0.5f, 0.5f, 0.2f, 0.2f);
+		std::vector<bool> flags = { 0,0,0,0,1,1,0,0,0 };
+		Pathfinding::Grid grid{ 3,3,flags };
+		std::vector<Vec2i> path;
+		_pathfinding.SolveAStar({ 0,0 }, { 2,2 }, grid, path);
 	}
 	void Update(const float& dt) override {
 		GUISettingsUpdate();
