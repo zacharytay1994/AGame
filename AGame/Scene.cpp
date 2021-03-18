@@ -127,9 +127,9 @@ void SceneManager::Initialize() {
 
 	// 4. Registering scenes
 	AddScene<TestScene>("Test Scene");
-	//AddScene<TestScene2>("Test Scene 2");
+	AddScene<TestScene2>("Test Scene 2");
 	AddScene<TestScenePF>("Test PathFinding");
-	//AddScene<ExampleScene>("ExampleScene");
+	AddScene<ExampleScene>("ExampleScene");
 	AddScene<MainMenu>("Main Menu");
 	AddScene<TestScenewilfred>("TestScenewilfred");
 	AddScene<ShootingRange>("ShootingRange");
