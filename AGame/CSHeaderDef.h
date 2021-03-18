@@ -9,6 +9,7 @@
 #include "ResourceManager.h"
 #include "zComponent.h"
 #include "zSystem.h"
+#include "GlobalGameData.h"
 
 #include "zMath.h"
 
@@ -887,8 +888,23 @@ struct Sys_Projectile2 : public System {
 		Com_Projectile& proj = get<Com_Projectile>();
 		if (AEGetTime(nullptr) - proj.time > AEFrameRateControllerGetFrameTime() * 10)
 		{
+			Com_TilemapRef& tilemapref = get<Com_TilemapRef>();
+			Com_Tilemap* tilemap = tilemapref._tilemap;
+
 			proj.time = static_cast<float>(AEGetTime(nullptr));
 			Com_TilePosition& tileposition = get<Com_TilePosition>();
+
+			if (tilemap) {
+				// check if new tile position is within grid - would be checked with collision_mask after
+				if (tileposition._grid_x >= 0 && tileposition._grid_x < tilemap->_width && tileposition._grid_y >= 0 && tileposition._grid_y < tilemap->_height &&
+					tilemap->_floor_mask[(size_t)tileposition._grid_x * (size_t)tilemap->_height + (size_t)tileposition._grid_y] >= 0) {
+					// Do nothing
+				}
+				else {
+					RemoveEntity();
+				}
+			}
+			
 			if (proj.grid_vel_x > 0)
 			{
 				tileposition._grid_x++;
@@ -905,9 +921,7 @@ struct Sys_Projectile2 : public System {
 			{
 				tileposition._grid_y++;
 			}
-
-			Com_TilemapRef& tilemapref = get<Com_TilemapRef>();
-			Com_Tilemap* tilemap = tilemapref._tilemap;
+			
 			if (tilemap) {
 				// check if new tile position is within grid - would be checked with collision_mask after
 				if (tileposition._grid_x >= 0 && tileposition._grid_x < tilemap->_width && tileposition._grid_y >= 0 && tileposition._grid_y < tilemap->_height &&
