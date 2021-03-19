@@ -332,6 +332,14 @@ struct Grid {
 	}
 };
 
+struct Com_FindPath {
+	bool	_find	{ false };
+	bool	_found	{ false };
+	Vec2i	_start	{ 0,0 };
+	Vec2i	_end	{ 0,0 };
+	Vec2i	_next	{ 0,0 };
+};
+
 /*																				Component::GUI
 ____________________________________________________________________________________________________*/
 struct Com_GUISurface {
@@ -1377,7 +1385,7 @@ struct Sys_PathFinding : public System
 // AUSTEN SEE START
 namespace Pathfinding {
 	struct Node {
-		Node(const Vec2i& gridPos, bool obstacle = false, const Vec2f& worldPos = { 0.0f,0.0f })
+		Node(const Vec2i& gridPos, int obstacle = 0, const Vec2f& worldPos = { 0.0f,0.0f })
 			:
 			_grid_pos(gridPos),
 			_world_pos(worldPos),
@@ -1406,14 +1414,15 @@ namespace Pathfinding {
 		int FCost() { return _g_cost + _h_cost; }
 	};
 	struct Grid {
-		Grid(int width, int height, const std::vector<bool> grid)
+		Grid() = default;
+		Grid(int width, int height, const std::vector<int> grid)
 			:
 			_width(width),
 			_height(height)
 		{
 			for (size_t y = 0; y < height; ++y) {
 				for (size_t x = 0; x < width; ++x)
-					_grid.emplace_back(Vec2i(x, y), grid[y * width + x]); {
+					_grid.emplace_back(Vec2i(x, y), !grid[x * height + y]); {
 				}
 			}
 		}
@@ -1443,12 +1452,27 @@ namespace Pathfinding {
 
 struct Sys_Pathfinding_v2 : public System {
 	void UpdateComponent() override {
-
+		if (_initialized) {
+			Com_FindPath& fp = get<Com_FindPath>();
+			Com_TilePosition& tpos = get<Com_TilePosition>();
+			if (fp._find) {
+				fp._found = SolveAStar(fp._start, fp._end, _grid, _path);
+				if (fp._found && _path.size() >= 1) {
+					tpos._grid_x = _path[0].x;
+					tpos._grid_y = _path[0].y;
+				}
+				fp._find = false;
+			}
+		}
 	}
+	Pathfinding::Grid _grid;
 	std::vector<Pathfinding::Node*> _nodes_to_reset;		// rmb to reserve, PESSIMISM! or something like that
 	std::vector<Pathfinding::Node*> _neighbours;			// rmb to reserve
+	std::vector<Vec2i> _path;
+	bool _initialized{ false };
 
 	bool SolveAStar(const Vec2i& start, const Vec2i& end, Pathfinding::Grid& grid, std::vector<Vec2i>& path) {
+		path.clear();
 		// custom comparator
 		auto cmp = [](Pathfinding::Node*& node1, Pathfinding::Node*& node2) {return *node1 > *node2; };
 		// create min heap
@@ -1471,6 +1495,7 @@ struct Sys_Pathfinding_v2 : public System {
 			min_heap.pop();
 			current_node->_open = false;
 			current_node->_closed = true;
+			_nodes_to_reset.push_back(current_node);
 
 			// if current == end, reached
 			if (current_node == end_node) {
@@ -1503,6 +1528,10 @@ struct Sys_Pathfinding_v2 : public System {
 				}
 			}
 		}
+		for (auto& n : _nodes_to_reset) {
+			ResetNode(n);
+		}
+		_nodes_to_reset.clear();
 		return false;
 	}
 	void RetracePath(const Pathfinding::Node* start, const Pathfinding::Node* end, std::vector<Vec2i>& path) {
@@ -1526,7 +1555,6 @@ struct Sys_Pathfinding_v2 : public System {
 	}
 };
 // AUSTEN SEE END
-
 
 struct Com_Particle {
 	size_t lifetime{ 2 };
@@ -1603,6 +1631,7 @@ struct Sys_HealthUpdate : public System {
 		}
 	}
 };
+
 /*																				system::GUI
 ____________________________________________________________________________________________________*/
 struct Sys_GUISurfaceRender : public System {
@@ -1734,4 +1763,112 @@ struct Sys_GUIDrag : public System {
 			surface._position = drag._click_position + _offset;
 		}
 	}
+};
+
+/*																				system::ENEMY STATES
+____________________________________________________________________________________________________*/
+struct Com_EnemyStateOne {
+	enum class STATES {
+		IDLE,
+		MOVE,
+		ATTACK
+	} _current_state{ STATES::IDLE };
+	int _speed{ 2 };
+	int _counter{ _speed };
+	Com_TilePosition* _player;
+};
+struct Sys_EnemyStateOne : public System {
+	float _turn_step{ 0.5f };
+	float _turn_step_counter{ _turn_step };
+	bool  _turn{ false };
+	void OncePerFrame() override {
+		_turn_step_counter -= _dt;
+		if (_turn_step_counter > 0.0f) {
+			_turn = false;
+		}
+		else {
+			_turn = true;
+			_turn_step_counter = _turn_step;
+		}
+	}
+	void UpdateComponent() override {
+		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
+		if (_turn) {
+			--state._counter;
+		}
+		(this->*_fp_states[static_cast<int>(state._current_state) * 3 + 1])();
+		if (!state._counter) {
+			state._counter = state._speed;
+		}
+	}
+	void ChangeState(Com_EnemyStateOne::STATES newState) {
+		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
+		// exit current state
+		(this->*_fp_states[static_cast<int>(state._current_state)*3+2])();
+		// enter new state
+		(this->*_fp_states[static_cast<int>(newState) * 3])();
+		state._current_state = newState;
+	}
+	// idle
+	void IDLE_ENTER() {
+		std::cout << "IDLE_ENTER" << std::endl;
+	}
+	void IDLE_UPDATE() {
+		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
+		Com_FindPath& fp = get<Com_FindPath>();
+		Com_TilePosition& pos = get<Com_TilePosition>();
+		if (!state._counter) {
+			std::cout << "IDLE_UPDATE" << std::endl;
+			// see if can find path to player
+			fp._start = Vec2i( pos._grid_x, pos._grid_y );
+			fp._end = Vec2i( state._player->_grid_x,state._player->_grid_y);
+			fp._find = true;
+			// if path found
+			if (fp._found) {
+				ChangeState(Com_EnemyStateOne::STATES::MOVE);
+			}
+		}
+	}
+	void IDLE_EXIT() {
+		std::cout << "IDLE_EXIT" << std::endl;
+	}
+	// move
+	void MOVE_ENTER() {
+		std::cout << "MOVE_ENTER" << std::endl;
+	}
+	void MOVE_UPDATE() {
+		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
+		Com_FindPath& fp = get<Com_FindPath>();
+		Com_TilePosition& pos = get<Com_TilePosition>();
+		if (!state._counter) {
+			std::cout << "MOVE_UPDATE" << std::endl;
+			// see if can find path to player
+			fp._start = Vec2i(pos._grid_x, pos._grid_y);
+			fp._end = Vec2i( state._player->_grid_x,state._player->_grid_y );
+			fp._find = true;
+			// if path found
+			/*if (fp._next.x != -1 && fp._next.y != -1) {
+				pos._grid_x = fp._next.x;
+				pos._grid_y = fp._next.y;
+				std::cout << "x: " << fp._next.x << "y: " << fp._next.y << std::endl;
+			}*/
+		}
+	}
+	void MOVE_EXIT() {
+		std::cout << "MOVE_EXIT" << std::endl;
+	}
+	// attack
+	void ATTACK_ENTER() {
+		std::cout << "ATTACK_ENTER" << std::endl;
+	}
+	void ATTACK_UPDATE() {
+		std::cout << "ATTACK_UPDATE" << std::endl;
+	}
+	void ATTACK_EXIT() {
+		std::cout << "ATTACK_EXIT" << std::endl;
+	}
+	using FP_STATES = void(Sys_EnemyStateOne::*)();
+	FP_STATES _fp_states[9] = { & Sys_EnemyStateOne::IDLE_ENTER, & Sys_EnemyStateOne::IDLE_UPDATE, & Sys_EnemyStateOne::IDLE_EXIT,
+								& Sys_EnemyStateOne::MOVE_ENTER, & Sys_EnemyStateOne::MOVE_UPDATE, & Sys_EnemyStateOne::MOVE_EXIT,
+								& Sys_EnemyStateOne::ATTACK_ENTER, & Sys_EnemyStateOne::ATTACK_UPDATE, & Sys_EnemyStateOne::ATTACK_EXIT };
 };
