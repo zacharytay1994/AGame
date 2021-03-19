@@ -64,7 +64,7 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_TilePosition>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_ArrowKeysTilemap>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Node>();
-	ComponentDescription_DB::Instance().RegisterComponent<Com_PathFinding>();
+	//ComponentDescription_DB::Instance().RegisterComponent<Com_PathFinding>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Direction>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_WeaponAttack>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_BoundingBox>();
@@ -115,6 +115,7 @@ void SceneManager::Initialize() {
 
 	SystemDatabase::Instance().RegisterSystem<Sys_Projectile2, Com_TilePosition, Com_Projectile>();
 
+	SystemDatabase::Instance().RegisterSystem<Sys_Pathfinding_v2>();
 
 	// GUI SYSTEMS
 	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceRender, Com_Position, Com_GUISurface, Com_Sprite>();

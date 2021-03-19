@@ -231,21 +231,20 @@ struct Com_TypeEnemy {
 
 /*																Component::PATH FINDING
 ____________________________________________________________________________________________________*/
-struct Com_PathFinding
+struct PathFinding
 {
 	bool bObstacle = false;					// Is the node an obstruction?
 	bool bVisited = false;					// Have we searched this node before?
 	float fGlobalGoal = 0.0f;				// Distance to goal so far
 	float fLocalGoal = 0.0f;				// Distance to goal if we took the alternative route
-	int x = 0;								// Nodes position in 2D space
-	int y = 0;
-	vector<Com_PathFinding*> vecNeighbours;	// Connections to neighbours
-	Com_PathFinding* parent = nullptr;		// Node connecting to this node that offers shortest parent
-	
-	~Com_PathFinding()
+	Vec2i gridPos{0,0};
+	vector<PathFinding*> vecNeighbours;	// Connections to neighbours
+	PathFinding* parent = nullptr;		// Node connecting to this node that offers shortest parent
+
+	~PathFinding()
 	{
 		delete parent;
-		while (!vecNeighbours.empty()) 
+		while (!vecNeighbours.empty())
 		{
 			delete vecNeighbours.back();
 			vecNeighbours.pop_back();
@@ -255,17 +254,81 @@ struct Com_PathFinding
 
 struct Com_Node
 {
-	Com_PathFinding* nodeStart = nullptr;
-	Com_PathFinding* nodeEnd = nullptr;
-	//vector<Com_PathFinding> nodes;
-	int MapWidth = 0; 
-	int MapHeight = 0;
-	Com_PathFinding* nodes = nullptr;
-	~Com_Node()
+	//PathFinding* nodeStart = nullptr;
+	//PathFinding* nodeEnd = nullptr;
+	////vector<Com_PathFinding> nodes;
+	//int MapWidth = 0;
+	//int MapHeight = 0;
+	//PathFinding* nodes = nullptr;
+	//~Com_Node()
+	//{
+	//	delete nodes;
+	//	delete nodeStart;
+	//	delete nodeEnd;
+	//}
+	Com_Node()
+	{}
+	Com_Node(const Vec2i& gridPos, bool obstacle = false, const Vec2f& worldPos = { 0.0f,0.0f })
+		:
+		_grid_pos(gridPos),
+		_world_pos(worldPos),
+		_obstacle(obstacle)
+	{}
+	bool operator>(Com_Node& rhs) {
+		return rhs.FCost() < FCost();
+	}
+	int operator-(const Com_Node& rhs) const {
+		int distance_x = abs(_grid_pos.x - rhs._grid_pos.x);
+		int distance_y = abs(_grid_pos.y - rhs._grid_pos.y);
+		if (distance_x > distance_y) {
+			return distance_y * 14 + (distance_x - distance_y) * 10;
+		}
+		return distance_x * 14 + (distance_y - distance_x) * 10;
+	}
+
+	int		_g_cost = 0, _h_cost = 0;
+	Vec2i	_grid_pos{ 0,0 };
+	Vec2f	_world_pos{ 0.0f,0.0f };
+	bool	_obstacle{ false };
+	Com_Node* _parent{ nullptr };
+	bool	_closed{ false };
+	bool	_open{ false };
+
+	int FCost() { return _g_cost + _h_cost; }
+};
+
+struct Grid {
+	Grid(int width, int height, const std::vector<bool> grid)
+		:
+		_width(width),
+		_height(height)
 	{
-		delete nodes;
-		delete nodeStart;
-		delete nodeEnd;
+		for (size_t y = 0; y < height; ++y) {
+			for (size_t x = 0; x < width; ++x)
+				_grid.emplace_back(Vec2i(x, y), grid[y * width + x]); {
+			}
+		}
+	}
+	size_t _width{ 0 };
+	size_t _height{ 0 };
+	std::vector<Com_Node> _grid;
+	Com_Node& Get(const Vec2i& pos) {
+		return _grid[pos.y * _width + pos.x];
+	}
+	void GetNeighbours(Com_Node*& node, std::vector<Com_Node*>& neighbours) {
+		neighbours.clear();
+		if (node->_grid_pos.x - 1 >= 0) {
+			neighbours.push_back(&Get({ node->_grid_pos.x - 1, node->_grid_pos.y }));
+		}
+		if (node->_grid_pos.x + 1 < _width) {
+			neighbours.push_back(&Get({ node->_grid_pos.x + 1, node->_grid_pos.y }));
+		}
+		if (node->_grid_pos.y - 1 >= 0) {
+			neighbours.push_back(&Get({ node->_grid_pos.x, node->_grid_pos.y - 1 }));
+		}
+		if (node->_grid_pos.y + 1 < _height) {
+			neighbours.push_back(&Get({ node->_grid_pos.x, node->_grid_pos.y + 1 }));
+		}
 	}
 };
 
@@ -1044,159 +1107,272 @@ ________________________________________________________________________________
 
 struct Sys_PathFinding : public System
 {
-		eid playerPos{ -1 };
-		Com_PathFinding* PathTravel;
+	eid playerPos{ -1 };
 	void UpdateComponent() override {
 		Com_Node& ode = get<Com_Node>();
 		Com_TilemapRef& tilemapref = get<Com_TilemapRef>();
 		Com_Tilemap* tile = tilemapref._tilemap;
-		Com_TilePosition& EnemyPos = get<Com_TilePosition>();
+		Com_TilePosition& Enemy = get<Com_TilePosition>();
+		vector<Vec2i> path;
+		Vec2i player_pos{ Factory::Instance()[playerPos].Get<Com_TilePosition>()._grid_x, Factory::Instance()[playerPos].Get<Com_TilePosition>()._grid_y };
+		Vec2i Enemy_pos{ Enemy._grid_x, Enemy._grid_y };
+		std::vector<bool> flags;
+		// to put flags for obstacle and no obstacle
+		for (int i{ 0 }; i < (tile->_width * tile->_height); ++i) 
+		{
+			flags.push_back(0);
+		}
+
+		Grid grid12{ tile->_width , tile->_height,flags };
+		if (SolveAStar(player_pos,Enemy_pos, grid12, path)) 
+		{
+			std::reverse(path.begin(), path.end());
+			for (auto node : path) 
+			{ 
+					Enemy._grid_x = node.x;
+					Enemy._grid_y = node.y;
+			}
+		}
+		/*MapCreate(ode, tile, EnemyPos, playerPos);
+		if(Solve_AStar(ode, EnemyPos, path)) 
+		{
 		
-		MapCreate(ode, tile, EnemyPos, playerPos);
-		if(Solve_AStar(ode, EnemyPos, PathTravel));
-	
+			EnemyPos._grid_x = ode.nodes->gridPos.x;
+			EnemyPos._grid_y = ode.nodes->gridPos.y;
+		}*/
+		
+
+
 	}
-	
+	std::vector<Com_Node*> _nodes_to_reset;		// rmb to reserve, PESSIMISM! or something like that
+	std::vector<Com_Node*> _neighbours;			// rmb to reserve
 
-void MapCreate(Com_Node& ode, const Com_Tilemap* tile, Com_TilePosition& enemyPos, eid& player)
-{
-	// Create a 2D array of nodes - this is for convenience of rendering and construction
-	// and is not required for the algorithm to work - the nodes could be placed anywhere
-	// in any space, in multiple dimension
-	ode.MapHeight = tile->_height;
-	ode.MapWidth = tile->_width;
-	int MapArea = ode.MapHeight * ode.MapWidth;
-	ode.nodes = new Com_PathFinding[MapArea];
-	for (int y = 0; y < ode.MapHeight; y++)
-	{
-		for (int x = 0; x < ode.MapWidth; x++)
-		{
-			ode.nodes[x * ode.MapHeight + y].x = x; // to give each node its own coordinates
-			ode.nodes[x * ode.MapHeight + y].y = y;
-			// set everything to default value 1st
-			ode.nodes[x * ode.MapHeight + y].bObstacle = false;
-			ode.nodes[x * ode.MapHeight + y].parent = nullptr;
-			ode.nodes[x * ode.MapHeight + y].bVisited = false;
-		}
-	}
-	// Create connections - in this case nodes are on a regular grid
-	for (int y = 0; y < ode.MapHeight; y++)
-		for (int x = 0; x < ode.MapWidth; x++)
-		{
-			if (y > 0)
-				ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x + 0) * ode.MapHeight + (y - 1)]);
-			if (y < ode.MapHeight - 1)
-				ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x + 0) * ode.MapHeight + (y + 1)]);
-			if (x > 0)
-				ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x - 1) * ode.MapHeight + (y + 0)]);
-			if (x < ode.MapWidth - 1)
-				ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x + 1) * ode.MapHeight + (y + 0)]);
+	bool SolveAStar(const Vec2i& start, const Vec2i& end, Grid& grid, std::vector<Vec2i>& path) {
+		// custom comparator
+		auto cmp = [](Com_Node*& node1, Com_Node*& node2) {return *node1 > * node2; };
+		// create min heap
+		std::priority_queue<Com_Node*, std::vector<Com_Node*>, decltype(cmp)> min_heap(cmp);
 
-		}
+		// create start and end temp nodes
+		Com_Node* start_node = &grid.Get(start);
+		Com_Node* end_node = &grid.Get(end);
 
-	// Manually positio the start and end markers so they are not nullptr
-	ode.nodeStart = &ode.nodes[(enemyPos._grid_x * ode.MapHeight) + enemyPos._grid_y];
-	ode.nodeEnd = &ode.nodes[(Factory::Instance()[player].Get<Com_TilePosition>()._grid_x * ode.MapHeight) + (Factory::Instance()[player].Get<Com_TilePosition>()._grid_y)];
-	/*ode.nodeStart->x = enemyPos._grid_x;
-	ode.nodeStart->y = enemyPos._grid_y;
-	ode.nodeEnd->x = 0;
-	ode.nodeEnd->y = 0;*/
+		// add start node to the open set
+		min_heap.push(start_node);
+		start_node->_open = true;
+		_nodes_to_reset.push_back(start_node);
 
-}
+		// loop
+		while (min_heap.size() > 0) {
+			Com_Node* current_node = min_heap.top();
 
-bool Solve_AStar(Com_Node& ode, Com_TilePosition& enemyPos, Com_PathFinding* PathArray)
-{
-	static float alarm = 0;
-	int maparea = ode.MapHeight * ode.MapWidth;
-	PathArray[maparea];
-	// Reset Navigation Graph - default all node states
-	for (int y = 0; y < ode.MapHeight; y++)
-		for (int x = 0; x < ode.MapWidth; x++)
-		{
-			ode.nodes[x * ode.MapHeight + y].bVisited = false;
-			ode.nodes[x * ode.MapHeight + y].fGlobalGoal = INFINITY;
-			ode.nodes[x * ode.MapHeight + y].fLocalGoal = INFINITY;
-			ode.nodes[x * ode.MapHeight + y].parent = nullptr;	// No parents
-		}
+			// erase current node from open set and add to closed set
+			min_heap.pop();
+			current_node->_open = false;
+			current_node->_closed = true;
 
-	auto distance = [](Com_PathFinding* a, Com_PathFinding* b) // For convenience
-	{
-		return sqrtf((static_cast<float>(a->x) - static_cast<float>(b->x)) * (static_cast<float>(a->x) - static_cast<float>(b->x))
-			+ (static_cast<float>(a->y) - static_cast<float>(b->y)) * (static_cast<float>(a->y) - static_cast<float>(b->y)));
-	};
-
-	auto heuristic = [distance](Com_PathFinding* a, Com_PathFinding* b) // So we can experiment with heuristic
-	{
-		return distance(a, b);
-	};
-
-	// Setup starting conditions
-	Com_PathFinding* nodeCurrent = ode.nodeStart;
-	ode.nodeStart->fLocalGoal = 0.0f;
-	ode.nodeStart->fGlobalGoal = heuristic(ode.nodeStart, ode.nodeEnd);
-
-	// Add start node to not tested list - this will ensure it gets tested.
-	// As the algorithm progresses, newly discovered nodes get added to this
-	// list, and will themselves be tested later
-	list<Com_PathFinding*> listNotTestedNodes;
-	listNotTestedNodes.push_back(ode.nodeStart);
-
-	// if the not tested list contains nodes, there may be better paths
-	// which have not yet been explored. However, we will also stop  oo
-	// searching when we reach the target - there may well be better
-	// paths but this one will do - it wont be the longest.
-	while (!listNotTestedNodes.empty() && nodeCurrent != ode.nodeEnd)// Find absolutely shortest path // && nodeCurrent != nodeEnd)
-	{
-		// Sort Untested nodes by global goal, so lowest is first
-		listNotTestedNodes.sort([](const Com_PathFinding* lhs, const Com_PathFinding* rhs) { return lhs->fGlobalGoal < rhs->fGlobalGoal; });
-
-		// Front of listNotTestedNodes is potentially the lowest distance node. Our
-		// list may also contain nodes that have been visited, so ditch these...
-		while (!listNotTestedNodes.empty() && listNotTestedNodes.front()->bVisited)
-			listNotTestedNodes.pop_front();
-
-
-		// ...or abort because there are no valid nodes left to test
-		if (listNotTestedNodes.empty())
-			break;
-
-		nodeCurrent = listNotTestedNodes.front();
-		nodeCurrent->bVisited = true; // We only explore a node once
-
-
-		// Check each of this node's neighbours...
-		for (auto nodeNeighbour : nodeCurrent->vecNeighbours)
-		{
-			// ... and only if the neighbour is not visited and is 
-			// not an obstacle, add it to NotTested List
-			if (!nodeNeighbour->bVisited && nodeNeighbour->bObstacle == 0)
-				listNotTestedNodes.push_back(nodeNeighbour);
-
-			// Calculate the neighbours potential lowest parent distance
-			float fPossiblyLowerGoal = nodeCurrent->fLocalGoal + distance(nodeCurrent, nodeNeighbour);
-
-			// If choosing to path through this node is a lower distance than what 
-			// the neighbour currently has set, update the neighbour to use this node
-			// as the path source, and set its distance scores as necessary
-			if (fPossiblyLowerGoal < nodeNeighbour->fLocalGoal)
-			{
-				nodeNeighbour->parent = nodeCurrent;
-				nodeNeighbour->fLocalGoal = fPossiblyLowerGoal;
-				// The best path length to the neighbour being tested has changed, so
-				// update the neighbour's score. The heuristic is used to globally bias
-				// the path algorithm, so it knows if its getting better or worse. At some
-				// point the algo will realise this path is worse and abandon it, and then go
-				// and search along the next best path.
-				nodeNeighbour->fGlobalGoal = nodeNeighbour->fLocalGoal + heuristic(nodeNeighbour, ode.nodeEnd);
-
-
+			// if current == end, reached
+			if (current_node == end_node) {
+				RetracePath(start_node, end_node, path);
+				return true;
 			}
 
+			// find/update fcost of neighbours and add them to open set
+			grid.GetNeighbours(current_node, _neighbours);
+			for (auto& n : _neighbours) {
+				// if obstacle or closed skip
+				if (n->_obstacle || n->_closed) {
+					continue;
+				}
+				// if new g cost < g cost (need updating) || or if not in open, calculate f cost, add to open
+				int new_g_cost = current_node->_g_cost + (*current_node - *n);
+				// check
+				bool in_open = n->_open;
+				if (new_g_cost < n->_g_cost || !in_open) {
+					// set fcost
+					n->_g_cost = new_g_cost;
+					n->_h_cost = (*n - *end_node);
+					// set parent node
+					n->_parent = current_node;
+					if (!in_open) {
+						min_heap.push(n);
+						n->_open = true;
+					}
+					_nodes_to_reset.push_back(n);
+				}
+			}
 		}
+		return false;
 	}
-	return true;
-}
+	void RetracePath(const Com_Node* start, const Com_Node* end, std::vector<Vec2i>& path) {
+		path.clear();
+		Com_Node const* current = end;
+		while (start != current) {
+			path.push_back(current->_grid_pos);
+			current = current->_parent;
+		}
+		//path.push_back(current->_grid_pos);
+		std::reverse(path.begin(), path.end());
+		for (auto& n : _nodes_to_reset) {
+			ResetNode(n);
+		}
+		_nodes_to_reset.clear();
+	}
+	void ResetNode(Com_Node*& node) {
+		node->_g_cost = 0;
+		node->_h_cost = 0;
+		node->_closed = false;
+		node->_open = false;
+	}
+
+	//void MapCreate(Com_Node& ode, const Com_Tilemap* tile, Com_TilePosition& enemyPos, eid& player)
+	//{
+	//	// Create a 2D array of nodes - this is for convenience of rendering and construction
+	//	// and is not required for the algorithm to work - the nodes could be placed anywhere
+	//	// in any space, in multiple dimension
+	//	ode.MapHeight = tile->_height;
+	//	ode.MapWidth = tile->_width;
+	//	int MapArea = ode.MapHeight * ode.MapWidth;
+	//	ode.nodes = new PathFinding[MapArea];
+	//	for (int y = 0; y < ode.MapHeight; y++)
+	//	{
+	//		for (int x = 0; x < ode.MapWidth; x++)
+	//		{
+	//			ode.nodes[x * ode.MapHeight + y].gridPos.x = x; // to give each node its own coordinates
+	//			ode.nodes[x * ode.MapHeight + y].gridPos.y = y;
+	//			// set everything to default value 1st
+	//			ode.nodes[x * ode.MapHeight + y].bObstacle = false;
+	//			ode.nodes[x * ode.MapHeight + y].parent = nullptr;
+	//			ode.nodes[x * ode.MapHeight + y].bVisited = false;
+	//		}
+	//	}
+	//	// Create connections - in this case nodes are on a regular grid
+	//	for (int y = 0; y < ode.MapHeight; y++)
+	//		for (int x = 0; x < ode.MapWidth; x++)
+	//		{
+	//			if (y > 0)
+	//				ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x + 0) * ode.MapHeight + (y - 1)]);
+	//			if (y < ode.MapHeight - 1)
+	//				ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x + 0) * ode.MapHeight + (y + 1)]);
+	//			if (x > 0)
+	//				ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x - 1) * ode.MapHeight + (y + 0)]);
+	//			if (x < ode.MapWidth - 1)
+	//				ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x + 1) * ode.MapHeight + (y + 0)]);
+
+	//		}
+
+	//	// Manually positio the start and end markers so they are not nullptr
+	//	ode.nodeStart = &ode.nodes[(enemyPos._grid_x * ode.MapHeight) + enemyPos._grid_y];
+	//	ode.nodeEnd = &ode.nodes[(Factory::Instance()[player].Get<Com_TilePosition>()._grid_x * ode.MapHeight) + (Factory::Instance()[player].Get<Com_TilePosition>()._grid_y)];
+	//	/*ode.nodeStart->x = enemyPos._grid_x;
+	//	ode.nodeStart->y = enemyPos._grid_y;
+	//	ode.nodeEnd->x = 0;
+	//	ode.nodeEnd->y = 0;*/
+
+	//}
+
+	//bool Solve_AStar(Com_Node& ode, Com_TilePosition& enemyPos, vector<Vec2i>& patharray)
+	//{
+	//	static float alarm = 0;
+
+	//	// Reset Navigation Graph - default all node states
+	//	for (int y = 0; y < ode.MapHeight; y++)
+	//		for (int x = 0; x < ode.MapWidth; x++)
+	//		{
+	//			ode.nodes[x * ode.MapHeight + y].bVisited = false;
+	//			ode.nodes[x * ode.MapHeight + y].fGlobalGoal = INFINITY;
+	//			ode.nodes[x * ode.MapHeight + y].fLocalGoal = INFINITY;
+	//			ode.nodes[x * ode.MapHeight + y].parent = nullptr;	// No parents
+	//		}
+
+	//	auto distance = [](PathFinding* a, PathFinding* b) // For convenience
+	//	{
+	//		return sqrtf((a->gridPos.x - b->gridPos.x) * (a->gridPos.x - b->gridPos.x) + (a->gridPos.y - b->gridPos.y) * (a->gridPos.y - b->gridPos.y));
+	//	};
+
+	//	auto heuristic = [distance](PathFinding* a, PathFinding* b) // So we can experiment with heuristic
+	//	{
+	//		return distance(a, b);
+	//	};
+
+	//	// Setup starting conditions
+	//	PathFinding* nodeCurrent = ode.nodeStart;
+	//	ode.nodeStart->fLocalGoal = 0.0f;
+	//	ode.nodeStart->fGlobalGoal = heuristic(ode.nodeStart, ode.nodeEnd);
+
+	//	// Add start node to not tested list - this will ensure it gets tested.
+	//	// As the algorithm progresses, newly discovered nodes get added to this
+	//	// list, and will themselves be tested later
+	//	list<PathFinding*> listNotTestedNodes;
+	//	listNotTestedNodes.push_back(ode.nodeStart);
+
+	//	// if the not tested list contains nodes, there may be better paths
+	//	// which have not yet been explored. However, we will also stop  oo
+	//	// searching when we reach the target - there may well be better
+	//	// paths but this one will do - it wont be the longest.
+	//	while (!listNotTestedNodes.empty() && nodeCurrent != ode.nodeEnd)// Find absolutely shortest path // && nodeCurrent != nodeEnd)
+	//	{
+	//		// Sort Untested nodes by global goal, so lowest is first
+	//		listNotTestedNodes.sort([](const PathFinding* lhs, const PathFinding* rhs) { return lhs->fGlobalGoal < rhs->fGlobalGoal; });
+
+	//		// Front of listNotTestedNodes is potentially the lowest distance node. Our
+	//		// list may also contain nodes that have been visited, so ditch these...
+	//		while (!listNotTestedNodes.empty() && listNotTestedNodes.front()->bVisited)
+	//			listNotTestedNodes.pop_front();
+
+
+	//		// ...or abort because there are no valid nodes left to test
+	//		if (listNotTestedNodes.empty())
+	//			break;
+
+	//		nodeCurrent = listNotTestedNodes.front();
+	//		nodeCurrent->bVisited = true; // We only explore a node once
+
+
+	//		// Check each of this node's neighbours...
+	//		for (auto nodeNeighbour : nodeCurrent->vecNeighbours)
+	//		{
+	//			// ... and only if the neighbour is not visited and is 
+	//			// not an obstacle, add it to NotTested List
+	//			if (!nodeNeighbour->bVisited && nodeNeighbour->bObstacle == 0)
+	//				listNotTestedNodes.push_back(nodeNeighbour);
+
+	//			// Calculate the neighbours potential lowest parent distance
+	//			float fPossiblyLowerGoal = nodeCurrent->fLocalGoal + distance(nodeCurrent, nodeNeighbour);
+
+	//			// If choosing to path through this node is a lower distance than what 
+	//			// the neighbour currently has set, update the neighbour to use this node
+	//			// as the path source, and set its distance scores as necessary
+	//			if (fPossiblyLowerGoal < nodeNeighbour->fLocalGoal)
+	//			{
+	//				nodeNeighbour->parent = nodeCurrent;
+	//				nodeNeighbour->fLocalGoal = fPossiblyLowerGoal;
+
+	//				// The best path length to the neighbour being tested has changed, so
+	//				// update the neighbour's score. The heuristic is used to globally bias
+	//				// the path algorithm, so it knows if its getting better or worse. At some
+	//				// point the algo will realise this path is worse and abandon it, and then go
+	//				// and search along the next best path.
+	//				nodeNeighbour->fGlobalGoal = nodeNeighbour->fLocalGoal + heuristic(nodeNeighbour, ode.nodeEnd);
+	//			}
+	//			if (ode.nodeStart == ode.nodeEnd) 
+	//			{
+	//				patharray.clear();
+	//				PathFinding const* current = ode.nodeEnd;
+	//				while (ode.nodeStart != current) {
+	//					patharray.push_back(current->gridPos);
+	//					current = current->parent;
+	//				}
+	//				std::reverse(patharray.begin(), patharray.end());
+	//				
+	//			}
+	//		}
+	//	}
+	//	return true;
+	//}
+
 };
+
 
 // AUSTEN SEE START
 namespace Pathfinding {
