@@ -1,7 +1,8 @@
-1 - Non Collidable 
 0 - Collidable 
-2 - Obstacles (Explosive Barrels)
-3 - Obstacles (Destructible Walls)
+1 - Non Collidable 
+2 - Enemy Spawn Location 
+3 - Obstacles (Explosive Barrels)
+4 - Obstacles (Destructible Walls)
 
 
 -Column (3)
