@@ -11,13 +11,16 @@ Member Variables
 ________________________________*/
 	std::string test = "hello";
 	eid player = -1;
+	eid enemytest = -1;
 	//Com_Tilemap tile;
 	eid tilemap = -1;
 	Factory::SpriteData data{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.15f };
 	Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
 	Factory::SpriteData data2{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.15f };
 	Factory::SpriteData data22{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.25f };
-	Factory::SpriteData data3{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
+	Factory::SpriteData box{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
+	Factory::SpriteData boom{ "kaboom", 40.0f, 40.0f, 1, 1, 1, 0.15f };
+
 	//Factory::SpriteData data{ 0,"test2", 1, 8, 8, 0.1f, 100.0f, 200.0f };
 	/*
 	Initialize Override (optional)
@@ -31,49 +34,59 @@ ________________________________*/
 		Factory::Instance()[tilemap].Get<Com_Position>().y = 2;
 		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
 		//SystemDatabase::Instance().GetSystem<Sys_Projectile>().tilemap = tilemap;
+		//init tile map 
+		Com_Tilemap& com_tilemap = Factory::Instance()[tilemap].Get<Com_Tilemap>();
+		Sys_Pathfinding_v2& pf2 = *SystemDatabase::Instance().GetSystem<Sys_Pathfinding_v2>();
+		pf2._grid = Pathfinding::Grid(com_tilemap._width, com_tilemap._height, com_tilemap._map);
+		pf2._initialized = true;
 
-		Com_Tilemap& tilemapref = Factory::Instance()[tilemap].Get<Com_Tilemap>();
+		//player
+		player = Factory::Instance().FF_SpriteTile(data1, tilemap, 0, 0);
+		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Projectile, Com_WeaponAttack, Com_GameTimer, Com_Camera>();
 
-		for (int y = 0; y < tilemapref._height; ++y) {
-			for (int x = 0; x < tilemapref._width; ++x) {
+		//player = Factory::Instance().FF_SpriteTile(data, tilemap, x, y);
+		//Factory::Instance()[player].AddComponent<Com_YLayering>();
+
+		for (int y = 0; y < com_tilemap._height; ++y) {
+			for (int x = 0; x < com_tilemap._width; ++x) {
 				//if it's a enemy spawn location 
-				if (tilemapref._map[x * (size_t)tilemapref._height + y] == 2) {
-					player = Factory::Instance().FF_SpriteTile(data, tilemap, x, y);
-					Factory::Instance()[player].AddComponent<Com_YLayering>();
+				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 2) {
+					enemytest = Factory::Instance().FF_SpriteTile(data, tilemap, x, y);
+					Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath>();
+					Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
 				}
 				//if it's a explosive barrel 
-				if (tilemapref._map[x * (size_t)tilemapref._height + y] == 3) {
-
+				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 3) {
+					player = Factory::Instance().FF_SpriteTile(boom, tilemap, x, y);
+					Factory::Instance()[player].AddComponent<Com_YLayering>();
 				}
 				//if its' a destructible wall 
-				if (tilemapref._map[x * (size_t)tilemapref._height + y] == 4) {
-
+				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 4) {
+					player = Factory::Instance().FF_SpriteTile(box, tilemap, x, y);
+					Factory::Instance()[player].AddComponent<Com_YLayering>();
 				}
 			}
 		}
 
-		player = Factory::Instance().FF_SpriteTile(data, tilemap, 5, 2);
-		Factory::Instance()[player].AddComponent<Com_YLayering>();
+		//zac pathfinding settings 
 
-		player = Factory::Instance().FF_SpriteTile(data2, tilemap, 8, 3);
-		Factory::Instance()[player].AddComponent<Com_YLayering>();
+		//enemytest = Factory::Instance().FF_SpriteTile(data, tilemap, 5, 2);
+		//Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath>();
+		//Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
 
-		player = Factory::Instance().FF_SpriteTile(data22, tilemap, 1, 1);
-		Factory::Instance()[player].AddComponent<Com_YLayering>();
+		//enemytest = Factory::Instance().FF_SpriteTile(data2, tilemap, 8, 3);
+		//Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath>();
+		//Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
 
-		player = Factory::Instance().FF_SpriteTile(data1, tilemap, 0, 0);
-		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Projectile, Com_WeaponAttack, Com_GameTimer,Com_Camera>();
-		Entity& e = Factory::Instance()[player];
+		//enemytest = Factory::Instance().FF_SpriteTile(data22, tilemap, 1, 1);
+		//Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath>();
+		//Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
 
-		player = Factory::Instance().FF_SpriteTile(data3, tilemap, 5, 3);
-		Factory::Instance()[player].AddComponent<Com_YLayering, Com_GameTimer, Com_objecttype, Com_BoundingBox, Com_CollisionData, Com_Velocity>();
-		Entity& e1 = Factory::Instance()[player];
-		e1.Get<Com_objecttype>().objtype = Com_objecttype::enemyt;
-
-		//player = Factory::Instance().CreateEntity<Com_Position>();
-		/*int* i = new int{ 0 };
-		std::shared_ptr<int> a{ i };
-		std::shared_ptr<int> b{ i };*/
+		//enemytest = Factory::Instance().FF_SpriteTile(data3, tilemap, 5, 3);
+		//Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath>();
+		//Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
+		
+		//end
 		GUISettingsInitialize();
 	}
 	/*

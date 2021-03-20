@@ -982,8 +982,16 @@ struct Sys_EnemySpawning : public System {
 		while (i < enem.numberofenemies) 
 		{
 			Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
-			eid enemy = Factory::Instance().FF_CreateEnemy(data1, _tilemap, 5,2);
-			Factory::Instance()[enemy].AddComponent<Com_YLayering, Com_Node, Com_PathFinding>();
+			eid enemy = Factory::Instance().FF_CreateEnemy(data1, _tilemap, 0,0);
+			/*Factory::Instance()[enemy].AddComponent<Com_YLayering, Com_Node, Com_PathFinding>();*/
+			//Factory::Instance()[enemy].AddComponent<Com_YLayering>();
+			/*Com_Tilemap& com_tilemap = get<Com_Tilemap>();*/
+			//Sys_Pathfinding_v2& pf2 = *SystemDatabase::Instance().GetSystem<Sys_Pathfinding_v2>();
+			//pf2._grid = Pathfinding::Grid(com_tilemap._width, com_tilemap._height, com_tilemap._map);
+			//pf2._initialized = true;
+			/*Factory::Instance()[enemy].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_EnemySpawn, Com_Wave>();
+			Factory::Instance()[enemy].Get<Com_EnemyStateOne>()._player = &get<Com_TilePosition>();*/
+			/*Factory::Instance()[enemy].AddComponent<Com_YLayering, Com_FindPath, Com_EnemySpawn, Com_Wave>();*/
 			++enem.CurrNoOfEnemies;
 			++i;
 		}
@@ -1633,7 +1641,13 @@ struct Sys_Obstacle : public System {
 };
 
 struct Com_Camera {
-	char _filler = 0; //filler
+	char _filler = 0;
+	bool updated{ false };
+	float boundariesxmax = 0.0f;
+	float boundariesymax = 0.0f;
+	float boundariesxmin = 0.0f;
+	float boundariesymin = 0.0f;
+	float buffer = 150.0f;
 };
 
 //camera 
@@ -1641,9 +1655,24 @@ struct Sys_Camera : public System {
 	void UpdateComponent() override {
 		//fix the camera to the player 
 		Com_Position& pos = get<Com_Position>();
-		AEGfxSetCamPosition(pos.x, pos.y);
+		Com_Camera& cam = get<Com_Camera>();
+		if (cam.updated == false) {
+			//seet camera postion
+			AEGfxSetCamPosition(pos.x, pos.y);
+			//recomput boundaries
+			cam.boundariesxmax = pos.x + AEGetWindowWidth() / 2;
+			cam.boundariesxmin = pos.x - AEGetWindowWidth() / 2;
+			cam.boundariesymax = pos.y + AEGetWindowHeight() / 2;
+			cam.boundariesymin = pos.y - AEGetWindowHeight() / 2;
+			cam.updated = true;
+		}
+		if (pos.x + cam.buffer > cam.boundariesxmax || pos.y - cam.buffer < cam.boundariesymin || pos.x - cam.buffer < cam.boundariesxmin || pos.y + cam.buffer > cam.boundariesymax) {
+			cam.updated = false;
+		}
 	}
 };
+
+
 /*																				system::ENEMY STATES
 ____________________________________________________________________________________________________*/
 struct Com_EnemyStateOne {
