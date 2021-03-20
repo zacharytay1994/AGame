@@ -161,39 +161,39 @@ struct Com_objecttype {
 };
 
 //global 
-static std::vector<eid> player;
-static std::vector<eid> enemy;
-static std::vector<eid> bullet;
-static std::vector<eid> obstacle;
-
-struct Sys_RegisteringEntity :public System{
-	void UpdateComponent() override {
-		Com_objecttype& obtype = get<Com_objecttype>();
-		if (obtype.updated == false) {
-			//if it's a player 
-			if (obtype.objtype == obtype.playert) {
-				player.emplace_back(player.size()+1);
-				std::cout << "assigning player" << std::endl;
-			}
-			//if it's a enemy 
-			if (obtype.objtype == obtype.enemyt) {
-				enemy.emplace_back(enemy.size() + 1);
-				std::cout << "assigning enemy" << std::endl;
-			}
-			//if it's a bullet
-			if (obtype.objtype == obtype.bullett) {
-				bullet.emplace_back(bullet.size() + 1);
-				std::cout << "assigning bullet" << std::endl;
-			}
-			//if it's a obstacle
-			if (obtype.objtype == obtype.obstaclest) {
-				obstacle.emplace_back(obstacle.size() + 1);
-				std::cout << "assigning obstacle" << std::endl;
-			}
-			obtype.updated = true;
-		}
-	}
-};
+//static std::vector<eid> player;
+//static std::vector<eid> enemy;
+//static std::vector<eid> bullet;
+//static std::vector<eid> obstacle;
+//
+//struct Sys_RegisteringEntity :public System{
+//	void UpdateComponent() override {
+//		Com_objecttype& obtype = get<Com_objecttype>();
+//		if (obtype.updated == false) {
+//			//if it's a player 
+//			if (obtype.objtype == obtype.playert) {
+//				player.emplace_back(player.size()+1);
+//				std::cout << "assigning player" << std::endl;
+//			}
+//			//if it's a enemy 
+//			if (obtype.objtype == obtype.enemyt) {
+//				enemy.emplace_back(enemy.size() + 1);
+//				std::cout << "assigning enemy" << std::endl;
+//			}
+//			//if it's a bullet
+//			if (obtype.objtype == obtype.bullett) {
+//				bullet.emplace_back(bullet.size() + 1);
+//				std::cout << "assigning bullet" << std::endl;
+//			}
+//			//if it's a obstacle
+//			if (obtype.objtype == obtype.obstaclest) {
+//				obstacle.emplace_back(obstacle.size() + 1);
+//				std::cout << "assigning obstacle" << std::endl;
+//			}
+//			obtype.updated = true;
+//		}
+//	}
+//};
 
 
 // testing for wilfred ////////////////////////////
@@ -515,11 +515,10 @@ struct Sys_Tilemap : public System {
 	void UpdateComponent() override {
 		Com_Tilemap& tilemap = get<Com_Tilemap>();
 		if (tilemap._initialized) {
-			Com_Position& position = get<Com_Position>();
-			DrawTilemap(tilemap, position);
+			DrawTilemap(tilemap);
 		}
 	}
-	void DrawTilemap(Com_Tilemap& tilemap, const Com_Position& position) {
+	void DrawTilemap(Com_Tilemap& tilemap) {
 		AEMtx33 trans, scale, transform;
 		AEMtx33Scale(&scale, tilemap._scale_x, tilemap._scale_y);
 		AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
@@ -532,8 +531,6 @@ struct Sys_Tilemap : public System {
 				tilemap._render_pack._transform = transform;
 				if (tilemap._floor_mask[x * (size_t)tilemap._height + y]) {
 					// sample texture according to collision mask
-					float _offset_x = (tilemap._floor_mask[x * (size_t)tilemap._height + y] % 4) * 1.0f / (float)4;
-					float _offset_y = (tilemap._floor_mask[x * (size_t)tilemap._height + y] / 4) * 1.0f / (float)4;
 					tilemap._render_pack._offset_x = (tilemap._floor_mask[x * (size_t)tilemap._height + y] % 4) * 1.0f / (float)4;
 					tilemap._render_pack._offset_y = (tilemap._floor_mask[x * (size_t)tilemap._height + y] / 4) * 1.0f / (float)4;
 					//ResourceManager::Instance().DrawQueue(&tilemap._render_pack);
@@ -885,9 +882,9 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 	//}
 	void Plant_Bomb(Com_Position& position) {
 		//setting the sprite data to pass in 
-		Factory::SpriteData data{ "kaboom", 40.0f, 40.0f, 1, 1, 1, 0.15f };
+		Factory::SpriteData inner_data{ "kaboom", 40.0f, 40.0f, 1, 1, 1, 0.15f };
 		//creating the bomb 
-		Factory::Instance().FF_CreateBomb(data, static_cast<int>(position.x),static_cast<int>(position.y));
+		Factory::Instance().FF_CreateBomb(inner_data, static_cast<int>(position.x),static_cast<int>(position.y));
 	}
 };
 
@@ -982,8 +979,8 @@ struct Sys_EnemySpawning : public System {
 		while (i < enem.numberofenemies) 
 		{
 			Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
-			eid enemy = Factory::Instance().FF_CreateEnemy(data1, _tilemap, 5,2);
-			Factory::Instance()[enemy].AddComponent<Com_YLayering, Com_Node, Com_PathFinding>();
+			eid inner_enemy = Factory::Instance().FF_CreateEnemy(data1, _tilemap, 5,2);
+			Factory::Instance()[inner_enemy].AddComponent<Com_YLayering, Com_Node, Com_PathFinding>();
 			++enem.CurrNoOfEnemies;
 			++i;
 		}
@@ -1053,7 +1050,7 @@ struct Sys_PathFinding : public System
 	}
 	
 
-void MapCreate(Com_Node& ode, const Com_Tilemap* tile, Com_TilePosition& enemyPos, eid& player)
+void MapCreate(Com_Node& ode, const Com_Tilemap* tile, Com_TilePosition& enemyPos, eid& playerid)
 {
 	// Create a 2D array of nodes - this is for convenience of rendering and construction
 	// and is not required for the algorithm to work - the nodes could be placed anywhere
@@ -1091,7 +1088,7 @@ void MapCreate(Com_Node& ode, const Com_Tilemap* tile, Com_TilePosition& enemyPo
 
 	// Manually positio the start and end markers so they are not nullptr
 	ode.nodeStart = &ode.nodes[(enemyPos._grid_x * ode.MapHeight) + enemyPos._grid_y];
-	ode.nodeEnd = &ode.nodes[(Factory::Instance()[player].Get<Com_TilePosition>()._grid_x * ode.MapHeight) + (Factory::Instance()[player].Get<Com_TilePosition>()._grid_y)];
+	ode.nodeEnd = &ode.nodes[(Factory::Instance()[playerid].Get<Com_TilePosition>()._grid_x * ode.MapHeight) + (Factory::Instance()[playerid].Get<Com_TilePosition>()._grid_y)];
 	/*ode.nodeStart->x = enemyPos._grid_x;
 	ode.nodeStart->y = enemyPos._grid_y;
 	ode.nodeEnd->x = 0;
@@ -1221,11 +1218,11 @@ void Solve_AStar(Com_Node& ode, Com_TilePosition& enemyPos)
 // AUSTEN SEE START
 namespace Pathfinding {
 	struct Node {
-		Node(const Vec2i& gridPos, int obstacle = 0, const Vec2f& worldPos = { 0.0f,0.0f })
+		Node(const Vec2i& gridPos, int isobstacle = 0, const Vec2f& worldPos = { 0.0f,0.0f })
 			:
 			_grid_pos(gridPos),
 			_world_pos(worldPos),
-			_obstacle(obstacle)
+			_obstacle(isobstacle)
 		{}
 		bool operator>(Node& rhs) {
 			return rhs.FCost() < FCost();
@@ -1421,7 +1418,7 @@ struct Sys_ParticleEmitter : public System {
 	void UpdateComponent() override {
 		Com_GameTimer& timer = get<Com_GameTimer>();
 		Com_ParticleEmitter& emitter = get<Com_ParticleEmitter>();
-		Com_Position& position = get<Com_Position>();
+		//Com_Position& position = get<Com_Position>();
 		//if timer reaches 0 emit particles 
 		if (emitter.active == true) {
 			if (timer.timerinseconds == emitter.timeforemitter)
@@ -1540,22 +1537,21 @@ struct Sys_GUISurfaceOnClick : public System {
 struct Sys_GUITextRender : public System {
 	char str_buffer[100];
 	void UpdateComponent() override {
-		Com_Position& position = get<Com_Position>();
 		Com_GUISurface& surface = get<Com_GUISurface>();
 		Com_Text& text = get<Com_Text>();
 		if (!surface._active) {
 			return;
 		}
-		Draw(position, text, surface);
+		//Draw(position, text, surface);
 		text._data._position.x = surface._n_position.x * 2.0f - 1.0f;
 		text._data._position.y = -(surface._n_position.y * 2.0f - 1.0f);
 		ResourceManager::Instance().DrawStackText(text._data);
 	}
-	void Draw(const Com_Position& position, Com_Text& text, const Com_GUISurface& surface) {
-		//sprintf_s(str_buffer, text._text.c_str());
-		//AEGfxGetPrintSize(text._font, str_buffer, 1.0f, text._width, text._height);
-		//AEGfxPrint(text._font, const_cast<s8*>(text._text.c_str()), surface._position.x*2.0f-1.0f, -(surface._position.y*2.0f-1.0f), text._scale, 1.0f, text._g, text._b);
-	}
+	//void Draw(const Com_Position& position, Com_Text& text, const Com_GUISurface& surface) {
+	//	//sprintf_s(str_buffer, text._text.c_str());
+	//	//AEGfxGetPrintSize(text._font, str_buffer, 1.0f, text._width, text._height);
+	//	//AEGfxPrint(text._font, const_cast<s8*>(text._text.c_str()), surface._position.x*2.0f-1.0f, -(surface._position.y*2.0f-1.0f), text._scale, 1.0f, text._g, text._b);
+	//}
 };
 
 struct Sys_GUIDrag : public System {
@@ -1615,17 +1611,17 @@ struct Com_Obstacle {
 struct Sys_Obstacle : public System {
 
 	void UpdateComponent() override {
-		Com_Obstacle& obstacle = get<Com_Obstacle>();
+		Com_Obstacle& l_obstacle = get<Com_Obstacle>();
 		//if it's a bomb barrel 
-		if (obstacle.obstacletype == obstacle.bombbarrel) {
+		if (l_obstacle.obstacletype == l_obstacle.bombbarrel) {
 			//if hit, explode 
-			if (obstacle.numofhitstodestroy == 0) {
+			if (l_obstacle.numofhitstodestroy == 0) {
 				//explode 
 			}
 		}
 		//if it's a breakable wall 
-		if (obstacle.obstacletype == obstacle.breakablewall) {
-			if (obstacle.numofhitstodestroy == 0) {
+		if (l_obstacle.obstacletype == l_obstacle.breakablewall) {
+			if (l_obstacle.numofhitstodestroy == 0) {
 				//destroy wall, free space to walk on 
 			}
 		}

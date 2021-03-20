@@ -116,7 +116,7 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_Boundary, Com_Position, Com_Boundary>();
 	SystemDatabase::Instance().RegisterSystem<Sys_ParticleSys,Com_Particle, Com_GameTimer >();
 	SystemDatabase::Instance().RegisterSystem<Sys_ParticleEmitter, Com_ParticleEmitter, Com_GameTimer>();
-	SystemDatabase::Instance().RegisterSystem<Sys_RegisteringEntity, Com_objecttype>();
+	//SystemDatabase::Instance().RegisterSystem<Sys_RegisteringEntity, Com_objecttype>();
 	//test 
 	SystemDatabase::Instance().RegisterSystem <Sys_Boundingbox, Com_BoundingBox, Com_Position,Com_Sprite>();
 	SystemDatabase::Instance().RegisterSystem <Sys_AABB, Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_objecttype>();
@@ -235,6 +235,7 @@ void Scene::Initialize()
 ________________________________________________________*/
 void Scene::Update(const float& dt)
 {
+	UNREFERENCED_PARAMETER(dt);
 }
 
 /*______________________________________________________
@@ -289,6 +290,7 @@ void Scene::Load()
 
 void Scene::Draw(const float& dt)
 {
+	UNREFERENCED_PARAMETER(dt);
 }
 
 void Scene::Unload()

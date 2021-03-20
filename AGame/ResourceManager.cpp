@@ -12,7 +12,7 @@ ResourceManager& ResourceManager::Instance()
 	return instance;
 }
 
-void ResourceManager::GetResource(AEGfxTexture*& tex, AEGfxVertexList*& mesh, const std::string& texturename, const int& row, const int& col, const int& frames)
+void ResourceManager::GetResource(AEGfxTexture*& tex, AEGfxVertexList*& mesh, const std::string& texturename, const int& row, const int& col/*, const int& frames*/)
 {
 	assert(_textures.find(texturename) != _textures.end());
 	tex = _textures[texturename];
@@ -251,9 +251,9 @@ void ResourceManager::ReadFloorMapBin(const std::string& path, Com_Tilemap& tile
 	}
 }
 
-void ResourceManager::WriteFloorMapBin(const std::string& path, Com_Tilemap& tilemap)
-{
-}
+//void ResourceManager::WriteFloorMapBin(const std::string& path, Com_Tilemap& tilemap)
+//{
+//}
 
 void ResourceManager::ReadFloorMapTxt(const std::string& path, Com_Tilemap& tilemap)
 {
@@ -288,14 +288,13 @@ void ResourceManager::ReadFloorMapTxt(const std::string& path, Com_Tilemap& tile
 			if (e < tilemap._width && temp[e * (size_t)tilemap._height + y]) { i |= 4; }
 			tilemap._floor_mask[x * (size_t)tilemap._height + y] = (int)i;
 		}
-		int i = 0;
 	}
 	file.close();
 }
 
-void ResourceManager::WriteFloorMapTxt(const std::string& path, Com_Tilemap& tilemap)
-{
-}
+//void ResourceManager::WriteFloorMapTxt(const std::string& path, Com_Tilemap& tilemap)
+//{
+//}
 
 ResourceManager::ResourceManager()
 {

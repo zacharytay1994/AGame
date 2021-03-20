@@ -56,6 +56,7 @@ struct TestScene : public Scene {
 	Update Override (optional)
 	________________________________*/
 	void Update(const float& dt) override {
+		UNREFERENCED_PARAMETER(dt);
 		//Entity& testing = Factory::Instance()[tilemap];
 		//if (AEInputCheckTriggered('E')) {
 		//}

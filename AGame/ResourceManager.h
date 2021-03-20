@@ -46,7 +46,7 @@ struct RM_Compare {
 
 struct ResourceManager {
 	static ResourceManager& Instance();
-	void GetResource(AEGfxTexture*& tex, AEGfxVertexList*& mesh, const std::string& texturename, const int& row, const int&col, const int& frames);
+	void GetResource(AEGfxTexture*& tex, AEGfxVertexList*& mesh, const std::string& texturename, const int& row, const int&col/*, const int& frames*/);
 	void FreeResources();
 private:
 	ResourceManager();
