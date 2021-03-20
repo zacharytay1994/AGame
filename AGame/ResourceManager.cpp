@@ -14,7 +14,10 @@ ResourceManager& ResourceManager::Instance()
 
 void ResourceManager::GetResource(AEGfxTexture*& tex, AEGfxVertexList*& mesh, const std::string& texturename, const int& row, const int& col/*, const int& frames*/)
 {
-	assert(_textures.find(texturename) != _textures.end());
+	/*assert(_textures.find(texturename) != _textures.end());*/
+	if (_textures.find(texturename) == _textures.end()) {
+		LoadTexture(texturename, texturename);
+	}
 	tex = _textures[texturename];
 	float key = row * MY_PI + col;
 	if (_meshes.find(key) != _meshes.end()) {
