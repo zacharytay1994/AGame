@@ -10,7 +10,7 @@ struct TestScene : public Scene {
 	eid enemytest = -1;
 	//Com_Tilemap tile;
 	eid tilemap = -1;
-	Factory::SpriteData data{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.15f };
+	Factory::SpriteData data{ "heroidle", 100.0f, 160.0f, 2, 2, 4, 0.15f };
 	Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
 	Factory::SpriteData data2{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.15f };
 	Factory::SpriteData data22{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.25f };
@@ -34,7 +34,7 @@ struct TestScene : public Scene {
 		pf2._grid = Pathfinding::Grid(com_tilemap._width, com_tilemap._height, com_tilemap._map);
 		pf2._initialized = true;
 
-		player = Factory::Instance().FF_SpriteTile(data1, tilemap, 0, 0);
+		player = Factory::Instance().FF_SpriteTile(data, tilemap, 0, 0);
 		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap>();
 		enemytest = Factory::Instance().FF_SpriteTile(data, tilemap, 5, 2);
 		Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath>();

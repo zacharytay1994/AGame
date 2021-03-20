@@ -309,6 +309,7 @@ void ResourceManager::Initialize()
 	LoadTexture("test3", "TestAlien.png");
 	LoadTexture("tilemap", "tilemaptest.png");
 	LoadTexture("skeleton", "temp1.png");
+	LoadTexture("heroidle", "heroidle.png");
 	LoadTexture("coolguy", "temp2.png");
 	LoadTexture("box", "box.png");
 	LoadTexture("kaboom", "kaboom.png");
