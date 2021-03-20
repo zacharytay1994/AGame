@@ -444,7 +444,7 @@ struct Sys_Boundary : public System {
 struct Sys_YLayering : public System {
 	void UpdateComponent() override {
 		// sets the layer to the position
-		get<Com_Sprite>()._render_pack._layer = -(int)get<Com_Position>().y;
+		get<Com_Sprite>()._render_pack._layer = static_cast<int>(-get<Com_Position>().y);
 	}
 };
 
@@ -794,11 +794,11 @@ struct Com_Projectile {
 
 
 struct Sys_Projectile : public System {
-	Factory::SpriteData data = { "test", 20, 20, 1, 100, 100, 100.0f };
+	Factory::SpriteData data = { "test", 20, 20, 1, static_cast<int>(100.0f), static_cast<int>(100.0f), static_cast<int>(100.0f) };
 	//passing in of player's data 
 	virtual void CreateProjectile(Com_Direction& direction,Com_Position& position) {
 		//calling the factory fnc
-		Factory::Instance().FF_Createproj(data, (int)position.x, (int)position.y,direction);
+		Factory::Instance().FF_Createproj(data, static_cast<int>(position.x), static_cast<int>(position.y),direction);
 	}
 };
 
@@ -887,7 +887,7 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 		//setting the sprite data to pass in 
 		Factory::SpriteData data{ "kaboom", 40.0f, 40.0f, 1, 1, 1, 0.15f };
 		//creating the bomb 
-		Factory::Instance().FF_CreateBomb(data, (int)position.x, (int)position.y);
+		Factory::Instance().FF_CreateBomb(data, static_cast<int>(position.x),static_cast<int>(position.y));
 	}
 };
 
@@ -1456,7 +1456,7 @@ struct Sys_ParticleEmitter : public System {
 		Factory::SpriteData data{ "test", rand_sizex, rand_sizey, 2, 3, 8, 0.15f };
 		//Factory::SpriteData data = { "test3", 1,8, 8, 0.1f, rand_sizex, rand_sizey };
 		//create particle 
-		Factory::Instance().FF_CreateParticle(data, (int)get<Com_Position>().x, (int)get<Com_Position>().y, rand_velocityx ,rand_velocityy);
+		Factory::Instance().FF_CreateParticle(data, static_cast<int>(get<Com_Position>().x), static_cast<int>(get<Com_Position>().y), rand_velocityx ,rand_velocityy);
 	}
 };
 
@@ -1671,8 +1671,6 @@ struct Sys_Camera : public System {
 		}
 	}
 };
-
-
 /*																				system::ENEMY STATES
 ____________________________________________________________________________________________________*/
 struct Com_EnemyStateOne {
