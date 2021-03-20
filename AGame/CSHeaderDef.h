@@ -1641,8 +1641,9 @@ struct Sys_Camera : public System {
 	void UpdateComponent() override {
 		//fix the camera to the player 
 		Com_Position& pos = get<Com_Position>();
-		AEGfxSetCamPosition(pos.x,pos.y);
+		AEGfxSetCamPosition(pos.x, pos.y);
 	}
+};
 /*																				system::ENEMY STATES
 ____________________________________________________________________________________________________*/
 struct Com_EnemyStateOne {
