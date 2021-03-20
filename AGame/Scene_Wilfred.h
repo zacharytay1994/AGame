@@ -53,7 +53,7 @@ ________________________________*/
 
 		//player
 		player = Factory::Instance().FF_SpriteTile(data1, tilemap, 0, 0);
-		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Projectile, Com_WeaponAttack, Com_GameTimer, Com_Camera>();
+		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Projectile, Com_WeaponAttack, Com_GameTimer, Com_Camera,Com_type,Com_GridColData>();
 
 		//player = Factory::Instance().FF_SpriteTile(data, tilemap, x, y);
 		//Factory::Instance()[player].AddComponent<Com_YLayering>();
@@ -63,13 +63,17 @@ ________________________________*/
 				//if it's a enemy spawn location 
 				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 2) {
 					enemytest = Factory::Instance().FF_SpriteTile(data, tilemap, x, y);
-					Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath>();
+					Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_type, Com_GridColData>();
 					Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
+					Entity& e = Factory::Instance()[enemytest];
+					e.Get<Com_type>().type = 1;
 				}
 				//if it's a explosive barrel 
 				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 3) {
 					mis = Factory::Instance().FF_SpriteTile(boom, tilemap, x, y);
-					Factory::Instance()[mis].AddComponent<Com_YLayering>();
+					Factory::Instance()[mis].AddComponent<Com_YLayering, Com_type, Com_GridColData>();
+					Entity& e = Factory::Instance()[mis];
+					e.Get<Com_type>().type = 1;
 				}
 				//if its' a destructible wall 
 				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 4) {

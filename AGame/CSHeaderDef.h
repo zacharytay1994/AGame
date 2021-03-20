@@ -1778,3 +1778,73 @@ struct Sys_EnemyStateOne : public System {
 								& Sys_EnemyStateOne::MOVE_ENTER, & Sys_EnemyStateOne::MOVE_UPDATE, & Sys_EnemyStateOne::MOVE_EXIT,
 								& Sys_EnemyStateOne::ATTACK_ENTER, & Sys_EnemyStateOne::ATTACK_UPDATE, & Sys_EnemyStateOne::ATTACK_EXIT };
 };
+
+
+//edits
+struct Com_type {
+	size_t type{ 0 };
+	enum type {
+		player,
+		enemy,
+		bullet,
+		wall,
+		bombbarrel
+	};
+};
+
+struct Com_GridColData {
+	Com_TilePosition* tilepos{ nullptr };
+	Com_type* type{ nullptr };
+	bool emplacedvec{ false };
+};
+
+//grid collision
+struct Sys_GridCollision : public System {
+	std::vector<Com_GridColData> GridCol; //to store all collision data of player
+	void UpdateComponent() override {
+		Com_type* type = &get<Com_type>();
+		Com_TilePosition* tilepos = &get<Com_TilePosition>();
+		Com_GridColData& gridcoldata = get<Com_GridColData>();
+		if (gridcoldata.emplacedvec == false) {
+			GridCol.emplace_back(Com_GridColData{ tilepos,type });
+			gridcoldata.emplacedvec = true;
+		}
+		for (size_t i{ 0 }; i < GridCol.size(); ++i) {
+			if (gridcollisioncheck(*tilepos, *GridCol[i].tilepos)) {
+				//range attack with enemy 
+				if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
+					RemoveEntity();
+				}
+				//range attack with enemy 
+				if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
+					RemoveEntity();
+				}
+				//range attack with enemy 
+				if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
+					RemoveEntity();
+				}
+				//testing
+				//if player with enemy
+				//if (type->type == type->player && GridCol[i].type->type == type->enemy) {
+				//	RemoveEntity();
+				//}
+				//if enemy with player 
+				if (type->type == type->enemy && GridCol[i].type->type == type->player) {
+					RemoveEntity();
+				}
+				//enemy with bullet 
+				if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
+					RemoveEntity();
+				}
+			}
+		}
+	}
+	bool gridcollisioncheck(const Com_TilePosition& tilepos1,const Com_TilePosition& tilepos2){
+		if (tilepos1._grid_x == tilepos2._grid_x && tilepos1._grid_y == tilepos2._grid_y) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+};
