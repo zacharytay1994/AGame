@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <queue>
+#include <memory>
 #include "AEEngine.h"
 #include "Factory.h"
 
@@ -199,8 +200,8 @@ struct Sys_RegisteringEntity :public System{
 // testing for wilfred ////////////////////////////
 
 struct Com_CollisionData {
-	Com_BoundingBox* aabb;
-	Com_Velocity* vel;
+	Com_BoundingBox* aabb{ nullptr };
+	Com_Velocity* vel{ nullptr };
 	bool emplacedvec{ false };
 };
 
@@ -798,7 +799,7 @@ struct Sys_Projectile : public System {
 	//passing in of player's data 
 	virtual void CreateProjectile(Com_Direction& direction,Com_Position& position) {
 		//calling the factory fnc
-		Factory::Instance().FF_Createproj(data, position.x, position.y,direction);
+		Factory::Instance().FF_Createproj(data, (int)position.x, (int)position.y,direction);
 	}
 };
 
@@ -886,7 +887,7 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 		//setting the sprite data to pass in 
 		Factory::SpriteData data{ "kaboom", 40.0f, 40.0f, 1, 1, 1, 0.15f };
 		//creating the bomb 
-		Factory::Instance().FF_CreateBomb(data, position.x,position.y);
+		Factory::Instance().FF_CreateBomb(data, (int)position.x, (int)position.y);
 	}
 };
 
@@ -1087,8 +1088,8 @@ void MapCreate(Com_Node& ode, const Com_Tilemap* tile, Com_TilePosition& enemyPo
 		}
 	}
 	// Create connections - in this case nodes are on a regular grid
-	for (int y = 0; y < ode.MapHeight; y++)
-		for (int x = 0; x < ode.MapWidth; x++)
+	for (size_t y = 0; y < ode.MapHeight; y++)
+		for (size_t x = 0; x < ode.MapWidth; x++)
 		{
 			if (y > 0)
 				ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x + 0) * ode.MapHeight + (y - 1)]);
@@ -1270,7 +1271,7 @@ namespace Pathfinding {
 		{
 			for (size_t y = 0; y < height; ++y) {
 				for (size_t x = 0; x < width; ++x)
-					_grid.emplace_back(Vec2i(x, y), !grid[x * height + y]); {
+					_grid.emplace_back(Vec2i((int)x, (int)y), !grid[x * height + y]); {
 				}
 			}
 		}
@@ -1460,7 +1461,7 @@ struct Sys_ParticleEmitter : public System {
 		Factory::SpriteData data{ "test", rand_sizex, rand_sizey, 2, 3, 8, 0.15f };
 		//Factory::SpriteData data = { "test3", 1,8, 8, 0.1f, rand_sizex, rand_sizey };
 		//create particle 
-		Factory::Instance().FF_CreateParticle(data, get<Com_Position>().x, get<Com_Position>().y, rand_velocityx ,rand_velocityy);
+		Factory::Instance().FF_CreateParticle(data, (int)get<Com_Position>().x, (int)get<Com_Position>().y, rand_velocityx ,rand_velocityy);
 	}
 };
 
