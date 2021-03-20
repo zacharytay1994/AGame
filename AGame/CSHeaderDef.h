@@ -1129,7 +1129,7 @@ struct Com_EnemySpawn{
 
 struct Com_Wave{
 	size_t timerforwave{ 3 }; //if timer hits 0 in secsm spawn new wave 
-	size_t numberofwaves{ 3 }; //if number of wave hit 0, level unlocked 
+	size_t numberofwaves{ 2 }; //if number of wave hit 0, level unlocked 
 };
 
 //logic for spawning of enemies 
@@ -1137,28 +1137,22 @@ struct Sys_EnemySpawning : public System {
 	// Initialization
 	eid _tilemap = {-1};
 	eid playerpos = -1;
-
+	float timer = 5;
+	void OncePerFrame() override 
+	{
+		timer -= _dt;
+	}
 	void UpdateComponent() override {
 		static Com_EnemySpawn& Enemyspawn = get<Com_EnemySpawn>();
 		Com_Wave& wave = get<Com_Wave>();
 		int i = 0;
-		static float spawntime = 0;
-		static int spawncounter = 0;
-		spawntime += _dt;
-		if (spawntime > 1) 
-		{
-			spawncounter += 1;
-			spawntime = 0;
-		}
+		
 		//if the timer hits for set time 
 		//if timer hit 0 spawn wave/ number of enemies hit 0 
-				std::cout << spawntime << std::endl;
-				std::cout << spawncounter << std::endl;
-		if (spawncounter > wave.timerforwave || Enemyspawn.numberofenemies == 0)
+		
+		if (timer < 0|| Enemyspawn.CurrNoOfEnemies == 0)
 		{
-			//spawning of enemies 
-			if (Enemyspawn.CurrNoOfEnemies < 3)
-			{
+			
 				while (i < Enemyspawn.numberofenemies)
 				{
 					int randomx = rand() % 9;
@@ -1169,21 +1163,18 @@ struct Sys_EnemySpawning : public System {
 					Factory::Instance()[enemy].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[playerpos].Get<Com_TilePosition>();
 					++Enemyspawn.CurrNoOfEnemies;
 					++i;
-					spawncounter = 0;
-					spawntime = 0;
+					timer = 5;
+					--wave.numberofwaves; //decrease the number of waves left 
 				}
 
-				--wave.numberofwaves; //decrease the number of waves left 
-				
 			
 			}
-			else 
+			else
 			{
-				i = 0;
-				spawncounter = 0;
-				spawntime = 0;
+ 				i = 0;
+
 			}
-		}
+		
 	}
 	
 
