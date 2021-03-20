@@ -6,6 +6,7 @@
 
 #include "Scene_MainMenu.h"
 #include "Scene_Zac.h"
+#include "Scene_Wilfred.h"
 
 #include <iostream>
 
@@ -80,6 +81,9 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_objecttype>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_BoundingBox>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_CollisionData>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_Camera>();
+	ComponentDescription_DB::Instance().RegisterComponent< Com_type>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_GridColData>();
 
 	// Pathfinding
 	ComponentDescription_DB::Instance().RegisterComponent<Com_FindPath>();
@@ -117,8 +121,9 @@ void SceneManager::Initialize() {
 	//test 
 	SystemDatabase::Instance().RegisterSystem <Sys_Boundingbox, Com_BoundingBox, Com_Position,Com_Sprite>();
 	SystemDatabase::Instance().RegisterSystem <Sys_AABB, Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_objecttype>();
-
 	SystemDatabase::Instance().RegisterSystem<Sys_Projectile2, Com_TilePosition, Com_Projectile>();
+	SystemDatabase::Instance().RegisterSystem<Sys_Camera, Com_Position, Com_Camera>();
+	SystemDatabase::Instance().RegisterSystem<Sys_GridCollision, Com_type, Com_TilePosition, Com_GridColData>();
 
 	// GUI SYSTEMS
 	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceRender, Com_Position, Com_GUISurface, Com_Sprite>();
@@ -137,9 +142,9 @@ void SceneManager::Initialize() {
 
 	// 4. Registering scenes
 	AddScene<TestScene>("Test Scene");
-	//AddScene<TestScene2>("Test Scene 2");
+	AddScene<TestScene2>("Test Scene 2");
 	AddScene<TestScenePF>("Test PathFinding");
-	//AddScene<ExampleScene>("ExampleScene");
+	AddScene<ExampleScene>("ExampleScene");
 	AddScene<MainMenu>("Main Menu");
 	AddScene<TestScenewilfred>("TestScenewilfred");
 	AddScene<ShootingRange>("ShootingRange");

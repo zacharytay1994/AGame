@@ -31,9 +31,6 @@
     <ClCompile Include="zSystem.cpp">
       <Filter>Source Files\ecs</Filter>
     </ClCompile>
-    <ClCompile Include="GlobalGameData.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="zArchetype.h">
@@ -87,8 +84,8 @@
     <ClInclude Include="Scene_Zac.h">
       <Filter>Header Files\Scenes</Filter>
     </ClInclude>
-    <ClInclude Include="GlobalGameData.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Scene_Wilfred.h">
+      <Filter>Header Files\Scenes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

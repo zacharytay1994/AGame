@@ -198,8 +198,9 @@ eid Factory::FF_Createproj2(const SpriteData& data, const int& x, const int& y, 
 {
     eid id = FF_SpriteTile(data, tilemap, x, y);
     //for the projectile not the entity calling it 
-    Entity& e = Factory::Instance()[id].AddComponent<Com_Projectile>();
+    Entity& e = Factory::Instance()[id].AddComponent<Com_Projectile, Com_type, Com_GridColData>();
     Com_Projectile& proj = e.Get<Com_Projectile>();
+    e.Get<Com_type>().type = 2;
     proj.grid_vel_x = vel_x;
     proj.grid_vel_y = vel_y;
     return id;

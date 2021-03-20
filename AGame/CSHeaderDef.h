@@ -10,7 +10,6 @@
 #include "ResourceManager.h"
 #include "zComponent.h"
 #include "zSystem.h"
-#include "GlobalGameData.h"
 
 #include "zMath.h"
 
@@ -618,7 +617,7 @@ struct Sys_Boundary : public System {
 struct Sys_YLayering : public System {
 	void UpdateComponent() override {
 		// sets the layer to the position
-		get<Com_Sprite>()._render_pack._layer = -(int)get<Com_Position>().y;
+		get<Com_Sprite>()._render_pack._layer = static_cast<int>(-get<Com_Position>().y);
 	}
 };
 
@@ -968,11 +967,11 @@ struct Com_Projectile {
 
 
 struct Sys_Projectile : public System {
-	Factory::SpriteData data = { "test", 20, 20, 1, 100, 100, 100.0f };
+	Factory::SpriteData data = { "test", 20, 20, 1, static_cast<int>(100.0f), static_cast<int>(100.0f), static_cast<int>(100.0f) };
 	//passing in of player's data 
 	virtual void CreateProjectile(Com_Direction& direction,Com_Position& position) {
 		//calling the factory fnc
-		Factory::Instance().FF_Createproj(data, (int)position.x, (int)position.y,direction);
+		Factory::Instance().FF_Createproj(data, static_cast<int>(position.x), static_cast<int>(position.y),direction);
 	}
 };
 
@@ -988,7 +987,7 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 				//if character holding to sword 
 				if (weapon.currentweapon == weapon.sword) {
 					//attack the grid infront or shoort invisible bullet 
-					sword_attack(direction, position);
+					//sword_attack(direction, position);
 
 				}
 				//if character holding to pistol 
@@ -1001,7 +1000,7 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 				//if character holding to sword 
 				if (weapon.currentweapon == weapon.sword) {
 					//attack the grid infront or shoort invisible bullet 
-					sword_attack(direction, position);
+					//sword_attack(direction, position);
 
 				}
 				//if character holding to pistol 
@@ -1014,7 +1013,7 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 				//if character holding to sword 
 				if (weapon.currentweapon == weapon.sword) {
 					//attack the grid infront or shoort invisible bullet 
-					sword_attack(direction, position);
+					//sword_attack(direction, position);
 
 				}
 				//if character holding to pistol 
@@ -1027,7 +1026,7 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 				//if character holding to sword 
 				if (weapon.currentweapon == weapon.sword) {
 					//attack the grid infront or shoort invisible bullet 
-					sword_attack(direction, position);
+					//sword_attack(direction, position);
 
 				}
 				//if character holding to pistol 
@@ -1053,14 +1052,15 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 			weapon.currentweapon = weapon.bomb;
 		}
 	}
-	void sword_attack(Com_Direction& direction, Com_Position& position) {
-		//pending 
-	}
+	//void sword_attack(Com_Direction& direction, Com_Position& position) {
+	//	//pending 
+	//
+	//}
 	void Plant_Bomb(Com_Position& position) {
 		//setting the sprite data to pass in 
 		Factory::SpriteData data{ "kaboom", 40.0f, 40.0f, 1, 1, 1, 0.15f };
 		//creating the bomb 
-		Factory::Instance().FF_CreateBomb(data, (int)position.x, (int)position.y);
+		Factory::Instance().FF_CreateBomb(data, static_cast<int>(position.x),static_cast<int>(position.y));
 	}
 };
 
@@ -1069,23 +1069,8 @@ struct Sys_Projectile2 : public System {
 		Com_Projectile& proj = get<Com_Projectile>();
 		if (AEGetTime(nullptr) - proj.time > AEFrameRateControllerGetFrameTime() * 10)
 		{
-			Com_TilemapRef& tilemapref = get<Com_TilemapRef>();
-			Com_Tilemap* tilemap = tilemapref._tilemap;
-
 			proj.time = static_cast<float>(AEGetTime(nullptr));
 			Com_TilePosition& tileposition = get<Com_TilePosition>();
-
-			if (tilemap) {
-				// check if new tile position is within grid - would be checked with collision_mask after
-				if (tileposition._grid_x >= 0 && tileposition._grid_x < tilemap->_width && tileposition._grid_y >= 0 && tileposition._grid_y < tilemap->_height &&
-					tilemap->_floor_mask[(size_t)tileposition._grid_x * (size_t)tilemap->_height + (size_t)tileposition._grid_y] >= 0) {
-					// Do nothing
-				}
-				else {
-					RemoveEntity();
-				}
-			}
-			
 			if (proj.grid_vel_x > 0)
 			{
 				tileposition._grid_x++;
@@ -1102,7 +1087,9 @@ struct Sys_Projectile2 : public System {
 			{
 				tileposition._grid_y++;
 			}
-			
+
+			Com_TilemapRef& tilemapref = get<Com_TilemapRef>();
+			Com_Tilemap* tilemap = tilemapref._tilemap;
 			if (tilemap) {
 				// check if new tile position is within grid - would be checked with collision_mask after
 				if (tileposition._grid_x >= 0 && tileposition._grid_x < tilemap->_width && tileposition._grid_y >= 0 && tileposition._grid_y < tilemap->_height &&
@@ -1746,7 +1733,7 @@ struct Sys_ParticleEmitter : public System {
 		Factory::SpriteData data{ "test", rand_sizex, rand_sizey, 2, 3, 8, 0.15f };
 		//Factory::SpriteData data = { "test3", 1,8, 8, 0.1f, rand_sizex, rand_sizey };
 		//create particle 
-		Factory::Instance().FF_CreateParticle(data, (int)get<Com_Position>().x, (int)get<Com_Position>().y, rand_velocityx ,rand_velocityy);
+		Factory::Instance().FF_CreateParticle(data, static_cast<int>(get<Com_Position>().x), static_cast<int>(get<Com_Position>().y), rand_velocityx ,rand_velocityy);
 	}
 };
 
@@ -1898,3 +1885,246 @@ struct Sys_GUIDrag : public System {
 		}
 	}
 };
+<<<<<<< HEAD
+=======
+
+
+//edits by wilfred
+struct Com_Obstacle {
+	enum obst {
+		bombbarrel,
+		breakablewall,
+	};
+	size_t obstacletype{ 0 };
+	size_t numofhitstodestroy{ 1 };
+};
+
+struct Sys_Obstacle : public System {
+
+	void UpdateComponent() override {
+		Com_Obstacle& obstacle = get<Com_Obstacle>();
+		//if it's a bomb barrel 
+		if (obstacle.obstacletype == obstacle.bombbarrel) {
+			//if hit, explode 
+			if (obstacle.numofhitstodestroy == 0) {
+				//explode 
+			}
+		}
+		//if it's a breakable wall 
+		if (obstacle.obstacletype == obstacle.breakablewall) {
+			if (obstacle.numofhitstodestroy == 0) {
+				//destroy wall, free space to walk on 
+			}
+		}
+	}
+};
+
+struct Com_Camera {
+	char _filler = 0;
+	bool updated{ false };
+	float boundariesxmax = 0.0f;
+	float boundariesymax = 0.0f;
+	float boundariesxmin = 0.0f;
+	float boundariesymin = 0.0f;
+	float buffer = 150.0f;
+};
+
+//camera 
+struct Sys_Camera : public System {
+	void UpdateComponent() override {
+		//fix the camera to the player 
+		Com_Position& pos = get<Com_Position>();
+		Com_Camera& cam = get<Com_Camera>();
+		if (cam.updated == false) {
+			//seet camera postion
+			AEGfxSetCamPosition(pos.x, pos.y);
+			//recomput boundaries
+			cam.boundariesxmax = pos.x + AEGetWindowWidth() / 2;
+			cam.boundariesxmin = pos.x - AEGetWindowWidth() / 2;
+			cam.boundariesymax = pos.y + AEGetWindowHeight() / 2;
+			cam.boundariesymin = pos.y - AEGetWindowHeight() / 2;
+			cam.updated = true;
+		}
+		if (pos.x + cam.buffer > cam.boundariesxmax || pos.y - cam.buffer < cam.boundariesymin || pos.x - cam.buffer < cam.boundariesxmin || pos.y + cam.buffer > cam.boundariesymax) {
+			cam.updated = false;
+		}
+	}
+};
+/*																				system::ENEMY STATES
+____________________________________________________________________________________________________*/
+struct Com_EnemyStateOne {
+	enum class STATES {
+		IDLE,
+		MOVE,
+		ATTACK
+	} _current_state{ STATES::IDLE };
+	int _speed{ 2 };
+	int _counter{ _speed };
+	Com_TilePosition* _player;
+};
+struct Sys_EnemyStateOne : public System {
+	float _turn_step{ 0.5f };
+	float _turn_step_counter{ _turn_step };
+	bool  _turn{ false };
+	void OncePerFrame() override {
+		_turn_step_counter -= _dt;
+		if (_turn_step_counter > 0.0f) {
+			_turn = false;
+		}
+		else {
+			_turn = true;
+			_turn_step_counter = _turn_step;
+		}
+	}
+	void UpdateComponent() override {
+		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
+		if (_turn) {
+			--state._counter;
+		}
+		(this->*_fp_states[static_cast<int>(state._current_state) * 3 + 1])();
+		if (!state._counter) {
+			state._counter = state._speed;
+		}
+	}
+	void ChangeState(Com_EnemyStateOne::STATES newState) {
+		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
+		// exit current state
+		(this->*_fp_states[static_cast<int>(state._current_state)*3+2])();
+		// enter new state
+		(this->*_fp_states[static_cast<int>(newState) * 3])();
+		state._current_state = newState;
+	}
+	// idle
+	void IDLE_ENTER() {
+		std::cout << "IDLE_ENTER" << std::endl;
+	}
+	void IDLE_UPDATE() {
+		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
+		Com_FindPath& fp = get<Com_FindPath>();
+		Com_TilePosition& pos = get<Com_TilePosition>();
+		if (!state._counter) {
+			std::cout << "IDLE_UPDATE" << std::endl;
+			// see if can find path to player
+			fp._start = Vec2i( pos._grid_x, pos._grid_y );
+			fp._end = Vec2i( state._player->_grid_x,state._player->_grid_y);
+			fp._find = true;
+			// if path found
+			if (fp._found) {
+				ChangeState(Com_EnemyStateOne::STATES::MOVE);
+			}
+		}
+	}
+	void IDLE_EXIT() {
+		std::cout << "IDLE_EXIT" << std::endl;
+	}
+	// move
+	void MOVE_ENTER() {
+		std::cout << "MOVE_ENTER" << std::endl;
+	}
+	void MOVE_UPDATE() {
+		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
+		Com_FindPath& fp = get<Com_FindPath>();
+		Com_TilePosition& pos = get<Com_TilePosition>();
+		if (!state._counter) {
+			std::cout << "MOVE_UPDATE" << std::endl;
+			// see if can find path to player
+			fp._start = Vec2i(pos._grid_x, pos._grid_y);
+			fp._end = Vec2i( state._player->_grid_x,state._player->_grid_y );
+			fp._find = true;
+			// if path found
+			/*if (fp._next.x != -1 && fp._next.y != -1) {
+				pos._grid_x = fp._next.x;
+				pos._grid_y = fp._next.y;
+				std::cout << "x: " << fp._next.x << "y: " << fp._next.y << std::endl;
+			}*/
+		}
+	}
+	void MOVE_EXIT() {
+		std::cout << "MOVE_EXIT" << std::endl;
+	}
+	// attack
+	void ATTACK_ENTER() {
+		std::cout << "ATTACK_ENTER" << std::endl;
+	}
+	void ATTACK_UPDATE() {
+		std::cout << "ATTACK_UPDATE" << std::endl;
+	}
+	void ATTACK_EXIT() {
+		std::cout << "ATTACK_EXIT" << std::endl;
+	}
+	using FP_STATES = void(Sys_EnemyStateOne::*)();
+	FP_STATES _fp_states[9] = { & Sys_EnemyStateOne::IDLE_ENTER, & Sys_EnemyStateOne::IDLE_UPDATE, & Sys_EnemyStateOne::IDLE_EXIT,
+								& Sys_EnemyStateOne::MOVE_ENTER, & Sys_EnemyStateOne::MOVE_UPDATE, & Sys_EnemyStateOne::MOVE_EXIT,
+								& Sys_EnemyStateOne::ATTACK_ENTER, & Sys_EnemyStateOne::ATTACK_UPDATE, & Sys_EnemyStateOne::ATTACK_EXIT };
+};
+
+
+//edits
+struct Com_type {
+	size_t type{ 0 };
+	enum type {
+		player,
+		enemy,
+		bullet,
+		wall,
+		bombbarrel
+	};
+};
+
+struct Com_GridColData {
+	Com_TilePosition* tilepos{ nullptr };
+	Com_type* type{ nullptr };
+	bool emplacedvec{ false };
+};
+
+//grid collision
+struct Sys_GridCollision : public System {
+	std::vector<Com_GridColData> GridCol; //to store all collision data of player
+	void UpdateComponent() override {
+		Com_type* type = &get<Com_type>();
+		Com_TilePosition* tilepos = &get<Com_TilePosition>();
+		Com_GridColData& gridcoldata = get<Com_GridColData>();
+		if (gridcoldata.emplacedvec == false) {
+			GridCol.emplace_back(Com_GridColData{ tilepos,type });
+			gridcoldata.emplacedvec = true;
+		}
+		for (size_t i{ 0 }; i < GridCol.size(); ++i) {
+			if (gridcollisioncheck(*tilepos, *GridCol[i].tilepos)) {
+				//range attack with enemy 
+				if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
+					RemoveEntity();
+				}
+				//range attack with enemy 
+				if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
+					RemoveEntity();
+				}
+				//range attack with enemy 
+				if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
+					RemoveEntity();
+				}
+				//testing
+				//if player with enemy
+				//if (type->type == type->player && GridCol[i].type->type == type->enemy) {
+				//	RemoveEntity();
+				//}
+				//if enemy with player 
+				if (type->type == type->enemy && GridCol[i].type->type == type->player) {
+					RemoveEntity();
+				}
+				//enemy with bullet 
+				if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
+					RemoveEntity();
+				}
+			}
+		}
+	}
+	bool gridcollisioncheck(const Com_TilePosition& tilepos1,const Com_TilePosition& tilepos2){
+		if (tilepos1._grid_x == tilepos2._grid_x && tilepos1._grid_y == tilepos2._grid_y) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+};
+>>>>>>> origin/Wilf-branch
