@@ -82,12 +82,18 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_BoundingBox>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_CollisionData>();
 
+	// Pathfinding
+	ComponentDescription_DB::Instance().RegisterComponent<Com_FindPath>();
+
 	// GUI COMPONENTS
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUISurface>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUIMouseCheck>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUIOnClick>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Text>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUIDrag>();
+
+	// enemy states
+	ComponentDescription_DB::Instance().RegisterComponent<Com_EnemyStateOne>();
 
 	// 3. Registering all systems for the game
 	//SystemDatabase::Instance().RegisterSystem<Example_UpdatePosition, Position, Example_Velocity>();
@@ -116,13 +122,18 @@ void SceneManager::Initialize() {
 
 	SystemDatabase::Instance().RegisterSystem<Sys_Projectile2, Com_TilePosition, Com_Projectile>();
 
-
 	// GUI SYSTEMS
 	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceRender, Com_Position, Com_GUISurface, Com_Sprite>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceMouseCheck, Com_GUIMouseCheck, Com_Position, Com_GUISurface>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceOnClick, Com_GUIOnClick, Com_GUIMouseCheck, Com_GUISurface>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUIDrag, Com_GUIMouseCheck, Com_GUIDrag, Com_GUISurface>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUITextRender, Com_Position, Com_GUISurface, Com_Text>();
+
+	// pathfinding
+	SystemDatabase::Instance().RegisterSystem<Sys_Pathfinding_v2, Com_FindPath>();
+
+	// enemy states
+	SystemDatabase::Instance().RegisterSystem<Sys_EnemyStateOne, Com_EnemyStateOne, Com_FindPath, Com_TilePosition>();
 
 
 	// 4. Registering scenes
