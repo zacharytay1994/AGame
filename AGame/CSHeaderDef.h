@@ -1135,12 +1135,17 @@ struct Sys_PathFinding : public System
 		if (SolveAStar(player_pos,Enemy_pos, grid12, path)) 
 		{
 			std::reverse(path.begin(), path.end());
-			for (auto node : path) 
-			{ 
-					Enemy._grid_x = node.x;
-					Enemy._grid_y = node.y;
-			}
+			
 		}
+		vector<Vec2i>::iterator it = path.begin();
+		for (it;it != path.end(); ++it) 
+		{
+			
+			Enemy._grid_x = it->x;
+			Enemy._grid_y = it->y;
+			
+		}
+
 		/*MapCreate(ode, tile, EnemyPos, playerPos);
 		if(Solve_AStar(ode, EnemyPos, path)) 
 		{
