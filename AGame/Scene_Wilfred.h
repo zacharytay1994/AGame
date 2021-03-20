@@ -26,11 +26,31 @@ ________________________________*/
 		std::cout << test << " this is a test scene" << std::endl;
 		std::cout << sizeof(Com_Tilemap) << std::endl;
 
-		tilemap = Factory::Instance().FF_Tilemap("tilemap", "c_test.txt", "t_test.txt");
+		tilemap = Factory::Instance().FF_Tilemap("tilemap", "C_WilfTile.txt", "T_WilfTile.txt");
 		Factory::Instance()[tilemap].Get<Com_Position>().x = -5;
 		Factory::Instance()[tilemap].Get<Com_Position>().y = 2;
 		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
 		//SystemDatabase::Instance().GetSystem<Sys_Projectile>().tilemap = tilemap;
+
+		Com_Tilemap& tilemapref = Factory::Instance()[tilemap].Get<Com_Tilemap>();
+
+		for (int y = 0; y < tilemapref._height; ++y) {
+			for (int x = 0; x < tilemapref._width; ++x) {
+				//if it's a enemy spawn location 
+				if (tilemapref._map[x * (size_t)tilemapref._height + y] == 2) {
+					player = Factory::Instance().FF_SpriteTile(data, tilemap, x, y);
+					Factory::Instance()[player].AddComponent<Com_YLayering>();
+				}
+				//if it's a explosive barrel 
+				if (tilemapref._map[x * (size_t)tilemapref._height + y] == 3) {
+
+				}
+				//if its' a destructible wall 
+				if (tilemapref._map[x * (size_t)tilemapref._height + y] == 4) {
+
+				}
+			}
+		}
 
 		player = Factory::Instance().FF_SpriteTile(data, tilemap, 5, 2);
 		Factory::Instance()[player].AddComponent<Com_YLayering>();
@@ -42,7 +62,7 @@ ________________________________*/
 		Factory::Instance()[player].AddComponent<Com_YLayering>();
 
 		player = Factory::Instance().FF_SpriteTile(data1, tilemap, 0, 0);
-		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Projectile, Com_WeaponAttack, Com_GameTimer>();
+		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Projectile, Com_WeaponAttack, Com_GameTimer,Com_Camera>();
 		Entity& e = Factory::Instance()[player];
 
 		player = Factory::Instance().FF_SpriteTile(data3, tilemap, 5, 3);

@@ -81,6 +81,7 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_objecttype>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_BoundingBox>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_CollisionData>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_Camera>();
 
 	// GUI COMPONENTS
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUISurface>();
@@ -113,8 +114,8 @@ void SceneManager::Initialize() {
 	//test 
 	SystemDatabase::Instance().RegisterSystem <Sys_Boundingbox, Com_BoundingBox, Com_Position,Com_Sprite>();
 	SystemDatabase::Instance().RegisterSystem <Sys_AABB, Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_objecttype>();
-
 	SystemDatabase::Instance().RegisterSystem<Sys_Projectile2, Com_TilePosition, Com_Projectile>();
+	SystemDatabase::Instance().RegisterSystem<Sys_Camera, Com_Position, Com_Camera>();
 
 
 	// GUI SYSTEMS

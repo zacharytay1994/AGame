@@ -1448,4 +1448,15 @@ struct Sys_Obstacle : public System {
 	}
 };
 
+struct Com_Camera {
+	char _filler = 0; //filler
+};
 
+//camera 
+struct Sys_Camera : public System {
+	void UpdateComponent() override {
+		//fix the camera to the player 
+		Com_Position& pos = get<Com_Position>();
+		AEGfxSetCamPosition(pos.x,pos.y);
+	}
+};
