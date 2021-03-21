@@ -150,6 +150,7 @@ struct TestScenePF : public Scene
 	eid player = -1;
 	//Com_Tilemap tile;
 	//eid tilemap = -1;
+	eid enemytest = -1;
 	eid tilemap = -1;
 	Factory::SpriteData data{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.15f };
 	Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
@@ -164,20 +165,28 @@ struct TestScenePF : public Scene
 		std::cout << test << " this is a test scene" << std::endl;
 		std::cout << sizeof(Com_Tilemap) << std::endl;
 
-		tilemap = Factory::Instance().FF_Tilemap("tilemap", "c_test.txt", "t_test.txt");
+		tilemap = Factory::Instance().FF_Tilemap("tilemap", "c_test2.txt", "t_test2.txt");
 		Factory::Instance()[tilemap].Get<Com_Position>().x = -5;
 		Factory::Instance()[tilemap].Get<Com_Position>().y = 2;
 		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
 		SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->_tilemap = tilemap;
 		//SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()._tilemap = tilemap;
-		
-		player = Factory::Instance().FF_SpriteTile(data1, tilemap, 9, 4);
-		Factory::Instance()[player].AddComponent<Com_YLayering,Com_Node, Com_EnemySpawn, Com_Wave>();
-		++Factory::Instance()[player].Get<Com_EnemySpawn>().CurrNoOfEnemies;
+
+		Com_Tilemap& com_tilemap = Factory::Instance()[tilemap].Get<Com_Tilemap>();
+		Sys_PathFinding& pf2 = *SystemDatabase::Instance().GetSystem<Sys_PathFinding>();
+		pf2._grid = Grid(com_tilemap._width, com_tilemap._height, com_tilemap._map);
+		pf2._initialized = true;
 
 		player = Factory::Instance().FF_SpriteTile(data2, tilemap, 0, 0);
 		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap>();
 		SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos =  player;
+		
+		enemytest = Factory::Instance().FF_SpriteTile(data1, tilemap, 9, 4);
+		Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_EnemySpawn, Com_Wave>();
+		Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
+		SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
+		++Factory::Instance()[enemytest].Get<Com_EnemySpawn>().CurrNoOfEnemies;
+
 		//player = Factory::Instance().CreateEntity<Com_Position>();
 		/*int* i = new int{ 0 };
 		std::shared_ptr<int> a{ i };
@@ -219,6 +228,7 @@ struct TestScenePF : public Scene
 	________________________________*/
 	void Exit() override {
 		std::cout << "woo switching to scene 2!" << std::endl;
+		
 		
 	}
 };
