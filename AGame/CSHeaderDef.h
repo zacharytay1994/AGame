@@ -1807,7 +1807,7 @@ struct Sys_EnemyStateOne : public System {
 	void MOVE_EXIT() {
 		std::cout << "MOVE_EXIT" << std::endl;
 	}
-	// attack
+	// attack //JAGUREOATTACK
 	void ATTACK_ENTER() {
 		std::cout << "ATTACK_ENTER" << std::endl;
 	}
