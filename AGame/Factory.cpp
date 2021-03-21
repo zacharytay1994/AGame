@@ -41,6 +41,9 @@ eid Factory::FF_Sprite(const SpriteData& data, const float& x, const float& y)
     sprite._frames = data._frames;
     sprite._frame_interval = data._interval;
     sprite._render_pack._layer = data._layer;
+    for (int i = 0; i < 5; ++i) {
+        sprite._frame_segment[i] = data._frame_segment[i];
+    }
 
     e.Get<Com_Position>() = { x,y };
 

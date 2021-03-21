@@ -11,7 +11,8 @@ struct TestScene : public Scene {
 	//Com_Tilemap tile;
 	eid tilemap = -1;
 	Factory::SpriteData data{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.15f };
-	Factory::SpriteData data1{ "temp1.png", 100.0f, 160.0f, 2, 3, 8, 0.25f };
+	Vec2i passin[5] = { {0,2},{3,5},{0,0},{0,0},{0,0} };
+	Factory::SpriteData data1{ "numbers.png", 100.0f, 160.0f, 2, 3, 8, 0.25f, 0, passin };
 	Factory::SpriteData data2{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.15f };
 	Factory::SpriteData data22{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.25f };
 	Factory::SpriteData data3{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
@@ -61,8 +62,8 @@ struct TestScene : public Scene {
 		//if (AEInputCheckTriggered('E')) {
 		//}
 		GUISettingsUpdate();
-		if (AEInputCheckCurr('L')) {
-			SceneManager::Instance().ChangeScene("Test Scene 2");
+		if (AEInputCheckTriggered('L')) {
+			Factory::Instance()[player].Get<Com_Sprite>()._current_frame_segment++;
 		}
 		//if (AEInputCheckTriggered('N')) {
 		//	/*std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i++ << std::endl;

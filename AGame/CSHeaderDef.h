@@ -77,6 +77,8 @@ struct Com_Sprite {
 	int					_row = 1;
 	int					_col = 1;
 	bool				_visible{ true };
+	int					_current_frame_segment{ 0 };
+	Vec2i				_frame_segment[5]{ {0,0}, {0,0}, {0,0}, {0,0}, {0,0} };
 };
 
 struct Com_Direction {
@@ -396,10 +398,20 @@ struct Sys_DrawSprite : public System {
 	void Draw(Com_Sprite& sprite, Com_Position& position) {
 		AEMtx33 trans, scale, rot;
 		// increment frame
+		// set current_frame based on frame_segment
 		if (sprite._frame_interval_counter > sprite._frame_interval) {
-			sprite._current_frame = ++sprite._current_frame >= sprite._frames ? 0 : sprite._current_frame;
-			sprite._render_pack._offset_x = (sprite._current_frame % sprite._col) * 1.0f / (float)sprite._col;
-			sprite._render_pack._offset_y = (sprite._current_frame / sprite._col) * 1.0f / (float)sprite._row;
+			++sprite._current_frame;
+			if (sprite._current_frame_segment > 5) {
+				sprite._current_frame_segment = 0;
+			}
+			int current_frame = sprite._current_frame + sprite._frame_segment[sprite._current_frame_segment].x;
+			if (current_frame > sprite._frame_segment[sprite._current_frame_segment].y) {
+				sprite._current_frame = 0;
+				current_frame = sprite._frame_segment[sprite._current_frame_segment].x;
+			}
+			//sprite._current_frame = ++sprite._current_frame >= sprite._frames ? 0 : sprite._current_frame;
+			sprite._render_pack._offset_x = (current_frame % sprite._col) * 1.0f / (float)sprite._col;
+			sprite._render_pack._offset_y = (current_frame / sprite._col) * 1.0f / (float)sprite._row;
 			sprite._frame_interval_counter = 0.0f;
 		}
 		else {

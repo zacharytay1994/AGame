@@ -31,7 +31,6 @@ void ResourceManager::GetResource(AEGfxTexture*& tex, AEGfxVertexList*& mesh, co
 void ResourceManager::DrawQueue(RenderPack* pack)
 {
 	_render_queue_vector.push_back(pack);
-	//_render_queue.push(pack);
 }
 
 void ResourceManager::DrawStackText(TextPack& pack)
