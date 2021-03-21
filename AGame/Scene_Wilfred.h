@@ -44,6 +44,8 @@ ________________________________*/
 		Factory::Instance()[tilemap].Get<Com_Position>().x = -5;
 		Factory::Instance()[tilemap].Get<Com_Position>().y = 2;
 		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
+		//passing in ref to tilemap for enemy
+		SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->_tilemap = tilemap;
 		//SystemDatabase::Instance().GetSystem<Sys_Projectile>().tilemap = tilemap;
 		//init tile map 
 		Com_Tilemap& com_tilemap = Factory::Instance()[tilemap].Get<Com_Tilemap>();
@@ -54,6 +56,8 @@ ________________________________*/
 		//player
 		player = Factory::Instance().FF_SpriteTile(data1, tilemap, 0, 0);
 		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Projectile, Com_WeaponAttack, Com_GameTimer, Com_Camera,Com_type,Com_GridColData>();
+		//more
+		SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
 
 		//player = Factory::Instance().FF_SpriteTile(data, tilemap, x, y);
 		//Factory::Instance()[player].AddComponent<Com_YLayering>();
@@ -63,8 +67,11 @@ ________________________________*/
 				//if it's a enemy spawn location 
 				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 2) {
 					enemytest = Factory::Instance().FF_SpriteTile(data, tilemap, x, y);
-					Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_type, Com_GridColData>();
+					Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_type, Com_GridColData,Com_EnemySpawn,Com_Wave>();
 					Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
+					//passing
+					SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
+					++Factory::Instance()[enemytest].Get<Com_EnemySpawn>().CurrNoOfEnemies;
 					Entity& e = Factory::Instance()[enemytest];
 					e.Get<Com_type>().type = 1;
 				}
@@ -82,7 +89,7 @@ ________________________________*/
 				}
 			}
 		}
-		//zac pathfinding settings 
+		//zac's settings
 
 		//enemytest = Factory::Instance().FF_SpriteTile(data, tilemap, 5, 2);
 		//Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath>();
