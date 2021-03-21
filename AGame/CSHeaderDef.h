@@ -3,13 +3,13 @@
 #include <string>
 #include <vector>
 #include <queue>
+#include <memory>
 #include "AEEngine.h"
 #include "Factory.h"
 
 #include "ResourceManager.h"
 #include "zComponent.h"
 #include "zSystem.h"
-#include "GlobalGameData.h"
 
 #include "zMath.h"
 
@@ -199,8 +199,8 @@ struct Sys_RegisteringEntity :public System{
 // testing for wilfred ////////////////////////////
 
 struct Com_CollisionData {
-	Com_BoundingBox* aabb;
-	Com_Velocity* vel;
+	Com_BoundingBox* aabb{ nullptr };
+	Com_Velocity* vel{ nullptr };
 	bool emplacedvec{ false };
 };
 
@@ -267,6 +267,14 @@ struct Com_Node
 		delete nodeStart;
 		delete nodeEnd;
 	}
+};
+
+struct Com_FindPath {
+	bool	_find	{ false };
+	bool	_found	{ false };
+	Vec2i	_start	{ 0,0 };
+	Vec2i	_end	{ 0,0 };
+	Vec2i	_next	{ 0,0 };
 };
 
 /*																				Component::GUI
@@ -436,7 +444,7 @@ struct Sys_Boundary : public System {
 struct Sys_YLayering : public System {
 	void UpdateComponent() override {
 		// sets the layer to the position
-		get<Com_Sprite>()._render_pack._layer = -get<Com_Position>().y;
+		get<Com_Sprite>()._render_pack._layer = static_cast<int>(-get<Com_Position>().y);
 	}
 };
 
@@ -787,11 +795,11 @@ struct Com_Projectile {
 
 
 struct Sys_Projectile : public System {
-	Factory::SpriteData data = { "test", 20, 20, 1, 100.0f, 100.0f, 100.0f };
+	Factory::SpriteData data = { "test", 20, 20, 1, static_cast<int>(100.0f), static_cast<int>(100.0f), static_cast<int>(100.0f) };
 	//passing in of player's data 
 	virtual void CreateProjectile(Com_Direction& direction,Com_Position& position) {
 		//calling the factory fnc
-		Factory::Instance().FF_Createproj(data, position.x, position.y,direction);
+		Factory::Instance().FF_Createproj(data, static_cast<int>(position.x), static_cast<int>(position.y),direction);
 	}
 };
 
@@ -807,7 +815,7 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 				//if character holding to sword 
 				if (weapon.currentweapon == weapon.sword) {
 					//attack the grid infront or shoort invisible bullet 
-					sword_attack(direction, position);
+					//sword_attack(direction, position);
 
 				}
 				//if character holding to pistol 
@@ -820,7 +828,7 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 				//if character holding to sword 
 				if (weapon.currentweapon == weapon.sword) {
 					//attack the grid infront or shoort invisible bullet 
-					sword_attack(direction, position);
+					//sword_attack(direction, position);
 
 				}
 				//if character holding to pistol 
@@ -833,7 +841,7 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 				//if character holding to sword 
 				if (weapon.currentweapon == weapon.sword) {
 					//attack the grid infront or shoort invisible bullet 
-					sword_attack(direction, position);
+					//sword_attack(direction, position);
 
 				}
 				//if character holding to pistol 
@@ -846,7 +854,7 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 				//if character holding to sword 
 				if (weapon.currentweapon == weapon.sword) {
 					//attack the grid infront or shoort invisible bullet 
-					sword_attack(direction, position);
+					//sword_attack(direction, position);
 
 				}
 				//if character holding to pistol 
@@ -872,14 +880,15 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 			weapon.currentweapon = weapon.bomb;
 		}
 	}
-	void sword_attack(Com_Direction& direction, Com_Position& position) {
-		//pending 
-	}
+	//void sword_attack(Com_Direction& direction, Com_Position& position) {
+	//	//pending 
+	//
+	//}
 	void Plant_Bomb(Com_Position& position) {
 		//setting the sprite data to pass in 
 		Factory::SpriteData data{ "kaboom", 40.0f, 40.0f, 1, 1, 1, 0.15f };
 		//creating the bomb 
-		Factory::Instance().FF_CreateBomb(data, position.x,position.y);
+		Factory::Instance().FF_CreateBomb(data, static_cast<int>(position.x),static_cast<int>(position.y));
 	}
 };
 
@@ -933,7 +942,7 @@ struct Sys_Projectile2 : public System {
 			{
 				tileposition._grid_y++;
 			}
-			
+
 			if (tilemap) {
 				// check if new tile position is within grid - would be checked with collision_mask after
 				if (tileposition._grid_x >= 0 && tileposition._grid_x < tilemap->_width && tileposition._grid_y >= 0 && tileposition._grid_y < tilemap->_height &&
@@ -1092,8 +1101,8 @@ void MapCreate(Com_Node& ode, const Com_Tilemap* tile, Com_TilePosition& enemyPo
 		}
 	}
 	// Create connections - in this case nodes are on a regular grid
-	for (int y = 0; y < ode.MapHeight; y++)
-		for (int x = 0; x < ode.MapWidth; x++)
+	for (size_t y = 0; y < ode.MapHeight; y++)
+		for (size_t x = 0; x < ode.MapWidth; x++)
 		{
 			if (y > 0)
 				ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x + 0) * ode.MapHeight + (y - 1)]);
@@ -1132,7 +1141,8 @@ void Solve_AStar(Com_Node& ode, Com_TilePosition& enemyPos)
 
 	auto distance = [](Com_PathFinding* a, Com_PathFinding* b) // For convenience
 	{
-		return sqrtf((a->x - b->x) * (a->x - b->x) + (a->y - b->y) * (a->y - b->y));
+		return sqrtf((static_cast<float>(a->x) - static_cast<float>(b->x)) * (static_cast<float>(a->x) - static_cast<float>(b->x))
+			+ (static_cast<float>(a->y) - static_cast<float>(b->y)) * (static_cast<float>(a->y) - static_cast<float>(b->y)));
 	};
 
 	auto heuristic = [distance](Com_PathFinding* a, Com_PathFinding* b) // So we can experiment with heuristic
@@ -1234,6 +1244,179 @@ void Solve_AStar(Com_Node& ode, Com_TilePosition& enemyPos)
 
 };
 
+// AUSTEN SEE START
+namespace Pathfinding {
+	struct Node {
+		Node(const Vec2i& gridPos, int obstacle = 0, const Vec2f& worldPos = { 0.0f,0.0f })
+			:
+			_grid_pos(gridPos),
+			_world_pos(worldPos),
+			_obstacle(obstacle)
+		{}
+		bool operator>(Node& rhs) {
+			return rhs.FCost() < FCost();
+		}
+		int operator-(const Node& rhs) const {
+			int distance_x = abs(_grid_pos.x - rhs._grid_pos.x);
+			int distance_y = abs(_grid_pos.y - rhs._grid_pos.y);
+			if (distance_x > distance_y) {
+				return distance_y * 14 + (distance_x - distance_y) * 10;
+			}
+			return distance_x * 14 + (distance_y - distance_x) * 10;
+		}
+
+		int		_g_cost = 0, _h_cost = 0;
+		Vec2i	_grid_pos{ 0,0 };
+		Vec2f	_world_pos{ 0.0f,0.0f };
+		bool	_obstacle{ false };
+		Node* _parent{ nullptr };
+		bool	_closed{ false };
+		bool	_open{ false };
+
+		int FCost() { return _g_cost + _h_cost; }
+	};
+	struct Grid {
+		Grid() = default;
+		Grid(int width, int height, const std::vector<int> grid)
+			:
+			_width(width),
+			_height(height)
+		{
+			for (size_t y = 0; y < height; ++y) {
+				for (size_t x = 0; x < width; ++x)
+					_grid.emplace_back(Vec2i((int)x, (int)y), !grid[x * height + y]); {
+				}
+			}
+		}
+		size_t _width{ 0 };
+		size_t _height{ 0 };
+		std::vector<Node> _grid;
+		Node& Get(const Vec2i& pos) {
+			return _grid[pos.y * _width + pos.x];
+		}
+		void GetNeighbours(Node*& node, std::vector<Node*>& neighbours) {
+			neighbours.clear();
+			if (node->_grid_pos.x - 1 >= 0) {
+				neighbours.push_back(&Get({ node->_grid_pos.x - 1, node->_grid_pos.y }));
+			}
+			if (node->_grid_pos.x + 1 < _width) {
+				neighbours.push_back(&Get({ node->_grid_pos.x + 1, node->_grid_pos.y }));
+			}
+			if (node->_grid_pos.y - 1 >= 0) {
+				neighbours.push_back(&Get({ node->_grid_pos.x, node->_grid_pos.y - 1 }));
+			}
+			if (node->_grid_pos.y + 1 < _height) {
+				neighbours.push_back(&Get({ node->_grid_pos.x, node->_grid_pos.y + 1 }));
+			}
+		}
+	};
+}
+
+struct Sys_Pathfinding_v2 : public System {
+	void UpdateComponent() override {
+		if (_initialized) {
+			Com_FindPath& fp = get<Com_FindPath>();
+			Com_TilePosition& tpos = get<Com_TilePosition>();
+			if (fp._find) {
+				fp._found = SolveAStar(fp._start, fp._end, _grid, _path);
+				if (fp._found && _path.size() >= 1) {
+					tpos._grid_x = _path[0].x;
+					tpos._grid_y = _path[0].y;
+				}
+				fp._find = false;
+			}
+		}
+	}
+	Pathfinding::Grid _grid;
+	std::vector<Pathfinding::Node*> _nodes_to_reset;		// rmb to reserve, PESSIMISM! or something like that
+	std::vector<Pathfinding::Node*> _neighbours;			// rmb to reserve
+	std::vector<Vec2i> _path;
+	bool _initialized{ false };
+
+	bool SolveAStar(const Vec2i& start, const Vec2i& end, Pathfinding::Grid& grid, std::vector<Vec2i>& path) {
+		path.clear();
+		// custom comparator
+		auto cmp = [](Pathfinding::Node*& node1, Pathfinding::Node*& node2) {return *node1 > *node2; };
+		// create min heap
+		std::priority_queue<Pathfinding::Node*, std::vector<Pathfinding::Node*>, decltype(cmp)> min_heap(cmp);
+
+		// create start and end temp nodes
+		Pathfinding::Node* start_node = &grid.Get(start);
+		Pathfinding::Node* end_node = &grid.Get(end);
+
+		// add start node to the open set
+		min_heap.push(start_node);
+		start_node->_open = true;
+		_nodes_to_reset.push_back(start_node);
+
+		// loop
+		while (min_heap.size() > 0) {
+			Pathfinding::Node* current_node = min_heap.top();
+
+			// erase current node from open set and add to closed set
+			min_heap.pop();
+			current_node->_open = false;
+			current_node->_closed = true;
+			_nodes_to_reset.push_back(current_node);
+
+			// if current == end, reached
+			if (current_node == end_node) {
+				RetracePath(start_node, end_node, path);
+				return true;
+			}
+
+			// find/update fcost of neighbours and add them to open set
+			grid.GetNeighbours(current_node, _neighbours);
+			for (auto& n : _neighbours) {
+				// if obstacle or closed skip
+				if (n->_obstacle || n->_closed) {
+					continue;
+				}
+				// if new g cost < g cost (need updating) || or if not in open, calculate f cost, add to open
+				int new_g_cost = current_node->_g_cost + (*current_node - *n);
+				// check
+				bool in_open = n->_open;
+				if (new_g_cost < n->_g_cost || !in_open) {
+					// set fcost
+					n->_g_cost = new_g_cost;
+					n->_h_cost = (*n - *end_node);
+					// set parent node
+					n->_parent = current_node;
+					if (!in_open) {
+						min_heap.push(n);
+						n->_open = true;
+					}
+					_nodes_to_reset.push_back(n);
+				}
+			}
+		}
+		for (auto& n : _nodes_to_reset) {
+			ResetNode(n);
+		}
+		_nodes_to_reset.clear();
+		return false;
+	}
+	void RetracePath(const Pathfinding::Node* start, const Pathfinding::Node* end, std::vector<Vec2i>& path) {
+		path.clear();
+		Pathfinding::Node const* current = end;
+		while (start != current) {
+			path.push_back(current->_grid_pos);
+			current = current->_parent;
+		}
+		std::reverse(path.begin(), path.end());
+		for (auto& n : _nodes_to_reset) {
+			ResetNode(n);
+		}
+		_nodes_to_reset.clear();
+	}
+	void ResetNode(Pathfinding::Node*& node) {
+		node->_g_cost = 0;
+		node->_h_cost = 0;
+		node->_closed = false;
+		node->_open = false;
+	}
+};
+// AUSTEN SEE END
 
 struct Com_Particle {
 	size_t lifetime{ 2 };
@@ -1291,7 +1474,7 @@ struct Sys_ParticleEmitter : public System {
 		Factory::SpriteData data{ "test", rand_sizex, rand_sizey, 2, 3, 8, 0.15f };
 		//Factory::SpriteData data = { "test3", 1,8, 8, 0.1f, rand_sizex, rand_sizey };
 		//create particle 
-		Factory::Instance().FF_CreateParticle(data, get<Com_Position>().x, get<Com_Position>().y, rand_velocityx ,rand_velocityy);
+		Factory::Instance().FF_CreateParticle(data, static_cast<int>(get<Com_Position>().x), static_cast<int>(get<Com_Position>().y), rand_velocityx ,rand_velocityy);
 	}
 };
 
@@ -1310,6 +1493,7 @@ struct Sys_HealthUpdate : public System {
 		}
 	}
 };
+
 /*																				system::GUI
 ____________________________________________________________________________________________________*/
 struct Sys_GUISurfaceRender : public System {
@@ -1347,8 +1531,8 @@ struct Sys_GUISurfaceMouseCheck : public System {
 	Vec2f _screen_dimensions{ AEGetWindowWidth() / 2.0f,AEGetWindowHeight() / 2.0f };
 	void OncePerFrame() override {
 		AEInputGetCursorPosition(&_mouse_position.x, &_mouse_position.y);
-		_mouse_position.x -= _screen_dimensions.x;
-		_mouse_position.y -= _screen_dimensions.y;
+		_mouse_position.x -= (int)_screen_dimensions.x;
+		_mouse_position.y -= (int)_screen_dimensions.y;
 		_mouse_position.y *= -1;
 	}
 	void UpdateComponent() override {
@@ -1441,4 +1625,155 @@ struct Sys_GUIDrag : public System {
 			surface._position = drag._click_position + _offset;
 		}
 	}
+};
+
+
+//edits by wilfred
+struct Com_Obstacle {
+	enum obst {
+		bombbarrel,
+		breakablewall,
+	};
+	size_t obstacletype{ 0 };
+	size_t numofhitstodestroy{ 1 };
+};
+
+struct Sys_Obstacle : public System {
+
+	void UpdateComponent() override {
+		Com_Obstacle& obstacle = get<Com_Obstacle>();
+		//if it's a bomb barrel 
+		if (obstacle.obstacletype == obstacle.bombbarrel) {
+			//if hit, explode 
+			if (obstacle.numofhitstodestroy == 0) {
+				//explode 
+			}
+		}
+		//if it's a breakable wall 
+		if (obstacle.obstacletype == obstacle.breakablewall) {
+			if (obstacle.numofhitstodestroy == 0) {
+				//destroy wall, free space to walk on 
+			}
+		}
+	}
+};
+
+struct Com_Camera {
+	char _filler = 0; //filler
+};
+
+//camera 
+struct Sys_Camera : public System {
+	void UpdateComponent() override {
+		//fix the camera to the player 
+		Com_Position& pos = get<Com_Position>();
+		AEGfxSetCamPosition(pos.x,pos.y);
+	}
+};
+/*																				system::ENEMY STATES
+____________________________________________________________________________________________________*/
+struct Com_EnemyStateOne {
+	enum class STATES {
+		IDLE,
+		MOVE,
+		ATTACK
+	} _current_state{ STATES::IDLE };
+	int _speed{ 2 };
+	int _counter{ _speed };
+	Com_TilePosition* _player;
+};
+struct Sys_EnemyStateOne : public System {
+	float _turn_step{ 0.5f };
+	float _turn_step_counter{ _turn_step };
+	bool  _turn{ false };
+	void OncePerFrame() override {
+		_turn_step_counter -= _dt;
+		if (_turn_step_counter > 0.0f) {
+			_turn = false;
+		}
+		else {
+			_turn = true;
+			_turn_step_counter = _turn_step;
+		}
+	}
+	void UpdateComponent() override {
+		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
+		if (_turn) {
+			--state._counter;
+		}
+		(this->*_fp_states[static_cast<int>(state._current_state) * 3 + 1])();
+		if (!state._counter) {
+			state._counter = state._speed;
+		}
+	}
+	void ChangeState(Com_EnemyStateOne::STATES newState) {
+		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
+		// exit current state
+		(this->*_fp_states[static_cast<int>(state._current_state)*3+2])();
+		// enter new state
+		(this->*_fp_states[static_cast<int>(newState) * 3])();
+		state._current_state = newState;
+	}
+	// idle
+	void IDLE_ENTER() {
+		std::cout << "IDLE_ENTER" << std::endl;
+	}
+	void IDLE_UPDATE() {
+		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
+		Com_FindPath& fp = get<Com_FindPath>();
+		Com_TilePosition& pos = get<Com_TilePosition>();
+		if (!state._counter) {
+			std::cout << "IDLE_UPDATE" << std::endl;
+			// see if can find path to player
+			fp._start = Vec2i( pos._grid_x, pos._grid_y );
+			fp._end = Vec2i( state._player->_grid_x,state._player->_grid_y);
+			fp._find = true;
+			// if path found
+			if (fp._found) {
+				ChangeState(Com_EnemyStateOne::STATES::MOVE);
+			}
+		}
+	}
+	void IDLE_EXIT() {
+		std::cout << "IDLE_EXIT" << std::endl;
+	}
+	// move
+	void MOVE_ENTER() {
+		std::cout << "MOVE_ENTER" << std::endl;
+	}
+	void MOVE_UPDATE() {
+		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
+		Com_FindPath& fp = get<Com_FindPath>();
+		Com_TilePosition& pos = get<Com_TilePosition>();
+		if (!state._counter) {
+			std::cout << "MOVE_UPDATE" << std::endl;
+			// see if can find path to player
+			fp._start = Vec2i(pos._grid_x, pos._grid_y);
+			fp._end = Vec2i( state._player->_grid_x,state._player->_grid_y );
+			fp._find = true;
+			// if path found
+			/*if (fp._next.x != -1 && fp._next.y != -1) {
+				pos._grid_x = fp._next.x;
+				pos._grid_y = fp._next.y;
+				std::cout << "x: " << fp._next.x << "y: " << fp._next.y << std::endl;
+			}*/
+		}
+	}
+	void MOVE_EXIT() {
+		std::cout << "MOVE_EXIT" << std::endl;
+	}
+	// attack
+	void ATTACK_ENTER() {
+		std::cout << "ATTACK_ENTER" << std::endl;
+	}
+	void ATTACK_UPDATE() {
+		std::cout << "ATTACK_UPDATE" << std::endl;
+	}
+	void ATTACK_EXIT() {
+		std::cout << "ATTACK_EXIT" << std::endl;
+	}
+	using FP_STATES = void(Sys_EnemyStateOne::*)();
+	FP_STATES _fp_states[9] = { & Sys_EnemyStateOne::IDLE_ENTER, & Sys_EnemyStateOne::IDLE_UPDATE, & Sys_EnemyStateOne::IDLE_EXIT,
+								& Sys_EnemyStateOne::MOVE_ENTER, & Sys_EnemyStateOne::MOVE_UPDATE, & Sys_EnemyStateOne::MOVE_EXIT,
+								& Sys_EnemyStateOne::ATTACK_ENTER, & Sys_EnemyStateOne::ATTACK_UPDATE, & Sys_EnemyStateOne::ATTACK_EXIT };
 };

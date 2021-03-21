@@ -6,6 +6,7 @@
 
 #include "Scene_MainMenu.h"
 #include "Scene_Zac.h"
+#include "Scene_Wilfred.h"
 
 #include <iostream>
 
@@ -80,6 +81,10 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_objecttype>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_BoundingBox>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_CollisionData>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_Camera>();
+
+	// Pathfinding
+	ComponentDescription_DB::Instance().RegisterComponent<Com_FindPath>();
 
 	// GUI COMPONENTS
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUISurface>();
@@ -87,6 +92,9 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUIOnClick>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Text>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUIDrag>();
+
+	// enemy states
+	ComponentDescription_DB::Instance().RegisterComponent<Com_EnemyStateOne>();
 
 	// 3. Registering all systems for the game
 	//SystemDatabase::Instance().RegisterSystem<Example_UpdatePosition, Position, Example_Velocity>();
@@ -112,9 +120,8 @@ void SceneManager::Initialize() {
 	//test 
 	SystemDatabase::Instance().RegisterSystem <Sys_Boundingbox, Com_BoundingBox, Com_Position,Com_Sprite>();
 	SystemDatabase::Instance().RegisterSystem <Sys_AABB, Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_objecttype>();
-
 	SystemDatabase::Instance().RegisterSystem<Sys_Projectile2, Com_TilePosition, Com_Projectile>();
-
+	SystemDatabase::Instance().RegisterSystem<Sys_Camera, Com_Position, Com_Camera>();
 
 	// GUI SYSTEMS
 	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceRender, Com_Position, Com_GUISurface, Com_Sprite>();
@@ -123,12 +130,18 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_GUIDrag, Com_GUIMouseCheck, Com_GUIDrag, Com_GUISurface>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUITextRender, Com_Position, Com_GUISurface, Com_Text>();
 
+	// pathfinding
+	SystemDatabase::Instance().RegisterSystem<Sys_Pathfinding_v2, Com_FindPath>();
+
+	// enemy states
+	SystemDatabase::Instance().RegisterSystem<Sys_EnemyStateOne, Com_EnemyStateOne, Com_FindPath, Com_TilePosition>();
+
 
 	// 4. Registering scenes
 	AddScene<TestScene>("Test Scene");
-	//AddScene<TestScene2>("Test Scene 2");
+	AddScene<TestScene2>("Test Scene 2");
 	AddScene<TestScenePF>("Test PathFinding");
-	//AddScene<ExampleScene>("ExampleScene");
+	AddScene<ExampleScene>("ExampleScene");
 	AddScene<MainMenu>("Main Menu");
 	AddScene<TestScenewilfred>("TestScenewilfred");
 	AddScene<ShootingRange>("ShootingRange");

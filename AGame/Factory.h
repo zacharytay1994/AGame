@@ -58,7 +58,7 @@ public:
 	eid FF_Tilemap(const std::string& texture, const std::string& bottom, const std::string& top);
 	eid FF_SpriteTile(const SpriteData& data, const eid& tilemap, const int& x, const int& y);
 	//eid FF_SpriteRandomPosition(const SpriteData& data, const float& x, const float& y, const float& velX, const float& velY);
-	
+
 	template <typename MovementType>
 	eid FF_SpriteMovableTile(const SpriteData& data, const eid& tilemap, const int& x, const int& y) {
 		eid id = FF_SpriteTile(data, tilemap, x, y);
@@ -84,6 +84,6 @@ public:
 
 
 	eid FF_CreateEnemy(const SpriteData& data, const eid& tilemap, const int& x, const int& y); //create enemy
-	eid FF_CreateParticle(const SpriteData& data, const int& x , const int& y,const float& velx , const float& vely); // create particle
+	eid FF_CreateParticle(const SpriteData& data, const int& x, const int& y, const float& velx, const float& vely); // create particle
 	eid FF_CreateBomb(const SpriteData& data, const int& x, const int& y);//create bomb
 };

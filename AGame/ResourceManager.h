@@ -19,7 +19,7 @@ struct RenderPack {
 };
 
 struct TextPack {
-	int			_layer;
+	int			_layer{ 0 };
 	char		_font{ 0 };
 	std::string _text{ "loren ipsum" };
 	Vec2f		_position{ 0.0f,0.0f };
