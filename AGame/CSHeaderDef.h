@@ -70,6 +70,8 @@ struct Com_Sprite {
 	float				_x_scale = 1.0f;
 	float				_y_scale = 1.0f;
 	float				_rotation = 0.0f;
+	bool				_flip = { false };
+	bool				_loop = { true };
 	int					_frames = 1;
 	int					_current_frame = 0;
 	float				_frame_interval = 1;
@@ -94,6 +96,9 @@ struct Com_YLayering {
 	char filler = 0;
 };
 
+struct Com_ParentPosition {
+	eid _parent_id{ -1 };
+};
 
 /*																				Component::INPUT
 ____________________________________________________________________________________________________*/
@@ -130,7 +135,10 @@ struct Com_TilePosition {
 	int _grid_y = 0;
 	int _vgrid_x = 0;	// verified grid positions - do not set
 	int _vgrid_y = 0;	// verified grid positions - do not set
-
+	float _speed = 2.0f;
+	Vec2f _direction = { 0.0f,0.0f };
+	bool _moving{ false };
+	bool _initialized{ false };
 };
 
 /*																				Component::COLLISION
@@ -399,31 +407,48 @@ struct Sys_DrawSprite : public System {
 		AEMtx33 trans, scale, rot;
 		// increment frame
 		// set current_frame based on frame_segment
-		if (sprite._frame_interval_counter > sprite._frame_interval) {
-			++sprite._current_frame;
-			if (sprite._current_frame_segment > 5) {
-				sprite._current_frame_segment = 0;
+		if (sprite._loop) {
+			if (sprite._frame_interval_counter > sprite._frame_interval) {
+				++sprite._current_frame;
+				if (sprite._current_frame_segment >= 5) {
+					sprite._current_frame_segment = 0;
+				}
+				int current_frame = sprite._current_frame + sprite._frame_segment[sprite._current_frame_segment].x;
+				if (current_frame > sprite._frame_segment[sprite._current_frame_segment].y) {
+					sprite._current_frame = 0;
+					current_frame = sprite._frame_segment[sprite._current_frame_segment].x;
+				}
+				//sprite._current_frame = ++sprite._current_frame >= sprite._frames ? 0 : sprite._current_frame;
+				sprite._render_pack._offset_x = (current_frame % sprite._col) * 1.0f / (float)sprite._col;
+				sprite._render_pack._offset_y = (current_frame / sprite._col) * 1.0f / (float)sprite._row;
+				sprite._frame_interval_counter = 0.0f;
 			}
-			int current_frame = sprite._current_frame + sprite._frame_segment[sprite._current_frame_segment].x;
-			if (current_frame > sprite._frame_segment[sprite._current_frame_segment].y) {
-				sprite._current_frame = 0;
-				current_frame = sprite._frame_segment[sprite._current_frame_segment].x;
+			else {
+				sprite._frame_interval_counter += _dt;
 			}
-			//sprite._current_frame = ++sprite._current_frame >= sprite._frames ? 0 : sprite._current_frame;
-			sprite._render_pack._offset_x = (current_frame % sprite._col) * 1.0f / (float)sprite._col;
-			sprite._render_pack._offset_y = (current_frame / sprite._col) * 1.0f / (float)sprite._row;
-			sprite._frame_interval_counter = 0.0f;
+		}
+		if (sprite._flip) {
+			AEMtx33Scale(&scale, -sprite._x_scale, sprite._y_scale);
 		}
 		else {
-			sprite._frame_interval_counter += _dt;
+			AEMtx33Scale(&scale, sprite._x_scale, sprite._y_scale);
 		}
-		AEMtx33Scale(&scale, sprite._x_scale, sprite._y_scale);
 		AEMtx33Rot(&rot, sprite._rotation);
 		AEMtx33Trans(&trans, position.x, position.y);
 		AEMtx33Concat(&sprite._render_pack._transform, &rot, &scale);
 		AEMtx33Concat(&sprite._render_pack._transform, &trans, &sprite._render_pack._transform);
 		// set aegfx variables
 		ResourceManager::Instance().DrawQueue(&sprite._render_pack);
+	}
+};
+
+struct Sys_ParentPosition : public System {
+	void UpdateComponent() override {
+		// get parent position
+		Com_Position& position = get<Com_Position>();
+		Com_ParentPosition& parent = get<Com_ParentPosition>();
+		Com_Position& parent_position = Factory::Instance()[parent._parent_id].Get<Com_Position>();
+		position = parent_position;
 	}
 };
 
@@ -481,41 +506,33 @@ struct Sys_ArrowKeys : public System {
 };
 
 struct Sys_ArrowKeysTilemap : public System {
+	// hard coded - assuming only 1 player uses arrow keys tilemap
+	float _speed = 0.5f;
+	float _counter{ _speed };
+	bool _turn{ false };
+	void OncePerFrame() {
+		_counter -= _dt;
+		if (_counter <= 0.0f) {
+			_counter = _speed;
+			_turn = true;
+		}
+		else {
+			_turn = false;
+		}
+	}
 	void UpdateComponent() override {
 		Com_TilePosition& pos = get<Com_TilePosition>();
-		Com_Direction& direction = get<Com_Direction>();
-		if (AEInputCheckTriggered(VK_LEFT)) {
-			//if already left 
-			if (direction.currdir == direction.left) {
-				pos._grid_x -= 1;
-			}
-			else {
-				direction.currdir = direction.left;
-			}
+		if (AEInputCheckCurr(VK_LEFT) && _turn) {
+			pos._grid_x -= 1;
 		}
-		if (AEInputCheckTriggered(VK_RIGHT)) {
-			if (direction.currdir == direction.right) {
-				pos._grid_x += 1;
-			}
-			else {
-				direction.currdir = direction.right;
-			}
+		if (AEInputCheckCurr(VK_RIGHT) && _turn) {
+			pos._grid_x += 1;
 		}
-		if (AEInputCheckTriggered(VK_UP)) {
-			if (direction.currdir == direction.up) {
-				pos._grid_y -= 1;
-			}
-			else {
-				direction.currdir = direction.up;
-			}
+		if (AEInputCheckCurr(VK_UP) && _turn) {
+			pos._grid_y -= 1;
 		}
-		if (AEInputCheckTriggered(VK_DOWN)) {
-			if (direction.currdir == direction.down) {
-				pos._grid_y += 1;
-			}
-			else {
-				direction.currdir = direction.down;
-			}
+		if (AEInputCheckCurr(VK_DOWN) && _turn) {
+			pos._grid_y += 1;
 		}
 	}
 };
@@ -570,10 +587,12 @@ struct Sys_TilePosition : public System {
 		Com_Tilemap* tilemap = tilemapref._tilemap;
 		Com_Position& position = get<Com_Position>();
 		Com_TilePosition& t_position = get<Com_TilePosition>();
+		bool check = false;
 		if (tilemap) {
 			// check if new tile position is within grid - would be checked with collision_mask after
 			if (t_position._grid_x >= 0 && t_position._grid_x < tilemap->_width && t_position._grid_y >= 0 && t_position._grid_y < tilemap->_height &&
 				tilemap->_floor_mask[(size_t)t_position._grid_x * (size_t)tilemap->_height + (size_t)t_position._grid_y] >= 0) {
+				check = (t_position._vgrid_x != t_position._grid_x || t_position._vgrid_y != t_position._grid_y);
 				t_position._vgrid_x = t_position._grid_x;
 				t_position._vgrid_y = t_position._grid_y;
 			}
@@ -582,8 +601,52 @@ struct Sys_TilePosition : public System {
 				t_position._grid_y = t_position._vgrid_y;
 			}
 			// bind position to grid position
-			position.x = tilemap->_offset_x * tilemap->_scale_x + (float)t_position._vgrid_x * tilemap->_scale_x;
-			position.y = tilemap->_offset_y * tilemap->_scale_y - (float)t_position._vgrid_y * tilemap->_scale_y;
+			if (!t_position._initialized) {
+				t_position._initialized = true;
+				position.x = tilemap->_offset_x * tilemap->_scale_x + (float)t_position._vgrid_x * tilemap->_scale_x;
+				position.y = tilemap->_offset_y * tilemap->_scale_y - (float)t_position._vgrid_y * tilemap->_scale_y;
+			}
+			float dst_x = tilemap->_offset_x * tilemap->_scale_x + (float)t_position._vgrid_x * tilemap->_scale_x;
+			float dst_y = tilemap->_offset_y * tilemap->_scale_y - (float)t_position._vgrid_y * tilemap->_scale_y;
+			float dis_x = dst_x - position.x;
+			float dis_y = dst_y - position.y;
+			if (check) {
+				t_position._direction = { dis_x,dis_y };
+			}
+			if (dis_x < 0.2f && dis_x > -0.2f && dis_y < 0.2f && dis_y > -0.2f) {
+				position.x = dst_x;
+				position.y = dst_y;
+				t_position._moving = false;
+			}
+			else {
+				//Vec2f direction = { dis_x, dis_y };
+				//direction.NormalizeSelf();
+				position.x += t_position._direction.x * _dt * t_position._speed;
+				position.y += t_position._direction.y * _dt * t_position._speed;
+				t_position._moving = true;
+			}
+		}
+	}
+};
+
+struct Com_TileMoveSpriteState {
+	char filler{ ' ' };
+};
+struct Sys_TileMoveSpriteState : public System {
+	void UpdateComponent() override {
+		Com_Sprite& sprite = get<Com_Sprite>();
+		Com_TilePosition& pos = get<Com_TilePosition>();
+		if (pos._moving) {
+			sprite._current_frame_segment = 1;
+			if (pos._direction.x < -0.01f) {
+				sprite._flip = true;
+			}
+			else if (pos._direction.x > 0.01f) {
+				sprite._flip = false;
+			}
+		}
+		else {
+			sprite._current_frame_segment = 0;
 		}
 	}
 };
@@ -1662,7 +1725,7 @@ struct Com_EnemyStateOne {
 	} _current_state{ STATES::IDLE };
 	int _speed{ 2 };
 	int _counter{ _speed };
-	Com_TilePosition* _player;
+	Com_TilePosition* _player{ nullptr };
 };
 struct Sys_EnemyStateOne : public System {
 	float _turn_step{ 0.5f };
@@ -1707,13 +1770,13 @@ struct Sys_EnemyStateOne : public System {
 		if (!state._counter) {
 			std::cout << "IDLE_UPDATE" << std::endl;
 			// see if can find path to player
-			fp._start = Vec2i( pos._grid_x, pos._grid_y );
-			fp._end = Vec2i( state._player->_grid_x,state._player->_grid_y);
+			fp._start = Vec2i( pos._vgrid_x, pos._vgrid_y );
+			fp._end = Vec2i( state._player->_vgrid_x,state._player->_vgrid_y);
 			fp._find = true;
-			// if path found
-			if (fp._found) {
-				ChangeState(Com_EnemyStateOne::STATES::MOVE);
-			}
+		}
+		// if path found
+		if (fp._found) {
+			ChangeState(Com_EnemyStateOne::STATES::MOVE);
 		}
 	}
 	void IDLE_EXIT() {
@@ -1730,8 +1793,8 @@ struct Sys_EnemyStateOne : public System {
 		if (!state._counter) {
 			std::cout << "MOVE_UPDATE" << std::endl;
 			// see if can find path to player
-			fp._start = Vec2i(pos._grid_x, pos._grid_y);
-			fp._end = Vec2i( state._player->_grid_x,state._player->_grid_y );
+			fp._start = Vec2i(pos._vgrid_x, pos._vgrid_y);
+			fp._end = Vec2i( state._player->_vgrid_x,state._player->_vgrid_y );
 			fp._find = true;
 			// if path found
 			/*if (fp._next.x != -1 && fp._next.y != -1) {
