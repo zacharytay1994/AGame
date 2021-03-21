@@ -1146,7 +1146,6 @@ struct Sys_EnemySpawning : public System {
 					int randomy = rand() % 5;
 					Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
 					eid enemy = Factory::Instance().FF_CreateEnemy(data1, _tilemap, randomx, randomy);
-					Factory::Instance()[enemy].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath>();
 					Factory::Instance()[enemy].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[playerpos].Get<Com_TilePosition>();
 					++Enemyspawn.CurrNoOfEnemies;
 					++i;
@@ -1984,14 +1983,17 @@ struct Sys_GridCollision : public System {
 			if (gridcollisioncheck(*tilepos, *GridCol[i].tilepos)) {
 				//range attack with enemy 
 				if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
+					std::cout << "Collided" << std::endl;
 					RemoveEntity();
 				}
 				//range attack with enemy 
 				if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
+					std::cout << "Collided" << std::endl;
 					RemoveEntity();
 				}
 				//range attack with enemy 
 				if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
+					std::cout << "Collided" << std::endl;
 					RemoveEntity();
 				}
 				//testing
@@ -2001,10 +2003,12 @@ struct Sys_GridCollision : public System {
 				//}
 				//if enemy with player 
 				if (type->type == type->enemy && GridCol[i].type->type == type->player) {
+					std::cout << "Collided" << std::endl;
 					RemoveEntity();
 				}
 				//enemy with bullet 
 				if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
+					std::cout << "Collided" << std::endl;
 					RemoveEntity();
 				}
 			}
