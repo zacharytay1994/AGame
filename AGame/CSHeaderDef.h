@@ -37,7 +37,6 @@ struct Com_CollisionData;
 // attack
 struct Com_WeaponAttack;
 // Nodes
-struct Com_PathFinding;
 struct Com_Node;
 // GUI
 struct Com_GUISurface;
@@ -463,6 +462,10 @@ struct Sys_EnemyStateOne : public System {
 			if (fp._next.x != fp._end.x && fp._next.y != fp._end.y)
 			{
 				ChangeState(Com_EnemyStateOne::STATES::MOVE);
+			}
+			else if (fp._next.x == fp._end.x && fp._next.y == fp._end.y)
+			{
+				// to decrease health
 			}
 			
 		}
@@ -1157,39 +1160,39 @@ struct Sys_EnemySpawning : public System {
 		timer -= _dt;
 	}
 	void UpdateComponent() override {
-		//static Com_EnemySpawn& Enemyspawn = get<Com_EnemySpawn>();
-		//Com_Wave& wave = get<Com_Wave>();
-		//int i = 0;
+		static Com_EnemySpawn& Enemyspawn = get<Com_EnemySpawn>();
+		Com_Wave& wave = get<Com_Wave>();
+		int i = 0;
 
-		////if the timer hits for set time 
-		////if timer hit 0 spawn wave/ number of enemies hit 0 
+		//if the timer hits for set time 
+		//if timer hit 0 spawn wave/ number of enemies hit 0 
 
-		//if (timer < 0 || Enemyspawn.DEATHEnemiespawncounter > 1)
-		//{
-		//	if (Enemyspawn.CurrNoOfEnemies < 5) 
-		//	{
-		//		while (i < Enemyspawn.numberofenemies)
-		//		{
-		//			int randomx = rand() % 9;
-		//			int randomy = rand() % 5;
-		//			Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
-		//			eid enemy = Factory::Instance().FF_CreateEnemy(data1, _tilemap, randomx, randomy);
-		//			Factory::Instance()[enemy].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[playerpos].Get<Com_TilePosition>();
-		//			++Enemyspawn.CurrNoOfEnemies;
-		//			++i;
-		//			timer = 5;
-		//			--wave.numberofwaves; //decrease the number of waves left 
-		//		}
-		//			
-		//	}
+		if (timer < 0 || Enemyspawn.DEATHEnemiespawncounter > 1)
+		{
+			if (Enemyspawn.CurrNoOfEnemies < 5) 
+			{
+				while (i < Enemyspawn.numberofenemies)
+				{
+					int randomx = rand() % 9;
+					int randomy = rand() % 5;
+					Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
+					eid enemy = Factory::Instance().FF_CreateEnemy(data1, _tilemap, randomx, randomy);
+					Factory::Instance()[enemy].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[playerpos].Get<Com_TilePosition>();
+					++Enemyspawn.CurrNoOfEnemies;
+					++i;
+					timer = 5;
+					--wave.numberofwaves; //decrease the number of waves left 
+				}
+					
+			}
 
 
-		//}
-		//else
-		//{
-		//	i = 0;
-		//	
-		//}
+		}
+		else
+		{
+			i = 0;
+			
+		}
 	}
 
 
@@ -1632,6 +1635,7 @@ struct Sys_HealthUpdate : public System {
 		//if no more health remove entity 
 		if (health.health == 0) {
 			RemoveEntity();
+			std::cout << "U die" << std::endl;
 		}
 	}
 };

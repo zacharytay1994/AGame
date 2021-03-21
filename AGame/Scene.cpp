@@ -65,7 +65,6 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_TilePosition>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_ArrowKeysTilemap>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Node>();
-	//ComponentDescription_DB::Instance().RegisterComponent<Com_PathFinding>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Direction>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_WeaponAttack>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_BoundingBox>();
@@ -137,7 +136,7 @@ void SceneManager::Initialize() {
 	// enemy states, spawn, attack
 	SystemDatabase::Instance().RegisterSystem<Sys_EnemyStateOne, Com_EnemyStateOne, Com_FindPath, Com_TilePosition>();
 	SystemDatabase::Instance().RegisterSystem<Sys_EnemySpawning, Com_EnemySpawn, Com_Wave, Com_EnemyStateOne, Com_type, Com_GridColData>();
-	SystemDatabase::Instance().RegisterSystem<Sys_EnemyAttack, Com_Direction, Com_type, Com_TilePosition, Com_Tilemap, Com_EnemyStateOne>();
+	//SystemDatabase::Instance().RegisterSystem<Sys_EnemyAttack, Com_Direction, Com_type, Com_TilePosition, Com_Tilemap, Com_EnemyStateOne>();
 	
 
 
