@@ -10,7 +10,7 @@ struct TestScene : public Scene {
 	eid enemytest = -1;
 	//Com_Tilemap tile;
 	eid tilemap = -1;
-	Factory::SpriteData data{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.15f };
+	Factory::SpriteData data{ "heroidle.png", 100.0f, 160.0f, 2, 2, 4, 0.15f };
 	Vec2i passin[5] = { {0,2},{3,5},{0,0},{0,0},{0,0} };
 	Factory::SpriteData data1{ "numbers.png", 100.0f, 160.0f, 2, 3, 8, 0.25f, 0, passin };
 	Factory::SpriteData data2{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.15f };
