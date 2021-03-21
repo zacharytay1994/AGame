@@ -222,8 +222,8 @@ ________________________________________________________________________________
 struct Com_TypeEnemy {
 	enum EnemyType
 	{
-		Alien1, //melee
-		Alien2  //range
+		AlienMelee, //melee
+		AlienRange  //range
 	};
 	size_t Alientype{ 0 };
 };
@@ -338,7 +338,7 @@ struct Com_FindPath {
 	bool	_found	{ false };
 	Vec2i	_start	{ 0,0 };
 	Vec2i	_end	{ 0,0 };
-	Vec2i	_next	{ 0,0 };
+	Vec2i	_next	{ 100, 100 }; // initailized to make sure is out of game board
 };
 
 /*																				system::ENEMY STATES
@@ -423,6 +423,14 @@ struct Sys_EnemyStateOne : public System {
 			fp._start = Vec2i(pos._grid_x, pos._grid_y);
 			fp._end = Vec2i(state._player->_grid_x, state._player->_grid_y);
 			fp._find = true;
+
+			//if next path is the player
+			//std::cout << "x: " << fp._next.x << "y: " << fp._next.y << std::endl;
+			if (fp._next.x == fp._end.x && fp._next.y == fp._end.y) 
+			{
+				ChangeState(Com_EnemyStateOne::STATES::ATTACK);
+			}
+			//std::cout << "x: " << pos._grid_x << " & y: " << pos._grid_y << std::endl;
 			// if path found
 			/*if (fp._next.x != -1 && fp._next.y != -1) {
 				pos._grid_x = fp._next.x;
@@ -430,6 +438,7 @@ struct Sys_EnemyStateOne : public System {
 				std::cout << "x: " << fp._next.x << "y: " << fp._next.y << std::endl;
 			}*/
 		}
+		
 	}
 	void MOVE_EXIT() {
 		std::cout << "MOVE_EXIT" << std::endl;
@@ -439,7 +448,24 @@ struct Sys_EnemyStateOne : public System {
 		std::cout << "ATTACK_ENTER" << std::endl;
 	}
 	void ATTACK_UPDATE() {
-		std::cout << "ATTACK_UPDATE" << std::endl;
+		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
+		Com_FindPath& fp = get<Com_FindPath>();
+		Com_TilePosition& pos = get<Com_TilePosition>();
+		if (!state._counter) 
+		{
+			std::cout << "ATTACK_UPDATE" << std::endl;
+			//std::cout << "x: " << fp._next.x << "y: " << fp._next.y << std::endl;
+			// see if can find path to player
+			fp._start = Vec2i(pos._grid_x, pos._grid_y);
+			fp._end = Vec2i(state._player->_grid_x, state._player->_grid_y);
+			fp._find = true;
+
+			if (fp._next.x != fp._end.x && fp._next.y != fp._end.y)
+			{
+				ChangeState(Com_EnemyStateOne::STATES::MOVE);
+			}
+			
+		}
 	}
 	void ATTACK_EXIT() {
 		std::cout << "ATTACK_EXIT" << std::endl;
@@ -1112,6 +1138,7 @@ struct Sys_Projectile2 : public System {
 struct Com_EnemySpawn{
 	size_t numberofenemies{ 2 }; //number of enemies to spawn
 	size_t CurrNoOfEnemies{ 0 }; //keep track of enemies on map
+	size_t DEATHEnemiespawncounter{ 0 };
 };
 
 struct Com_Wave{
@@ -1122,66 +1149,87 @@ struct Com_Wave{
 //logic for spawning of enemies 
 struct Sys_EnemySpawning : public System {
 	// Initialization
-	eid _tilemap = {-1};
+	eid _tilemap = { -1 };
 	eid playerpos = -1;
 	float timer = 5;
-	void OncePerFrame() override 
+	void OncePerFrame() override
 	{
 		timer -= _dt;
 	}
 	void UpdateComponent() override {
-		static Com_EnemySpawn& Enemyspawn = get<Com_EnemySpawn>();
-		Com_Wave& wave = get<Com_Wave>();
-		int i = 0;
-		
-		//if the timer hits for set time 
-		//if timer hit 0 spawn wave/ number of enemies hit 0 
+		//static Com_EnemySpawn& Enemyspawn = get<Com_EnemySpawn>();
+		//Com_Wave& wave = get<Com_Wave>();
+		//int i = 0;
 
-		if (timer < 0 || Enemyspawn.CurrNoOfEnemies == 0)
-		{
+		////if the timer hits for set time 
+		////if timer hit 0 spawn wave/ number of enemies hit 0 
 
-			while (i < Enemyspawn.numberofenemies)
-			{
-				int randomx = rand() % 9;
-				int randomy = rand() % 5;
-				Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
-				eid enemy = Factory::Instance().FF_CreateEnemy(data1, _tilemap, randomx, randomy);
-				Factory::Instance()[enemy].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[playerpos].Get<Com_TilePosition>();
-				++Enemyspawn.CurrNoOfEnemies;
-				++i;
-				timer = 5;
-				--wave.numberofwaves; //decrease the number of waves left 
-			}
-		
+		//if (timer < 0 || Enemyspawn.DEATHEnemiespawncounter > 1)
+		//{
+		//	if (Enemyspawn.CurrNoOfEnemies < 5) 
+		//	{
+		//		while (i < Enemyspawn.numberofenemies)
+		//		{
+		//			int randomx = rand() % 9;
+		//			int randomy = rand() % 5;
+		//			Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
+		//			eid enemy = Factory::Instance().FF_CreateEnemy(data1, _tilemap, randomx, randomy);
+		//			Factory::Instance()[enemy].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[playerpos].Get<Com_TilePosition>();
+		//			++Enemyspawn.CurrNoOfEnemies;
+		//			++i;
+		//			timer = 5;
+		//			--wave.numberofwaves; //decrease the number of waves left 
+		//		}
+		//			
+		//	}
+
+
+		//}
+		//else
+		//{
+		//	i = 0;
+		//	
+		//}
 	}
-	
+
 
 };
+
 
 /*-------------------------------------
 			//for attack of enemies 
 -------------------------------------------*/
 
 //logic for attack of enemies 
-struct Sys_EnemyAttack : public Sys_Projectile {
-	void UpdateComponent() override {
-		//if enemy is melee
-		if (get<Com_TypeEnemy>().Alientype == Com_TypeEnemy::Alien1) {
-			//check 4 sides if player is 1 tile away
-			//if () {
-			//	//shoot invisible that direction 
-			//	//create projectile system
-			//}
-		}
-		//if enemy is range
-		if (get<Com_TypeEnemy>().Alientype == Com_TypeEnemy::Alien2) {
-			//check 4 sides if player is x/y aligned 
-			//if () {
-			//	//shoot that direction
-			//	//createprojectile system
-			//}
-		}
-	}
+struct Sys_EnemyAttack : public System {
+	//void UpdateComponent() override {
+	//	bool _initialized{false};
+	//	if (_initialized) {
+	//		Com_FindPath& fp = get<Com_FindPath>();
+	//		Com_TilePosition& tpos = get<Com_TilePosition>();
+	//		//if enemy is melee
+	//		if (get<Com_type>().type == 1) // 1 == enemy
+	//		{
+	//			if (tpos._grid_x == fp._end.x && tpos._grid_y == fp._end.y)
+	//			{
+	//				tpos._grid_x
+	//			}
+	//			//check 4 sides if player is 1 tile away
+	//			//if () {
+	//			//	//shoot invisible that direction 
+	//			//	//create projectile system
+	//			//}
+	//		}
+	//	}
+	//	////if enemy is range
+	//	//if (get<Com_TypeEnemy>().Alientype == Com_TypeEnemy::AlienRange) {
+	//	//	//check 4 sides if player is x/y aligned 
+	//	//	//if () {
+	//	//	//	//shoot that direction
+	//	//	//	//createprojectile system
+	//	//	//}
+	//	//}
+	//}
 };
 
 /*-------------------------------------
@@ -1209,46 +1257,36 @@ struct Sys_PathFinding : public System
 {
 	eid playerPos{ -1 };
 	void UpdateComponent() override {
-	//	Com_Node& ode = get<Com_Node>();
-	//	Com_TilemapRef& tilemapref = get<Com_TilemapRef>();
-	//	Com_Tilemap* tile = tilemapref._tilemap;
-	//	Com_TilePosition& Enemy = get<Com_TilePosition>();
-	//	vector<Vec2i> path;
-	//	Vec2i player_pos{ Factory::Instance()[playerPos].Get<Com_TilePosition>()._grid_x, Factory::Instance()[playerPos].Get<Com_TilePosition>()._grid_y };
-	//	Vec2i Enemy_pos{ Enemy._grid_x, Enemy._grid_y };
-	//	std::vector<bool> flags;
-	//	// to put flags for obstacle and no obstacle
-	//	for (int i{ 0 }; i < (tile->_width * tile->_height); ++i) 
-	//	{
-	//		flags.push_back(0);
-	//	}
-	//	vector<Vec2i>::iterator it;
-	//	Grid grid12{ tile->_width , tile->_height,flags };
-	//	if (SolveAStar(player_pos,Enemy_pos, grid12, path)) 
-	//	{
-	//		std::reverse(path.begin(), path.end());
-	//		it = path.begin();
-	//	}
-	//// Create connections - in this case nodes are on a regular grid
-	//	
-	//	for (size_t y = 0; y < tile->_height; y++)
-	//		for (size_t x = 0; x < tile->_width; x++)
-	//		{
-	//			if (it != path.end()) 
-	//			{
-	//				Enemy_pos.x = it->x;
-	//				Enemy_pos.y = it->y;
-	//				++it;
-	//			}
-	//		}
 		if (_initialized) {
 			Com_FindPath& fp = get<Com_FindPath>();
 			Com_TilePosition& tpos = get<Com_TilePosition>();
+			static int i = 0;
 			if (fp._find) {
 				fp._found = SolveAStar(fp._start, fp._end, _grid, _path);
 				if (fp._found && _path.size() >= 1) {
-					tpos._grid_x = _path[0].x;
-					tpos._grid_y = _path[0].y;
+					
+						if (fp._next.x != fp._end.x && fp._next.y != fp._end.y) 
+						{
+							tpos._grid_x = _path[0].x;
+							tpos._grid_y = _path[0].y;
+							std::cout << "Enemy: " << tpos._grid_x << " & " << tpos._grid_y << std::endl;
+							std::cout << "player: " << fp._end.x << " & " << fp._end.y << std::endl;
+							if (i < _path.size())
+							{
+							fp._next.x = _path[0].x;
+							fp._next.y = _path[0].y;
+							std::cout << "からの" << std::endl;
+							std::cout << "fp.next: " << fp._next.x << " + " << fp._next.y << std::endl;
+							}
+						}
+						else 
+						{
+							fp._next.x = _path[0].x;
+							fp._next.y = _path[0].y;
+						}
+					
+					
+					
 				}
 				fp._find = false;
 			}
@@ -1344,329 +1382,183 @@ struct Sys_PathFinding : public System
 		node->_open = false;
 	}
 
-	/*void MapCreate(Com_Node& ode, const Com_Tilemap* tile, Com_TilePosition& enemyPos, eid& player)
-	{
-		// Create a 2D array of nodes - this is for convenience of rendering and construction
-		// and is not required for the algorithm to work - the nodes could be placed anywhere
-		// in any space, in multiple dimension
-		ode.MapHeight = tile->_height;
-		ode.MapWidth = tile->_width;
-		int MapArea = ode.MapHeight * ode.MapWidth;
-		ode.nodes = new PathFinding[MapArea];
-		for (int y = 0; y < ode.MapHeight; y++)
-		{
-			for (int x = 0; x < ode.MapWidth; x++)
-			{
-				ode.nodes[x * ode.MapHeight + y].gridPos.x = x; // to give each node its own coordinates
-				ode.nodes[x * ode.MapHeight + y].gridPos.y = y;
-				// set everything to default value 1st
-				ode.nodes[x * ode.MapHeight + y].bObstacle = false;
-				ode.nodes[x * ode.MapHeight + y].parent = nullptr;
-				ode.nodes[x * ode.MapHeight + y].bVisited = false;
-			}
-		}
-		// Create connections - in this case nodes are on a regular grid
-		for (int y = 0; y < ode.MapHeight; y++)
-			for (int x = 0; x < ode.MapWidth; x++)
-			{
-				if (y > 0)
-					ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x + 0) * ode.MapHeight + (y - 1)]);
-				if (y < ode.MapHeight - 1)
-					ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x + 0) * ode.MapHeight + (y + 1)]);
-				if (x > 0)
-					ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x - 1) * ode.MapHeight + (y + 0)]);
-				if (x < ode.MapWidth - 1)
-					ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x + 1) * ode.MapHeight + (y + 0)]);
-
-			}
-
-		// Manually positio the start and end markers so they are not nullptr
-		ode.nodeStart = &ode.nodes[(enemyPos._grid_x * ode.MapHeight) + enemyPos._grid_y];
-		ode.nodeEnd = &ode.nodes[(Factory::Instance()[player].Get<Com_TilePosition>()._grid_x * ode.MapHeight) + (Factory::Instance()[player].Get<Com_TilePosition>()._grid_y)];
-		/*ode.nodeStart->x = enemyPos._grid_x;
-		ode.nodeStart->y = enemyPos._grid_y;
-		ode.nodeEnd->x = 0;
-		ode.nodeEnd->y = 0;
-
-	}
-
-	bool Solve_AStar(Com_Node& ode, Com_TilePosition& enemyPos, vector<Vec2i>& patharray)
-	{
-		static float alarm = 0;
-
-		// Reset Navigation Graph - default all node states
-		for (int y = 0; y < ode.MapHeight; y++)
-			for (int x = 0; x < ode.MapWidth; x++)
-			{
-				ode.nodes[x * ode.MapHeight + y].bVisited = false;
-				ode.nodes[x * ode.MapHeight + y].fGlobalGoal = INFINITY;
-				ode.nodes[x * ode.MapHeight + y].fLocalGoal = INFINITY;
-				ode.nodes[x * ode.MapHeight + y].parent = nullptr;	// No parents
-			}
-
-		auto distance = [](PathFinding* a, PathFinding* b) // For convenience
-		{
-			return sqrtf((a->gridPos.x - b->gridPos.x) * (a->gridPos.x - b->gridPos.x) + (a->gridPos.y - b->gridPos.y) * (a->gridPos.y - b->gridPos.y));
-		};
-
-		auto heuristic = [distance](PathFinding* a, PathFinding* b) // So we can experiment with heuristic
-		{
-			return distance(a, b);
-		};
-
-		// Setup starting conditions
-		PathFinding* nodeCurrent = ode.nodeStart;
-		ode.nodeStart->fLocalGoal = 0.0f;
-		ode.nodeStart->fGlobalGoal = heuristic(ode.nodeStart, ode.nodeEnd);
-
-		// Add start node to not tested list - this will ensure it gets tested.
-		// As the algorithm progresses, newly discovered nodes get added to this
-		// list, and will themselves be tested later
-		list<PathFinding*> listNotTestedNodes;
-		listNotTestedNodes.push_back(ode.nodeStart);
-
-		// if the not tested list contains nodes, there may be better paths
-		// which have not yet been explored. However, we will also stop  oo
-		// searching when we reach the target - there may well be better
-		// paths but this one will do - it wont be the longest.
-		while (!listNotTestedNodes.empty() && nodeCurrent != ode.nodeEnd)// Find absolutely shortest path // && nodeCurrent != nodeEnd)
-		{
-			// Sort Untested nodes by global goal, so lowest is first
-			listNotTestedNodes.sort([](const PathFinding* lhs, const PathFinding* rhs) { return lhs->fGlobalGoal < rhs->fGlobalGoal; });
-
-			// Front of listNotTestedNodes is potentially the lowest distance node. Our
-			// list may also contain nodes that have been visited, so ditch these...
-			while (!listNotTestedNodes.empty() && listNotTestedNodes.front()->bVisited)
-				listNotTestedNodes.pop_front();
-
-
-			// ...or abort because there are no valid nodes left to test
-			if (listNotTestedNodes.empty())
-				break;
-
-			nodeCurrent = listNotTestedNodes.front();
-			nodeCurrent->bVisited = true; // We only explore a node once
-
-
-			// Check each of this node's neighbours...
-			for (auto nodeNeighbour : nodeCurrent->vecNeighbours)
-			{
-				// ... and only if the neighbour is not visited and is 
-				// not an obstacle, add it to NotTested List
-				if (!nodeNeighbour->bVisited && nodeNeighbour->bObstacle == 0)
-					listNotTestedNodes.push_back(nodeNeighbour);
-
-				// Calculate the neighbours potential lowest parent distance
-				float fPossiblyLowerGoal = nodeCurrent->fLocalGoal + distance(nodeCurrent, nodeNeighbour);
-
-				// If choosing to path through this node is a lower distance than what 
-				// the neighbour currently has set, update the neighbour to use this node
-				// as the path source, and set its distance scores as necessary
-				if (fPossiblyLowerGoal < nodeNeighbour->fLocalGoal)
-				{
-					nodeNeighbour->parent = nodeCurrent;
-					nodeNeighbour->fLocalGoal = fPossiblyLowerGoal;
-
-					// The best path length to the neighbour being tested has changed, so
-					// update the neighbour's score. The heuristic is used to globally bias
-					// the path algorithm, so it knows if its getting better or worse. At some
-					// point the algo will realise this path is worse and abandon it, and then go
-					// and search along the next best path.
-					nodeNeighbour->fGlobalGoal = nodeNeighbour->fLocalGoal + heuristic(nodeNeighbour, ode.nodeEnd);
-				}
-				if (ode.nodeStart == ode.nodeEnd) 
-				{
-					patharray.clear();
-					PathFinding const* current = ode.nodeEnd;
-					while (ode.nodeStart != current) {
-						patharray.push_back(current->gridPos);
-						current = current->parent;
-					}
-					std::reverse(patharray.begin(), patharray.end());
-					
-				}
-			}
-		}
-		return true;
-	}*/
-
 };
 
 
-// AUSTEN SEE START
-namespace Pathfinding {
-	struct Node {
-		Node(const Vec2i& gridPos, int obstacle = 0, const Vec2f& worldPos = { 0.0f,0.0f })
-			:
-			_grid_pos(gridPos),
-			_world_pos(worldPos),
-			_obstacle(obstacle)
-		{}
-		bool operator>(Node& rhs) {
-			return rhs.FCost() < FCost();
-		}
-		int operator-(const Node& rhs) const {
-			int distance_x = abs(_grid_pos.x - rhs._grid_pos.x);
-			int distance_y = abs(_grid_pos.y - rhs._grid_pos.y);
-			if (distance_x > distance_y) {
-				return distance_y * 14 + (distance_x - distance_y) * 10;
-			}
-			return distance_x * 14 + (distance_y - distance_x) * 10;
-		}
-
-		int		_g_cost = 0, _h_cost = 0;
-		Vec2i	_grid_pos{ 0,0 };
-		Vec2f	_world_pos{ 0.0f,0.0f };
-		bool	_obstacle{ false };
-		Node* _parent{ nullptr };
-		bool	_closed{ false };
-		bool	_open{ false };
-
-		int FCost() { return _g_cost + _h_cost; }
-	};
-	struct Grid {
-		Grid() = default;
-		Grid(int width, int height, const std::vector<int> grid)
-			:
-			_width(width),
-			_height(height)
-		{
-			for (size_t y = 0; y < height; ++y) {
-				for (size_t x = 0; x < width; ++x)
-					_grid.emplace_back(Vec2i((int)x, (int)y), !grid[x * height + y]); {
-				}
-			}
-		}
-		size_t _width{ 0 };
-		size_t _height{ 0 };
-		std::vector<Node> _grid;
-		Node& Get(const Vec2i& pos) {
-			return _grid[pos.y * _width + pos.x];
-		}
-		void GetNeighbours(Node*& node, std::vector<Node*>& neighbours) {
-			neighbours.clear();
-			if (node->_grid_pos.x - 1 >= 0) {
-				neighbours.push_back(&Get({ node->_grid_pos.x - 1, node->_grid_pos.y }));
-			}
-			if (node->_grid_pos.x + 1 < _width) {
-				neighbours.push_back(&Get({ node->_grid_pos.x + 1, node->_grid_pos.y }));
-			}
-			if (node->_grid_pos.y - 1 >= 0) {
-				neighbours.push_back(&Get({ node->_grid_pos.x, node->_grid_pos.y - 1 }));
-			}
-			if (node->_grid_pos.y + 1 < _height) {
-				neighbours.push_back(&Get({ node->_grid_pos.x, node->_grid_pos.y + 1 }));
-			}
-		}
-	};
-}
-
-struct Sys_Pathfinding_v2 : public System {
-	//
-	void UpdateComponent() override {
-		if (_initialized) {
-			Com_FindPath& fp = get<Com_FindPath>();
-			Com_TilePosition& tpos = get<Com_TilePosition>();
-			if (fp._find) {
-				fp._found = SolveAStar(fp._start, fp._end, _grid, _path);
-				if (fp._found && _path.size() >= 1) {
-					tpos._grid_x = _path[0].x;
-					tpos._grid_y = _path[0].y;
-				}
-				fp._find = false;
-			}
-		}
-	}
-	Pathfinding::Grid _grid;
-	std::vector<Pathfinding::Node*> _nodes_to_reset;		// rmb to reserve, PESSIMISM! or something like that
-	std::vector<Pathfinding::Node*> _neighbours;			// rmb to reserve
-	std::vector<Vec2i> _path;
-	bool _initialized{ false };
-
-	bool SolveAStar(const Vec2i& start, const Vec2i& end, Pathfinding::Grid& grid, std::vector<Vec2i>& path) {
-		path.clear();
-		// custom comparator
-		auto cmp = [](Pathfinding::Node*& node1, Pathfinding::Node*& node2) {return *node1 > *node2; };
-		// create min heap
-		std::priority_queue<Pathfinding::Node*, std::vector<Pathfinding::Node*>, decltype(cmp)> min_heap(cmp);
-
-		// create start and end temp nodes
-		Pathfinding::Node* start_node = &grid.Get(start);
-		Pathfinding::Node* end_node = &grid.Get(end);
-
-		// add start node to the open set
-		min_heap.push(start_node);
-		start_node->_open = true;
-		_nodes_to_reset.push_back(start_node);
-
-		// loop
-		while (min_heap.size() > 0) {
-			Pathfinding::Node* current_node = min_heap.top();
-
-			// erase current node from open set and add to closed set
-			min_heap.pop();
-			current_node->_open = false;
-			current_node->_closed = true;
-			_nodes_to_reset.push_back(current_node);
-
-			// if current == end, reached
-			if (current_node == end_node) {
-				RetracePath(start_node, end_node, path);
-				return true;
-			}
-
-			// find/update fcost of neighbours and add them to open set
-			grid.GetNeighbours(current_node, _neighbours);
-			for (auto& n : _neighbours) {
-				// if obstacle or closed skip
-				if (n->_obstacle || n->_closed) {
-					continue;
-				}
-				// if new g cost < g cost (need updating) || or if not in open, calculate f cost, add to open
-				int new_g_cost = current_node->_g_cost + (*current_node - *n);
-				// check
-				bool in_open = n->_open;
-				if (new_g_cost < n->_g_cost || !in_open) {
-					// set fcost
-					n->_g_cost = new_g_cost;
-					n->_h_cost = (*n - *end_node);
-					// set parent node
-					n->_parent = current_node;
-					if (!in_open) {
-						min_heap.push(n);
-						n->_open = true;
-					}
-					_nodes_to_reset.push_back(n);
-				}
-			}
-		}
-		for (auto& n : _nodes_to_reset) {
-			ResetNode(n);
-		}
-		_nodes_to_reset.clear();
-		return false;
-	}
-	void RetracePath(const Pathfinding::Node* start, const Pathfinding::Node* end, std::vector<Vec2i>& path) {
-		path.clear();
-		Pathfinding::Node const* current = end;
-		while (start != current) {
-			path.push_back(current->_grid_pos);
-			current = current->_parent;
-		}
-		std::reverse(path.begin(), path.end());
-		for (auto& n : _nodes_to_reset) {
-			ResetNode(n);
-		}
-		_nodes_to_reset.clear();
-	}
-	void ResetNode(Pathfinding::Node*& node) {
-		node->_g_cost = 0;
-		node->_h_cost = 0;
-		node->_closed = false;
-		node->_open = false;
-	}
-};
-// AUSTEN SEE END
+//// AUSTEN SEE START
+//namespace Pathfinding {
+//	struct Node {
+//		Node(const Vec2i& gridPos, int obstacle = 0, const Vec2f& worldPos = { 0.0f,0.0f })
+//			:
+//			_grid_pos(gridPos),
+//			_world_pos(worldPos),
+//			_obstacle(obstacle)
+//		{}
+//		bool operator>(Node& rhs) {
+//			return rhs.FCost() < FCost();
+//		}
+//		int operator-(const Node& rhs) const {
+//			int distance_x = abs(_grid_pos.x - rhs._grid_pos.x);
+//			int distance_y = abs(_grid_pos.y - rhs._grid_pos.y);
+//			if (distance_x > distance_y) {
+//				return distance_y * 14 + (distance_x - distance_y) * 10;
+//			}
+//			return distance_x * 14 + (distance_y - distance_x) * 10;
+//		}
+//
+//		int		_g_cost = 0, _h_cost = 0;
+//		Vec2i	_grid_pos{ 0,0 };
+//		Vec2f	_world_pos{ 0.0f,0.0f };
+//		bool	_obstacle{ false };
+//		Node* _parent{ nullptr };
+//		bool	_closed{ false };
+//		bool	_open{ false };
+//
+//		int FCost() { return _g_cost + _h_cost; }
+//	};
+//	struct Grid {
+//		Grid() = default;
+//		Grid(int width, int height, const std::vector<int> grid)
+//			:
+//			_width(width),
+//			_height(height)
+//		{
+//			for (size_t y = 0; y < height; ++y) {
+//				for (size_t x = 0; x < width; ++x)
+//					_grid.emplace_back(Vec2i((int)x, (int)y), !grid[x * height + y]); {
+//				}
+//			}
+//		}
+//		size_t _width{ 0 };
+//		size_t _height{ 0 };
+//		std::vector<Node> _grid;
+//		Node& Get(const Vec2i& pos) {
+//			return _grid[pos.y * _width + pos.x];
+//		}
+//		void GetNeighbours(Node*& node, std::vector<Node*>& neighbours) {
+//			neighbours.clear();
+//			if (node->_grid_pos.x - 1 >= 0) {
+//				neighbours.push_back(&Get({ node->_grid_pos.x - 1, node->_grid_pos.y }));
+//			}
+//			if (node->_grid_pos.x + 1 < _width) {
+//				neighbours.push_back(&Get({ node->_grid_pos.x + 1, node->_grid_pos.y }));
+//			}
+//			if (node->_grid_pos.y - 1 >= 0) {
+//				neighbours.push_back(&Get({ node->_grid_pos.x, node->_grid_pos.y - 1 }));
+//			}
+//			if (node->_grid_pos.y + 1 < _height) {
+//				neighbours.push_back(&Get({ node->_grid_pos.x, node->_grid_pos.y + 1 }));
+//			}
+//		}
+//	};
+//}
+//
+//struct Sys_Pathfinding_v2 : public System {
+//	//
+//	void UpdateComponent() override {
+//		if (_initialized) {
+//			Com_FindPath& fp = get<Com_FindPath>();
+//			Com_TilePosition& tpos = get<Com_TilePosition>();
+//			if (fp._find) {
+//				fp._found = SolveAStar(fp._start, fp._end, _grid, _path);
+//				if (fp._found && _path.size() >= 1) {
+//					tpos._grid_x = _path[0].x;
+//					tpos._grid_y = _path[0].y;
+//				}
+//				fp._find = false;
+//			}
+//		}
+//	}
+//	Pathfinding::Grid _grid;
+//	std::vector<Pathfinding::Node*> _nodes_to_reset;		// rmb to reserve, PESSIMISM! or something like that
+//	std::vector<Pathfinding::Node*> _neighbours;			// rmb to reserve
+//	std::vector<Vec2i> _path;
+//	bool _initialized{ false };
+//
+//	bool SolveAStar(const Vec2i& start, const Vec2i& end, Pathfinding::Grid& grid, std::vector<Vec2i>& path) {
+//		path.clear();
+//		// custom comparator
+//		auto cmp = [](Pathfinding::Node*& node1, Pathfinding::Node*& node2) {return *node1 > *node2; };
+//		// create min heap
+//		std::priority_queue<Pathfinding::Node*, std::vector<Pathfinding::Node*>, decltype(cmp)> min_heap(cmp);
+//
+//		// create start and end temp nodes
+//		Pathfinding::Node* start_node = &grid.Get(start);
+//		Pathfinding::Node* end_node = &grid.Get(end);
+//
+//		// add start node to the open set
+//		min_heap.push(start_node);
+//		start_node->_open = true;
+//		_nodes_to_reset.push_back(start_node);
+//
+//		// loop
+//		while (min_heap.size() > 0) {
+//			Pathfinding::Node* current_node = min_heap.top();
+//
+//			// erase current node from open set and add to closed set
+//			min_heap.pop();
+//			current_node->_open = false;
+//			current_node->_closed = true;
+//			_nodes_to_reset.push_back(current_node);
+//
+//			// if current == end, reached
+//			if (current_node == end_node) {
+//				RetracePath(start_node, end_node, path);
+//				return true;
+//			}
+//
+//			// find/update fcost of neighbours and add them to open set
+//			grid.GetNeighbours(current_node, _neighbours);
+//			for (auto& n : _neighbours) {
+//				// if obstacle or closed skip
+//				if (n->_obstacle || n->_closed) {
+//					continue;
+//				}
+//				// if new g cost < g cost (need updating) || or if not in open, calculate f cost, add to open
+//				int new_g_cost = current_node->_g_cost + (*current_node - *n);
+//				// check
+//				bool in_open = n->_open;
+//				if (new_g_cost < n->_g_cost || !in_open) {
+//					// set fcost
+//					n->_g_cost = new_g_cost;
+//					n->_h_cost = (*n - *end_node);
+//					// set parent node
+//					n->_parent = current_node;
+//					if (!in_open) {
+//						min_heap.push(n);
+//						n->_open = true;
+//					}
+//					_nodes_to_reset.push_back(n);
+//				}
+//			}
+//		}
+//		for (auto& n : _nodes_to_reset) {
+//			ResetNode(n);
+//		}
+//		_nodes_to_reset.clear();
+//		return false;
+//	}
+//	void RetracePath(const Pathfinding::Node* start, const Pathfinding::Node* end, std::vector<Vec2i>& path) {
+//		path.clear();
+//		Pathfinding::Node const* current = end;
+//		while (start != current) {
+//			path.push_back(current->_grid_pos);
+//			current = current->_parent;
+//		}
+//		std::reverse(path.begin(), path.end());
+//		for (auto& n : _nodes_to_reset) {
+//			ResetNode(n);
+//		}
+//		_nodes_to_reset.clear();
+//	}
+//	void ResetNode(Pathfinding::Node*& node) {
+//		node->_g_cost = 0;
+//		node->_h_cost = 0;
+//		node->_closed = false;
+//		node->_open = false;
+//	}
+//};
+//// AUSTEN SEE END
 
 struct Com_Particle {
 	size_t lifetime{ 2 };
@@ -1948,7 +1840,8 @@ struct Com_type {
 		enemy,
 		bullet,
 		wall,
-		bombbarrel
+		bombbarrel,
+		enemyrange
 	};
 };
 
@@ -1965,6 +1858,7 @@ struct Sys_GridCollision : public System {
 		Com_type* type = &get<Com_type>();
 		Com_TilePosition* tilepos = &get<Com_TilePosition>();
 		Com_GridColData& gridcoldata = get<Com_GridColData>();
+		Com_EnemySpawn& gridspaen = get<Com_EnemySpawn>();
 		if (gridcoldata.emplacedvec == false) {
 			GridCol.emplace_back(Com_GridColData{ tilepos,type });
 			gridcoldata.emplacedvec = true;
@@ -1975,6 +1869,10 @@ struct Sys_GridCollision : public System {
 				if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
 					std::cout << "Collided" << std::endl;
 					RemoveEntity();
+					++gridspaen.DEATHEnemiespawncounter;
+					--gridspaen.CurrNoOfEnemies;
+					std::cout << gridspaen.DEATHEnemiespawncounter << std::endl;
+
 				}
 				//range attack with enemy 
 				if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
@@ -2011,5 +1909,6 @@ struct Sys_GridCollision : public System {
 		else {
 			return false;
 		}
+	
 	}
 };
