@@ -12,7 +12,7 @@ struct MainMenu : public Scene {
 	Factory::SpriteData data4{ "button2" };
 	Factory::SpriteData data5{ "button3" };
 	Factory::SpriteData data6{ "transparent" };
-	Sys_PathFinding _pathfinding;
+	Sys_Pathfinding_v2 _pathfinding;
 
 	bool _gui_change_scene{ false };
 	void Initialize() override {
@@ -30,7 +30,7 @@ struct MainMenu : public Scene {
 		GUISettingsInitialize();
 
 		std::vector<int> flags = { 0,0,0,0,1,1,0,0,0 };
-		Grid grid{ 3,3,flags };
+		Pathfinding::Grid grid{ 3,3,flags };
 		std::vector<Vec2i> path;
 		_pathfinding.SolveAStar({ 0,0 }, { 2,2 }, grid, path);
 	}
