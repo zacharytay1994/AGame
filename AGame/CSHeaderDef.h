@@ -340,6 +340,22 @@ struct Com_FindPath {
 	Vec2i	_next	{ 100, 100 }; // initailized to make sure is out of game board
 };
 
+struct Com_Health {
+	size_t health{ 3 };
+};
+
+struct Sys_HealthUpdate : public System {
+	void UpdateComponent() override {
+		Com_Health& health = get<Com_Health>();
+		
+		//if no more health remove entity 
+		if (health.health == 0) {
+			RemoveEntity();
+			std::cout << "U die" << std::endl;
+		}
+	}
+};
+
 /*																				system::ENEMY STATES
 ____________________________________________________________________________________________________*/
 struct Com_EnemyStateOne {
@@ -352,7 +368,9 @@ struct Com_EnemyStateOne {
 	int _speed{ 2 };
 	int _counter{ _speed };
 	Com_TilePosition* _player;
+	Com_Health* playerHealth; 
 };
+
 struct Sys_EnemyStateOne : public System {
 	float _turn_step{ 0.5f };
 	float _turn_step_counter{ _turn_step };
@@ -466,6 +484,13 @@ struct Sys_EnemyStateOne : public System {
 			else if (fp._next.x == fp._end.x && fp._next.y == fp._end.y)
 			{
 				// to decrease health
+				std::cout << state.playerHealth->health << std::endl;
+				--state.playerHealth->health;
+				if (state.playerHealth->health == 0) 
+				{
+					std::cout << "お前もう死んで " << std::endl;
+					std::cout << "何？" << std::endl;
+				}
 			}
 			
 		}
@@ -1160,39 +1185,39 @@ struct Sys_EnemySpawning : public System {
 		timer -= _dt;
 	}
 	void UpdateComponent() override {
-		static Com_EnemySpawn& Enemyspawn = get<Com_EnemySpawn>();
-		Com_Wave& wave = get<Com_Wave>();
-		int i = 0;
+		//static Com_EnemySpawn& Enemyspawn = get<Com_EnemySpawn>();
+		//Com_Wave& wave = get<Com_Wave>();
+		//int i = 0;
 
-		//if the timer hits for set time 
-		//if timer hit 0 spawn wave/ number of enemies hit 0 
+		////if the timer hits for set time 
+		////if timer hit 0 spawn wave/ number of enemies hit 0 
 
-		if (timer < 0 || Enemyspawn.DEATHEnemiespawncounter > 1)
-		{
-			if (Enemyspawn.CurrNoOfEnemies < 5) 
-			{
-				while (i < Enemyspawn.numberofenemies)
-				{
-					int randomx = rand() % 9;
-					int randomy = rand() % 5;
-					Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
-					eid enemy = Factory::Instance().FF_CreateEnemy(data1, _tilemap, randomx, randomy);
-					Factory::Instance()[enemy].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[playerpos].Get<Com_TilePosition>();
-					++Enemyspawn.CurrNoOfEnemies;
-					++i;
-					timer = 5;
-					--wave.numberofwaves; //decrease the number of waves left 
-				}
-					
-			}
+		//if (timer < 0 || Enemyspawn.DEATHEnemiespawncounter > 1)
+		//{
+		//	if (Enemyspawn.CurrNoOfEnemies < 5) 
+		//	{
+		//		while (i < Enemyspawn.numberofenemies)
+		//		{
+		//			int randomx = rand() % 9;
+		//			int randomy = rand() % 5;
+		//			Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
+		//			eid enemy = Factory::Instance().FF_CreateEnemy(data1, _tilemap, randomx, randomy);
+		//			Factory::Instance()[enemy].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[playerpos].Get<Com_TilePosition>();
+		//			++Enemyspawn.CurrNoOfEnemies;
+		//			++i;
+		//			timer = 5;
+		//			--wave.numberofwaves; //decrease the number of waves left 
+		//		}
+		//			
+		//	}
 
 
-		}
-		else
-		{
-			i = 0;
-			
-		}
+		//}
+		//else
+		//{
+		//	i = 0;
+		//	
+		//}
 	}
 
 
@@ -1625,20 +1650,7 @@ struct Sys_ParticleEmitter : public System {
 
 
 
-struct Com_Health {
-	size_t health{ 3 };
-};
 
-struct Sys_HealthUpdate : public System {
-	void UpdateComponent() override {
-		Com_Health& health = get<Com_Health>();
-		//if no more health remove entity 
-		if (health.health == 0) {
-			RemoveEntity();
-			std::cout << "U die" << std::endl;
-		}
-	}
-};
 
 /*																				system::GUI
 ____________________________________________________________________________________________________*/
