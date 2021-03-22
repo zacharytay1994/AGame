@@ -178,15 +178,18 @@ struct TestScenePF : public Scene
 		pf2._initialized = true;
 
 		player = Factory::Instance().FF_SpriteTile(data2, tilemap, 0, 0);
-		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap>();
-		SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos =  player;
+		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne>();
+		//SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
 		
-		enemytest = Factory::Instance().FF_SpriteTile(data1, tilemap, 9, 4);
-		Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_EnemySpawn, Com_Wave>();
+		enemytest = Factory::Instance().FF_SpriteTile(data3, tilemap, 9, 4);
+		Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_EnemySpawn, Com_Wave, Com_type, Com_GridColData>();
 		Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
+		Factory::Instance()[enemytest].Get<Com_EnemyStateOne>().playerHealth = &Factory::Instance()[player].Get<Com_Health>();
 		SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
 		++Factory::Instance()[enemytest].Get<Com_EnemySpawn>().CurrNoOfEnemies;
-
+		Entity& e = Factory::Instance()[enemytest];
+		e.Get<Com_type>().type = 1;
+ 
 		//player = Factory::Instance().CreateEntity<Com_Position>();
 		/*int* i = new int{ 0 };
 		std::shared_ptr<int> a{ i };

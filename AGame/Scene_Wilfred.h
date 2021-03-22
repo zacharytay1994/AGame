@@ -49,12 +49,12 @@ ________________________________*/
 		//SystemDatabase::Instance().GetSystem<Sys_Projectile>().tilemap = tilemap;
 		//init tile map 
 		Com_Tilemap& com_tilemap = Factory::Instance()[tilemap].Get<Com_Tilemap>();
-		Sys_Pathfinding_v2& pf2 = *SystemDatabase::Instance().GetSystem<Sys_Pathfinding_v2>();
-		pf2._grid = Pathfinding::Grid(com_tilemap._width, com_tilemap._height, com_tilemap._map);
+		Sys_PathFinding& pf2 = *SystemDatabase::Instance().GetSystem<Sys_PathFinding>();
+		pf2._grid = Grid(com_tilemap._width, com_tilemap._height, com_tilemap._map);
 		pf2._initialized = true;
 
 		//player
-		player = Factory::Instance().FF_SpriteTile(data1, tilemap, 0, 0);
+		player = Factory::Instance().FF_SpriteTile(data2, tilemap, 0, 0);
 		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Projectile, Com_WeaponAttack, Com_GameTimer, Com_Camera,Com_type,Com_GridColData>();
 		//more
 		SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
