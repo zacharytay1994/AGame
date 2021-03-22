@@ -20,6 +20,7 @@ struct Chunk {
 
 		char* data = _data.get();
 		data += (size_t)id * (size_t)_owning_archetype->_chunk_stride + (size_t)_owning_archetype->_type_offset[typeid(T).name()];
+		T& test = *((T*)data);
 		return *((T*)data);
 	}
 	char* GetDataBegin(const int& id);

@@ -12,12 +12,9 @@ ResourceManager& ResourceManager::Instance()
 	return instance;
 }
 
-void ResourceManager::GetResource(AEGfxTexture*& tex, AEGfxVertexList*& mesh, const std::string& texturename, const int& row, const int& col/*, const int& frames*/)
+void ResourceManager::GetResource(AEGfxTexture*& tex, AEGfxVertexList*& mesh, const std::string& texturename, const int& row, const int& col, const int& frames)
 {
-	/*assert(_textures.find(texturename) != _textures.end());*/
-	if (_textures.find(texturename) == _textures.end()) {
-		LoadTexture(texturename, texturename);
-	}
+	assert(_textures.find(texturename) != _textures.end());
 	tex = _textures[texturename];
 	float key = row * MY_PI + col;
 	if (_meshes.find(key) != _meshes.end()) {
@@ -31,6 +28,7 @@ void ResourceManager::GetResource(AEGfxTexture*& tex, AEGfxVertexList*& mesh, co
 void ResourceManager::DrawQueue(RenderPack* pack)
 {
 	_render_queue_vector.push_back(pack);
+	//_render_queue.push(pack);
 }
 
 void ResourceManager::DrawStackText(TextPack& pack)
@@ -253,9 +251,9 @@ void ResourceManager::ReadFloorMapBin(const std::string& path, Com_Tilemap& tile
 	}
 }
 
-//void ResourceManager::WriteFloorMapBin(const std::string& path, Com_Tilemap& tilemap)
-//{
-//}
+void ResourceManager::WriteFloorMapBin(const std::string& path, Com_Tilemap& tilemap)
+{
+}
 
 void ResourceManager::ReadFloorMapTxt(const std::string& path, Com_Tilemap& tilemap)
 {
@@ -290,13 +288,14 @@ void ResourceManager::ReadFloorMapTxt(const std::string& path, Com_Tilemap& tile
 			if (e < tilemap._width && temp[e * (size_t)tilemap._height + y]) { i |= 4; }
 			tilemap._floor_mask[x * (size_t)tilemap._height + y] = (int)i;
 		}
+		int i = 0;
 	}
 	file.close();
 }
 
-//void ResourceManager::WriteFloorMapTxt(const std::string& path, Com_Tilemap& tilemap)
-//{
-//}
+void ResourceManager::WriteFloorMapTxt(const std::string& path, Com_Tilemap& tilemap)
+{
+}
 
 ResourceManager::ResourceManager()
 {
@@ -311,7 +310,6 @@ void ResourceManager::Initialize()
 	LoadTexture("test3", "TestAlien.png");
 	LoadTexture("tilemap", "tilemaptest.png");
 	LoadTexture("skeleton", "temp1.png");
-	LoadTexture("heroidle", "heroidle.png");
 	LoadTexture("coolguy", "temp2.png");
 	LoadTexture("box", "box.png");
 	LoadTexture("kaboom", "kaboom.png");

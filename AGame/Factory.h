@@ -3,7 +3,6 @@
 #include <assert.h>
 
 #include "zEntity.h"
-#include "zMath.h"
 
 typedef int eid; // entity id
 //forward declare to draw from cpp 
@@ -43,9 +42,7 @@ public:
 		float _interval;
 		float _scalex;
 		float _scaley;
-		Vec2i _frame_segment[5]{ {0,0}, {0,0}, {0,0}, {0,0}, {0,0} };
-		SpriteData(const std::string& name, const float& scalex = 1.0f, const float& scaley = 1.0f, int row = 1.0, int col = 1.0, int frames = 1,
-			const float& interval = 1.0f, int layer = 0, const Vec2i* framesegment = nullptr)
+		SpriteData(const std::string& name, const float& scalex = 1.0f, const float& scaley = 1.0f, int row = 1.0, int col = 1.0, int frames = 1.0f, const float& interval = 1.0f, int layer = 0)
 			:
 			_texturename(name),
 			_scalex(scalex),
@@ -55,16 +52,7 @@ public:
 			_frames(frames),
 			_interval(interval),
 			_layer(layer)
-		{
-			if (framesegment) {
-				for (int i = 0; i < 5; ++i) {
-					_frame_segment[i] = framesegment[i];
-				}
-			}
-			else {
-				_frame_segment[0] = { 0,frames-1 };
-			}
-		}
+		{}
 	};
 	eid FF_Sprite(const SpriteData& data, const float& x, const float& y);
 	eid FF_Tilemap(const std::string& texture, const std::string& bottom, const std::string& top);
