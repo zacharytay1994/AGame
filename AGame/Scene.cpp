@@ -125,7 +125,6 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_Camera, Com_Position, Com_Camera>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GridCollision, Com_type, Com_TilePosition, Com_GridColData>();
 
-	
 	// GUI SYSTEMS
 	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceRender, Com_Position, Com_GUISurface, Com_Sprite>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceMouseCheck, Com_GUIMouseCheck, Com_Position, Com_GUISurface>();
@@ -139,11 +138,6 @@ void SceneManager::Initialize() {
 
 	// enemy states
 	SystemDatabase::Instance().RegisterSystem<Sys_EnemyStateOne, Com_EnemyStateOne, Com_FindPath, Com_TilePosition>();
-	SystemDatabase::Instance().RegisterSystem<Sys_EnemySpawning, Com_EnemySpawn, Com_Wave, Com_EnemyStateOne, Com_type, Com_GridColData>();
-	//SystemDatabase::Instance().RegisterSystem<Sys_EnemyAttack, Com_Direction, Com_type, Com_TilePosition, Com_Tilemap, Com_EnemyStateOne>();
-	
-	//Health test
-	SystemDatabase::Instance().RegisterSystem<Sys_HealthUpdate, Com_Health>();
 
 
 	// 4. Registering scenes

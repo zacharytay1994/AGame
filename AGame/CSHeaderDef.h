@@ -338,23 +338,7 @@ struct Com_FindPath {
 	bool	_found	{ false };
 	Vec2i	_start	{ 0,0 };
 	Vec2i	_end	{ 0,0 };
-	Vec2i	_next	{ 100, 100 }; // initailized to make sure is out of game board
-};
-
-struct Com_Health {
-	size_t health{ 3 };
-};
-
-struct Sys_HealthUpdate : public System {
-	void UpdateComponent() override {
-		Com_Health& health = get<Com_Health>();
-		
-		//if no more health remove entity 
-		if (health.health <= 0) {
-			RemoveEntity();
-			std::cout << "U die" << std::endl;
-		}
-	}
+	Vec2i	_next	{ 0,0 };
 };
 
 /*																				system::ENEMY STATES
@@ -455,39 +439,7 @@ struct Sys_EnemyStateOne : public System {
 		std::cout << "ATTACK_ENTER" << std::endl;
 	}
 	void ATTACK_UPDATE() {
-		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
-		Com_FindPath& fp = get<Com_FindPath>();
-		Com_TilePosition& pos = get<Com_TilePosition>();
-		if (!state._counter) 
-		{
-			std::cout << "ATTACK_UPDATE" << std::endl;
-			//std::cout << "x: " << fp._next.x << "y: " << fp._next.y << std::endl;
-			// see if can find path to player
-			fp._start = Vec2i(pos._grid_x, pos._grid_y);
-			fp._end = Vec2i(state._player->_grid_x, state._player->_grid_y);
-			fp._find = true;
-
-			if (fp._next.x != fp._end.x && fp._next.y != fp._end.y)
-			{
-				ChangeState(Com_EnemyStateOne::STATES::MOVE);
-			}
-			else if (fp._next.x == fp._end.x && fp._next.y == fp._end.y)
-			{
-				// to decrease health
-				if (state.playerHealth != nullptr) 
-				{
-					--state.playerHealth->health;
-					if (state.playerHealth->health == 0) 
-					{
-						std::cout << "お前もう死んで " << std::endl;
-						std::cout << "何？" << std::endl;
-						ChangeState(Com_EnemyStateOne::STATES::EVILWIN);
-					}
-				}
-
-			}
-			
-		}
+		std::cout << "ATTACK_UPDATE" << std::endl;
 	}
 	void ATTACK_EXIT() {
 		std::cout << "ATTACK_EXIT" << std::endl;
