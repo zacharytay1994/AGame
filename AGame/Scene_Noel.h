@@ -13,7 +13,7 @@ struct ShootingRange : public Scene {
 	eid tilemap = -1;
 	Factory::SpriteData data{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.25f };
 	Factory::SpriteData data1{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
-	Inventory playerInv;
+	//Inventory playerInv;
 	/*
 	Initialize Override (optional)
 	________________________________*/
@@ -50,41 +50,41 @@ struct ShootingRange : public Scene {
 
 #if defined(DEBUG) | defined(_DEBUG)
 		if (AEInputCheckTriggered(AEVK_G)) {
-			playerInv.Inventory_PrintCurrentWeapon();
+			_playerInv.Inventory_PrintCurrentWeapon();
 		}
 
 		if (AEInputCheckTriggered(AEVK_F)) {
-			playerInv.Inventory_SetWeaponUnlocked("Pistol");
-			playerInv.Inventory_EquipWeapon("Pistol");
+			_playerInv.Inventory_SetWeaponUnlocked("Pistol");
+			_playerInv.Inventory_EquipWeapon("Pistol");
 			std::cout << "EQUIPPED PISTOL" << std::endl;
 		}
 
 		if (AEInputCheckTriggered(AEVK_H)) {
-			playerInv.Inventory_SetWeaponUnlocked("TrickPistol");
-			playerInv.Inventory_EquipWeapon("TrickPistol");
+			_playerInv.Inventory_SetWeaponUnlocked("TrickPistol");
+			_playerInv.Inventory_EquipWeapon("TrickPistol");
 			std::cout << "EQUIPPED TRICKPISTOL" << std::endl;
 		}
 
 		if (AEInputCheckTriggered(AEVK_S)) {
-			playerInv.Inventory_SetWeaponUnlocked("DualPistol");
-			playerInv.Inventory_EquipWeapon("DualPistol");
+			_playerInv.Inventory_SetWeaponUnlocked("DualPistol");
+			_playerInv.Inventory_EquipWeapon("DualPistol");
 			std::cout << "EQUIPPED DUALPISTOL" << std::endl;
 		}
 
 		if (AEInputCheckTriggered(AEVK_A)) {
-			playerInv.Inventory_SetWeaponUnlocked("DualDiagPistol");
-			playerInv.Inventory_EquipWeapon("DualDiagPistol");
+			_playerInv.Inventory_SetWeaponUnlocked("DualDiagPistol");
+			_playerInv.Inventory_EquipWeapon("DualDiagPistol");
 			std::cout << "EQUIPPED DUALDIAGPISTOL" << std::endl;
 		}
 
 		if (AEInputCheckTriggered(AEVK_B)) {
-			playerInv.Inventory_SetWeaponUnlocked("Dagger");
-			playerInv.Inventory_EquipWeapon("Dagger");
+			_playerInv.Inventory_SetWeaponUnlocked("Dagger");
+			_playerInv.Inventory_EquipWeapon("Dagger");
 			std::cout << "EQUIPPED DAGGER" << std::endl;
 		}
 
 		if (AEInputCheckTriggered(AEVK_D)) {
-			playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
+			_playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
 		}
 #endif
 		if (AEInputCheckTriggered('R')) {

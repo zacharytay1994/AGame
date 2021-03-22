@@ -12,6 +12,9 @@
 // GUI CODE
 eid _settings, _change_scene;
 
+// INVENTORY CODE
+static Inventory _playerInv;
+
 void TestFunction(Com_GUISurface* surface) {
 	std::cout << "button1" << std::endl;
 }
