@@ -6,35 +6,54 @@ struct MainMenu : public Scene {
 	eid main{ -1 };
 	eid _settings{ -1 };
 	eid _change_scene{ -1 };
+	eid _buttons_surface{ -1 };
+	eid _title{ -1 };
 	Factory::SpriteData data1{ "menubackground" };
 	Factory::SpriteData data2{ "buttonsurface" };
 	Factory::SpriteData data3{ "button1" };
 	Factory::SpriteData data4{ "button2" };
 	Factory::SpriteData data5{ "button3" };
 	Factory::SpriteData data6{ "transparent" };
+	Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
+	Factory::SpriteData button{ "buttonsprite.png", 1.0f, 1.0f, 3, 3, 8, 0.1f, 0, passin };
+	Factory::SpriteData buttonbg{ "buttonsbg.png", 1.0f, 1.0f, 1, 1, 1, 1.0f, 0 };
+	Factory::SpriteData title{ "title.png", 1.0f, 1.0f, 2, 2, 4, 0.2f, 0 };
 	Sys_Pathfinding_v2 _pathfinding;
+	float offset_rad = 0.0f;
+	float offset_y = 0.0f;
+	float original_y = 0.5f;
+	float original_dim_x = 0.8f;
+	float original_dim_y = 0.3f;
 
 	bool _gui_change_scene{ false };
 	void Initialize() override {
 		std::cout << "SYSTEM MESSAGE: Now entering main menu." << std::endl;
 
 		// main background
-		main = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.5f, 0.5f, 1.0f, 1.0f, 100);																	// surface
-		Factory::Instance().FF_CreateGUIChildSurfaceText(main, { "transparent" }, 0.5f, 0.2f, 0.04f, 0.04f, "AGame", "courier");									// settings button
-		eid buttons = Factory::Instance().FF_CreateGUIChildSurface(main, { "background1" }, 0.5f, 0.6f, 0.3f, 0.4f);															// non clickable child surface
-		Factory::Instance().FF_CreateGUIChildClickableSurfaceText(buttons, { "background1" }, 0.5f, 0.25f, 0.75f, 0.2f, SettingsButton, "Start", "courier");		// clickable child surface
-		Factory::Instance().FF_CreateGUIChildClickableSurfaceText(buttons, { "background1" }, 0.5f, 0.5f, 0.75f, 0.2f, SettingsButton, "Credits", "courier");		// clickable child surface
-		Factory::Instance().FF_CreateGUIChildClickableSurfaceText(buttons, { "background1" }, 0.5f, 0.75f, 0.75f, 0.2f, QuitGame, "Exit", "courier");				// clickable child surface
+		main = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.5f, 0.5f, 1.0f, 1.0f, 100);
+		Factory::Instance().FF_CreateGUIChildSurfaceText(main, { "transparent" }, 0.5f, 0.2f, 0.04f, 0.04f, "AGame", "courier");
+		_title = Factory::Instance().FF_CreateGUISurface(title, 0.5f, 0.2f, original_dim_x, original_dim_y, 140);
+		Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4, "AGame", "courier");
+		Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.5f, 0.6f, 0.8f, 0.4, "by HCMR", "courier");
+		_buttons_surface = Factory::Instance().FF_CreateGUISurface(buttonbg, 0.5f, original_y, 0.9f, 0.6f, 120);
+		eid start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.30f, 0.35f, 0.4f, 0.2f, SettingsButton, "Start", "courier");
+		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
+		start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.70f, 0.35f, 0.4f, 0.2f, SettingsButton, "Survey", "courier");
+		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
+		start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.30f, 0.65f, 0.4f, 0.2f, SettingsButton, "Credits", "courier");
+		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
+		start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.70f, 0.65f, 0.4f, 0.2f, QuitGame, "Exit", "courier");
+		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
 
 		// initialize gui settings
 		GUISettingsInitialize();
-
-		std::vector<int> flags = { 0,0,0,0,1,1,0,0,0 };
-		Pathfinding::Grid grid{ 3,3,flags };
-		std::vector<Vec2i> path;
-		_pathfinding.SolveAStar({ 0,0 }, { 2,2 }, grid, path);
 	}
 	void Update(const float& dt) override {
+		UNREFERENCED_PARAMETER(dt);
 		GUISettingsUpdate();
+		offset_rad = offset_rad + dt > 2.0f*PI ? 0.0f : offset_rad + dt;
+		offset_y = sin(offset_rad);
+		Factory::Instance()[_buttons_surface].Get<Com_GUISurface>()._position.y = original_y + offset_y * 0.03f;
+		Factory::Instance()[_title].Get<Com_GUISurface>()._dimensions = { original_dim_x + (offset_y+1.0f) * 0.03f, original_dim_y + (offset_y+1.0f) * 0.03f };
 	}
 };

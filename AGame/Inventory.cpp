@@ -102,7 +102,7 @@ void Inventory::Inventory_PrintCurrentWeapon() const
 		printMap[0 - minheight][0 - minwidth] = 9;
 		for (unsigned int i = 0; i < height; i++)
 		{
-			if (i == (int)(maxheight * 0.5f))
+			if (i == (unsigned int)(maxheight * 0.5f))
 			{
 				std::cout << "* Pattern: ";
 			}

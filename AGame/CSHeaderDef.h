@@ -70,6 +70,8 @@ struct Com_Sprite {
 	float				_x_scale = 1.0f;
 	float				_y_scale = 1.0f;
 	float				_rotation = 0.0f;
+	bool				_flip = { false };
+	bool				_loop = { true };
 	int					_frames = 1;
 	int					_current_frame = 0;
 	float				_frame_interval = 1;
@@ -77,6 +79,8 @@ struct Com_Sprite {
 	int					_row = 1;
 	int					_col = 1;
 	bool				_visible{ true };
+	int					_current_frame_segment{ 0 };
+	Vec2i				_frame_segment[5]{ {0,0}, {0,0}, {0,0}, {0,0}, {0,0} };
 };
 
 struct Com_Direction {
@@ -92,6 +96,9 @@ struct Com_YLayering {
 	char filler = 0;
 };
 
+struct Com_ParentPosition {
+	eid _parent_id{ -1 };
+};
 
 /*																				Component::INPUT
 ____________________________________________________________________________________________________*/
@@ -128,7 +135,10 @@ struct Com_TilePosition {
 	int _grid_y = 0;
 	int _vgrid_x = 0;	// verified grid positions - do not set
 	int _vgrid_y = 0;	// verified grid positions - do not set
-
+	float _speed = 2.0f;
+	Vec2f _direction = { 0.0f,0.0f };
+	bool _moving{ false };
+	bool _initialized{ false };
 };
 
 /*																				Component::COLLISION
@@ -161,39 +171,39 @@ struct Com_objecttype {
 };
 
 //global 
-static std::vector<eid> player;
-static std::vector<eid> enemy;
-static std::vector<eid> bullet;
-static std::vector<eid> obstacle;
-
-struct Sys_RegisteringEntity :public System{
-	void UpdateComponent() override {
-		Com_objecttype& obtype = get<Com_objecttype>();
-		if (obtype.updated == false) {
-			//if it's a player 
-			if (obtype.objtype == obtype.playert) {
-				player.emplace_back(player.size()+1);
-				std::cout << "assigning player" << std::endl;
-			}
-			//if it's a enemy 
-			if (obtype.objtype == obtype.enemyt) {
-				enemy.emplace_back(enemy.size() + 1);
-				std::cout << "assigning enemy" << std::endl;
-			}
-			//if it's a bullet
-			if (obtype.objtype == obtype.bullett) {
-				bullet.emplace_back(bullet.size() + 1);
-				std::cout << "assigning bullet" << std::endl;
-			}
-			//if it's a obstacle
-			if (obtype.objtype == obtype.obstaclest) {
-				obstacle.emplace_back(obstacle.size() + 1);
-				std::cout << "assigning obstacle" << std::endl;
-			}
-			obtype.updated = true;
-		}
-	}
-};
+//static std::vector<eid> player;
+//static std::vector<eid> enemy;
+//static std::vector<eid> bullet;
+//static std::vector<eid> obstacle;
+//
+//struct Sys_RegisteringEntity :public System{
+//	void UpdateComponent() override {
+//		Com_objecttype& obtype = get<Com_objecttype>();
+//		if (obtype.updated == false) {
+//			//if it's a player 
+//			if (obtype.objtype == obtype.playert) {
+//				player.emplace_back(player.size()+1);
+//				std::cout << "assigning player" << std::endl;
+//			}
+//			//if it's a enemy 
+//			if (obtype.objtype == obtype.enemyt) {
+//				enemy.emplace_back(enemy.size() + 1);
+//				std::cout << "assigning enemy" << std::endl;
+//			}
+//			//if it's a bullet
+//			if (obtype.objtype == obtype.bullett) {
+//				bullet.emplace_back(bullet.size() + 1);
+//				std::cout << "assigning bullet" << std::endl;
+//			}
+//			//if it's a obstacle
+//			if (obtype.objtype == obtype.obstaclest) {
+//				obstacle.emplace_back(obstacle.size() + 1);
+//				std::cout << "assigning obstacle" << std::endl;
+//			}
+//			obtype.updated = true;
+//		}
+//	}
+//};
 
 
 // testing for wilfred ////////////////////////////
@@ -569,22 +579,49 @@ struct Sys_DrawSprite : public System {
 	void Draw(Com_Sprite& sprite, Com_Position& position) {
 		AEMtx33 trans, scale, rot;
 		// increment frame
-		if (sprite._frame_interval_counter > sprite._frame_interval) {
-			sprite._current_frame = ++sprite._current_frame >= sprite._frames ? 0 : sprite._current_frame;
-			sprite._render_pack._offset_x = (sprite._current_frame % sprite._col) * 1.0f / (float)sprite._col;
-			sprite._render_pack._offset_y = (sprite._current_frame / sprite._col) * 1.0f / (float)sprite._row;
-			sprite._frame_interval_counter = 0.0f;
+		// set current_frame based on frame_segment
+		if (sprite._loop) {
+			if (sprite._frame_interval_counter > sprite._frame_interval) {
+				++sprite._current_frame;
+				if (sprite._current_frame_segment >= 5) {
+					sprite._current_frame_segment = 0;
+				}
+				int current_frame = sprite._current_frame + sprite._frame_segment[sprite._current_frame_segment].x;
+				if (current_frame > sprite._frame_segment[sprite._current_frame_segment].y) {
+					sprite._current_frame = 0;
+					current_frame = sprite._frame_segment[sprite._current_frame_segment].x;
+				}
+				//sprite._current_frame = ++sprite._current_frame >= sprite._frames ? 0 : sprite._current_frame;
+				sprite._render_pack._offset_x = (current_frame % sprite._col) * 1.0f / (float)sprite._col;
+				sprite._render_pack._offset_y = (current_frame / sprite._col) * 1.0f / (float)sprite._row;
+				sprite._frame_interval_counter = 0.0f;
+			}
+			else {
+				sprite._frame_interval_counter += _dt;
+			}
+		}
+		if (sprite._flip) {
+			AEMtx33Scale(&scale, -sprite._x_scale, sprite._y_scale);
 		}
 		else {
-			sprite._frame_interval_counter += _dt;
+			AEMtx33Scale(&scale, sprite._x_scale, sprite._y_scale);
 		}
-		AEMtx33Scale(&scale, sprite._x_scale, sprite._y_scale);
 		AEMtx33Rot(&rot, sprite._rotation);
 		AEMtx33Trans(&trans, position.x, position.y);
 		AEMtx33Concat(&sprite._render_pack._transform, &rot, &scale);
 		AEMtx33Concat(&sprite._render_pack._transform, &trans, &sprite._render_pack._transform);
 		// set aegfx variables
 		ResourceManager::Instance().DrawQueue(&sprite._render_pack);
+	}
+};
+
+struct Sys_ParentPosition : public System {
+	void UpdateComponent() override {
+		// get parent position
+		Com_Position& position = get<Com_Position>();
+		Com_ParentPosition& parent = get<Com_ParentPosition>();
+		Com_Position& parent_position = Factory::Instance()[parent._parent_id].Get<Com_Position>();
+		position = parent_position;
 	}
 };
 
@@ -642,41 +679,33 @@ struct Sys_ArrowKeys : public System {
 };
 
 struct Sys_ArrowKeysTilemap : public System {
+	// hard coded - assuming only 1 player uses arrow keys tilemap
+	float _speed = 0.5f;
+	float _counter{ _speed };
+	bool _turn{ false };
+	void OncePerFrame() {
+		_counter -= _dt;
+		if (_counter <= 0.0f) {
+			_counter = _speed;
+			_turn = true;
+		}
+		else {
+			_turn = false;
+		}
+	}
 	void UpdateComponent() override {
 		Com_TilePosition& pos = get<Com_TilePosition>();
-		Com_Direction& direction = get<Com_Direction>();
-		if (AEInputCheckTriggered(VK_LEFT)) {
-			//if already left 
-			if (direction.currdir == direction.left) {
-				pos._grid_x -= 1;
-			}
-			else {
-				direction.currdir = direction.left;
-			}
+		if (AEInputCheckCurr(VK_LEFT) && _turn) {
+			pos._grid_x -= 1;
 		}
-		if (AEInputCheckTriggered(VK_RIGHT)) {
-			if (direction.currdir == direction.right) {
-				pos._grid_x += 1;
-			}
-			else {
-				direction.currdir = direction.right;
-			}
+		if (AEInputCheckCurr(VK_RIGHT) && _turn) {
+			pos._grid_x += 1;
 		}
-		if (AEInputCheckTriggered(VK_UP)) {
-			if (direction.currdir == direction.up) {
-				pos._grid_y -= 1;
-			}
-			else {
-				direction.currdir = direction.up;
-			}
+		if (AEInputCheckCurr(VK_UP) && _turn) {
+			pos._grid_y -= 1;
 		}
-		if (AEInputCheckTriggered(VK_DOWN)) {
-			if (direction.currdir == direction.down) {
-				pos._grid_y += 1;
-			}
-			else {
-				direction.currdir = direction.down;
-			}
+		if (AEInputCheckCurr(VK_DOWN) && _turn) {
+			pos._grid_y += 1;
 		}
 	}
 };
@@ -688,11 +717,10 @@ struct Sys_Tilemap : public System {
 	void UpdateComponent() override {
 		Com_Tilemap& tilemap = get<Com_Tilemap>();
 		if (tilemap._initialized) {
-			Com_Position& position = get<Com_Position>();
-			DrawTilemap(tilemap, position);
+			DrawTilemap(tilemap);
 		}
 	}
-	void DrawTilemap(Com_Tilemap& tilemap, const Com_Position& position) {
+	void DrawTilemap(Com_Tilemap& tilemap) {
 		AEMtx33 trans, scale, transform;
 		AEMtx33Scale(&scale, tilemap._scale_x, tilemap._scale_y);
 		AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
@@ -705,8 +733,6 @@ struct Sys_Tilemap : public System {
 				tilemap._render_pack._transform = transform;
 				if (tilemap._floor_mask[x * (size_t)tilemap._height + y]) {
 					// sample texture according to collision mask
-					float _offset_x = (tilemap._floor_mask[x * (size_t)tilemap._height + y] % 4) * 1.0f / (float)4;
-					float _offset_y = (tilemap._floor_mask[x * (size_t)tilemap._height + y] / 4) * 1.0f / (float)4;
 					tilemap._render_pack._offset_x = (tilemap._floor_mask[x * (size_t)tilemap._height + y] % 4) * 1.0f / (float)4;
 					tilemap._render_pack._offset_y = (tilemap._floor_mask[x * (size_t)tilemap._height + y] / 4) * 1.0f / (float)4;
 					//ResourceManager::Instance().DrawQueue(&tilemap._render_pack);
@@ -734,10 +760,12 @@ struct Sys_TilePosition : public System {
 		Com_Tilemap* tilemap = tilemapref._tilemap;
 		Com_Position& position = get<Com_Position>();
 		Com_TilePosition& t_position = get<Com_TilePosition>();
+		bool check = false;
 		if (tilemap) {
 			// check if new tile position is within grid - would be checked with collision_mask after
 			if (t_position._grid_x >= 0 && t_position._grid_x < tilemap->_width && t_position._grid_y >= 0 && t_position._grid_y < tilemap->_height &&
 				tilemap->_floor_mask[(size_t)t_position._grid_x * (size_t)tilemap->_height + (size_t)t_position._grid_y] >= 0) {
+				check = (t_position._vgrid_x != t_position._grid_x || t_position._vgrid_y != t_position._grid_y);
 				t_position._vgrid_x = t_position._grid_x;
 				t_position._vgrid_y = t_position._grid_y;
 			}
@@ -746,8 +774,52 @@ struct Sys_TilePosition : public System {
 				t_position._grid_y = t_position._vgrid_y;
 			}
 			// bind position to grid position
-			position.x = tilemap->_offset_x * tilemap->_scale_x + (float)t_position._vgrid_x * tilemap->_scale_x;
-			position.y = tilemap->_offset_y * tilemap->_scale_y - (float)t_position._vgrid_y * tilemap->_scale_y;
+			if (!t_position._initialized) {
+				t_position._initialized = true;
+				position.x = tilemap->_offset_x * tilemap->_scale_x + (float)t_position._vgrid_x * tilemap->_scale_x;
+				position.y = tilemap->_offset_y * tilemap->_scale_y - (float)t_position._vgrid_y * tilemap->_scale_y;
+			}
+			float dst_x = tilemap->_offset_x * tilemap->_scale_x + (float)t_position._vgrid_x * tilemap->_scale_x;
+			float dst_y = tilemap->_offset_y * tilemap->_scale_y - (float)t_position._vgrid_y * tilemap->_scale_y;
+			float dis_x = dst_x - position.x;
+			float dis_y = dst_y - position.y;
+			if (check) {
+				t_position._direction = { dis_x,dis_y };
+			}
+			if (dis_x < 0.2f && dis_x > -0.2f && dis_y < 0.2f && dis_y > -0.2f) {
+				position.x = dst_x;
+				position.y = dst_y;
+				t_position._moving = false;
+			}
+			else {
+				//Vec2f direction = { dis_x, dis_y };
+				//direction.NormalizeSelf();
+				position.x += t_position._direction.x * _dt * t_position._speed;
+				position.y += t_position._direction.y * _dt * t_position._speed;
+				t_position._moving = true;
+			}
+		}
+	}
+};
+
+struct Com_TileMoveSpriteState {
+	char filler{ ' ' };
+};
+struct Sys_TileMoveSpriteState : public System {
+	void UpdateComponent() override {
+		Com_Sprite& sprite = get<Com_Sprite>();
+		Com_TilePosition& pos = get<Com_TilePosition>();
+		if (pos._moving) {
+			sprite._current_frame_segment = 1;
+			if (pos._direction.x < -0.01f) {
+				sprite._flip = true;
+			}
+			else if (pos._direction.x > 0.01f) {
+				sprite._flip = false;
+			}
+		}
+		else {
+			sprite._current_frame_segment = 0;
 		}
 	}
 };
@@ -1058,9 +1130,9 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 	//}
 	void Plant_Bomb(Com_Position& position) {
 		//setting the sprite data to pass in 
-		Factory::SpriteData data{ "kaboom", 40.0f, 40.0f, 1, 1, 1, 0.15f };
+		Factory::SpriteData inner_data{ "kaboom", 40.0f, 40.0f, 1, 1, 1, 0.15f };
 		//creating the bomb 
-		Factory::Instance().FF_CreateBomb(data, static_cast<int>(position.x),static_cast<int>(position.y));
+		Factory::Instance().FF_CreateBomb(inner_data, static_cast<int>(position.x),static_cast<int>(position.y));
 	}
 };
 
@@ -1157,9 +1229,12 @@ struct Sys_EnemySpawning : public System {
 		}
 		else
 		{
-			i = 0;
-
-		}	
+			Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
+			eid inner_enemy = Factory::Instance().FF_CreateEnemy(data1, _tilemap, 5,2);
+			Factory::Instance()[inner_enemy].AddComponent<Com_YLayering, Com_Node, Com_PathFinding>();
+			++enem.CurrNoOfEnemies;
+			++i;
+		}
 	}
 	
 
@@ -1268,65 +1343,25 @@ struct Sys_PathFinding : public System
 	vector<Vec2i> _path;
 	bool _initialized{ false };
 
-	bool SolveAStar(const Vec2i& start, const Vec2i& end, Grid& grid, std::vector<Vec2i>& path) {
-		path.clear();
-		// custom comparator
-		auto cmp = [](Com_Node*& node1, Com_Node*& node2) {return *node1 > * node2; };
-		// create min heap
-		std::priority_queue<Com_Node*, vector<Com_Node*>, decltype(cmp)> min_heap(cmp);
-
-		// create start and end temp nodes
-		Com_Node* start_node = &grid.Get(start);
-		Com_Node* end_node = &grid.Get(end);
-
-		// add start node to the open set
-		min_heap.push(start_node);
-		start_node->_open = true;
-		_nodes_to_reset.push_back(start_node);
-
-		// loop
-		while (min_heap.size() > 0) {
-			Com_Node* current_node = min_heap.top();
-
-			// erase current node from open set and add to closed set
-			min_heap.pop();
-			current_node->_open = false;
-			current_node->_closed = true;
-			_nodes_to_reset.push_back(current_node);
-
-			// if current == end, reached
-			if (current_node == end_node) {
-				RetracePath(start_node, end_node, path);
-				return true;
-			}
-
-			// find/update fcost of neighbours and add them to open set
-			grid.GetNeighbours(current_node, _neighbours);
-			for (auto& n : _neighbours) {
-				// if obstacle or closed skip
-				if (n->_obstacle || n->_closed) {
-					continue;
-				}
-				// if new g cost < g cost (need updating) || or if not in open, calculate f cost, add to open
-				int new_g_cost = current_node->_g_cost + (*current_node - *n);
-				// check
-				bool in_open = n->_open;
-				if (new_g_cost < n->_g_cost || !in_open) {
-					// set fcost
-					n->_g_cost = new_g_cost;
-					n->_h_cost = (*n - *end_node);
-					// set parent node
-					n->_parent = current_node;
-					if (!in_open) {
-						min_heap.push(n);
-						n->_open = true;
-					}
-					_nodes_to_reset.push_back(n);
-				}
-			}
-		}
-		for (auto& n : _nodes_to_reset) {
-			ResetNode(n);
+void MapCreate(Com_Node& ode, const Com_Tilemap* tile, Com_TilePosition& enemyPos, eid& playerid)
+{
+	// Create a 2D array of nodes - this is for convenience of rendering and construction
+	// and is not required for the algorithm to work - the nodes could be placed anywhere
+	// in any space, in multiple dimension
+	ode.MapHeight = tile->_height;
+	ode.MapWidth = tile->_width;
+	int MapArea = ode.MapHeight * ode.MapWidth;
+	ode.nodes = new Com_PathFinding[MapArea];
+	for (int y = 0; y < ode.MapHeight; y++)
+	{
+		for (int x = 0; x < ode.MapWidth; x++)
+		{
+			ode.nodes[x * ode.MapHeight + y].x = x; // to give each node its own coordinates
+			ode.nodes[x * ode.MapHeight + y].y = y;
+			// set everything to default value 1st
+			ode.nodes[x * ode.MapHeight + y].bObstacle = false;
+			ode.nodes[x * ode.MapHeight + y].parent = nullptr;
+			ode.nodes[x * ode.MapHeight + y].bVisited = false;
 		}
 		_nodes_to_reset.clear();
 		return false;
@@ -1385,7 +1420,13 @@ struct Sys_PathFinding : public System
 				if (x < ode.MapWidth - 1)
 					ode.nodes[x * ode.MapHeight + y].vecNeighbours.push_back(&ode.nodes[(x + 1) * ode.MapHeight + (y + 0)]);
 
-			}
+	// Manually positio the start and end markers so they are not nullptr
+	ode.nodeStart = &ode.nodes[(enemyPos._grid_x * ode.MapHeight) + enemyPos._grid_y];
+	ode.nodeEnd = &ode.nodes[(Factory::Instance()[playerid].Get<Com_TilePosition>()._grid_x * ode.MapHeight) + (Factory::Instance()[playerid].Get<Com_TilePosition>()._grid_y)];
+	/*ode.nodeStart->x = enemyPos._grid_x;
+	ode.nodeStart->y = enemyPos._grid_y;
+	ode.nodeEnd->x = 0;
+	ode.nodeEnd->y = 0;*/
 
 		// Manually positio the start and end markers so they are not nullptr
 		ode.nodeStart = &ode.nodes[(enemyPos._grid_x * ode.MapHeight) + enemyPos._grid_y];
@@ -1503,11 +1544,11 @@ struct Sys_PathFinding : public System
 // AUSTEN SEE START
 namespace Pathfinding {
 	struct Node {
-		Node(const Vec2i& gridPos, int obstacle = 0, const Vec2f& worldPos = { 0.0f,0.0f })
+		Node(const Vec2i& gridPos, int isobstacle = 0, const Vec2f& worldPos = { 0.0f,0.0f })
 			:
 			_grid_pos(gridPos),
 			_world_pos(worldPos),
-			_obstacle(obstacle)
+			_obstacle(isobstacle)
 		{}
 		bool operator>(Node& rhs) {
 			return rhs.FCost() < FCost();
@@ -1577,8 +1618,10 @@ struct Sys_Pathfinding_v2 : public System {
 			if (fp._find) {
 				fp._found = SolveAStar(fp._start, fp._end, _grid, _path);
 				if (fp._found && _path.size() >= 1) {
+					_grid.Get({ tpos._grid_x,tpos._grid_y })._obstacle = false;
 					tpos._grid_x = _path[0].x;
 					tpos._grid_y = _path[0].y;
+					_grid.Get({ _path[0].x,_path[0].y })._obstacle = true;
 				}
 				fp._find = false;
 			}
@@ -1704,7 +1747,7 @@ struct Sys_ParticleEmitter : public System {
 	void UpdateComponent() override {
 		Com_GameTimer& timer = get<Com_GameTimer>();
 		Com_ParticleEmitter& emitter = get<Com_ParticleEmitter>();
-		Com_Position& position = get<Com_Position>();
+		//Com_Position& position = get<Com_Position>();
 		//if timer reaches 0 emit particles 
 		if (emitter.active == true) {
 			if (timer.timerinseconds == emitter.timeforemitter)
@@ -1772,12 +1815,17 @@ struct Sys_GUISurfaceRender : public System {
 			// offset with parent
 			position.x = surface._parent_position->x - surface._parent_surface->_ph_dimensions.x + surface._position.x*surface._parent_surface->_ph_dimensions.x*2.0f;
 			position.y = surface._parent_position->y + surface._parent_surface->_ph_dimensions.y - surface._position.y*surface._parent_surface->_ph_dimensions.y*2.0f;
+			// scale with parent
+			/*sprite._x_scale = surface._parent_surface->_dimensions.x * surface._dimensions.x;
+			sprite._y_scale = surface._parent_surface->_dimensions.y * surface._dimensions.y;*/
 		}
 		else {
 			// update sprite position with button
 			surface._n_position = surface._position;
 			position.x = (surface._position.x - 0.5f) * _screen_width;
 			position.y = -((surface._position.y - 0.5f) * _screen_height);
+			sprite._x_scale = _screen_width * surface._dimensions.x;
+			sprite._y_scale = _screen_height * surface._dimensions.y;
 		}
 		sprite._visible = surface._active;
 	}
@@ -1820,25 +1868,42 @@ struct Sys_GUISurfaceOnClick : public System {
 	}
 };
 
+struct Com_GUISurfaceHoverShadow {
+	char filler{ ' ' };
+};
+struct Sys_GUISurfaceHoverShadow : public System {
+	void UpdateComponent() override {
+		Com_Sprite& sprite = get<Com_Sprite>();
+		Com_GUIMouseCheck& mouse = get<Com_GUIMouseCheck>();
+		Com_GUISurface& surface = get<Com_GUISurface>();
+		if (!surface._active) { return; }
+		if (mouse._over) {
+			sprite._current_frame_segment = 1;
+		}
+		else {
+			sprite._current_frame_segment = 0;
+		}
+	}
+};
+
 struct Sys_GUITextRender : public System {
 	char str_buffer[100];
 	void UpdateComponent() override {
-		Com_Position& position = get<Com_Position>();
 		Com_GUISurface& surface = get<Com_GUISurface>();
 		Com_Text& text = get<Com_Text>();
 		if (!surface._active) {
 			return;
 		}
-		Draw(position, text, surface);
+		//Draw(position, text, surface);
 		text._data._position.x = surface._n_position.x * 2.0f - 1.0f;
 		text._data._position.y = -(surface._n_position.y * 2.0f - 1.0f);
 		ResourceManager::Instance().DrawStackText(text._data);
 	}
-	void Draw(const Com_Position& position, Com_Text& text, const Com_GUISurface& surface) {
-		//sprintf_s(str_buffer, text._text.c_str());
-		//AEGfxGetPrintSize(text._font, str_buffer, 1.0f, text._width, text._height);
-		//AEGfxPrint(text._font, const_cast<s8*>(text._text.c_str()), surface._position.x*2.0f-1.0f, -(surface._position.y*2.0f-1.0f), text._scale, 1.0f, text._g, text._b);
-	}
+	//void Draw(const Com_Position& position, Com_Text& text, const Com_GUISurface& surface) {
+	//	//sprintf_s(str_buffer, text._text.c_str());
+	//	//AEGfxGetPrintSize(text._font, str_buffer, 1.0f, text._width, text._height);
+	//	//AEGfxPrint(text._font, const_cast<s8*>(text._text.c_str()), surface._position.x*2.0f-1.0f, -(surface._position.y*2.0f-1.0f), text._scale, 1.0f, text._g, text._b);
+	//}
 };
 
 struct Sys_GUIDrag : public System {
@@ -1898,17 +1963,17 @@ struct Com_Obstacle {
 struct Sys_Obstacle : public System {
 
 	void UpdateComponent() override {
-		Com_Obstacle& obstacle = get<Com_Obstacle>();
+		Com_Obstacle& l_obstacle = get<Com_Obstacle>();
 		//if it's a bomb barrel 
-		if (obstacle.obstacletype == obstacle.bombbarrel) {
+		if (l_obstacle.obstacletype == l_obstacle.bombbarrel) {
 			//if hit, explode 
-			if (obstacle.numofhitstodestroy == 0) {
+			if (l_obstacle.numofhitstodestroy == 0) {
 				//explode 
 			}
 		}
 		//if it's a breakable wall 
-		if (obstacle.obstacletype == obstacle.breakablewall) {
-			if (obstacle.numofhitstodestroy == 0) {
+		if (l_obstacle.obstacletype == l_obstacle.breakablewall) {
+			if (l_obstacle.numofhitstodestroy == 0) {
 				//destroy wall, free space to walk on 
 			}
 		}
@@ -1959,6 +2024,17 @@ struct Com_type {
 		wall,
 		bombbarrel
 	};
+/*																				system::ENEMY STATES
+____________________________________________________________________________________________________*/
+struct Com_EnemyStateOne {
+	enum class STATES {
+		IDLE,
+		MOVE,
+		ATTACK
+	} _current_state{ STATES::IDLE };
+	int _speed{ 2 };
+	int _counter{ _speed };
+	Com_TilePosition* _player{ nullptr };
 };
 
 struct Com_GridColData {
@@ -2019,6 +2095,66 @@ struct Sys_GridCollision : public System {
 		}
 		else {
 			return false;
+		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
+		if (_turn) {
+			--state._counter;
+		}
+		(this->*_fp_states[static_cast<int>(state._current_state) * 3 + 1])();
+		if (!state._counter) {
+			state._counter = state._speed;
+		}
+	}
+	void ChangeState(Com_EnemyStateOne::STATES newState) {
+		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
+		// exit current state
+		(this->*_fp_states[static_cast<int>(state._current_state)*3+2])();
+		// enter new state
+		(this->*_fp_states[static_cast<int>(newState) * 3])();
+		state._current_state = newState;
+	}
+	// idle
+	void IDLE_ENTER() {
+		std::cout << "IDLE_ENTER" << std::endl;
+	}
+	void IDLE_UPDATE() {
+		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
+		Com_FindPath& fp = get<Com_FindPath>();
+		Com_TilePosition& pos = get<Com_TilePosition>();
+		if (!state._counter) {
+			std::cout << "IDLE_UPDATE" << std::endl;
+			// see if can find path to player
+			fp._start = Vec2i( pos._vgrid_x, pos._vgrid_y );
+			fp._end = Vec2i( state._player->_vgrid_x,state._player->_vgrid_y);
+			fp._find = true;
+		}
+		// if path found
+		if (fp._found) {
+			ChangeState(Com_EnemyStateOne::STATES::MOVE);
+		}
+	}
+	void IDLE_EXIT() {
+		std::cout << "IDLE_EXIT" << std::endl;
+	}
+	// move
+	void MOVE_ENTER() {
+		std::cout << "MOVE_ENTER" << std::endl;
+	}
+	void MOVE_UPDATE() {
+		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
+		Com_FindPath& fp = get<Com_FindPath>();
+		Com_TilePosition& pos = get<Com_TilePosition>();
+		if (!state._counter) {
+			std::cout << "MOVE_UPDATE" << std::endl;
+			// see if can find path to player
+			fp._start = Vec2i(pos._vgrid_x, pos._vgrid_y);
+			fp._end = Vec2i( state._player->_vgrid_x,state._player->_vgrid_y );
+			fp._find = true;
+			// if path found
+			/*if (fp._next.x != -1 && fp._next.y != -1) {
+				pos._grid_x = fp._next.x;
+				pos._grid_y = fp._next.y;
+				std::cout << "x: " << fp._next.x << "y: " << fp._next.y << std::endl;
+			}*/
 		}
 	}
 };

@@ -12,49 +12,59 @@
 // GUI CODE
 eid _settings, _change_scene;
 
-void TestFunction(Com_GUISurface* surface) {
-	std::cout << "button1" << std::endl;
-}
+//void TestFunction(Com_GUISurface* surface) {
+//	std::cout << "button1" << std::endl;
+//}
 
 static bool _change_scene_toggle{ false };
 void ToggleChangeSceneButton(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
 	_change_scene_toggle = !_change_scene_toggle;
 }
 
 static bool _settings_toggle{ false };
 void SettingsButton(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
 	_settings_toggle = !_settings_toggle;
 }
 
 void QuitGame(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
 	std::cout << "button3" << std::endl;
 	SceneManager::Instance().StopGame();
 }
 
 void ChangeTestScene(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
 	SceneManager::Instance().ChangeScene("Test Scene");
 }
 
 void ChangeTestScenePF(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
 	SceneManager::Instance().ChangeScene("Test PathFinding");
 }
 
 void ChangeShootingRangeScene(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
 	SceneManager::Instance().ChangeScene("ShootingRange");
 }
 
 void ChangeWilf(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
 	SceneManager::Instance().ChangeScene("TestScenewilfred");
 }
 
 void ChangeMainMenu(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
 	SceneManager::Instance().ChangeScene("Main Menu");
 }
 
 void GUISettingsInitialize() {
 	_settings_toggle = false;
 	_change_scene_toggle = false;
-	Factory::Instance().FF_CreateGUIClickableSurface( { "settings" }, 0.96f, 0.04f, 0.04f, 0.04f, SettingsButton, 150);									// settings button
+	Vec2i passin[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
+	eid settings = Factory::Instance().FF_CreateGUIClickableSurface({ "settingsbutton.png", 1.0f, 1.0f, 2, 1, 2, 0.1f, 0, passin }, 0.96f, 0.04f, 0.04f, 0.04f, SettingsButton, 150);
+	Factory::Instance()[settings].AddComponent<Com_GUISurfaceHoverShadow>();
 	// settings menu
 	_settings = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.84f, 0.38f, 0.3f, 0.6f, 150);
 	Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, { "background1" }, 0.5f, 0.2f, 0.9f, 0.08f, ToggleChangeSceneButton, "Change Scene", "courier");	// clickable child surface text
@@ -91,6 +101,7 @@ struct TestScene2 : public Scene {
 		e = Factory::Instance().FF_Sprite({ "test2", 50.0f, 100.0f, 1, 8, 8 }, 0, 0);
 	}
 	void Update(const float& dt) override {
+		UNREFERENCED_PARAMETER(dt);
 		//std::cout << "hehe just keep printing" << std::endl;
 		if (AEInputCheckCurr('C')) {
 			SceneManager::Instance().ChangeScene("Test Scene");
@@ -113,6 +124,7 @@ struct ExampleScene : public Scene {
 		std::cout << "Example Scene Initialized" << std::endl;
 	}
 	void Update(const float& dt) override {
+		UNREFERENCED_PARAMETER(dt);
 		++(*scene_variable);
 		if (AEInputCheckTriggered('R')) {
 			SceneManager::Instance().RestartScene();
@@ -122,6 +134,7 @@ struct ExampleScene : public Scene {
 		}
 	}
 	void Draw(const float& dt) override {
+		UNREFERENCED_PARAMETER(dt);
 		// draw smoething
 	}
 	void Exit() override {
@@ -197,6 +210,7 @@ struct TestScenePF : public Scene
 	Update Override (optional)
 	________________________________*/
 	void Update(const float& dt) override {
+		UNREFERENCED_PARAMETER(dt);
 		//Entity& testing = Factory::Instance()[tilemap];
 		//if (AEInputCheckTriggered('E')) {
 		//}
@@ -272,6 +286,7 @@ struct ShootingRange : public Scene {
 	Update Override (optional)
 	________________________________*/
 	void Update(const float& dt) override {
+		UNREFERENCED_PARAMETER(dt);
 		//Entity& testing = Factory::Instance()[tilemap];
 		//if (AEInputCheckTriggered('E')) {
 		//}
