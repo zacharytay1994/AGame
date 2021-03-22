@@ -1197,7 +1197,7 @@ struct Sys_EnemySpawning : public System {
 	// Initialization
 	eid _tilemap = { -1 };
 	eid playerpos = -1;
-	float timer = 3;
+	float timer = 5;
 	void OncePerFrame() override
 	{
 		timer -= _dt;
