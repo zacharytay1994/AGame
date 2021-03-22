@@ -3,7 +3,7 @@
 #include "zSystem.h"
 #include "CSHeaderDef.h"
 #include "ResourceManager.h"
-
+#include "Scene_LevelEditor.h"
 #include "Scene_MainMenu.h"
 #include "Scene_Zac.h"
 #include "Scene_Wilfred.h"
@@ -148,6 +148,7 @@ void SceneManager::Initialize() {
 	AddScene<MainMenu>("Main Menu");
 	AddScene<TestScenewilfred>("TestScenewilfred");
 	AddScene<ShootingRange>("ShootingRange");
+	AddScene<LevelEditor>("Leveleditor");
 }
 
 void SceneManager::Free()
