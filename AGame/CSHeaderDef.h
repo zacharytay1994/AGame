@@ -1366,8 +1366,10 @@ struct Sys_Pathfinding_v2 : public System {
 			if (fp._find) {
 				fp._found = SolveAStar(fp._start, fp._end, _grid, _path);
 				if (fp._found && _path.size() >= 1) {
+					_grid.Get({ tpos._grid_x,tpos._grid_y })._obstacle = false;
 					tpos._grid_x = _path[0].x;
 					tpos._grid_y = _path[0].y;
+					_grid.Get({ _path[0].x,_path[0].y })._obstacle = true;
 				}
 				fp._find = false;
 			}
@@ -1561,12 +1563,17 @@ struct Sys_GUISurfaceRender : public System {
 			// offset with parent
 			position.x = surface._parent_position->x - surface._parent_surface->_ph_dimensions.x + surface._position.x*surface._parent_surface->_ph_dimensions.x*2.0f;
 			position.y = surface._parent_position->y + surface._parent_surface->_ph_dimensions.y - surface._position.y*surface._parent_surface->_ph_dimensions.y*2.0f;
+			// scale with parent
+			/*sprite._x_scale = surface._parent_surface->_dimensions.x * surface._dimensions.x;
+			sprite._y_scale = surface._parent_surface->_dimensions.y * surface._dimensions.y;*/
 		}
 		else {
 			// update sprite position with button
 			surface._n_position = surface._position;
 			position.x = (surface._position.x - 0.5f) * _screen_width;
 			position.y = -((surface._position.y - 0.5f) * _screen_height);
+			sprite._x_scale = _screen_width * surface._dimensions.x;
+			sprite._y_scale = _screen_height * surface._dimensions.y;
 		}
 		sprite._visible = surface._active;
 	}
@@ -1605,6 +1612,24 @@ struct Sys_GUISurfaceOnClick : public System {
 		// do bounding box check
 		if (mouse._over && _left_mouse) { 
 			on_click._click_event(&surface);
+		}
+	}
+};
+
+struct Com_GUISurfaceHoverShadow {
+	char filler{ ' ' };
+};
+struct Sys_GUISurfaceHoverShadow : public System {
+	void UpdateComponent() override {
+		Com_Sprite& sprite = get<Com_Sprite>();
+		Com_GUIMouseCheck& mouse = get<Com_GUIMouseCheck>();
+		Com_GUISurface& surface = get<Com_GUISurface>();
+		if (!surface._active) { return; }
+		if (mouse._over) {
+			sprite._current_frame_segment = 1;
+		}
+		else {
+			sprite._current_frame_segment = 0;
 		}
 	}
 };
@@ -1807,7 +1832,7 @@ struct Sys_EnemyStateOne : public System {
 	void MOVE_EXIT() {
 		std::cout << "MOVE_EXIT" << std::endl;
 	}
-	// attack //JAGUREOATTACK
+	// attack
 	void ATTACK_ENTER() {
 		std::cout << "ATTACK_ENTER" << std::endl;
 	}

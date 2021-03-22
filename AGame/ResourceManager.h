@@ -24,7 +24,7 @@ struct TextPack {
 	std::string _text{ "loren ipsum" };
 	Vec2f		_position{ 0.0f,0.0f };
 	float		_scale{ 1.0f };
-	float		_r{ 0.0f }, _g{ 1.0f }, _b{ 0.0f };
+	float		_r{ 0.0f }, _g{ 0.0f }, _b{ 0.0f };
 };
 
 struct SurfacePack {

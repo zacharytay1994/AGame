@@ -62,7 +62,9 @@ void ChangeMainMenu(Com_GUISurface* surface) {
 void GUISettingsInitialize() {
 	_settings_toggle = false;
 	_change_scene_toggle = false;
-	Factory::Instance().FF_CreateGUIClickableSurface( { "settings" }, 0.96f, 0.04f, 0.04f, 0.04f, SettingsButton, 150);									// settings button
+	Vec2i passin[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
+	eid settings = Factory::Instance().FF_CreateGUIClickableSurface({ "settingsbutton.png", 1.0f, 1.0f, 2, 1, 2, 0.1f, 0, passin }, 0.96f, 0.04f, 0.04f, 0.04f, SettingsButton, 150);
+	Factory::Instance()[settings].AddComponent<Com_GUISurfaceHoverShadow>();
 	// settings menu
 	_settings = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.84f, 0.38f, 0.3f, 0.6f, 150);
 	Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, { "background1" }, 0.5f, 0.2f, 0.9f, 0.08f, ToggleChangeSceneButton, "Change Scene", "courier");	// clickable child surface text
