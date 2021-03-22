@@ -363,7 +363,8 @@ struct Com_EnemyStateOne {
 	enum class STATES {
 		IDLE,
 		MOVE,
-		ATTACK
+		ATTACK,
+		EVILWIN
 	} _current_state{ STATES::IDLE };
 	int _speed{ 2 };
 	int _counter{ _speed };
@@ -484,13 +485,18 @@ struct Sys_EnemyStateOne : public System {
 			else if (fp._next.x == fp._end.x && fp._next.y == fp._end.y)
 			{
 				// to decrease health
-				std::cout << state.playerHealth->health << std::endl;
-				--state.playerHealth->health;
-				if (state.playerHealth->health == 0) 
+				if (state.playerHealth != nullptr) 
 				{
-					std::cout << "お前もう死んで " << std::endl;
-					std::cout << "何？" << std::endl;
+					std::cout << state.playerHealth->health << std::endl;
+					--state.playerHealth->health;
+					if (state.playerHealth->health == 0) 
+					{
+						std::cout << "お前もう死んで " << std::endl;
+						std::cout << "何？" << std::endl;
+						ChangeState(Com_EnemyStateOne::STATES::EVILWIN);
+					}
 				}
+
 			}
 			
 		}
@@ -498,10 +504,22 @@ struct Sys_EnemyStateOne : public System {
 	void ATTACK_EXIT() {
 		std::cout << "ATTACK_EXIT" << std::endl;
 	}
+	void EVILWIN_ENTER() {
+		std::cout << "EVIL_ENTER" << std::endl;
+	}
+	void EVILWIN_UPDATE() {
+		std::cout << "EVIL_UPDATE" << std::endl;
+		std::cout << "MUHAHAHAHAHAHAHAH!!!!" << std::endl;
+	}
+	void EVILWIN_EXIT() {
+		std::cout << "EVIL_EXIT" << std::endl;
+	}
+
 	using FP_STATES = void(Sys_EnemyStateOne::*)();
-	FP_STATES _fp_states[9] = { &Sys_EnemyStateOne::IDLE_ENTER, &Sys_EnemyStateOne::IDLE_UPDATE, &Sys_EnemyStateOne::IDLE_EXIT,
+	FP_STATES _fp_states[12] = { &Sys_EnemyStateOne::IDLE_ENTER, &Sys_EnemyStateOne::IDLE_UPDATE, &Sys_EnemyStateOne::IDLE_EXIT,
 								&Sys_EnemyStateOne::MOVE_ENTER, &Sys_EnemyStateOne::MOVE_UPDATE, &Sys_EnemyStateOne::MOVE_EXIT,
-								&Sys_EnemyStateOne::ATTACK_ENTER, &Sys_EnemyStateOne::ATTACK_UPDATE, &Sys_EnemyStateOne::ATTACK_EXIT };
+								&Sys_EnemyStateOne::ATTACK_ENTER, &Sys_EnemyStateOne::ATTACK_UPDATE, &Sys_EnemyStateOne::ATTACK_EXIT,
+								&Sys_EnemyStateOne::EVILWIN_ENTER, &Sys_EnemyStateOne::EVILWIN_UPDATE, &Sys_EnemyStateOne::EVILWIN_EXIT };
 };
 
 /*																				Component::GUI
@@ -1185,39 +1203,41 @@ struct Sys_EnemySpawning : public System {
 		timer -= _dt;
 	}
 	void UpdateComponent() override {
-		//static Com_EnemySpawn& Enemyspawn = get<Com_EnemySpawn>();
-		//Com_Wave& wave = get<Com_Wave>();
-		//int i = 0;
+		static Com_EnemySpawn& Enemyspawn = get<Com_EnemySpawn>();
+		Com_Wave& wave = get<Com_Wave>();
+		int i = 0;
 
-		////if the timer hits for set time 
-		////if timer hit 0 spawn wave/ number of enemies hit 0 
+		//if the timer hits for set time 
+		//if timer hit 0 spawn wave/ number of enemies hit 0 
 
-		//if (timer < 0 || Enemyspawn.DEATHEnemiespawncounter > 1)
-		//{
-		//	if (Enemyspawn.CurrNoOfEnemies < 5) 
-		//	{
-		//		while (i < Enemyspawn.numberofenemies)
-		//		{
-		//			int randomx = rand() % 9;
-		//			int randomy = rand() % 5;
-		//			Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
-		//			eid enemy = Factory::Instance().FF_CreateEnemy(data1, _tilemap, randomx, randomy);
-		//			Factory::Instance()[enemy].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[playerpos].Get<Com_TilePosition>();
-		//			++Enemyspawn.CurrNoOfEnemies;
-		//			++i;
-		//			timer = 5;
-		//			--wave.numberofwaves; //decrease the number of waves left 
-		//		}
-		//			
-		//	}
+		if (timer < 0 || Enemyspawn.DEATHEnemiespawncounter > 1)
+		{
+			if (Enemyspawn.CurrNoOfEnemies < 5) 
+			{
+				while (i < Enemyspawn.numberofenemies)
+				{
+					int randomx = rand() % 9;
+					int randomy = rand() % 5;
+					Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
+					eid enemy = Factory::Instance().FF_CreateEnemy(data1, _tilemap, randomx, randomy);
+					Factory::Instance()[enemy].AddComponent<Com_Health>();
+					Factory::Instance()[enemy].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[playerpos].Get<Com_TilePosition>();
+					Factory::Instance()[enemy].Get<Com_EnemyStateOne>().playerHealth = &Factory::Instance()[playerpos].Get<Com_Health>();
+					++Enemyspawn.CurrNoOfEnemies;
+					++i;
+					timer = 5;
+					--wave.numberofwaves; //decrease the number of waves left 
+				}
+					
+			}
 
 
-		//}
-		//else
-		//{
-		//	i = 0;
-		//	
-		//}
+		}
+		else
+		{
+			i = 0;
+			
+		}
 	}
 
 
