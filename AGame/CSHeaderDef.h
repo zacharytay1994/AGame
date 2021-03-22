@@ -1197,7 +1197,7 @@ struct Sys_EnemySpawning : public System {
 	// Initialization
 	eid _tilemap = { -1 };
 	eid playerpos = -1;
-	float timer = 5;
+	float timer = 3;
 	void OncePerFrame() override
 	{
 		timer -= _dt;
@@ -1220,7 +1220,6 @@ struct Sys_EnemySpawning : public System {
 					int randomy = rand() % 5;
 					Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
 					eid enemy = Factory::Instance().FF_CreateEnemy(data1, _tilemap, randomx, randomy);
-					Factory::Instance()[enemy].AddComponent<Com_Health>();
 					Factory::Instance()[enemy].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[playerpos].Get<Com_TilePosition>();
 					Factory::Instance()[enemy].Get<Com_EnemyStateOne>().playerHealth = &Factory::Instance()[playerpos].Get<Com_Health>();
 					++Enemyspawn.CurrNoOfEnemies;
@@ -1317,14 +1316,14 @@ struct Sys_PathFinding : public System
 						{
 							tpos._grid_x = _path[0].x;
 							tpos._grid_y = _path[0].y;
-							std::cout << "Enemy: " << tpos._grid_x << " & " << tpos._grid_y << std::endl;
-							std::cout << "player: " << fp._end.x << " & " << fp._end.y << std::endl;
+							//std::cout << "Enemy: " << tpos._grid_x << " & " << tpos._grid_y << std::endl;
+							//std::cout << "player: " << fp._end.x << " & " << fp._end.y << std::endl;
 							if (i < _path.size())
 							{
 							fp._next.x = _path[0].x;
 							fp._next.y = _path[0].y;
-							std::cout << "からの" << std::endl;
-							std::cout << "fp.next: " << fp._next.x << " + " << fp._next.y << std::endl;
+							//std::cout << "からの" << std::endl;
+							//std::cout << "fp.next: " << fp._next.x << " + " << fp._next.y << std::endl;
 							}
 						}
 						else 
