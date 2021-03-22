@@ -349,7 +349,7 @@ struct Sys_HealthUpdate : public System {
 		Com_Health& health = get<Com_Health>();
 		
 		//if no more health remove entity 
-		if (health.health == 0) {
+		if (health.health <= 0) {
 			RemoveEntity();
 			std::cout << "U die" << std::endl;
 		}
@@ -487,7 +487,6 @@ struct Sys_EnemyStateOne : public System {
 				// to decrease health
 				if (state.playerHealth != nullptr) 
 				{
-					std::cout << state.playerHealth->health << std::endl;
 					--state.playerHealth->health;
 					if (state.playerHealth->health == 0) 
 					{

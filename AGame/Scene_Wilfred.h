@@ -55,7 +55,7 @@ ________________________________*/
 
 		//player
 		player = Factory::Instance().FF_SpriteTile(data2, tilemap, 0, 0);
-		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Projectile, Com_WeaponAttack, Com_GameTimer, Com_Camera,Com_type,Com_GridColData>();
+		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Projectile, Com_WeaponAttack, Com_GameTimer, Com_Camera,Com_type,Com_GridColData, Com_Health>();
 		//more
 		SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
 
@@ -69,6 +69,7 @@ ________________________________*/
 					enemytest = Factory::Instance().FF_SpriteTile(data, tilemap, x, y);
 					Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_type, Com_GridColData,Com_EnemySpawn,Com_Wave>();
 					Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
+					Factory::Instance()[enemytest].Get<Com_EnemyStateOne>().playerHealth = &Factory::Instance()[player].Get<Com_Health>();
 					//passing
 					SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
 					++Factory::Instance()[enemytest].Get<Com_EnemySpawn>().CurrNoOfEnemies;
