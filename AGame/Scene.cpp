@@ -83,6 +83,7 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_BoundingBox>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_CollisionData>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Camera>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_ParentPosition>();
 
 	// Pathfinding
 	ComponentDescription_DB::Instance().RegisterComponent<Com_FindPath>();
@@ -96,6 +97,7 @@ void SceneManager::Initialize() {
 
 	// enemy states
 	ComponentDescription_DB::Instance().RegisterComponent<Com_EnemyStateOne>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_TileMoveSpriteState>();
 
 	// 3. Registering all systems for the game
 	//SystemDatabase::Instance().RegisterSystem<Example_UpdatePosition, Position, Example_Velocity>();
@@ -117,12 +119,15 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_Boundary, Com_Position, Com_Boundary>();
 	SystemDatabase::Instance().RegisterSystem<Sys_ParticleSys,Com_Particle, Com_GameTimer >();
 	SystemDatabase::Instance().RegisterSystem<Sys_ParticleEmitter, Com_ParticleEmitter, Com_GameTimer>();
-	SystemDatabase::Instance().RegisterSystem<Sys_RegisteringEntity, Com_objecttype>();
+	//SystemDatabase::Instance().RegisterSystem<Sys_RegisteringEntity, Com_objecttype>();
 	//test 
 	SystemDatabase::Instance().RegisterSystem <Sys_Boundingbox, Com_BoundingBox, Com_Position,Com_Sprite>();
 	SystemDatabase::Instance().RegisterSystem <Sys_AABB, Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_objecttype>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Projectile2, Com_TilePosition, Com_Projectile>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Camera, Com_Position, Com_Camera>();
+
+	SystemDatabase::Instance().RegisterSystem<Sys_TileMoveSpriteState, Com_Sprite, Com_TilePosition, Com_TileMoveSpriteState>();
+	SystemDatabase::Instance().RegisterSystem<Sys_ParentPosition, Com_ParentPosition>();
 
 	// GUI SYSTEMS
 	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceRender, Com_Position, Com_GUISurface, Com_Sprite>();
@@ -236,6 +241,7 @@ void Scene::Initialize()
 ________________________________________________________*/
 void Scene::Update(const float& dt)
 {
+	UNREFERENCED_PARAMETER(dt);
 }
 
 /*______________________________________________________
@@ -290,6 +296,7 @@ void Scene::Load()
 
 void Scene::Draw(const float& dt)
 {
+	UNREFERENCED_PARAMETER(dt);
 }
 
 void Scene::Unload()

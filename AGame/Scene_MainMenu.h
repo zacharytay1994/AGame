@@ -35,6 +35,7 @@ struct MainMenu : public Scene {
 		_pathfinding.SolveAStar({ 0,0 }, { 2,2 }, grid, path);
 	}
 	void Update(const float& dt) override {
+		UNREFERENCED_PARAMETER(dt);
 		GUISettingsUpdate();
 	}
 };
