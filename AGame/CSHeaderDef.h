@@ -2142,3 +2142,24 @@ struct Sys_GUItextboxinput : public System {
 		}
 	}
 };
+
+struct Com_Writetofile {
+	char _filler = 0;
+	//std::string* col;
+	//std::string* row;
+};
+
+
+struct Sys_writetofile : public System{
+	void UpdateComponent() override {
+		Com_GUIMouseCheck& mouse = get<Com_GUIMouseCheck>();
+		Com_Tilemap& tile = get<Com_Tilemap>();
+		if (mouse._over && AEInputCheckTriggered(AEVK_LBUTTON)) {
+			//write file 
+			std::cout << "writing to file now!" << std::endl;
+			//ResourceManager::Instance().GetResource(tilemap._render_pack._texture, tilemap._render_pack._mesh, texture, 4, 4, 16);
+			ResourceManager::Instance().WriteTilemapTxt("tilehello.txt", tile);
+			ResourceManager::Instance().WriteFloorMapTxt("floorhello.text", tile); //this not working?
+		}
+	}
+};

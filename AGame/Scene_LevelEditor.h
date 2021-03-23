@@ -52,15 +52,15 @@ struct LevelEditor : public Scene {
 		eid row = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBox(buttons, { "background1" }, 0.5f, 0.75f, 0.75f, 0.2f, SettingsButton, "", "courier");				// clickable child surface
 
 		//Load 
-		Factory::Instance().FF_CreateGUIChildClickableSurfaceText(main, { "background1" }, 0.5f, 0.8f, 0.2f, 0.2f, ChangeTestSceneLevelEditor, "Load", "courier");		// clickable child surface
+		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLoadTileMap(main, { "background1" }, 0.5f, 0.8f, 0.2f, 0.2f, ChangeTestSceneLevelEditor, "Load", "courier");		// clickable child surface
 
 		//render text box
 		
 		//render 
-		tilemap = Factory::Instance().FF_Tilemap("tilemap", "C_WilfTile.txt", "T_WilfTile.txt");
-		Factory::Instance()[tilemap].Get<Com_Position>().x = -5;
-		Factory::Instance()[tilemap].Get<Com_Position>().y = 2;
-		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
+		//tilemap = Factory::Instance().FF_Tilemap("tilemap", "C_WilfTile.txt", "T_WilfTile.txt");
+		//Factory::Instance()[tilemap].Get<Com_Position>().x = -5;
+		//Factory::Instance()[tilemap].Get<Com_Position>().y = 2;
+		//Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
 
 		//level editor
 		//	1. pass in col

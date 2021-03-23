@@ -82,7 +82,8 @@ public:
 	eid FF_Createproj2(const SpriteData& data, const int& x, const int& y, const int& vel_x, const int& vel_y, eid const& tilemap); //modified by Noel for Tilebased
 	eid FF_CreateGUIChildClickableTextboxSurface(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*));
 	eid FF_CreateGUIChildClickableSurfaceTextBox(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string& text, const std::string& font);
-	eid FF_WriteTileMap(const std::string& bottom, const std::string& top);
+	//eid FF_WriteTileMap(const std::string& bottom, const std::string& top);
+	eid FF_CreateGUIChildClickableSurfaceTextLoadTileMap(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string& text, const std::string& font);
 	//eid FF_CreateEnemy(const SpriteData& data, const eid& tilemap, const int& x, const int& y);
 
 
