@@ -2034,54 +2034,66 @@ struct Com_textboxinput {
 };
 
 struct Sys_textboxinput : public System {
-	Com_textboxinput& input = get<Com_textboxinput>();
 	void UpdateComponent() override {
+		Com_textboxinput& input = get<Com_textboxinput>();
+		Com_Text& text = get<Com_Text>();
 		//input 
 		if (input.inputting) {
 			//AEInputReset();
 			if (AEInputCheckTriggered(AEVK_0)) {
 				std::cout << "0" << std::endl;
+				text._data._text += '0';
 				//render 
 				input.result.push_back('0');
 			}
 			if (AEInputCheckTriggered(AEVK_1)) {
 				std::cout << "1" << std::endl;
+				text._data._text += '1';
 				input.result.push_back('1');
 			}
 			if (AEInputCheckTriggered(AEVK_2)) {
 				std::cout << "2" << std::endl;
+				text._data._text += '2';
 				input.result.push_back('2');
 			}
 			if (AEInputCheckTriggered(AEVK_3)) {
 				std::cout << "3" << std::endl;
+				text._data._text += '3';
 				input.result.push_back('3');
 			}
 			if (AEInputCheckTriggered(AEVK_4)) {
 				std::cout << "4" << std::endl;
+				text._data._text += '4';
 				input.result.push_back('4');
 			}
 			if (AEInputCheckTriggered(AEVK_5)) {
 				std::cout << "5" << std::endl;
+				text._data._text += '5';
 				input.result.push_back('5');
 			}
 			if (AEInputCheckTriggered(AEVK_6)) {
 				std::cout << "6" << std::endl;
+				text._data._text += '6';
 				input.result.push_back('6');
 			}
 			if (AEInputCheckTriggered(AEVK_7)) {
 				std::cout << "7" << std::endl;
+				text._data._text += '7';
 				input.result.push_back('7');
 			}
 			if (AEInputCheckTriggered(AEVK_8)) {
 				std::cout << "8" << std::endl;
+				text._data._text += '8';
 				input.result.push_back('8');
 			}
 			if (AEInputCheckTriggered(AEVK_9)) {
 				std::cout << "9" << std::endl;
+				text._data._text += '9';
 				input.result.push_back('9');
 			}
 			if (AEInputCheckTriggered(AEVK_BACK) && input.result.size() != 0) {
 				std::cout << "bspace" << std::endl;
+				text._data._text.resize(text._data._text.size() - 1);
 				input.result.pop_back();
 			}
 			//end 
