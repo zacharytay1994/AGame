@@ -47,14 +47,16 @@ struct LevelEditor : public Scene {
 		//text 
 		Factory::Instance().FF_CreateGUIChildSurfaceText(main, { "transparent" }, 0.25f, 0.25f, 0.04f, 0.04f, "Column", "courier");
 		Factory::Instance().FF_CreateGUIChildSurfaceText(main, { "transparent" }, 0.25f, 0.45f, 0.04f, 0.04f, "Row", "courier");
+		Factory::Instance().FF_CreateGUIChildSurfaceText(main, { "transparent" }, 0.2f, 0.15f, 0.04f, 0.04f, "Map Name", "courier");
 		//textbox
 		eid col = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBox(buttons, { "background1" }, 0.5f, 0.25f, 0.75f, 0.2f, SettingsButton, "", "courier");			// clickable child surface
 		eid row = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBox(buttons, { "background1" }, 0.5f, 0.75f, 0.75f, 0.2f, SettingsButton, "", "courier");				// clickable child surface
-
+		eid mapname = Factory::Instance().FF_CreateGUIChildClickableSurfaceWordsTextBox(main, { "background1" }, 0.5f, 0.1f, 0.75f, 0.2f, SettingsButton, "", "courier");				// clickable child surface
 		//Load 
 		eid load = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLoadTileMap(main, { "background1" }, 0.5f, 0.8f, 0.2f, 0.2f, ChangeTestSceneLevelEditor, "Load", "courier");		// clickable child surface
 		Factory::Instance()[load].Get<Com_Writetofile>().col = &Factory::Instance()[col].Get<Com_Text>()._data._text;
 		Factory::Instance()[load].Get<Com_Writetofile>().row = &Factory::Instance()[row].Get<Com_Text>()._data._text;
+		Factory::Instance()[load].Get<Com_Writetofile>().name = &Factory::Instance()[mapname].Get<Com_Text>()._data._text;
 
 		//render text box
 		
