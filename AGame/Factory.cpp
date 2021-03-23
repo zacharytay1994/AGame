@@ -247,7 +247,7 @@ eid Factory::FF_CreateBomb(const SpriteData& data, const int& x, const int& y)
 eid Factory::FF_CreateGUIChildClickableTextboxSurface(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*))
 {
     eid id = FF_CreateGUIChildSurface(parent, data, x, y, width, height);
-    Entity& e = Factory::Instance()[id].AddComponent<Com_GUIOnClick, Com_GUIMouseCheck,Com_textboxinput>();
+    Entity& e = Factory::Instance()[id].AddComponent<Com_GUIOnClick, Com_GUIMouseCheck,Com_GUItextboxinput>();
     e.Get<Com_GUIOnClick>()._click_event = onclick;
     return id;
 }
@@ -262,4 +262,19 @@ eid Factory::FF_CreateGUIChildClickableSurfaceTextBox(eid parent, const SpriteDa
     com_text._data._font = ResourceManager::Instance().GetFont(font);
     com_text._data._layer = Factory::Instance()[parent].Get<Com_GUISurface>()._layer + 2;
     return id;
+}
+
+
+eid Factory::FF_WriteTileMap(const std::string& data, const size_t column, const size_t row)
+{
+    //eid id = CreateEntity<Com_Tilemap, Com_Position>();
+    //Entity& e = Factory::Instance()[id];
+    //Com_Tilemap& tilemap = e.Get<Com_Tilemap>();
+    //ResourceManager::Instance().GetResource(tilemap._render_pack._texture, tilemap._render_pack._mesh, texture, 4, 4, 16);
+    //ResourceManager::Instance().ReadTilemapTxt(top, tilemap);
+    //ResourceManager::Instance().ReadFloorMapTxt(bottom, tilemap);
+    //tilemap._scale_x = 50.0f;
+    //tilemap._scale_y = 50.0f;
+    //tilemap._initialized = true;
+    //return id;
 }

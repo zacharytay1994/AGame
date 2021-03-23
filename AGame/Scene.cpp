@@ -95,7 +95,7 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUIOnClick>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Text>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUIDrag>();
-	ComponentDescription_DB::Instance().RegisterComponent<Com_textboxinput>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_GUItextboxinput>();
 
 	// enemy states
 	ComponentDescription_DB::Instance().RegisterComponent<Com_EnemyStateOne>();
@@ -133,7 +133,7 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceOnClick, Com_GUIOnClick, Com_GUIMouseCheck, Com_GUISurface>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUIDrag, Com_GUIMouseCheck, Com_GUIDrag, Com_GUISurface>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUITextRender, Com_Position, Com_GUISurface, Com_Text>();
-	SystemDatabase::Instance().RegisterSystem<Sys_textboxinput, Com_textboxinput>();
+	SystemDatabase::Instance().RegisterSystem<Sys_GUItextboxinput, Com_GUItextboxinput,Com_Text>();
 
 	// pathfinding
 	SystemDatabase::Instance().RegisterSystem<Sys_PathFinding, Com_FindPath>();

@@ -2027,69 +2027,72 @@ struct Sys_GridCollision : public System {
 
 
 //edits level editor generate map
-struct Com_textboxinput {
+struct Com_GUItextboxinput {
 	bool inputting{ false };
 	std::vector<char> result;
 	std::string input;
 };
 
-struct Sys_textboxinput : public System {
+struct Sys_GUItextboxinput : public System {
 	void UpdateComponent() override {
-		Com_textboxinput& input = get<Com_textboxinput>();
+		Com_GUItextboxinput& input = get<Com_GUItextboxinput>();
+		Com_GUIMouseCheck& mouse = get<Com_GUIMouseCheck>();
 		Com_Text& text = get<Com_Text>();
 		//input 
 		if (input.inputting) {
 			//AEInputReset();
-			if (AEInputCheckTriggered(AEVK_0)) {
-				std::cout << "0" << std::endl;
-				text._data._text += '0';
-				//render 
-				input.result.push_back('0');
-			}
-			if (AEInputCheckTriggered(AEVK_1)) {
-				std::cout << "1" << std::endl;
-				text._data._text += '1';
-				input.result.push_back('1');
-			}
-			if (AEInputCheckTriggered(AEVK_2)) {
-				std::cout << "2" << std::endl;
-				text._data._text += '2';
-				input.result.push_back('2');
-			}
-			if (AEInputCheckTriggered(AEVK_3)) {
-				std::cout << "3" << std::endl;
-				text._data._text += '3';
-				input.result.push_back('3');
-			}
-			if (AEInputCheckTriggered(AEVK_4)) {
-				std::cout << "4" << std::endl;
-				text._data._text += '4';
-				input.result.push_back('4');
-			}
-			if (AEInputCheckTriggered(AEVK_5)) {
-				std::cout << "5" << std::endl;
-				text._data._text += '5';
-				input.result.push_back('5');
-			}
-			if (AEInputCheckTriggered(AEVK_6)) {
-				std::cout << "6" << std::endl;
-				text._data._text += '6';
-				input.result.push_back('6');
-			}
-			if (AEInputCheckTriggered(AEVK_7)) {
-				std::cout << "7" << std::endl;
-				text._data._text += '7';
-				input.result.push_back('7');
-			}
-			if (AEInputCheckTriggered(AEVK_8)) {
-				std::cout << "8" << std::endl;
-				text._data._text += '8';
-				input.result.push_back('8');
-			}
-			if (AEInputCheckTriggered(AEVK_9)) {
-				std::cout << "9" << std::endl;
-				text._data._text += '9';
-				input.result.push_back('9');
+			if (text._data._text.size() < 2) {
+				if (AEInputCheckTriggered(AEVK_0)) {
+					std::cout << "0" << std::endl;
+					text._data._text += '0';
+					//render 
+					input.result.push_back('0');
+				}
+				if (AEInputCheckTriggered(AEVK_1)) {
+					std::cout << "1" << std::endl;
+					text._data._text += '1';
+					input.result.push_back('1');
+				}
+				if (AEInputCheckTriggered(AEVK_2)) {
+					std::cout << "2" << std::endl;
+					text._data._text += '2';
+					input.result.push_back('2');
+				}
+				if (AEInputCheckTriggered(AEVK_3)) {
+					std::cout << "3" << std::endl;
+					text._data._text += '3';
+					input.result.push_back('3');
+				}
+				if (AEInputCheckTriggered(AEVK_4)) {
+					std::cout << "4" << std::endl;
+					text._data._text += '4';
+					input.result.push_back('4');
+				}
+				if (AEInputCheckTriggered(AEVK_5)) {
+					std::cout << "5" << std::endl;
+					text._data._text += '5';
+					input.result.push_back('5');
+				}
+				if (AEInputCheckTriggered(AEVK_6)) {
+					std::cout << "6" << std::endl;
+					text._data._text += '6';
+					input.result.push_back('6');
+				}
+				if (AEInputCheckTriggered(AEVK_7)) {
+					std::cout << "7" << std::endl;
+					text._data._text += '7';
+					input.result.push_back('7');
+				}
+				if (AEInputCheckTriggered(AEVK_8)) {
+					std::cout << "8" << std::endl;
+					text._data._text += '8';
+					input.result.push_back('8');
+				}
+				if (AEInputCheckTriggered(AEVK_9)) {
+					std::cout << "9" << std::endl;
+					text._data._text += '9';
+					input.result.push_back('9');
+				}
 			}
 			if (AEInputCheckTriggered(AEVK_BACK) && input.result.size() != 0) {
 				std::cout << "bspace" << std::endl;
@@ -2097,7 +2100,7 @@ struct Sys_textboxinput : public System {
 				input.result.pop_back();
 			}
 			//end 
-			if (AEInputCheckTriggered(AEVK_SPACE)) {
+			if (AEInputCheckTriggered(AEVK_SPACE) || !mouse._over && AEInputCheckTriggered(AEVK_LBUTTON)) {
 				//break;
 				for (char x : input.result) {
 					input.input += x;
@@ -2107,7 +2110,8 @@ struct Sys_textboxinput : public System {
 			}
 		}
 		//trigger on click 
-		if (AEInputCheckTriggered(AEVK_0) && input.inputting == false) {
+		//AEInputCheckTriggered(AEVK_0) && input.inputting == fals
+		if (mouse._over && AEInputCheckTriggered(AEVK_LBUTTON) && input.inputting == false) {
 			std::cout << "entered" << std::endl;
 			//reset result
 			input.input.clear();
@@ -2115,6 +2119,8 @@ struct Sys_textboxinput : public System {
 			//for (size_t i{ 0 }; i < result.size(); ++i) {
 			//	result.pop_back();
 			//}
+			//clearing data 
+			text._data._text.clear();
 			input.inputting = true;
 		}
 	}
