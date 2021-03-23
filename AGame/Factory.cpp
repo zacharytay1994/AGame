@@ -242,3 +242,24 @@ eid Factory::FF_CreateBomb(const SpriteData& data, const int& x, const int& y)
     //setting of velocity which is not initialized 
     return id;
 }
+
+//edits 
+//eid Factory::FF_CreateGUIChildClickableTextboxSurface(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*))
+//{
+//    eid id = FF_CreateGUIChildSurface(parent, data, x, y, width, height);
+//    Entity& e = Factory::Instance()[id].AddComponent<Com_GUIOnClick, Com_GUIMouseCheck>();
+//    e.Get<Com_GUIOnClick>()._click_event = onclick;
+//    return id;
+//}
+//
+//
+//eid Factory::FF_CreateGUIChildClickableSurfaceTextBox(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string& text, const std::string& font)
+//{
+//    eid id = FF_CreateGUIChildClickableTextboxSurface(parent, data, x, y, width, height, onclick);
+//    Entity& e = Factory::Instance()[id].AddComponent<Com_Text>();
+//    Com_Text& com_text = e.Get<Com_Text>();
+//    com_text._data._text = text;
+//    com_text._data._font = ResourceManager::Instance().GetFont(font);
+//    com_text._data._layer = Factory::Instance()[parent].Get<Com_GUISurface>()._layer + 2;
+//    return id;
+//}

@@ -31,6 +31,7 @@ struct LevelEditor : public Scene {
 	int row;
 	std::string mapdata;
 	std::string bcdata;
+	eid tilemap = -1;
 
 
 	bool _gui_change_scene{ false };
@@ -38,7 +39,8 @@ struct LevelEditor : public Scene {
 		std::cout << "SYSTEM MESSAGE: You're now entering the level editor." << std::endl;
 		// main background
 		main = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.5f, 0.5f, 1.0f, 1.0f, 100);																	// surface
-		Factory::Instance().FF_CreateGUIChildSurfaceText(main, { "transparent" }, 0.5f, 0.2f, 0.04f, 0.04f, "AGame", "courier");									// settings button
+		Factory::Instance().FF_CreateGUIChildSurfaceText(main, { "transparent" }, 0.25f, 0.2f, 0.04f, 0.04f, "Textbox1", "courier");									// settings button
+		Factory::Instance().FF_CreateGUIChildSurfaceText(main, { "transparent" }, 0.75f, 0.2f, 0.04f, 0.04f, "Textbox2", "courier");
 		eid buttons = Factory::Instance().FF_CreateGUIChildSurface(main, { "background1" }, 0.5f, 0.6f, 0.3f, 0.4f);												// non clickable child surface
 		Factory::Instance().FF_CreateGUIChildClickableSurfaceText(buttons, { "background1" }, 0.5f, 0.25f, 0.75f, 0.2f, SettingsButton, "Load", "courier");			// clickable child surface
 		//Factory::Instance().FF_CreateGUIChildClickableSurfaceText(buttons, { "background1" }, 0.5f, 0.5f, 0.75f, 0.2f, SettingsButton, "Credits", "courier");		// clickable child surface
@@ -47,7 +49,10 @@ struct LevelEditor : public Scene {
 		//render text box
 		
 		//render 
-
+		tilemap = Factory::Instance().FF_Tilemap("tilemap", "C_WilfTile.txt", "T_WilfTile.txt");
+		Factory::Instance()[tilemap].Get<Com_Position>().x = -5;
+		Factory::Instance()[tilemap].Get<Com_Position>().y = 2;
+		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
 
 		//level editor
 		//	1. pass in col
@@ -71,141 +76,6 @@ struct LevelEditor : public Scene {
 	}
 	void Update(const float& dt) override {
 		GUISettingsUpdate();
-
-
-
-		//input 
-		if (inputting) {
-			//AEInputReset();
-			if (AEInputCheckTriggered(AEVK_0)) {
-				std::cout << "0" << std::endl;
-				result.push_back('0');
-			}
-			if (AEInputCheckTriggered(AEVK_1)) {
-				std::cout << "1" << std::endl;
-				result.push_back('1');
-			}
-			if (AEInputCheckTriggered(AEVK_2)) {
-				std::cout << "2" << std::endl;
-				result.push_back('2');
-			}
-			if (AEInputCheckTriggered(AEVK_3)) {
-				std::cout << "3" << std::endl;
-				result.push_back('3');
-			}
-			if (AEInputCheckTriggered(AEVK_4)) {
-				std::cout << "4" << std::endl;
-				result.push_back('4');
-			}
-			if (AEInputCheckTriggered(AEVK_5)) {
-				std::cout << "5" << std::endl;
-				result.push_back('5');
-			}
-			if (AEInputCheckTriggered(AEVK_6)) {
-				std::cout << "6" << std::endl;
-				result.push_back('6');
-			}
-			if (AEInputCheckTriggered(AEVK_7)) {
-				std::cout << "7" << std::endl;
-				result.push_back('7');
-			}
-			if (AEInputCheckTriggered(AEVK_8)) {
-				std::cout << "8" << std::endl;
-				result.push_back('8');
-			}
-			if (AEInputCheckTriggered(AEVK_9)) {
-				std::cout << "9" << std::endl;
-				result.push_back('9');
-			}
-			if (AEInputCheckTriggered(AEVK_BACK) && result.size() != 0) {
-				std::cout << "bspace" << std::endl;
-				result.pop_back();
-			}
-			//end 
-			if (AEInputCheckTriggered(AEVK_SPACE)) {
-				//break;
-				for (char x : result) {
-					input += x;
-				}
-				std::cout << input << std::endl;
-				inputting = false;
-			}
-		}
-		//trigger on click 
-		if (AEInputCheckTriggered(AEVK_0) && inputting == false) {
-			std::cout << "entered" << std::endl;
-			//reset result
-			input.clear();
-			result.clear();
-			//for (size_t i{ 0 }; i < result.size(); ++i) {
-			//	result.pop_back();
-			//}
-			inputting = true;
-		}
-
-
-
 	}
-
-
-	////getting what user is typeing pass into string 
-	//std::string getuserinput() {
-	//	std::vector<char> result;
-	//	std::string input;
-	//	if (inputting) {
-	//		//AEInputReset();
-	//		if (AEInputCheckCurr(AEVK_0)) {
-	//			std::cout << "triggerd" << std::endl;
-	//			result.push_back('0');
-	//		}
-	//		if (AEInputCheckCurr(AEVK_1)) {
-	//			std::cout << "triggerd" << std::endl;
-	//			result.push_back('1');
-	//		}
-	//		if (AEInputCheckCurr(AEVK_2)) {
-	//			std::cout << "triggerd" << std::endl;
-	//			result.push_back('2');
-	//		}
-	//		if (AEInputCheckCurr(AEVK_3)) {
-	//			std::cout << "triggerd" << std::endl;
-	//			result.push_back('3');
-	//		}
-	//		if (AEInputCheckCurr(AEVK_4)) {
-	//			std::cout << "triggerd" << std::endl;
-	//			result.push_back('4');
-	//		}
-	//		if (AEInputCheckCurr(AEVK_5)) {
-	//			std::cout << "triggerd" << std::endl;
-	//			result.push_back('5');
-	//		}
-	//		if (AEInputCheckCurr(AEVK_6)) {
-	//			std::cout << "triggerd" << std::endl;
-	//			result.push_back('6');
-	//		}
-	//		if (AEInputCheckCurr(AEVK_7)) {
-	//			std::cout << "triggerd" << std::endl;
-	//			result.push_back('7');
-	//		}
-	//		if (AEInputCheckCurr(AEVK_8)) {
-	//			std::cout << "triggerd" << std::endl;
-	//			result.push_back('8');
-	//		}
-	//		if (AEInputCheckCurr(AEVK_9)) {
-	//			std::cout << "triggerd" << std::endl;
-	//			result.push_back('9');
-	//		}
-	//		if (AEInputCheckCurr(AEVK_BACK) && result.size() != 0) {
-	//			result.pop_back();
-	//		}
-	//		if (AEInputCheckCurr(AEVK_SPACE)) {
-	//			//break;
-	//		}
-	//	}
-	//	for (char x : result) {
-	//		input += x;
-	//	}
-	//	std::cout << input << std::endl;
-	//	return input;
-	//}
 };
 
