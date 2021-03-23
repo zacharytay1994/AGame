@@ -2031,10 +2031,10 @@ struct Sys_GridCollision : public System {
 		}
 	}
 
-	//destructor 
-	~Sys_GridCollision() {
-		GridCol.~vector();
-	}
+	////destructor 
+	//~Sys_GridCollision() {
+	//	GridCol.~vector();
+	//}
 };
 
 
@@ -2045,9 +2045,9 @@ struct Com_GUItextboxinput {
 	std::string input;
 	
 	//destructor 
-	~Com_GUItextboxinput() {
-		result.~vector();	
-	}
+	//~Com_GUItextboxinput() {
+	//	result.~vector();	
+	//}
 };
 
 struct Sys_GUItextboxinput : public System {

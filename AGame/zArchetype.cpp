@@ -66,8 +66,8 @@ void ArchetypeDatabase::FlushEntities() {
 	std::cout << "ARCHETYPE_DATABASE :: FLUSHED ENTITIES." << std::endl;
 
 
-	std::vector<Com_GUItextboxinput*> gtb = SystemDatabase::Instance().GetAllComponents<Com_GUItextboxinput>();
-	for (auto a : gtb) {
-		a->~Com_GUItextboxinput();
-	}
+	//std::vector<Com_GUItextboxinput*> gtb = SystemDatabase::Instance().GetAllComponents<Com_GUItextboxinput>();
+	//for (auto a : gtb) {
+	//	a->~Com_GUItextboxinput();
+	//}
 }
