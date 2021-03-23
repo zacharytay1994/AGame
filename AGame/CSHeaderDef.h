@@ -955,6 +955,13 @@ struct Sys_AABB : public System {
 		return 1;  //static collision 
 	}
 
+	//dstor
+	~Sys_AABB() {
+		AABBTestBullet.~vector();
+		AABBTestplayer.~vector();
+		AABBTestEnemy.~vector();
+	}
+
 };
 
 /*																				system::ATTACK
@@ -2023,6 +2030,11 @@ struct Sys_GridCollision : public System {
 			return false;
 		}
 	}
+
+	//destructor 
+	~Sys_GridCollision() {
+		GridCol.~vector();
+	}
 };
 
 
@@ -2031,6 +2043,11 @@ struct Com_GUItextboxinput {
 	bool inputting{ false };
 	std::vector<char> result;
 	std::string input;
+	
+	//destructor 
+	~Com_GUItextboxinput() {
+		result.~vector();	
+	}
 };
 
 struct Sys_GUItextboxinput : public System {
