@@ -32,7 +32,7 @@ struct MainMenu : public Scene {
 		std::vector<int> flags = { 0,0,0,0,1,1,0,0,0 };
 		Pathfinding::Grid grid{ 3,3,flags };
 		std::vector<Vec2i> path;
-		_pathfinding.SolveAStar({ 0,0 }, { 2,2 }, grid, path);
+		_pathfinding.SolveAStar({ 0,0 }, { 2,2 }, grid, path); 
 	}
 	void Update(const float& dt) override {
 		GUISettingsUpdate();
