@@ -11,11 +11,11 @@
 #include <string>
 
 
-void ChangeTestSceneLevelEditor(Com_GUISurface* surface) {
-	SceneManager::Instance().ChangeScene("Leveleditor2");
+void ChangeTestSceneLevelEditor2(Com_GUISurface* surface) {
+	SceneManager::Instance().ChangeScene("Main Menu");
 }
 
-struct LevelEditor : public Scene {
+struct LevelEditor2 : public Scene {
 	eid i{ -1 };
 	eid main{ -1 };
 	eid _settings{ -1 };
@@ -52,27 +52,22 @@ struct LevelEditor : public Scene {
 		eid row = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBox(buttons, { "background1" }, 0.5f, 0.75f, 0.75f, 0.2f, SettingsButton, "", "courier");				// clickable child surface
 
 		//Load 
-		Factory::Instance().FF_CreateGUIChildClickableSurfaceText(main, { "background1" }, 0.5f, 0.8f, 0.2f, 0.2f, ChangeTestSceneLevelEditor, "Load", "courier");		// clickable child surface
+		Factory::Instance().FF_CreateGUIChildClickableSurfaceText(main, { "background1" }, 0.5f, 0.8f, 0.2f, 0.2f, ChangeTestSceneLevelEditor2, "Load", "courier");		// clickable child surface
 
 		//render text box
-		
+
 		//render 
 		tilemap = Factory::Instance().FF_Tilemap("tilemap", "C_WilfTile.txt", "T_WilfTile.txt");
 		Factory::Instance()[tilemap].Get<Com_Position>().x = -5;
 		Factory::Instance()[tilemap].Get<Com_Position>().y = 2;
 		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
 
-		//level editor
-		//	1. pass in col
-		//	2. pass in row
-		//	3. Render grid based
-		//	4. click and click
-		//	options :
-		//enemy spawn
-		//	player spawn
-		//	wall
-		//	bomb
-		//	5. name, save
+		//render grid map 
+
+		//render choosing options 
+
+		//render naming and save file 
+		//write to file 
 
 		// initialize gui settings
 		GUISettingsInitialize();
