@@ -2147,6 +2147,12 @@ struct Com_Writetofile {
 	char _filler = 0;
 	//std::string* col;
 	//std::string* row;
+	//Com_Text* col;
+	//Com_Text* row;
+	//Com_Text* name;
+	std::string* col;
+	std::string* row;
+	std::string* name;
 };
 
 
@@ -2154,12 +2160,30 @@ struct Sys_writetofile : public System{
 	void UpdateComponent() override {
 		Com_GUIMouseCheck& mouse = get<Com_GUIMouseCheck>();
 		Com_Tilemap& tile = get<Com_Tilemap>();
+		Com_Writetofile& wtf = get<Com_Writetofile>();
+		//Com_Tilemap* tileptr = &get<Com_Tilemap>();
 		if (mouse._over && AEInputCheckTriggered(AEVK_LBUTTON)) {
 			//write file 
 			std::cout << "writing to file now!" << std::endl;
 			//ResourceManager::Instance().GetResource(tilemap._render_pack._texture, tilemap._render_pack._mesh, texture, 4, 4, 16);
+			//tile._scale_x = 50;
+			//tile._scale_y = 50;
+			//tile._map = { 234,34,124,214,3 };
+			//tile._width = Factory::Instance()[tilemap].Get<Com_Text>().= 2;
+			tile._width = stoi(*(wtf.row));
+			tile._height = stoi(*(wtf.col));
+			tile._initialized =  { true };
+			//init all to 1
+			for (size_t i{ 0 }; i < tile._height; ++i) {
+				for (size_t j{ 0 }; j < tile._width; ++j) {
+					tile._map.push_back(1);
+				}
+			}
+			//tile._map= { 2,1,4,5 ,6,7};
+			//tileptr->_height = 5;
+			//tileptr->_width = 5;
 			ResourceManager::Instance().WriteTilemapTxt("tilehello.txt", tile);
-			ResourceManager::Instance().WriteFloorMapTxt("floorhello.text", tile); //this not working?
+			//ResourceManager::Instance().WriteFloorMapTxt("floorhello.text", tile); //this not working?
 		}
 	}
 };

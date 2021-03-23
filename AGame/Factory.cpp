@@ -298,5 +298,6 @@ eid Factory::FF_CreateGUIChildClickableSurfaceTextLoadTileMap(eid parent, const 
     eid id = FF_CreateGUIChildSurface(parent, data, x, y, width, height);
     Entity& e = Factory::Instance()[id].AddComponent<Com_GUIOnClick, Com_GUIMouseCheck, Com_Writetofile,Com_Tilemap>();
     e.Get<Com_GUIOnClick>()._click_event = onclick;
+
     return id;
 }

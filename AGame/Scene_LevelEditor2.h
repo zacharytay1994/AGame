@@ -57,7 +57,7 @@ struct LevelEditor2 : public Scene {
 		//render text box
 
 		//render 
-		tilemap = Factory::Instance().FF_Tilemap("tilemap", "C_WilfTile.txt", "T_WilfTile.txt");
+		tilemap = Factory::Instance().FF_Tilemap("tilemap", "tilehello.txt", "tilehello.txt");
 		Factory::Instance()[tilemap].Get<Com_Position>().x = -8;
 		Factory::Instance()[tilemap].Get<Com_Position>().y = 5;
 		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
