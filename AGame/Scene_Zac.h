@@ -8,13 +8,18 @@ struct TestScene : public Scene {
 	std::string test = "hello";
 	eid player = -1;
 	eid enemytest = -1;
+	eid arrow = -1;
+	Com_Sprite* arrow_sprite{ nullptr };
 	//Com_Tilemap tile;
 	eid tilemap = -1;
-	Factory::SpriteData data{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.15f };
-	Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
-	Factory::SpriteData data2{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.15f };
-	Factory::SpriteData data22{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.25f };
-	Factory::SpriteData data3{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
+	//Factory::SpriteData data{ "heroidle.png", 100.0f, 160.0f, 2, 2, 4, 0.15f };
+	Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
+	Factory::SpriteData man{ "hero.png", 100.0f, 160.0f, 3, 3, 8, 0.1f, 0, passin };
+	Factory::SpriteData dog{ "dog.png", 80.0f, 140.0f, 3, 3, 8, 0.1f, 0, passin };
+	Vec2i passin2[5] = { {0,1},{2,3},{4,5},{6,7},{0,0} };
+	Factory::SpriteData arrows{ "arrows.png", 50.0f, 50.0f, 3, 3, 8, 0.1f, -900, passin2 };
+	/*Factory::SpriteData data22{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.25f };
+	Factory::SpriteData data3{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };*/
 	//Factory::SpriteData data{ 0,"test2", 1, 8, 8, 0.1f, 100.0f, 200.0f };
 	//Inventory playerInv;
 	/*
@@ -34,19 +39,26 @@ struct TestScene : public Scene {
 		pf2._grid = Grid(com_tilemap._width, com_tilemap._height, com_tilemap._map);
 		pf2._initialized = true;
 
-		player = Factory::Instance().FF_SpriteTile(data1, tilemap, 0, 0);
-		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap>();
-		enemytest = Factory::Instance().FF_SpriteTile(data, tilemap, 5, 2);
-		Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath>();
+		player = Factory::Instance().FF_SpriteTile(man, tilemap, 0, 0);
+		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_TileMoveSpriteState>();
+
+		arrow = Factory::Instance().FF_Sprite(arrows, 0.0f, 0.0f);
+		Entity& a = Factory::Instance()[arrow];
+		a.AddComponent<Com_ParentPosition>();
+		a.Get<Com_ParentPosition>()._parent_id = player;
+		arrow_sprite = &a.Get<Com_Sprite>();
+
+		enemytest = Factory::Instance().FF_SpriteTile(dog, tilemap, 5, 2);
+		Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_TileMoveSpriteState>();
 		Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
-		enemytest = Factory::Instance().FF_SpriteTile(data2, tilemap, 8, 3);
-		Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath>();
+		enemytest = Factory::Instance().FF_SpriteTile(dog, tilemap, 8, 3);
+		Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_TileMoveSpriteState>();
 		Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
-		enemytest = Factory::Instance().FF_SpriteTile(data22, tilemap, 1, 1);
-		Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath>();
+		enemytest = Factory::Instance().FF_SpriteTile(man, tilemap, 1, 1);
+		Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_TileMoveSpriteState>();
 		Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
-		enemytest = Factory::Instance().FF_SpriteTile(data3, tilemap, 5, 3);
-		Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath>();
+		enemytest = Factory::Instance().FF_SpriteTile(dog, tilemap, 5, 3);
+		Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_TileMoveSpriteState>();
 		Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
 		
 
@@ -56,12 +68,32 @@ struct TestScene : public Scene {
 	Update Override (optional)
 	________________________________*/
 	void Update(const float& dt) override {
+		UNREFERENCED_PARAMETER(dt);
 		//Entity& testing = Factory::Instance()[tilemap];
 		//if (AEInputCheckTriggered('E')) {
 		//}
 		GUISettingsUpdate();
-		if (AEInputCheckCurr('L')) {
-			SceneManager::Instance().ChangeScene("Test Scene 2");
+		if (AEInputCheckTriggered('L')) {
+			Factory::Instance()[player].Get<Com_Sprite>()._current_frame_segment++;
+		}
+		if (AEInputCheckCurr(AEVK_LEFT)) {
+			arrow_sprite->_visible = true;
+			arrow_sprite->_current_frame_segment = 0;
+		}
+		else if (AEInputCheckCurr(AEVK_UP)) {
+			arrow_sprite->_visible = true;
+			arrow_sprite->_current_frame_segment = 1;
+		}
+		else if (AEInputCheckCurr(AEVK_RIGHT)) {
+			arrow_sprite->_visible = true;
+			arrow_sprite->_current_frame_segment = 2;
+		}
+		else if (AEInputCheckCurr(AEVK_DOWN)) {
+			arrow_sprite->_visible = true;
+			arrow_sprite->_current_frame_segment = 3;
+		}
+		else {
+			arrow_sprite->_visible = false;
 		}
 		//if (AEInputCheckTriggered('N')) {
 		//	/*std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i++ << std::endl;

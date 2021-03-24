@@ -57,7 +57,7 @@ ________________________________*/
 		player = Factory::Instance().FF_SpriteTile(data2, tilemap, 0, 0);
 		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Projectile, Com_WeaponAttack, Com_GameTimer, Com_Camera,Com_type,Com_GridColData, Com_Health>();
 		//more
-		SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
+		//SystemDatabase::Instance().GetSystem<Sys_Pathfinding_v2>()->_pl = player;
 
 		//player = Factory::Instance().FF_SpriteTile(data, tilemap, x, y);
 		//Factory::Instance()[player].AddComponent<Com_YLayering>();
@@ -115,6 +115,17 @@ ________________________________*/
 	Update Override (optional)
 	________________________________*/
 	void Update(const float& dt) override {
+		UNREFERENCED_PARAMETER(dt);
+		// //Entity& testing = Factory::Instance()[tilemap];
+		// //if (AEInputCheckTriggered('E')) {
+		// //}
+
+		// if (AEInputCheckCurr('L')) {
+		// 	SceneManager::Instance().ChangeScene("Test Scene 2");
+		// }
+		// if (AEInputCheckTriggered('N')) {
+		// 	/*std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i++ << std::endl;
+		// 	std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i << std::endl;*/
 		//shooting 
 #if defined(DEBUG) | defined(_DEBUG)
 		if (AEInputCheckTriggered(AEVK_G)) {

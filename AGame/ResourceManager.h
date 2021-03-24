@@ -24,7 +24,7 @@ struct TextPack {
 	std::string _text{ "loren ipsum" };
 	Vec2f		_position{ 0.0f,0.0f };
 	float		_scale{ 1.0f };
-	float		_r{ 0.0f }, _g{ 1.0f }, _b{ 0.0f };
+	float		_r{ 0.0f }, _g{ 0.0f }, _b{ 0.0f };
 };
 
 struct SurfacePack {
@@ -46,7 +46,7 @@ struct RM_Compare {
 
 struct ResourceManager {
 	static ResourceManager& Instance();
-	void GetResource(AEGfxTexture*& tex, AEGfxVertexList*& mesh, const std::string& texturename, const int& row, const int&col, const int& frames);
+	void GetResource(AEGfxTexture*& tex, AEGfxVertexList*& mesh, const std::string& texturename, const int& row, const int&col/*, const int& frames*/);
 	void FreeResources();
 private:
 	ResourceManager();

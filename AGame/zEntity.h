@@ -34,7 +34,6 @@ struct Entity {
 		std::shared_ptr<Archetype> archetype = ArchetypeDatabase::Instance().CreateArchetype<T_COMPONENTS ...>();
 		_id = archetype->Add(_chunk);
 		((_chunk->GetComponent<T_COMPONENTS>(_id) = T_COMPONENTS()), ...);
-		int i = 0;
 	}
 	/*______________________________________________________
 	* Brief:	Gets a component that an entity has. There
