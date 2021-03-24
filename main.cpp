@@ -75,8 +75,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	AESysReset();
 
 	SceneManager::Instance();
-	//SceneManager::Instance().ChangeScene("Main Menu");
-	SceneManager::Instance().ChangeScene("Test PathFinding");
+	SceneManager::Instance().ChangeScene("Main Menu");
+	//SceneManager::Instance().ChangeScene("Test PathFinding");
 	AEGfxSetBackgroundColor(1.0f, 1.0f, 1.0f);
 
 	// Game Loop

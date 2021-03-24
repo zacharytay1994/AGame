@@ -1403,7 +1403,6 @@ struct Sys_PathFinding : public System
 		if (_initialized) {
 			Com_FindPath& fp = get<Com_FindPath>();
 			Com_TilePosition& tpos = get<Com_TilePosition>();
-			static int i = 0;
 			if (fp._find) {
 				fp._found = SolveAStar(fp._start, fp._end, _grid, _path);
 				if (fp._found && _path.size() >= 1) {
@@ -1414,7 +1413,7 @@ struct Sys_PathFinding : public System
 						tpos._grid_y = _path[0].y;
 						//std::cout << "Enemy: " << tpos._grid_x << " & " << tpos._grid_y << std::endl;
 						//std::cout << "player: " << fp._end.x << " & " << fp._end.y << std::endl;
-						if (i < _path.size())
+						if (_path.size() > 0)
 						{
 							fp._next.x = _path[0].x;
 							fp._next.y = _path[0].y;

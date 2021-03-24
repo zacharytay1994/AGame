@@ -40,7 +40,7 @@ struct TestScene : public Scene {
 		pf2._initialized = true;
 
 		player = Factory::Instance().FF_SpriteTile(man, tilemap, 0, 0);
-		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_TileMoveSpriteState>();
+		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_TileMoveSpriteState, Com_Health, Com_EnemyStateOne>();
 
 		arrow = Factory::Instance().FF_Sprite(arrows, 0.0f, 0.0f);
 		Entity& a = Factory::Instance()[arrow];
@@ -49,16 +49,16 @@ struct TestScene : public Scene {
 		arrow_sprite = &a.Get<Com_Sprite>();
 
 		enemytest = Factory::Instance().FF_SpriteTile(dog, tilemap, 5, 2);
-		Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_TileMoveSpriteState>();
+		Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_EnemySpawn, Com_Wave, Com_type, Com_GridColData,Com_TileMoveSpriteState>();
 		Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
 		enemytest = Factory::Instance().FF_SpriteTile(dog, tilemap, 8, 3);
-		Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_TileMoveSpriteState>();
+		Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_EnemySpawn, Com_Wave, Com_type, Com_GridColData, Com_TileMoveSpriteState>();
 		Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
 		enemytest = Factory::Instance().FF_SpriteTile(man, tilemap, 1, 1);
-		Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_TileMoveSpriteState>();
+		Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_EnemySpawn, Com_Wave, Com_type, Com_GridColData, Com_TileMoveSpriteState>();
 		Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
 		enemytest = Factory::Instance().FF_SpriteTile(dog, tilemap, 5, 3);
-		Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_TileMoveSpriteState>();
+		Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_EnemySpawn, Com_Wave, Com_type, Com_GridColData, Com_TileMoveSpriteState>();
 		Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
 		
 
