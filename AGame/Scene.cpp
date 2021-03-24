@@ -139,8 +139,8 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceHoverShadow, Com_GUISurfaceHoverShadow>();
 
 	// pathfinding
-	//SystemDatabase::Instance().RegisterSystem<Sys_PathFinding, Com_FindPath>();
-	SystemDatabase::Instance().RegisterSystem<Sys_Pathfinding_v2, Com_FindPath>();
+	SystemDatabase::Instance().RegisterSystem<Sys_PathFinding, Com_FindPath>();
+	//SystemDatabase::Instance().RegisterSystem<Sys_Pathfinding_v2, Com_FindPath>();
 
 	// enemy states, spawn, attack
 	SystemDatabase::Instance().RegisterSystem<Sys_EnemyStateOne, Com_EnemyStateOne, Com_FindPath, Com_TilePosition>();

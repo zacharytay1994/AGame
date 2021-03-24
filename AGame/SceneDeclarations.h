@@ -189,14 +189,14 @@ struct TestScenePF : public Scene
 		//SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()._tilemap = tilemap;
 
 		Com_Tilemap& com_tilemap = Factory::Instance()[tilemap].Get<Com_Tilemap>();
-		Sys_Pathfinding_v2& pf2 = *SystemDatabase::Instance().GetSystem<Sys_Pathfinding_v2>();
+		Sys_PathFinding& pf2 = *SystemDatabase::Instance().GetSystem<Sys_PathFinding>();
 		pf2._grid = Grid(com_tilemap._width, com_tilemap._height, com_tilemap._map);
 		pf2._initialized = true;
 
 		player = Factory::Instance().FF_SpriteTile(data2, tilemap, 0, 0);
 		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne>();
 		//SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
-		
+
 		enemytest = Factory::Instance().FF_SpriteTile(data3, tilemap, 9, 4);
 		Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_EnemySpawn, Com_Wave, Com_type, Com_GridColData>();
 		Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
@@ -205,7 +205,7 @@ struct TestScenePF : public Scene
 		++Factory::Instance()[enemytest].Get<Com_EnemySpawn>().CurrNoOfEnemies;
 		Entity& e = Factory::Instance()[enemytest];
 		e.Get<Com_type>().type = 1;
- 
+
 		//player = Factory::Instance().CreateEntity<Com_Position>();
 		/*int* i = new int{ 0 };
 		std::shared_ptr<int> a{ i };
@@ -216,7 +216,6 @@ struct TestScenePF : public Scene
 	Update Override (optional)
 	________________________________*/
 	void Update(const float& dt) override {
-		UNREFERENCED_PARAMETER(dt);
 		//Entity& testing = Factory::Instance()[tilemap];
 		//if (AEInputCheckTriggered('E')) {
 		//}
@@ -237,7 +236,7 @@ struct TestScenePF : public Scene
 			Factory::Instance()[player].AddComponent<Com_ArrowKeys>();
 			Factory::Instance()[player].AddComponent<Com_YLayering>();
 		}
-		
+
 		if (AEInputCheckTriggered('R')) {
 			SceneManager::Instance().RestartScene();
 		}
@@ -248,7 +247,7 @@ struct TestScenePF : public Scene
 	________________________________*/
 	void Exit() override {
 		std::cout << "woo switching to scene 2!" << std::endl;
-		
-		
+
+
 	}
 };

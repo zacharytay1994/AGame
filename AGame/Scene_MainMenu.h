@@ -18,7 +18,7 @@ struct MainMenu : public Scene {
 	Factory::SpriteData button{ "buttonsprite.png", 1.0f, 1.0f, 3, 3, 8, 0.1f, 0, passin };
 	Factory::SpriteData buttonbg{ "buttonsbg.png", 1.0f, 1.0f, 1, 1, 1, 1.0f, 0 };
 	Factory::SpriteData title{ "title.png", 1.0f, 1.0f, 2, 2, 4, 0.2f, 0 };
-	Sys_Pathfinding_v2 _pathfinding;
+	Sys_PathFinding _pathfinding;
 	float offset_rad = 0.0f;
 	float offset_y = 0.0f;
 	float original_y = 0.5f;
