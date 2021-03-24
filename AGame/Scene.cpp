@@ -3,7 +3,8 @@
 #include "zSystem.h"
 #include "CSHeaderDef.h"
 #include "ResourceManager.h"
-
+#include "Scene_LevelEditor.h"
+#include "Scene_LevelEditor2.h"
 #include "Scene_MainMenu.h"
 #include "Scene_Zac.h"
 #include "Scene_Wilfred.h"
@@ -98,6 +99,9 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Text>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUIDrag>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUISurfaceHoverShadow>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_GUItextboxinput>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_Writetofile>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_GUItextboxinputwords>();
 
 	// enemy states
 	ComponentDescription_DB::Instance().RegisterComponent<Com_EnemyStateOne>();
@@ -138,6 +142,9 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_GUIDrag, Com_GUIMouseCheck, Com_GUIDrag, Com_GUISurface>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUITextRender, Com_Position, Com_GUISurface, Com_Text>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceHoverShadow, Com_GUISurfaceHoverShadow>();
+	SystemDatabase::Instance().RegisterSystem<Sys_GUItextboxinput, Com_GUItextboxinput, Com_Text>();
+	SystemDatabase::Instance().RegisterSystem<Sys_writetofile, Com_Tilemap, Com_Writetofile, Com_GUIMouseCheck>();
+	SystemDatabase::Instance().RegisterSystem<Sys_GUItextboxinputwords, Com_GUItextboxinputwords, Com_Text>();
 
 	// pathfinding
 	SystemDatabase::Instance().RegisterSystem<Sys_PathFinding, Com_FindPath>();
@@ -160,7 +167,9 @@ void SceneManager::Initialize() {
 	AddScene<MainMenu>("Main Menu");
 	AddScene<TestScenewilfred>("TestScenewilfred");
 	AddScene<ShootingRange>("ShootingRange");
-	//AddScene<Credits>("Credits");
+	AddScene<LevelEditor>("Leveleditor");
+	AddScene<LevelEditor2>("Leveleditor2");
+	AddScene<LevelEditor>("Credits");
 }
 
 void SceneManager::Free()
@@ -217,9 +226,9 @@ void SceneManager::Update(const float& dt)
 {
 	if (_current_scene) {
 		_current_scene->Update(dt);
-		if (AEInputCheckTriggered('H')) {
-			SceneManager::Instance().ChangeScene("Main Menu");
-		}
+		//if (AEInputCheckTriggered('H')) {
+		//	SceneManager::Instance().ChangeScene("Main Menu");
+		//}
 		SystemDatabase::Instance().SystemDatabaseUpdate((float)AEFrameRateControllerGetFrameTime());
 		ResourceManager::Instance().FlushDraw();
 		ResourceManager::Instance().FlushDrawText();

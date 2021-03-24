@@ -253,3 +253,83 @@ eid Factory::FF_CreateBomb(const SpriteData& data, const int& x, const int& y)
     //setting of velocity which is not initialized 
     return id;
 }
+
+//edits 
+eid Factory::FF_CreateGUIChildClickableTextboxSurface(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*))
+{
+    eid id = FF_CreateGUIChildSurface(parent, data, x, y, width, height);
+    Entity& e = Factory::Instance()[id].AddComponent<Com_GUIOnClick, Com_GUIMouseCheck, Com_GUItextboxinput>();
+    e.Get<Com_GUIOnClick>()._click_event = onclick;
+    return id;
+}
+
+
+eid Factory::FF_CreateGUIChildClickableSurfaceTextBox(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string& text, const std::string& font)
+{
+    eid id = FF_CreateGUIChildClickableTextboxSurface(parent, data, x, y, width, height, onclick);
+    Entity& e = Factory::Instance()[id].AddComponent<Com_Text>();
+    Com_Text& com_text = e.Get<Com_Text>();
+    com_text._data._text = text;
+    com_text._data._font = ResourceManager::Instance().GetFont(font);
+    com_text._data._layer = Factory::Instance()[parent].Get<Com_GUISurface>()._layer + 2;
+    return id;
+}
+
+//
+eid Factory::FF_WriteTileMap()
+{
+    eid id = CreateEntity<Com_Tilemap, Com_Position, Com_Writetofile>();
+    Entity& e = Factory::Instance()[id];
+    Com_Tilemap& tilemap = e.Get<Com_Tilemap>();
+    //ResourceManager::Instance().GetResource(tilemap._render_pack._texture, tilemap._render_pack._mesh, texture, 4, 4, 16);
+    //ResourceManager::Instance().ReadTilemapTxt(top, tilemap);
+    //ResourceManager::Instance().ReadFloorMapTxt(bottom, tilemap);
+    //tilemap._scale_x = 50.0f;
+    //tilemap._scale_y = 50.0f;
+    //tilemap._initialized = true;
+    //ResourceManager::Instance().WriteTilemapTxt(bottom, tilemap);
+    //ResourceManager::Instance().WriteFloorMapTxt(top, tilemap);
+    //WriteTilemapBin(const std::string & path, Com_Tilemap & tilemap);
+    return id;
+}
+
+
+eid Factory::FF_CreateGUIChildClickableSurfaceTextLoadTileMap(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string& text, const std::string& font)
+{
+    //eid id = FF_CreateGUIChildClickableSurface(parent, data, x, y, width, height, onclick);
+    //Entity& e = Factory::Instance()[id].AddComponent<Com_Text,Com_Writetofile, Com_GUIMouseCheck,Com_Tilemap>();
+    //Com_Text& com_text = e.Get<Com_Text>();
+    //com_text._data._text = text;
+    //com_text._data._font = ResourceManager::Instance().GetFont(font);
+    //com_text._data._layer = Factory::Instance()[parent].Get<Com_GUISurface>()._layer + 2;
+    ////write to file
+    ////ResourceManager::Instance().WriteTilemapBin(top, tilemap);
+    ////ResourceManager::Instance().WriteTilemapBin(bottom, tilemap);
+    //return id;
+    eid id = FF_CreateGUIChildSurface(parent, data, x, y, width, height);
+    Entity& e = Factory::Instance()[id].AddComponent<Com_GUIOnClick, Com_GUIMouseCheck, Com_Writetofile, Com_Tilemap>();
+    e.Get<Com_GUIOnClick>()._click_event = onclick;
+
+    return id;
+}
+
+//for the input alphabet words
+eid Factory::FF_CreateGUIChildClickableTextboxWordsSurface(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*))
+{
+    eid id = FF_CreateGUIChildSurface(parent, data, x, y, width, height);
+    Entity& e = Factory::Instance()[id].AddComponent<Com_GUIOnClick, Com_GUIMouseCheck, Com_GUItextboxinputwords>();
+    e.Get<Com_GUIOnClick>()._click_event = onclick;
+    return id;
+}
+
+
+eid Factory::FF_CreateGUIChildClickableSurfaceWordsTextBox(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string& text, const std::string& font)
+{
+    eid id = FF_CreateGUIChildClickableTextboxWordsSurface(parent, data, x, y, width, height, onclick);
+    Entity& e = Factory::Instance()[id].AddComponent<Com_Text>();
+    Com_Text& com_text = e.Get<Com_Text>();
+    com_text._data._text = text;
+    com_text._data._font = ResourceManager::Instance().GetFont(font);
+    com_text._data._layer = Factory::Instance()[parent].Get<Com_GUISurface>()._layer + 2;
+    return id;
+}

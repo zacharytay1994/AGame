@@ -30,6 +30,8 @@
     <ClInclude Include="Factory.h" />
     <ClInclude Include="Inventory.h" />
     <ClInclude Include="music.h" />
+    <ClInclude Include="Scene_LevelEditor.h" />
+    <ClInclude Include="Scene_LevelEditor2.h" />
     <ClInclude Include="Scene_MainMenu.h" />
     <ClInclude Include="Scene_Noel.h" />
     <ClInclude Include="Scene_Wilfred.h" />

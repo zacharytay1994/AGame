@@ -41,7 +41,7 @@ struct MainMenu : public Scene {
 		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
 		start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.70f, 0.35f, 0.4f, 0.2f, SettingsButton, "Survey", "courier");
 		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
-		start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.30f, 0.65f, 0.4f, 0.2f, SettingsButton, "Credits", "courier");
+		start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.30f, 0.65f, 0.4f, 0.2f, ChangeLevelEditor, "Credits", "courier");
 		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
 		start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.70f, 0.65f, 0.4f, 0.2f, QuitGame, "Exit", "courier");
 		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();

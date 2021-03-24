@@ -62,6 +62,11 @@ void ChangeMainMenu(Com_GUISurface* surface) {
 	SceneManager::Instance().ChangeScene("Main Menu");
 }
 
+void ChangeLevelEditor(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	SceneManager::Instance().ChangeScene("Credits");
+}
+
 void GUISettingsInitialize() {
 	_settings_toggle = false;
 	_change_scene_toggle = false;

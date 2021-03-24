@@ -99,6 +99,12 @@
     <ClInclude Include="music.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Scene_LevelEditor.h">
+      <Filter>Header Files\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene_LevelEditor2.h">
+      <Filter>Header Files\Scenes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
