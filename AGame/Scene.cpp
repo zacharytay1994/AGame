@@ -8,6 +8,7 @@
 #include "Scene_Zac.h"
 #include "Scene_Wilfred.h"
 #include "Scene_Noel.h"
+#include "Scene_Credits.h"
 
 #include <iostream>
 
@@ -159,6 +160,7 @@ void SceneManager::Initialize() {
 	AddScene<MainMenu>("Main Menu");
 	AddScene<TestScenewilfred>("TestScenewilfred");
 	AddScene<ShootingRange>("ShootingRange");
+	//AddScene<Credits>("Credits");
 }
 
 void SceneManager::Free()
