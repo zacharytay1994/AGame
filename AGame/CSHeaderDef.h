@@ -345,13 +345,14 @@ struct Grid {
 struct Com_FindPath {
 	bool	_find{ false };
 	bool	_found{ false };
+	bool	_reached{ false };
 	Vec2i	_start{ 0,0 };
 	Vec2i	_end{ 0,0 };
 	Vec2i	_next{ 100, 100 }; // initailized to make sure is out of game board
 };
 
 struct Com_Health {
-	size_t health{ 3 };
+	int health{ 3 };
 };
 
 struct Sys_HealthUpdate : public System {
@@ -386,8 +387,11 @@ struct Sys_EnemyStateOne : public System {
 	float _turn_step{ 0.5f };
 	float _turn_step_counter{ _turn_step };
 	bool  _turn{ false };
+	eid		_player_id{ -1 };
+	Entity* _player{ nullptr };
 	void OncePerFrame() override {
 		_turn_step_counter -= _dt;
+		_player = &Factory::Instance()[_player_id];
 		if (_turn_step_counter > 0.0f) {
 			_turn = false;
 		}
@@ -397,7 +401,12 @@ struct Sys_EnemyStateOne : public System {
 		}
 	}
 	void UpdateComponent() override {
+		if (!_player) {
+			return;
+		}
 		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
+		state._player = &_player->Get<Com_TilePosition>();
+		state.playerHealth = &_player->Get<Com_Health>();
 		if (_turn) {
 			--state._counter;
 		}
@@ -454,7 +463,7 @@ struct Sys_EnemyStateOne : public System {
 
 			//if next path is the player
 			//std::cout << "x: " << fp._next.x << "y: " << fp._next.y << std::endl;
-			if (fp._next.x == fp._end.x && fp._next.y == fp._end.y)
+			if (fp._reached)
 			{
 				ChangeState(Com_EnemyStateOne::STATES::ATTACK);
 			}
@@ -488,17 +497,17 @@ struct Sys_EnemyStateOne : public System {
 			fp._end = Vec2i(state._player->_vgrid_x, state._player->_vgrid_y);
 			fp._find = true;
 
-			if (fp._next.x != fp._end.x && fp._next.y != fp._end.y)
+			if (!fp._reached)
 			{
 				ChangeState(Com_EnemyStateOne::STATES::MOVE);
 			}
-			else if (fp._next.x == fp._end.x && fp._next.y == fp._end.y)
+			else if (fp._reached)
 			{
 				// to decrease health
 				if (state.playerHealth != nullptr)
 				{
-					--state.playerHealth->health;
-					if (state.playerHealth->health == 0)
+					--(state.playerHealth->health);
+					if (state.playerHealth->health <= 0)
 					{
 						std::cout << "お前もう死んで " << std::endl;
 						std::cout << "何？" << std::endl;
@@ -1283,7 +1292,7 @@ struct Com_EnemySpawn {
 };
 
 struct Com_Wave {
-	size_t timerforwave{ 3 }; //if timer hits 0 in secsm spawn new wave 
+	float timerforwave{ 3.0f }; //if timer hits 0 in secsm spawn new wave 
 	size_t numberofwaves{ 2 }; //if number of wave hit 0, level unlocked 
 };
 
@@ -1293,44 +1302,33 @@ struct Sys_EnemySpawning : public System {
 	eid _tilemap = { -1 };
 	eid playerpos = -1;
 	float timer = 3;
+	//eid _spawner_id{ -1 };
 	void OncePerFrame() override
 	{
-		timer -= _dt;
 	}
 	void UpdateComponent() override {
-		static Com_EnemySpawn& Enemyspawn = get<Com_EnemySpawn>();
+		//static Com_EnemySpawn& Enemyspawn = get<Com_EnemySpawn>();
 		Com_Wave& wave = get<Com_Wave>();
-		int i = 0;
-
 		//if the timer hits for set time 
 		//if timer hit 0 spawn wave/ number of enemies hit 0 
-
-		if (timer < 0 || Enemyspawn.DEATHEnemiespawncounter > 1)
+		Com_EnemySpawn& _spawner = get<Com_EnemySpawn>();
+		if (timer < 0.0f && wave.numberofwaves > 0 && _spawner.CurrNoOfEnemies < 4)
 		{
-			if (Enemyspawn.CurrNoOfEnemies < 5)
-			{
-				while (i < Enemyspawn.numberofenemies)
-				{
-					int randomx = rand() % 9;
-					int randomy = rand() % 5;
-					Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
-					eid enemy = Factory::Instance().FF_CreateEnemy(data1, _tilemap, randomx, randomy);
-					Factory::Instance()[enemy].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[playerpos].Get<Com_TilePosition>();
-					Factory::Instance()[enemy].Get<Com_EnemyStateOne>().playerHealth = &Factory::Instance()[playerpos].Get<Com_Health>();
-					++Enemyspawn.CurrNoOfEnemies;
-					++i;
-					timer = 5;
-					--wave.numberofwaves; //decrease the number of waves left 
-				}
-
+			timer = wave.timerforwave;
+			--wave.numberofwaves;		//decrease the number of waves left 
+			for (int i = 0; i < 2; ++i) {
+				int randomx = rand() % 9;
+				int randomy = rand() % 5;
+				Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
+				Factory::SpriteData man{ "hero.png", 100.0f, 160.0f, 3, 3, 8, 0.1f, 0, passin };
+				eid enemy = Factory::Instance().FF_CreateEnemy(man, _tilemap, randomx, randomy);
+				Factory::Instance()[enemy].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[playerpos].Get<Com_TilePosition>();
+				Factory::Instance()[enemy].Get<Com_EnemyStateOne>().playerHealth = &Factory::Instance()[playerpos].Get<Com_Health>();
+				++_spawner.CurrNoOfEnemies;
 			}
-
-
 		}
-		else
-		{
-			i = 0;
-
+		else {
+			timer -= _dt;
 		}
 	}
 
@@ -1403,33 +1401,17 @@ struct Sys_PathFinding : public System
 		if (_initialized) {
 			Com_FindPath& fp = get<Com_FindPath>();
 			Com_TilePosition& tpos = get<Com_TilePosition>();
-			static int i = 0;
 			if (fp._find) {
 				fp._found = SolveAStar(fp._start, fp._end, _grid, _path);
-				if (fp._found && _path.size() >= 1) {
-
-					if (fp._next.x != fp._end.x && fp._next.y != fp._end.y)
-					{
-						tpos._grid_x = _path[0].x;
-						tpos._grid_y = _path[0].y;
-						//std::cout << "Enemy: " << tpos._grid_x << " & " << tpos._grid_y << std::endl;
-						//std::cout << "player: " << fp._end.x << " & " << fp._end.y << std::endl;
-						if (i < _path.size())
-						{
-							fp._next.x = _path[0].x;
-							fp._next.y = _path[0].y;
-							//std::cout << "からの" << std::endl;
-							//std::cout << "fp.next: " << fp._next.x << " + " << fp._next.y << std::endl;
-						}
-					}
-					else
-					{
-						fp._next.x = _path[0].x;
-						fp._next.y = _path[0].y;
-					}
-
-
-
+				if (fp._found && _path.size() > 1) {
+					fp._reached = false;
+					_grid.Get({ tpos._grid_x, tpos._grid_y })._obstacle = false;
+					tpos._grid_x = _path[0].x;
+					tpos._grid_y = _path[0].y;
+					_grid.Get({ tpos._grid_x, tpos._grid_y })._obstacle = true;
+				}
+				else if (_path.size() == 1) {
+					fp._reached = true;
 				}
 				fp._find = false;
 			}

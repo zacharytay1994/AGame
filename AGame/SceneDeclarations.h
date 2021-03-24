@@ -196,15 +196,17 @@ struct TestScenePF : public Scene
 		player = Factory::Instance().FF_SpriteTile(data2, tilemap, 0, 0);
 		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne>();
 		SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
+		SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
 		
-		enemytest = Factory::Instance().FF_SpriteTile(data3, tilemap, 9, 4);
+		/*enemytest = Factory::Instance().FF_SpriteTile(data3, tilemap, 9, 4);
 		Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_EnemySpawn, Com_Wave, Com_type, Com_GridColData>();
 		Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
-		Factory::Instance()[enemytest].Get<Com_EnemyStateOne>().playerHealth = &Factory::Instance()[player].Get<Com_Health>();
+		Factory::Instance()[enemytest].Get<Com_EnemyStateOne>().playerHealth = &Factory::Instance()[player].Get<Com_Health>();*/
+		Factory::Instance().FF_CreateSpawner();
 		SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
-		++Factory::Instance()[enemytest].Get<Com_EnemySpawn>().CurrNoOfEnemies;
+		/*++Factory::Instance()[enemytest].Get<Com_EnemySpawn>().CurrNoOfEnemies;
 		Entity& e = Factory::Instance()[enemytest];
-		e.Get<Com_type>().type = 1;
+		e.Get<Com_type>().type = 1;*/
 
 		//player = Factory::Instance().CreateEntity<Com_Position>();
 		/*int* i = new int{ 0 };
@@ -216,6 +218,7 @@ struct TestScenePF : public Scene
 	Update Override (optional)
 	________________________________*/
 	void Update(const float& dt) override {
+		UNREFERENCED_PARAMETER(dt);
 		//Entity& testing = Factory::Instance()[tilemap];
 		//if (AEInputCheckTriggered('E')) {
 		//}

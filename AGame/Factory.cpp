@@ -211,9 +211,15 @@ eid Factory::FF_Createproj2(const SpriteData& data, const int& x, const int& y, 
 }
 
 
+eid Factory::FF_CreateSpawner()
+{
+    eid id = CreateEntity<Com_EnemySpawn, Com_Wave>();
+    return id;
+}
+
 eid Factory::FF_CreateEnemy(const SpriteData& data, const eid& tilemap ,const int& x, const int& y) {
     eid id = FF_Sprite(data, 0.0f, 0.0f);
-    Factory::Instance()[id].AddComponent<Com_TilePosition, Com_TilemapRef, Com_Direction, Com_EnemySpawn, Com_Wave, Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_type, Com_GridColData>();
+    Factory::Instance()[id].AddComponent<Com_TilePosition, Com_TilemapRef, Com_Direction, Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_type, Com_GridColData, Com_TileMoveSpriteState>();
     Entity& e = Factory::Instance()[id];
     e.Get<Com_type>().type = 1;
     e.Get<Com_TilePosition>() = { x,y,x,y };
