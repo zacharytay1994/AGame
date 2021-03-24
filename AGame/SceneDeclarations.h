@@ -186,7 +186,7 @@ struct TestScenePF : public Scene
 		//SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()._tilemap = tilemap;
 
 		Com_Tilemap& com_tilemap = Factory::Instance()[tilemap].Get<Com_Tilemap>();
-		Sys_PathFinding& pf2 = *SystemDatabase::Instance().GetSystem<Sys_PathFinding>();
+		Sys_Pathfinding_v2& pf2 = *SystemDatabase::Instance().GetSystem<Sys_Pathfinding_v2>();
 		pf2._grid = Grid(com_tilemap._width, com_tilemap._height, com_tilemap._map);
 		pf2._initialized = true;
 
