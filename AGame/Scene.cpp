@@ -223,6 +223,7 @@ void SceneManager::Update(const float& dt)
 		SystemDatabase::Instance().SystemDatabaseUpdate((float)AEFrameRateControllerGetFrameTime());
 		ResourceManager::Instance().FlushDraw();
 		ResourceManager::Instance().FlushDrawText();
+		ResourceManager::Instance().Update(dt);
 		SystemDatabase::Instance().RemoveAllEntities();
 	}
 }

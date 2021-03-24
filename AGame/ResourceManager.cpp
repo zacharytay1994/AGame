@@ -28,6 +28,16 @@ void ResourceManager::GetResource(AEGfxTexture*& tex, AEGfxVertexList*& mesh, co
 	}
 }
 
+void ResourceManager::Update(const float& dt)
+{
+	if (_screen_shake > 0.0f) {
+		_screen_shake -= dt * _dampening;
+	}
+	else {
+		_screen_shake = 0.0f;
+	}
+}
+
 void ResourceManager::DrawQueue(RenderPack* pack)
 {
 	_render_queue_vector.push_back(pack);
@@ -40,6 +50,7 @@ void ResourceManager::DrawStackText(TextPack& pack)
 
 void ResourceManager::FlushDraw()
 {
+	AEMtx33 shake = ScreenShake();
 	AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
 	AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
 	auto cmp = [](RenderPack const* const a, RenderPack const* const b) { return a->_layer < b->_layer; };
@@ -61,6 +72,7 @@ void ResourceManager::FlushDraw()
 			i = r->_layer;
 			FlushDrawTextLayer(i);
 		}
+		AEMtx33Concat(&r->_transform, &shake, &r->_transform);
 		AEGfxSetTransform(r->_transform.m);
 		AEGfxTextureSet(r->_texture, r->_offset_x, r->_offset_y);
 		AEGfxMeshDraw(r->_mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
@@ -292,6 +304,14 @@ void ResourceManager::ReadFloorMapTxt(const std::string& path, Com_Tilemap& tile
 		}
 	}
 	file.close();
+}
+
+AEMtx33 ResourceManager::ScreenShake()
+{
+	float r = AERandFloat();
+	AEMtx33 trans;
+	AEMtx33Trans(&trans, cos(r * 2 * PI) * _screen_shake, sin(r * 2 * PI) * _screen_shake);
+	return trans;
 }
 
 //void ResourceManager::WriteFloorMapTxt(const std::string& path, Com_Tilemap& tilemap)

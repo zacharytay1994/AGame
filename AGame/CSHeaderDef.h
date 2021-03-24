@@ -521,6 +521,9 @@ struct Sys_EnemyStateOne : public System {
 						ChangeState(Com_EnemyStateOne::STATES::IDLE);
 					}
 				}
+				/*else {
+					ChangeState(Com_EnemyStateOne::STATES::MOVE);
+				}*/
 
 			}
 			fp._start = Vec2i(pos._vgrid_x, pos._vgrid_y);
@@ -782,6 +785,7 @@ struct Sys_ArrowKeysTilemap : public System {
 		if (_counter <= 0.0f) {
 			_counter = _speed;
 			_turn = true;
+			ResourceManager::Instance()._screen_shake = 1.0f;
 		}
 		else {
 			_turn = false;
@@ -792,13 +796,13 @@ struct Sys_ArrowKeysTilemap : public System {
 		if (AEInputCheckCurr(VK_LEFT) && _turn) {
 			pos._grid_x -= 1;
 		}
-		if (AEInputCheckCurr(VK_RIGHT) && _turn) {
+		else if (AEInputCheckCurr(VK_RIGHT) && _turn) {
 			pos._grid_x += 1;
 		}
-		if (AEInputCheckCurr(VK_UP) && _turn) {
+		else if (AEInputCheckCurr(VK_UP) && _turn) {
 			pos._grid_y -= 1;
 		}
-		if (AEInputCheckCurr(VK_DOWN) && _turn) {
+		else if (AEInputCheckCurr(VK_DOWN) && _turn) {
 			pos._grid_y += 1;
 		}
 	}
@@ -819,6 +823,8 @@ struct Sys_Tilemap : public System {
 		AEMtx33Scale(&scale, tilemap._scale_x, tilemap._scale_y);
 		AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
 		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+		AEMtx33 shake = ResourceManager::Instance().ScreenShake();
 		for (size_t y = 0; y < (size_t)tilemap._height; ++y) {
 			for (size_t x = 0; x < (size_t)tilemap._width; ++x) {
 				if (tilemap._floor_mask[x * (size_t)tilemap._height + y] == -1) { continue; }
@@ -830,6 +836,7 @@ struct Sys_Tilemap : public System {
 					tilemap._render_pack._offset_x = (tilemap._floor_mask[x * (size_t)tilemap._height + y] % 4) * 1.0f / (float)4;
 					tilemap._render_pack._offset_y = (tilemap._floor_mask[x * (size_t)tilemap._height + y] / 4) * 1.0f / (float)4;
 					//ResourceManager::Instance().DrawQueue(&tilemap._render_pack);
+					AEMtx33Concat(&tilemap._render_pack._transform, &shake, &tilemap._render_pack._transform);
 					AEGfxSetTransform(tilemap._render_pack._transform.m);
 					AEGfxTextureSet(tilemap._render_pack._texture, tilemap._render_pack._offset_x, tilemap._render_pack._offset_y);
 					AEGfxMeshDraw(tilemap._render_pack._mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
@@ -1325,7 +1332,7 @@ struct Com_EnemySpawn {
 
 struct Com_Wave {
 	float timerforwave{ 3.0f }; //if timer hits 0 in secsm spawn new wave 
-	size_t numberofwaves{ 2 }; //if number of wave hit 0, level unlocked 
+	size_t numberofwaves{ 5 }; //if number of wave hit 0, level unlocked 
 };
 
 //logic for spawning of enemies 
@@ -1334,26 +1341,36 @@ struct Sys_EnemySpawning : public System {
 	eid _tilemap = { -1 };
 	eid playerpos = -1;
 	float timer = 3;
+	Grid* _grid{ nullptr };
+	int _max{ 2 };
 	//eid _spawner_id{ -1 };
 	void OncePerFrame() override
 	{
 	}
 	void UpdateComponent() override {
+		if (!_grid) {
+			return;
+		}
 		//static Com_EnemySpawn& Enemyspawn = get<Com_EnemySpawn>();
 		Com_Wave& wave = get<Com_Wave>();
 		//if the timer hits for set time 
 		//if timer hit 0 spawn wave/ number of enemies hit 0 
 		Com_EnemySpawn& _spawner = get<Com_EnemySpawn>();
-		if (timer < 0.0f && wave.numberofwaves > 0 && _spawner.CurrNoOfEnemies < 4)
+		if (timer < 0.0f && wave.numberofwaves > 0 && _spawner.CurrNoOfEnemies < _max)
 		{
 			timer = wave.timerforwave;
 			--wave.numberofwaves;		//decrease the number of waves left 
 			for (int i = 0; i < 2; ++i) {
-				int randomx = rand() % 9;
-				int randomy = rand() % 5;
+				Vec2i ran = { rand() % 9,rand() % 5 };
+				while (_grid->Get(ran)._obstacle && _grid->Get(ran)._player) {
+					ran = { rand() % 9,rand() % 5 };
+				}
+				/*int randomx = rand() % 9;
+				int randomy = rand() % 5;*/
 				Vec2i passin[5] = { {0,3},{4,7},{8,11},{0,0},{0,0} };
 				Factory::SpriteData dog{ "dog.png", 100.0f, 160.0f, 4, 3, 12, 0.1f, 0, passin };
-				eid enemy = Factory::Instance().FF_CreateEnemy(dog, _tilemap, randomx, randomy);
+				eid enemy = Factory::Instance().FF_CreateEnemy(dog, _tilemap, ran.x, ran.y);
+				_grid->Get({ ran })._obstacle = true;
 				Factory::Instance()[enemy].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[playerpos].Get<Com_TilePosition>();
 				Factory::Instance()[enemy].Get<Com_EnemyStateOne>().playerHealth = &Factory::Instance()[playerpos].Get<Com_Health>();
 				++_spawner.CurrNoOfEnemies;
