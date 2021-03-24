@@ -425,8 +425,8 @@ struct Sys_EnemyStateOne : public System {
 		if (!state._counter) {
 			std::cout << "IDLE_UPDATE" << std::endl;
 			// see if can find path to player
-			fp._start = Vec2i(pos._grid_x, pos._grid_y);
-			fp._end = Vec2i(state._player->_grid_x, state._player->_grid_y);
+			fp._start = Vec2i(pos._vgrid_x, pos._vgrid_y);
+			fp._end = Vec2i(state._player->_vgrid_x, state._player->_vgrid_y);
 			fp._find = true;
 			// if path found
 			if (fp._found) {
@@ -448,8 +448,8 @@ struct Sys_EnemyStateOne : public System {
 		if (!state._counter) {
 			std::cout << "MOVE_UPDATE" << std::endl;
 			// see if can find path to player
-			fp._start = Vec2i(pos._grid_x, pos._grid_y);
-			fp._end = Vec2i(state._player->_grid_x, state._player->_grid_y);
+			fp._start = Vec2i(pos._vgrid_x, pos._vgrid_y);
+			fp._end = Vec2i(state._player->_vgrid_x, state._player->_vgrid_y);
 			fp._find = true;
 
 			//if next path is the player
@@ -484,8 +484,8 @@ struct Sys_EnemyStateOne : public System {
 			std::cout << "ATTACK_UPDATE" << std::endl;
 			//std::cout << "x: " << fp._next.x << "y: " << fp._next.y << std::endl;
 			// see if can find path to player
-			fp._start = Vec2i(pos._grid_x, pos._grid_y);
-			fp._end = Vec2i(state._player->_grid_x, state._player->_grid_y);
+			fp._start = Vec2i(pos._vgrid_x, pos._vgrid_y);
+			fp._end = Vec2i(state._player->_vgrid_x, state._player->_vgrid_y);
 			fp._find = true;
 
 			if (fp._next.x != fp._end.x && fp._next.y != fp._end.y)
