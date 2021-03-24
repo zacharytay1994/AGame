@@ -64,4 +64,10 @@ void ArchetypeDatabase::FlushEntities() {
 	}
 	//_database = std::unordered_map<std::bitset<64>, std::shared_ptr<Archetype>>();
 	std::cout << "ARCHETYPE_DATABASE :: FLUSHED ENTITIES." << std::endl;
+
+
+	//std::vector<Com_GUItextboxinput*> gtb = SystemDatabase::Instance().GetAllComponents<Com_GUItextboxinput>();
+	//for (auto a : gtb) {
+	//	a->~Com_GUItextboxinput();
+	//}
 }
