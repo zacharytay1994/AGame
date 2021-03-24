@@ -777,16 +777,21 @@ struct Sys_ArrowKeysTilemap : public System {
 	}
 	void UpdateComponent() override {
 		Com_TilePosition& pos = get<Com_TilePosition>();
+		Com_Direction& direction = get<Com_Direction>();
 		if (AEInputCheckCurr(VK_LEFT) && _turn) {
+			direction.currdir = direction.left;
 			pos._grid_x -= 1;
 		}
 		if (AEInputCheckCurr(VK_RIGHT) && _turn) {
+			direction.currdir = direction.right;
 			pos._grid_x += 1;
 		}
 		if (AEInputCheckCurr(VK_UP) && _turn) {
+			direction.currdir = direction.up;
 			pos._grid_y -= 1;
 		}
 		if (AEInputCheckCurr(VK_DOWN) && _turn) {
+			direction.currdir = direction.down;
 			pos._grid_y += 1;
 		}
 	}
