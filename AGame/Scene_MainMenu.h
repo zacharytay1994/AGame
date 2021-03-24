@@ -24,6 +24,7 @@ struct MainMenu : public Scene {
 	float original_y = 0.5f;
 	float original_dim_x = 0.8f;
 	float original_dim_y = 0.3f;
+	//Sys_PathFinding _pathfinding;
 
 	bool _gui_change_scene{ false };
 	void Initialize() override {

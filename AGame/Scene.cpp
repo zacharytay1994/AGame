@@ -65,7 +65,6 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_TilePosition>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_ArrowKeysTilemap>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Node>();
-	ComponentDescription_DB::Instance().RegisterComponent<Com_PathFinding>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Direction>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_WeaponAttack>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_BoundingBox>();
@@ -83,6 +82,9 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_CollisionData>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Camera>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_ParentPosition>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_type>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_GridColData>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_Health>();
 
 	// Pathfinding
 	ComponentDescription_DB::Instance().RegisterComponent<Com_FindPath>();
@@ -107,12 +109,9 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_TilemapPosition, Com_Tilemap, Com_Position>();
 	SystemDatabase::Instance().RegisterSystem<Sys_TilePosition, Com_TilemapRef, Com_TilePosition, Com_Position>();
 	// SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeysTilemap, Com_TilePosition>();
-	SystemDatabase::Instance().RegisterSystem<Sys_PathFinding, Com_Node,Com_TilePosition,Com_TilemapRef>();
 	SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeysTilemap, Com_TilePosition, Com_ArrowKeysTilemap, Com_Direction>();
 	SystemDatabase::Instance().RegisterSystem<Sys_PlayerAttack, Com_Direction, Com_WeaponAttack, Com_TilePosition, Com_Projectile>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GameTimer, Com_GameTimer>();
-	SystemDatabase::Instance().RegisterSystem<Sys_EnemyAttack, Com_Direction, Com_TypeEnemy, Com_TilePosition, Com_Tilemap>();
-	SystemDatabase::Instance().RegisterSystem<Sys_EnemySpawning, Com_EnemySpawn, Com_Wave>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Velocity, Com_Position, Com_Velocity>();
 	SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeysTilemap, Com_TilePosition, Com_ArrowKeysTilemap>();
 	SystemDatabase::Instance().RegisterSystem<Sys_YLayering, Com_Sprite, Com_Position, Com_YLayering>();
@@ -125,6 +124,7 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem <Sys_AABB, Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_objecttype>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Projectile2, Com_TilePosition, Com_Projectile>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Camera, Com_Position, Com_Camera>();
+	SystemDatabase::Instance().RegisterSystem<Sys_GridCollision, Com_type, Com_TilePosition, Com_GridColData, Com_EnemySpawn>();
 
 	SystemDatabase::Instance().RegisterSystem<Sys_TileMoveSpriteState, Com_Sprite, Com_TilePosition, Com_TileMoveSpriteState>();
 	SystemDatabase::Instance().RegisterSystem<Sys_ParentPosition, Com_ParentPosition>();
@@ -138,10 +138,16 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceHoverShadow, Com_GUISurfaceHoverShadow>();
 
 	// pathfinding
-	SystemDatabase::Instance().RegisterSystem<Sys_Pathfinding_v2, Com_FindPath>();
+	SystemDatabase::Instance().RegisterSystem<Sys_PathFinding, Com_FindPath>();
+	//SystemDatabase::Instance().RegisterSystem<Sys_Pathfinding_v2, Com_FindPath>();
 
-	// enemy states
+	// enemy states, spawn, attack
 	SystemDatabase::Instance().RegisterSystem<Sys_EnemyStateOne, Com_EnemyStateOne, Com_FindPath, Com_TilePosition>();
+	SystemDatabase::Instance().RegisterSystem<Sys_EnemySpawning, Com_EnemySpawn, Com_Wave, Com_EnemyStateOne, Com_type, Com_GridColData>();
+	//SystemDatabase::Instance().RegisterSystem<Sys_EnemyAttack, Com_Direction, Com_type, Com_TilePosition, Com_Tilemap, Com_EnemyStateOne>();
+	
+	//Health test
+	SystemDatabase::Instance().RegisterSystem<Sys_HealthUpdate, Com_Health>();
 
 
 	// 4. Registering scenes
