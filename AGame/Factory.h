@@ -90,8 +90,8 @@ public:
 	eid FF_CreateGUISettings();
 
 	//created by wilf for testing 
-	eid FF_Createproj(const SpriteData& data, const int& x, const int& y, const Com_Direction& direction); //create projectile 
-	eid FF_Createproj2(const SpriteData& data, const int& x, const int& y, const int& vel_x, const int& vel_y, eid const& tilemap); //modified by Noel for Tilebased
+	eid FF_Createproj(const SpriteData& data, const int& x, const int& y,const Com_Direction& direction); //create projectile 
+	eid FF_Createproj2(const SpriteData& data, const int& x, const int& y, const int& vel_x, const int& vel_y, eid const& tilemap, int lifetime = -1); //modified by Noel for Tilebased
 	//eid FF_CreateEnemy(const SpriteData& data, const eid& tilemap, const int& x, const int& y);
 
 

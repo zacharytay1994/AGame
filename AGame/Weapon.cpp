@@ -261,3 +261,37 @@ void DualDiagPistol::Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direct
 		Factory::Instance().FF_Createproj2(data, spawn.x + weapon_Pattern[1].y, spawn.y + weapon_Pattern[1].x, -1, -1, tilemap);
 	}
 }
+
+Dagger::Dagger()
+{
+	SetWeapon_Name("Dagger");
+	SetWeapon_Damage(1);
+	SetWeapon_ReloadTime(2);
+	SetWeapon_Capacity(6);
+	std::vector<BulletSpawn> temp_Pattern;
+	temp_Pattern.push_back({ 1, 0 });
+	SetWeapon_Pattern(temp_Pattern);
+}
+
+void Dagger::Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap) const
+{
+	Factory::SpriteData data{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
+
+	// Spawn bullet at weapon_Pattern[i] relative to player
+	if (direction.currdir == direction.right)
+	{
+		Factory::Instance().FF_Createproj2(data, spawn.x + weapon_Pattern[0].x, spawn.y + weapon_Pattern[0].y, 1, -1, tilemap, 1);
+	}
+	else if (direction.currdir == direction.left)
+	{
+		Factory::Instance().FF_Createproj2(data, spawn.x - weapon_Pattern[0].x, spawn.y - weapon_Pattern[0].y, -1, 1, tilemap, 1);
+	}
+	else if (direction.currdir == direction.up)
+	{
+		Factory::Instance().FF_Createproj2(data, spawn.x - weapon_Pattern[0].y, spawn.y - weapon_Pattern[0].x, -1, 1, tilemap, 1);
+	}
+	else if (direction.currdir == direction.down)
+	{
+		Factory::Instance().FF_Createproj2(data, spawn.x + weapon_Pattern[0].y, spawn.y + weapon_Pattern[0].x, 1, -1, tilemap, 1);
+	}
+}
