@@ -48,6 +48,8 @@ struct ResourceManager {
 	static ResourceManager& Instance();
 	void GetResource(AEGfxTexture*& tex, AEGfxVertexList*& mesh, const std::string& texturename, const int& row, const int&col/*, const int& frames*/);
 	void FreeResources();
+	float _screen_shake{ 0.0f };
+	float _dampening{ 10.0f };
 private:
 	ResourceManager();
 	void Initialize();
@@ -60,6 +62,7 @@ private:
 	//std::priority_queue <RenderPack*, std::vector<RenderPack*>, RM_Compare> _render_queue;
 	std::vector<TextPack*> _text_pack;
 public:
+	void Update(const float& dt);
 	// render queue
 	void DrawQueue(RenderPack* pack);
 	void DrawStackText(TextPack& pack);
@@ -87,4 +90,6 @@ public:
 	void WriteFloorMapBin(const std::string& path, Com_Tilemap& tilemap);
 	void ReadFloorMapTxt(const std::string& path, Com_Tilemap& tilemap);
 	void WriteFloorMapTxt(const std::string& path, Com_Tilemap& tilemap);
+
+	AEMtx33 ScreenShake();
 }; 
