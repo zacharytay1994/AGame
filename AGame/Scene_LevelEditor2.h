@@ -13,20 +13,25 @@
 
 
 void nocolbut(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
 	std::cout << "entered row" << std::endl;
 }
 void playerspawnbut(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
 	std::cout << "entered row" << std::endl;
 }
 void enemyspawnbut(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
 	std::cout << "entered row" << std::endl;
 }
 void obstaclesbut(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
 	std::cout << "entered row" << std::endl;
 }
 
 
 void ChangeTestSceneLevelEditor2(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
 	SceneManager::Instance().ChangeScene("Main Menu");
 }
 
@@ -100,12 +105,16 @@ struct LevelEditor2 : public Scene {
 		main = Factory::Instance().FF_CreateGUISurface({ "menubackground" }, 0.85f, 0.5f, 0.25f, 1.0f, 100);																	// surface
 		//non collidable - unlimited 
 		eid noncol = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(main, { "background1" }, 0.5f, 0.15f, 0.8f, 0.2f, nocolbut, "non-collidable", "courier");
+		UNREFERENCED_PARAMETER(noncol);
 		//player spawn location - limit 1 
 		eid playerspawn = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(main, { "background1" }, 0.5f, 0.4f, 0.8f, 0.2f, playerspawnbut, "playerspawn", "courier");
+		UNREFERENCED_PARAMETER(playerspawn);
 		//enemy spawn location - limit 2 
 		eid enemyspawn = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(main, { "background1" }, 0.5f, 0.65f, 0.8f, 0.2f, enemyspawnbut, "enemyspawn", "courier");
+		UNREFERENCED_PARAMETER(enemyspawn);
 		//obstacle - unlimited
 		eid obstacles = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(main, { "background1" }, 0.5f, 0.9f, 0.8f, 0.2f, obstaclesbut, "obstacles", "courier");
+		UNREFERENCED_PARAMETER(obstacles);
 
 
 
@@ -129,6 +138,7 @@ struct LevelEditor2 : public Scene {
 		//_pathfinding.SolveAStar({ 0,0 }, { 2,2 }, grid, path);
 	}
 	void Update(const float& dt) override {
+		UNREFERENCED_PARAMETER(dt);
 		GUISettingsUpdate();
 	}
 };

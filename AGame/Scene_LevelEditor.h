@@ -14,16 +14,19 @@
 void ChangeTestSceneLevelEditor(Com_GUISurface* surface);
 
 void rowtextbox(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
 	std::cout << "entered col" << std::endl;
 }
 
 
 void coltextbox(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
 	std::cout << "entered row" << std::endl;
 }
 
 
 void nametextbox(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
 	std::cout << "entered mapname" << std::endl;
 }
 
@@ -105,11 +108,13 @@ struct LevelEditor : public Scene {
 		//_pathfinding.SolveAStar({ 0,0 }, { 2,2 }, grid, path);
 	}
 	void Update(const float& dt) override {
+		UNREFERENCED_PARAMETER(dt);
 		GUISettingsUpdate();
 	}
 };
 
 void ChangeTestSceneLevelEditor(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
 	LevelEditor2::mapname = *LevelEditor::nameofmap;
 	SceneManager::Instance().ChangeScene("Leveleditor2");
 }

@@ -324,7 +324,6 @@ struct TestScenePF : public Scene
 		}
 
 		if (AEInputCheckTriggered(AEVK_D)) {
-			Entity& e = Factory::Instance()[player];
 			_playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
 		}
 		if (AEInputCheckCurr(AEVK_LEFT)) {
