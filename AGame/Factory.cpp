@@ -213,7 +213,9 @@ eid Factory::FF_Createproj2(const SpriteData& data, const int& x, const int& y, 
 
 eid Factory::FF_CreateSpawner()
 {
-    eid id = CreateEntity<Com_EnemySpawn, Com_Wave>();
+    eid id = CreateEntity<Com_EnemySpawn, Com_Wave, Com_GridColData, Com_type>();
+    Entity& e = Factory::Instance()[id];
+    e.Get<Com_type>().type = 1;
     return id;
 }
 
