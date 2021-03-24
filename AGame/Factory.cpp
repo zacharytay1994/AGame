@@ -265,22 +265,22 @@ eid Factory::FF_CreateGUIChildClickableSurfaceTextBox(eid parent, const SpriteDa
 }
 
 //
-//eid Factory::FF_WriteTileMap(const std::string& bottom, const std::string& top)
-//{
-//    eid id = CreateEntity<Com_Tilemap, Com_Position>();
-//    Entity& e = Factory::Instance()[id];
-//    Com_Tilemap& tilemap = e.Get<Com_Tilemap>();
-//    //ResourceManager::Instance().GetResource(tilemap._render_pack._texture, tilemap._render_pack._mesh, texture, 4, 4, 16);
-//    //ResourceManager::Instance().ReadTilemapTxt(top, tilemap);
-//    //ResourceManager::Instance().ReadFloorMapTxt(bottom, tilemap);
-//    tilemap._scale_x = 50.0f;
-//    tilemap._scale_y = 50.0f;
-//    tilemap._initialized = true;
-//    ResourceManager::Instance().WriteTilemapTxt(bottom, tilemap);
-//    ResourceManager::Instance().WriteFloorMapTxt(top, tilemap);
-//    //WriteTilemapBin(const std::string & path, Com_Tilemap & tilemap);
-//    return id;
-//}
+eid Factory::FF_WriteTileMap()
+{
+    eid id = CreateEntity<Com_Tilemap, Com_Position,Com_Writetofile>();
+    Entity& e = Factory::Instance()[id];
+    Com_Tilemap& tilemap = e.Get<Com_Tilemap>();
+    //ResourceManager::Instance().GetResource(tilemap._render_pack._texture, tilemap._render_pack._mesh, texture, 4, 4, 16);
+    //ResourceManager::Instance().ReadTilemapTxt(top, tilemap);
+    //ResourceManager::Instance().ReadFloorMapTxt(bottom, tilemap);
+    //tilemap._scale_x = 50.0f;
+    //tilemap._scale_y = 50.0f;
+    //tilemap._initialized = true;
+    //ResourceManager::Instance().WriteTilemapTxt(bottom, tilemap);
+    //ResourceManager::Instance().WriteFloorMapTxt(top, tilemap);
+    //WriteTilemapBin(const std::string & path, Com_Tilemap & tilemap);
+    return id;
+}
 
 
 eid Factory::FF_CreateGUIChildClickableSurfaceTextLoadTileMap(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string& text, const std::string& font)

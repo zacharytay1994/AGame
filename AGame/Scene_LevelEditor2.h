@@ -55,9 +55,16 @@ struct LevelEditor2 : public Scene {
 		//Factory::Instance().FF_CreateGUIChildClickableSurfaceText(main, { "background1" }, 0.5f, 0.8f, 0.2f, 0.2f, ChangeTestSceneLevelEditor2, "Load", "courier");		// clickable child surface
 
 		//render text box
-
+		//AEToogleFullScreen(true);
+		//prev level editor 
+		//eid buttons = Factory::Instance().FF_CreateGUIChildSurface(main, { "background1" }, 0.5f, 0.4f, 0.3f, 0.4f);
+		//eid name = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBox(buttons, { "background1" }, 0.5f, 0.25f, 0.75f, 0.2f, SettingsButton, "", "courier");			// clickable child surface
+		//Factory::Instance()[name].AddComponent<Com_Writetofile>();
+		//eid test = Factory::Instance().FF_WriteTileMap();
+		//std::string namemap = *Factory::Instance()[test].Get<Com_Writetofile>().name;
 		//render 
 		tilemap = Factory::Instance().FF_Tilemap("tilemap", "tilehello.txt", "tilehello.txt");
+		//Factory::Instance()[tilemap].Get <Com_Writetofile>().name;
 		Factory::Instance()[tilemap].Get<Com_Position>().x = -8;
 		Factory::Instance()[tilemap].Get<Com_Position>().y = 5;
 		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;

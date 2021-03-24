@@ -35,7 +35,7 @@ struct LevelEditor : public Scene {
 	std::string mapdata;
 	std::string bcdata;
 	eid tilemap = -1;
-
+	
 
 	bool _gui_change_scene{ false };
 	void Initialize() override {
