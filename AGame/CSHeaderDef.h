@@ -71,6 +71,7 @@ struct Com_Sprite {
 	float				_rotation = 0.0f;
 	bool				_flip = { false };
 	bool				_loop = { true };
+	bool				_repeat{ true };
 	int					_frames = 1;
 	int					_current_frame = 0;
 	float				_frame_interval = 1;
@@ -351,6 +352,10 @@ struct Com_FindPath {
 	Vec2i	_next{ 100, 100 }; // initailized to make sure is out of game board
 };
 
+struct Com_DamagedTiles {
+	
+};
+
 struct Com_Health {
 	int health{ 3 };
 };
@@ -463,10 +468,6 @@ struct Sys_EnemyStateOne : public System {
 
 			//if next path is the player
 			//std::cout << "x: " << fp._next.x << "y: " << fp._next.y << std::endl;
-			if (fp._reached)
-			{
-				ChangeState(Com_EnemyStateOne::STATES::ATTACK);
-			}
 			//std::cout << "x: " << pos._grid_x << " & y: " << pos._grid_y << std::endl;
 			// if path found
 			/*if (fp._next.x != -1 && fp._next.y != -1) {
@@ -475,7 +476,10 @@ struct Sys_EnemyStateOne : public System {
 				std::cout << "x: " << fp._next.x << "y: " << fp._next.y << std::endl;
 			}*/
 		}
-
+		if (fp._reached)
+		{
+			ChangeState(Com_EnemyStateOne::STATES::ATTACK);
+		}
 	}
 	void MOVE_EXIT() {
 		std::cout << "MOVE_EXIT" << std::endl;
@@ -483,6 +487,9 @@ struct Sys_EnemyStateOne : public System {
 	// attack
 	void ATTACK_ENTER() {
 		std::cout << "ATTACK_ENTER" << std::endl;
+		Com_Sprite& sprite = get<Com_Sprite>();
+		sprite._current_frame_segment = 2;
+		sprite._current_frame = 0;
 	}
 	void ATTACK_UPDATE() {
 		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
@@ -503,15 +510,16 @@ struct Sys_EnemyStateOne : public System {
 			}
 			else if (fp._reached)
 			{
-				// to decrease health
-				if (state.playerHealth != nullptr)
+				// to decrease health - temporary check (theres a bug, cant die if walking out of map)
+				if (state.playerHealth != nullptr && (_player->Get<Com_TilePosition>()._vgrid_x == fp._end.x && _player->Get<Com_TilePosition>()._vgrid_y == fp._end.y))
 				{
+					std::cout << "hit" << std::endl;
 					--(state.playerHealth->health);
 					if (state.playerHealth->health <= 0)
 					{
-						std::cout << "お前もう死んで " << std::endl;
-						std::cout << "何？" << std::endl;
-						ChangeState(Com_EnemyStateOne::STATES::EVILWIN);
+						/*std::cout << "お前もう死んで " << std::endl;
+						std::cout << "何？" << std::endl;*/
+						ChangeState(Com_EnemyStateOne::STATES::IDLE);
 					}
 				}
 
@@ -668,7 +676,12 @@ struct Sys_DrawSprite : public System {
 				}
 				int current_frame = sprite._current_frame + sprite._frame_segment[sprite._current_frame_segment].x;
 				if (current_frame > sprite._frame_segment[sprite._current_frame_segment].y) {
-					sprite._current_frame = 0;
+					if (sprite._repeat) {
+						sprite._current_frame = 0;
+					}
+					else {
+						--sprite._current_frame;
+					}
 					current_frame = sprite._frame_segment[sprite._current_frame_segment].x;
 				}
 				//sprite._current_frame = ++sprite._current_frame >= sprite._frames ? 0 : sprite._current_frame;
@@ -760,7 +773,7 @@ struct Sys_ArrowKeys : public System {
 
 struct Sys_ArrowKeysTilemap : public System {
 	// hard coded - assuming only 1 player uses arrow keys tilemap
-	float _speed = 0.5f;
+	float _speed = 1.0f;
 	float _counter{ _speed };
 	bool _turn{ false };
 	void OncePerFrame() {
@@ -898,7 +911,7 @@ struct Sys_TileMoveSpriteState : public System {
 				sprite._flip = false;
 			}
 		}
-		else {
+		else if (sprite._current_frame_segment == 1) {
 			sprite._current_frame_segment = 0;
 		}
 	}
@@ -1319,9 +1332,9 @@ struct Sys_EnemySpawning : public System {
 			for (int i = 0; i < 2; ++i) {
 				int randomx = rand() % 9;
 				int randomy = rand() % 5;
-				Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
-				Factory::SpriteData man{ "hero.png", 100.0f, 160.0f, 3, 3, 8, 0.1f, 0, passin };
-				eid enemy = Factory::Instance().FF_CreateEnemy(man, _tilemap, randomx, randomy);
+				Vec2i passin[5] = { {0,3},{4,7},{8,11},{0,0},{0,0} };
+				Factory::SpriteData dog{ "dog.png", 100.0f, 160.0f, 4, 3, 12, 0.1f, 0, passin };
+				eid enemy = Factory::Instance().FF_CreateEnemy(dog, _tilemap, randomx, randomy);
 				Factory::Instance()[enemy].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[playerpos].Get<Com_TilePosition>();
 				Factory::Instance()[enemy].Get<Com_EnemyStateOne>().playerHealth = &Factory::Instance()[playerpos].Get<Com_Health>();
 				++_spawner.CurrNoOfEnemies;
