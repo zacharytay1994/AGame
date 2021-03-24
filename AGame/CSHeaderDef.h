@@ -1000,8 +1000,6 @@ struct Sys_AABB : public System {
 	{
 		if ((object1.maxx < object2.minx) || (object1.minx > object2.maxx) || (object1.maxy < object2.miny) || (object1.miny > object2.maxy)) // check static collision
 		{
-
-
 			// initialzing time of first and last contact 
 			float tFirst = 0.0f; //init tfirst 
 			float tLast = (float)AEFrameRateControllerGetFrameTime(); //inti tlast 
@@ -1301,8 +1299,8 @@ struct Sys_EnemySpawning : public System {
 	}
 	void UpdateComponent() override {
 		static Com_EnemySpawn& Enemyspawn = get<Com_EnemySpawn>();
-		Com_Wave& wave = get<Com_Wave>();
-		int i = 0;
+		//Com_Wave& wave = get<Com_Wave>();
+		//int i = 0;
 
 		//if the timer hits for set time 
 		//if timer hit 0 spawn wave/ number of enemies hit 0 
