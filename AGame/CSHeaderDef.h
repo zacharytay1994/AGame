@@ -2008,7 +2008,7 @@ struct Sys_GridCollision : public System {
 		Com_type* type = &get<Com_type>();
 		Com_TilePosition* tilepos = &get<Com_TilePosition>();
 		Com_GridColData& gridcoldata = get<Com_GridColData>();
-		Com_EnemySpawn& gridspaen = get<Com_EnemySpawn>();
+		//Com_EnemySpawn& gridspaen = get<Com_EnemySpawn>();
 		if (gridcoldata.emplacedvec == false) {
 			GridCol.emplace_back(Com_GridColData{ tilepos,type });
 			gridcoldata.emplacedvec = true;
@@ -2019,9 +2019,9 @@ struct Sys_GridCollision : public System {
 				if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
 					std::cout << "Collided" << std::endl;
 					RemoveEntity();
-					++gridspaen.DEATHEnemiespawncounter;
-					--gridspaen.CurrNoOfEnemies;
-					std::cout << gridspaen.DEATHEnemiespawncounter << std::endl;
+					//++gridspaen.DEATHEnemiespawncounter;
+					//--gridspaen.CurrNoOfEnemies;
+					//std::cout << gridspaen.DEATHEnemiespawncounter << std::endl;
 
 				}
 				//range attack with enemy 
