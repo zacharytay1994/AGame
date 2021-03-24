@@ -194,7 +194,7 @@ eid Factory::FF_Createproj(const SpriteData& data, const int& x, const int& y, c
     return id;
 }
 
-eid Factory::FF_Createproj2(const SpriteData& data, const int& x, const int& y, const int& vel_x, const int& vel_y, eid const& tilemap)
+eid Factory::FF_Createproj2(const SpriteData& data, const int& x, const int& y, const int& vel_x, const int& vel_y, eid const& tilemap, int lifetime)
 {
     eid id = FF_SpriteTile(data, tilemap, x, y);
     //for the projectile not the entity calling it 
@@ -203,6 +203,7 @@ eid Factory::FF_Createproj2(const SpriteData& data, const int& x, const int& y, 
     e.Get<Com_type>().type = 2;
     proj.grid_vel_x = vel_x;
     proj.grid_vel_y = vel_y;
+    proj.lifetime = lifetime;
     return id;
 }
 
