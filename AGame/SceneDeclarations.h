@@ -179,7 +179,7 @@ struct TestScenePF : public Scene
 
 		player = Factory::Instance().FF_SpriteTile(data2, tilemap, 0, 0);
 		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne>();
-		//SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
+		SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
 		
 		enemytest = Factory::Instance().FF_SpriteTile(data3, tilemap, 9, 4);
 		Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_EnemySpawn, Com_Wave, Com_type, Com_GridColData>();
