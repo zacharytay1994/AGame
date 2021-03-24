@@ -1340,14 +1340,14 @@ struct Sys_Projectile2 : public System {
 //for spawning of enemies 
 -------------------------------------------*/
 struct Com_EnemySpawn {
-	size_t numberofenemies{ 2 }; //number of enemies to spawn
-	size_t CurrNoOfEnemies{ 0 }; //keep track of enemies on map
-	size_t DEATHEnemiespawncounter{ 0 };
+	int numberofenemies{ 2 }; //number of enemies to spawn
+	int CurrNoOfEnemies{ 0 }; //keep track of enemies on map
+	int DEATHEnemiespawncounter{ 0 };
 };
 
 struct Com_Wave {
 	float timerforwave{ 3.0f }; //if timer hits 0 in secsm spawn new wave 
-	size_t numberofwaves{ 5 }; //if number of wave hit 0, level unlocked 
+	size_t numberofwaves{ 8 }; //if number of wave hit 0, level unlocked 
 };
 
 //logic for spawning of enemies 
@@ -2067,8 +2067,14 @@ struct Com_GridColData {
 
 //grid collision
 struct Sys_GridCollision : public System {
+	Grid* _grid{ nullptr };
+	Com_EnemySpawn* _spawner{ nullptr };
 	std::vector<Com_GridColData> GridCol; //to store all collision data of player
 	void UpdateComponent() override {
+		if (!_grid || !_spawner) {
+			std::cout << "sys_gridcollision requires grid!" << std::endl;
+			return;
+		}
 		Com_type* type = &get<Com_type>();
 		Com_TilePosition* tilepos = &get<Com_TilePosition>();
 		Com_GridColData& gridcoldata = get<Com_GridColData>();
@@ -2082,22 +2088,25 @@ struct Sys_GridCollision : public System {
 				//range attack with enemy 
 				if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
 					std::cout << "Collided" << std::endl;
+					_grid->Get({ tilepos->_vgrid_x,tilepos->_vgrid_y })._obstacle = false;
+					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
+					--_spawner->CurrNoOfEnemies;
 					RemoveEntity();
 					//++gridspaen.DEATHEnemiespawncounter;
 					//--gridspaen.CurrNoOfEnemies;
 					//std::cout << gridspaen.DEATHEnemiespawncounter << std::endl;
 
 				}
-				//range attack with enemy 
-				if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
-					std::cout << "Collided" << std::endl;
-					RemoveEntity();
-				}
-				//range attack with enemy 
-				if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
-					std::cout << "Collided" << std::endl;
-					RemoveEntity();
-				}
+				////range attack with enemy 
+				//if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
+				//	std::cout << "Collided" << std::endl;
+				//	RemoveEntity();
+				//}
+				////range attack with enemy 
+				//if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
+				//	std::cout << "Collided" << std::endl;
+				//	RemoveEntity();
+				//}
 				//testing
 				//if player with enemy
 				//if (type->type == type->player && GridCol[i].type->type == type->enemy) {
@@ -2108,11 +2117,11 @@ struct Sys_GridCollision : public System {
 					std::cout << "Collided" << std::endl;
 					RemoveEntity();
 				}
-				//enemy with bullet 
-				if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
-					std::cout << "Collided" << std::endl;
-					RemoveEntity();
-				}
+				////enemy with bullet 
+				//if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
+				//	std::cout << "Collided" << std::endl;
+				//	RemoveEntity();
+				//}
 			}
 		}
 	}
