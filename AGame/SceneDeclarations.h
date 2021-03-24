@@ -172,6 +172,7 @@ struct TestScenePF : public Scene
 	eid lives{ -1 };
 	eid waves{ -1 };
 	eid spawner{ -1 };
+	eid menu{ -1 };
 	Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
 	Factory::SpriteData man{ "hero.png", 100.0f, 160.0f, 3, 3, 8, 0.1f, 0, passin };
 	Factory::SpriteData data{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.15f };
@@ -185,6 +186,10 @@ struct TestScenePF : public Scene
 	eid arrow = -1;
 	Com_Sprite* arrow_sprite{ nullptr };
 	//Factory::SpriteData data{ 0,"test2", 1, 8, 8, 0.1f, 100.0f, 200.0f };
+
+	Factory::SpriteData buttonsurface{ "title.png", 1.0f, 1.0f, 2, 2, 4, 0.2f, 0 };
+	Vec2i passin3[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
+	Factory::SpriteData button{ "buttonsprite.png", 1.0f, 1.0f, 3, 3, 8, 0.1f, 0, passin3 };
 	/*
 	Initialize Override (optional)
 	________________________________*/
@@ -232,6 +237,13 @@ struct TestScenePF : public Scene
 		std::stringstream ss1;
 		ss1 << Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves;
 		waves = Factory::Instance().FF_CreateGUIChildSurfaceText(waves, { "transparent" }, 0.5f, 0.5f, 0.8f, 0.4f, ss1.str().c_str(), "courier");
+
+		menu = Factory::Instance().FF_CreateGUISurface(buttonsurface, 0.5f, 0.5f, 0.9f, 0.6f, 120);
+		eid start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(menu, button, 0.5f, 0.35f, 0.4f, 0.2f, ChangeTestScenePF, "Restart", "courier");
+		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
+		start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(menu, button, 0.5f, 0.60f, 0.4f, 0.2f, ChangeMainMenu, "Main Menu", "courier");
+		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
+		Factory::Instance()[menu].Get<Com_GUISurface>()._active = false;
 
 		//Factory::Instance().FF_CreateGUISurface(clock, 0.5f, 0.05f, 0.1f, 0.1f, 100);
 
@@ -291,6 +303,11 @@ struct TestScenePF : public Scene
 		else {
 			arrow_sprite->_visible = false;
 		}
+
+		if (Factory::Instance()[player].Get<Com_Health>().health <= 0) {
+			Factory::Instance()[menu].Get<Com_GUISurface>()._active = true;
+		}
+
 		GUISettingsUpdate();
 	}
 	/*

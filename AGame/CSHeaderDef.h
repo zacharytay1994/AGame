@@ -1340,7 +1340,7 @@ struct Sys_EnemySpawning : public System {
 	// Initialization
 	eid _tilemap = { -1 };
 	eid playerpos = -1;
-	float timer = 3;
+	float timer{ 0.0f };
 	Grid* _grid{ nullptr };
 	int _max{ 2 };
 	//eid _spawner_id{ -1 };
