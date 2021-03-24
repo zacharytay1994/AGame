@@ -49,15 +49,13 @@ ________________________________*/
 		//SystemDatabase::Instance().GetSystem<Sys_Projectile>().tilemap = tilemap;
 		//init tile map 
 		Com_Tilemap& com_tilemap = Factory::Instance()[tilemap].Get<Com_Tilemap>();
-		Sys_Pathfinding_v2& pf2 = *SystemDatabase::Instance().GetSystem<Sys_Pathfinding_v2>();
-		pf2._grid = Pathfinding::Grid(com_tilemap._width, com_tilemap._height, com_tilemap._map);
+		Sys_PathFinding& pf2 = *SystemDatabase::Instance().GetSystem<Sys_PathFinding>();
+		pf2._grid = Grid(com_tilemap._width, com_tilemap._height, com_tilemap._map);
 		pf2._initialized = true;
 
 		//player
 		player = Factory::Instance().FF_SpriteTile(data2, tilemap, 0, 0);
-		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Projectile, Com_WeaponAttack, Com_Camera, Com_type, Com_GridColData, Com_Health>();
-		SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
-		SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
+		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Projectile, Com_WeaponAttack, Com_GameTimer, Com_Camera,Com_type,Com_GridColData, Com_Health>();
 		//more
 		//SystemDatabase::Instance().GetSystem<Sys_Pathfinding_v2>()->_pl = player;
 
@@ -68,17 +66,15 @@ ________________________________*/
 			for (int x = 0; x < com_tilemap._width; ++x) {
 				//if it's a enemy spawn location 
 				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 2) {
-					//enemytest = Factory::Instance().FF_SpriteTile(data, tilemap, x, y);
-					//Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_type, Com_GridColData,Com_EnemySpawn,Com_Wave>();
-					//Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
-					//Factory::Instance()[enemytest].Get<Com_EnemyStateOne>().playerHealth = &Factory::Instance()[player].Get<Com_Health>();
-					////passing
-					//SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
-					//++Factory::Instance()[enemytest].Get<Com_EnemySpawn>().CurrNoOfEnemies;
-					//Entity& e = Factory::Instance()[enemytest];
-					//e.Get<Com_type>().type = 1;
-					Factory::Instance().FF_CreateSpawner();
+					enemytest = Factory::Instance().FF_SpriteTile(data, tilemap, x, y);
+					Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_type, Com_GridColData,Com_EnemySpawn,Com_Wave>();
+					Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
+					Factory::Instance()[enemytest].Get<Com_EnemyStateOne>().playerHealth = &Factory::Instance()[player].Get<Com_Health>();
+					//passing
 					SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
+					++Factory::Instance()[enemytest].Get<Com_EnemySpawn>().CurrNoOfEnemies;
+					Entity& e = Factory::Instance()[enemytest];
+					e.Get<Com_type>().type = 1;
 				}
 				//if it's a explosive barrel 
 				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 3) {
@@ -94,32 +90,6 @@ ________________________________*/
 				}
 			}
 		}
-
-		//austen's settings 
-
-		//std::cout << test << " this is a test scene" << std::endl;
-		//std::cout << sizeof(Com_Tilemap) << std::endl;
-
-		//tilemap = Factory::Instance().FF_Tilemap("tilemap", "c_test2.txt", "t_test2.txt");
-		//Factory::Instance()[tilemap].Get<Com_Position>().x = -5;
-		//Factory::Instance()[tilemap].Get<Com_Position>().y = 2;
-		//Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
-		//SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->_tilemap = tilemap;
-
-		//Com_Tilemap& com_tilemap = Factory::Instance()[tilemap].Get<Com_Tilemap>();
-		//Sys_PathFinding& pf2 = *SystemDatabase::Instance().GetSystem<Sys_PathFinding>();
-		//pf2._grid = Grid(com_tilemap._width, com_tilemap._height, com_tilemap._map);
-		//pf2._initialized = true;
-
-		//player = Factory::Instance().FF_SpriteTile(data2, tilemap, 0, 0);
-		//Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne>();
-		//SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
-		//SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
-
-		//Factory::Instance().FF_CreateSpawner();
-		//SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
-		//GUISettingsInitialize();
-
 		//zac's settings
 
 		//enemytest = Factory::Instance().FF_SpriteTile(data, tilemap, 5, 2);
@@ -137,7 +107,7 @@ ________________________________*/
 		//enemytest = Factory::Instance().FF_SpriteTile(data3, tilemap, 5, 3);
 		//Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath>();
 		//Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
-
+		
 		//end
 		GUISettingsInitialize();
 	}
