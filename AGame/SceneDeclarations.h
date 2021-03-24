@@ -178,6 +178,7 @@ struct TestScenePF : public Scene
 	Factory::SpriteData data2{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.15f };
 	Factory::SpriteData data22{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.25f };
 	Factory::SpriteData data3{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
+	Inventory playerInv;
 	//Factory::SpriteData data{ 0,"test2", 1, 8, 8, 0.1f, 100.0f, 200.0f };
 	/*
 	Initialize Override (optional)
@@ -224,27 +225,50 @@ struct TestScenePF : public Scene
 	________________________________*/
 	void Update(const float& dt) override {
 		UNREFERENCED_PARAMETER(dt);
-		//Entity& testing = Factory::Instance()[tilemap];
-		//if (AEInputCheckTriggered('E')) {
-		//}
+		// //Entity& testing = Factory::Instance()[tilemap];
+		// //if (AEInputCheckTriggered('E')) {
+		// //}
 
-		if (AEInputCheckCurr('L')) {
-			SceneManager::Instance().ChangeScene("Test Scene 2");
-		}
-		if (AEInputCheckTriggered('N')) {
-			/*std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i++ << std::endl;
-			std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i << std::endl;*/
-		}
-		if (AEInputCheckTriggered('P')) {
-			player = Factory::Instance().FF_Sprite(data, 100.0f, 100.0f);
-			//Factory::Instance().GetEntity(player).Get<Com_Sprite>()._frame_interval -= dt;
-			//Com_Sprite& s = player->Get<Com_Sprite>();
-		}
-		if (AEInputCheckTriggered('O')) {
-			Factory::Instance()[player].AddComponent<Com_ArrowKeys>();
-			Factory::Instance()[player].AddComponent<Com_YLayering>();
+		// if (AEInputCheckCurr('L')) {
+		// 	SceneManager::Instance().ChangeScene("Test Scene 2");
+		// }
+		// if (AEInputCheckTriggered('N')) {
+		// 	/*std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i++ << std::endl;
+		// 	std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i << std::endl;*/
+		//shooting 
+#if defined(DEBUG) | defined(_DEBUG)
+		if (AEInputCheckTriggered(AEVK_G)) {
+			playerInv.Inventory_PrintCurrentWeapon();
 		}
 
+		if (AEInputCheckTriggered(AEVK_H)) {
+			playerInv.Inventory_SetWeaponUnlocked("Pistol");
+			playerInv.Inventory_EquipWeapon("Pistol");
+			std::cout << "EQUIPPED PISTOL" << std::endl;
+		}
+
+		if (AEInputCheckTriggered(AEVK_F)) {
+			playerInv.Inventory_SetWeaponUnlocked("TrickPistol");
+			playerInv.Inventory_EquipWeapon("TrickPistol");
+			std::cout << "EQUIPPED TRICKPISTOL" << std::endl;
+		}
+
+		if (AEInputCheckTriggered(AEVK_S)) {
+			playerInv.Inventory_SetWeaponUnlocked("DualPistol");
+			playerInv.Inventory_EquipWeapon("DualPistol");
+			std::cout << "EQUIPPED DUALPISTOL" << std::endl;
+		}
+
+		if (AEInputCheckTriggered(AEVK_A)) {
+			playerInv.Inventory_SetWeaponUnlocked("DualDiagPistol");
+			playerInv.Inventory_EquipWeapon("DualDiagPistol");
+			std::cout << "EQUIPPED DUALDIAGPISTOL" << std::endl;
+		}
+
+		if (AEInputCheckTriggered(AEVK_D)) {
+			playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
+		}
+#endif
 		if (AEInputCheckTriggered('R')) {
 			SceneManager::Instance().RestartScene();
 		}
