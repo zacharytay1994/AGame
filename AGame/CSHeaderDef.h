@@ -139,6 +139,7 @@ struct Com_TilePosition {
 	Vec2f _direction = { 0.0f,0.0f };
 	bool _moving{ false };
 	bool _initialized{ false };
+	bool _is_player{ false };
 };
 
 /*																				Component::COLLISION
@@ -303,6 +304,7 @@ struct Com_Node
 	Com_Node* _parent{ nullptr };
 	bool	_closed{ false };
 	bool	_open{ false };
+	bool	_player{ false };
 
 	int FCost() { return _g_cost + _h_cost; }
 };
@@ -394,6 +396,7 @@ struct Sys_EnemyStateOne : public System {
 	bool  _turn{ false };
 	eid		_player_id{ -1 };
 	Entity* _player{ nullptr };
+	Grid* _grid{ nullptr };
 	void OncePerFrame() override {
 		_turn_step_counter -= _dt;
 		_player = &Factory::Instance()[_player_id];
@@ -406,7 +409,7 @@ struct Sys_EnemyStateOne : public System {
 		}
 	}
 	void UpdateComponent() override {
-		if (!_player) {
+		if (!_player || !_grid) {
 			return;
 		}
 		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
@@ -500,10 +503,6 @@ struct Sys_EnemyStateOne : public System {
 			std::cout << "ATTACK_UPDATE" << std::endl;
 			//std::cout << "x: " << fp._next.x << "y: " << fp._next.y << std::endl;
 			// see if can find path to player
-			fp._start = Vec2i(pos._vgrid_x, pos._vgrid_y);
-			fp._end = Vec2i(state._player->_vgrid_x, state._player->_vgrid_y);
-			fp._find = true;
-
 			if (!fp._reached)
 			{
 				ChangeState(Com_EnemyStateOne::STATES::MOVE);
@@ -511,7 +510,7 @@ struct Sys_EnemyStateOne : public System {
 			else if (fp._reached)
 			{
 				// to decrease health - temporary check (theres a bug, cant die if walking out of map)
-				if (state.playerHealth != nullptr && (_player->Get<Com_TilePosition>()._vgrid_x == fp._end.x && _player->Get<Com_TilePosition>()._vgrid_y == fp._end.y))
+				if (state.playerHealth != nullptr && _grid->Get(fp._end)._player)
 				{
 					std::cout << "hit" << std::endl;
 					--(state.playerHealth->health);
@@ -524,7 +523,9 @@ struct Sys_EnemyStateOne : public System {
 				}
 
 			}
-
+			fp._start = Vec2i(pos._vgrid_x, pos._vgrid_y);
+			fp._end = Vec2i(state._player->_vgrid_x, state._player->_vgrid_y);
+			fp._find = true;
 		}
 	}
 	void ATTACK_EXIT() {
@@ -848,7 +849,11 @@ struct Sys_TilemapPosition : public System {
 };
 
 struct Sys_TilePosition : public System {
+	Grid* _grid{ nullptr };
 	void UpdateComponent() override {
+		if (!_grid) {
+			return;
+		}
 		Com_TilemapRef& tilemapref = get<Com_TilemapRef>();
 		Com_Tilemap* tilemap = tilemapref._tilemap;
 		Com_Position& position = get<Com_Position>();
@@ -856,11 +861,25 @@ struct Sys_TilePosition : public System {
 		bool check = false;
 		if (tilemap) {
 			// check if new tile position is within grid - would be checked with collision_mask after
-			if (t_position._grid_x >= 0 && t_position._grid_x < tilemap->_width && t_position._grid_y >= 0 && t_position._grid_y < tilemap->_height &&
-				tilemap->_floor_mask[(size_t)t_position._grid_x * (size_t)tilemap->_height + (size_t)t_position._grid_y] >= 0) {
+			if (t_position._vgrid_x == t_position._grid_x && t_position._vgrid_y == t_position._grid_y) {
+				if (t_position._is_player) {
+					_grid->Get({ t_position._vgrid_x,t_position._vgrid_y })._obstacle = false;
+				}
+			}
+			else if (t_position._grid_x >= 0 && t_position._grid_x < tilemap->_width && t_position._grid_y >= 0 && t_position._grid_y < tilemap->_height &&
+				tilemap->_floor_mask[(size_t)t_position._grid_x * (size_t)tilemap->_height + (size_t)t_position._grid_y] >= 0 &&
+				(!_grid->Get({ t_position._grid_x, t_position._grid_y })._obstacle || !t_position._is_player)) {
 				check = (t_position._vgrid_x != t_position._grid_x || t_position._vgrid_y != t_position._grid_y);
+				if (t_position._is_player) {
+					_grid->Get({ t_position._vgrid_x,t_position._vgrid_y })._obstacle = false;
+					_grid->Get({ t_position._vgrid_x,t_position._vgrid_y })._player = false;
+				}
 				t_position._vgrid_x = t_position._grid_x;
 				t_position._vgrid_y = t_position._grid_y;
+				if (t_position._is_player) {
+					_grid->Get({ t_position._vgrid_x,t_position._vgrid_y })._obstacle = true;
+					_grid->Get({ t_position._vgrid_x,t_position._vgrid_y })._player = true;
+				}
 			}
 			else {
 				t_position._grid_x = t_position._vgrid_x;

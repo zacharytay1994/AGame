@@ -48,7 +48,7 @@ struct TestScene : public Scene {
 		a.Get<Com_ParentPosition>()._parent_id = player;
 		arrow_sprite = &a.Get<Com_Sprite>();
 
-		enemytest = Factory::Instance().FF_SpriteTile(dog, tilemap, 5, 2);
+		/*enemytest = Factory::Instance().FF_SpriteTile(dog, tilemap, 5, 2);
 		Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_EnemySpawn, Com_Wave, Com_type, Com_GridColData,Com_TileMoveSpriteState>();
 		Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
 		enemytest = Factory::Instance().FF_SpriteTile(dog, tilemap, 8, 3);
@@ -59,7 +59,7 @@ struct TestScene : public Scene {
 		Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
 		enemytest = Factory::Instance().FF_SpriteTile(dog, tilemap, 5, 3);
 		Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_EnemySpawn, Com_Wave, Com_type, Com_GridColData, Com_TileMoveSpriteState>();
-		Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
+		Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();*/
 		
 
 		GUISettingsInitialize();
