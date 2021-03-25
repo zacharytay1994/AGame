@@ -45,6 +45,7 @@ struct Com_GUIMouseCheck;
 struct Com_GUIOnClick;
 struct Com_GUIDrag;
 struct Com_Text;
+struct Com_textboxinput;
 /*__________________________________________________________________________________________________
 																				Component::BASIC DATA
 ____________________________________________________________________________________________________*/
@@ -72,6 +73,7 @@ struct Com_Sprite {
 	float				_rotation = 0.0f;
 	bool				_flip = { false };
 	bool				_loop = { true };
+	bool				_repeat{ true };
 	int					_frames = 1;
 	int					_current_frame = 0;
 	float				_frame_interval = 1;
@@ -139,6 +141,7 @@ struct Com_TilePosition {
 	Vec2f _direction = { 0.0f,0.0f };
 	bool _moving{ false };
 	bool _initialized{ false };
+	bool _is_player{ false };
 };
 
 /*																				Component::COLLISION
@@ -303,6 +306,7 @@ struct Com_Node
 	Com_Node* _parent{ nullptr };
 	bool	_closed{ false };
 	bool	_open{ false };
+	bool	_player{ false };
 
 	int FCost() { return _g_cost + _h_cost; }
 };
@@ -352,6 +356,10 @@ struct Com_FindPath {
 	Vec2i	_next{ 100, 100 }; // initailized to make sure is out of game board
 };
 
+struct Com_DamagedTiles {
+	
+};
+
 struct Com_Health {
 	int health{ 3 };
 };
@@ -390,6 +398,7 @@ struct Sys_EnemyStateOne : public System {
 	bool  _turn{ false };
 	eid		_player_id{ -1 };
 	Entity* _player{ nullptr };
+	Grid* _grid{ nullptr };
 	void OncePerFrame() override {
 		_turn_step_counter -= _dt;
 		_player = &Factory::Instance()[_player_id];
@@ -402,7 +411,7 @@ struct Sys_EnemyStateOne : public System {
 		}
 	}
 	void UpdateComponent() override {
-		if (!_player) {
+		if (!_player || !_grid) {
 			return;
 		}
 		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
@@ -464,10 +473,6 @@ struct Sys_EnemyStateOne : public System {
 
 			//if next path is the player
 			//std::cout << "x: " << fp._next.x << "y: " << fp._next.y << std::endl;
-			if (fp._reached)
-			{
-				ChangeState(Com_EnemyStateOne::STATES::ATTACK);
-			}
 			//std::cout << "x: " << pos._grid_x << " & y: " << pos._grid_y << std::endl;
 			// if path found
 			/*if (fp._next.x != -1 && fp._next.y != -1) {
@@ -476,7 +481,10 @@ struct Sys_EnemyStateOne : public System {
 				std::cout << "x: " << fp._next.x << "y: " << fp._next.y << std::endl;
 			}*/
 		}
-
+		if (fp._reached)
+		{
+			ChangeState(Com_EnemyStateOne::STATES::ATTACK);
+		}
 	}
 	void MOVE_EXIT() {
 		std::cout << "MOVE_EXIT" << std::endl;
@@ -484,6 +492,9 @@ struct Sys_EnemyStateOne : public System {
 	// attack
 	void ATTACK_ENTER() {
 		std::cout << "ATTACK_ENTER" << std::endl;
+		Com_Sprite& sprite = get<Com_Sprite>();
+		sprite._current_frame_segment = 2;
+		sprite._current_frame = 0;
 	}
 	void ATTACK_UPDATE() {
 		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
@@ -494,30 +505,32 @@ struct Sys_EnemyStateOne : public System {
 			std::cout << "ATTACK_UPDATE" << std::endl;
 			//std::cout << "x: " << fp._next.x << "y: " << fp._next.y << std::endl;
 			// see if can find path to player
-			fp._start = Vec2i(pos._vgrid_x, pos._vgrid_y);
-			fp._end = Vec2i(state._player->_vgrid_x, state._player->_vgrid_y);
-			fp._find = true;
-
 			if (!fp._reached)
 			{
 				ChangeState(Com_EnemyStateOne::STATES::MOVE);
 			}
 			else if (fp._reached)
 			{
-				// to decrease health
-				if (state.playerHealth != nullptr)
+				// to decrease health - temporary check (theres a bug, cant die if walking out of map)
+				if (state.playerHealth != nullptr && _grid->Get(fp._end)._player)
 				{
+					std::cout << "hit" << std::endl;
 					--(state.playerHealth->health);
 					if (state.playerHealth->health <= 0)
 					{
-						std::cout << "お前もう死んで " << std::endl;
-						std::cout << "何？" << std::endl;
-						ChangeState(Com_EnemyStateOne::STATES::EVILWIN);
+						/*std::cout << "お前もう死んで " << std::endl;
+						std::cout << "何？" << std::endl;*/
+						ChangeState(Com_EnemyStateOne::STATES::IDLE);
 					}
 				}
+				/*else {
+					ChangeState(Com_EnemyStateOne::STATES::MOVE);
+				}*/
 
 			}
-
+			fp._start = Vec2i(pos._vgrid_x, pos._vgrid_y);
+			fp._end = Vec2i(state._player->_vgrid_x, state._player->_vgrid_y);
+			fp._find = true;
 		}
 	}
 	void ATTACK_EXIT() {
@@ -630,6 +643,7 @@ struct Sys_GUISurfaceRender;
 struct Sys_GUISurfaceMouseCheck;
 struct Sys_GUISurfaceOnClick;
 struct Sys_GUITextRender;
+struct Sys_textboxinput;
 
 /*___________________________________________________________________________________________________________________________________
 	SYSTEM DEFINITIONS																						<<	SYSTEM DEFINITIONS  >>
@@ -669,7 +683,12 @@ struct Sys_DrawSprite : public System {
 				}
 				int current_frame = sprite._current_frame + sprite._frame_segment[sprite._current_frame_segment].x;
 				if (current_frame > sprite._frame_segment[sprite._current_frame_segment].y) {
-					sprite._current_frame = 0;
+					if (sprite._repeat) {
+						sprite._current_frame = 0;
+					}
+					else {
+						--sprite._current_frame;
+					}
 					current_frame = sprite._frame_segment[sprite._current_frame_segment].x;
 				}
 				//sprite._current_frame = ++sprite._current_frame >= sprite._frames ? 0 : sprite._current_frame;
@@ -761,7 +780,7 @@ struct Sys_ArrowKeys : public System {
 
 struct Sys_ArrowKeysTilemap : public System {
 	// hard coded - assuming only 1 player uses arrow keys tilemap
-	float _speed = 0.5f;
+	float _speed = 1.0f;
 	float _counter{ _speed };
 	bool _turn{ false };
 	void OncePerFrame() {
@@ -769,6 +788,7 @@ struct Sys_ArrowKeysTilemap : public System {
 		if (_counter <= 0.0f) {
 			_counter = _speed;
 			_turn = true;
+			ResourceManager::Instance()._screen_shake = 1.0f;
 		}
 		else {
 			_turn = false;
@@ -776,17 +796,30 @@ struct Sys_ArrowKeysTilemap : public System {
 	}
 	void UpdateComponent() override {
 		Com_TilePosition& pos = get<Com_TilePosition>();
-		if (AEInputCheckCurr(VK_LEFT) && _turn) {
-			pos._grid_x -= 1;
+		Com_Direction& direction = get<Com_Direction>();
+		if (AEInputCheckCurr(VK_LEFT)) {
+			direction.currdir = Com_Direction::left;
+			if (_turn) {
+				pos._grid_x -= 1;
+			}
 		}
-		if (AEInputCheckCurr(VK_RIGHT) && _turn) {
-			pos._grid_x += 1;
+		if (AEInputCheckCurr(VK_RIGHT)) {
+			direction.currdir = Com_Direction::right;
+			if (_turn) {
+				pos._grid_x += 1;
+			}
 		}
-		if (AEInputCheckCurr(VK_UP) && _turn) {
-			pos._grid_y -= 1;
+		if (AEInputCheckCurr(VK_UP)) {
+			direction.currdir = Com_Direction::up;
+			if (_turn) {
+				pos._grid_y -= 1;
+			}
 		}
-		if (AEInputCheckCurr(VK_DOWN) && _turn) {
-			pos._grid_y += 1;
+		if (AEInputCheckCurr(VK_DOWN)) {
+			direction.currdir = Com_Direction::down;
+			if (_turn) {
+				pos._grid_y += 1;
+			}
 		}
 	}
 };
@@ -806,6 +839,8 @@ struct Sys_Tilemap : public System {
 		AEMtx33Scale(&scale, tilemap._scale_x, tilemap._scale_y);
 		AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
 		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+		AEMtx33 shake = ResourceManager::Instance().ScreenShake();
 		for (size_t y = 0; y < (size_t)tilemap._height; ++y) {
 			for (size_t x = 0; x < (size_t)tilemap._width; ++x) {
 				if (tilemap._floor_mask[x * (size_t)tilemap._height + y] == -1) { continue; }
@@ -817,6 +852,7 @@ struct Sys_Tilemap : public System {
 					tilemap._render_pack._offset_x = (tilemap._floor_mask[x * (size_t)tilemap._height + y] % 4) * 1.0f / (float)4;
 					tilemap._render_pack._offset_y = (tilemap._floor_mask[x * (size_t)tilemap._height + y] / 4) * 1.0f / (float)4;
 					//ResourceManager::Instance().DrawQueue(&tilemap._render_pack);
+					AEMtx33Concat(&tilemap._render_pack._transform, &shake, &tilemap._render_pack._transform);
 					AEGfxSetTransform(tilemap._render_pack._transform.m);
 					AEGfxTextureSet(tilemap._render_pack._texture, tilemap._render_pack._offset_x, tilemap._render_pack._offset_y);
 					AEGfxMeshDraw(tilemap._render_pack._mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
@@ -836,7 +872,11 @@ struct Sys_TilemapPosition : public System {
 };
 
 struct Sys_TilePosition : public System {
+	Grid* _grid{ nullptr };
 	void UpdateComponent() override {
+		if (!_grid) {
+			return;
+		}
 		Com_TilemapRef& tilemapref = get<Com_TilemapRef>();
 		Com_Tilemap* tilemap = tilemapref._tilemap;
 		Com_Position& position = get<Com_Position>();
@@ -844,11 +884,25 @@ struct Sys_TilePosition : public System {
 		bool check = false;
 		if (tilemap) {
 			// check if new tile position is within grid - would be checked with collision_mask after
-			if (t_position._grid_x >= 0 && t_position._grid_x < tilemap->_width && t_position._grid_y >= 0 && t_position._grid_y < tilemap->_height &&
-				tilemap->_floor_mask[(size_t)t_position._grid_x * (size_t)tilemap->_height + (size_t)t_position._grid_y] >= 0) {
+			if (t_position._vgrid_x == t_position._grid_x && t_position._vgrid_y == t_position._grid_y) {
+				if (t_position._is_player) {
+					_grid->Get({ t_position._vgrid_x,t_position._vgrid_y })._obstacle = false;
+				}
+			}
+			else if (t_position._grid_x >= 0 && t_position._grid_x < tilemap->_width && t_position._grid_y >= 0 && t_position._grid_y < tilemap->_height &&
+				tilemap->_floor_mask[(size_t)t_position._grid_x * (size_t)tilemap->_height + (size_t)t_position._grid_y] >= 0 &&
+				(!_grid->Get({ t_position._grid_x, t_position._grid_y })._obstacle || !t_position._is_player)) {
 				check = (t_position._vgrid_x != t_position._grid_x || t_position._vgrid_y != t_position._grid_y);
+				if (t_position._is_player) {
+					_grid->Get({ t_position._vgrid_x,t_position._vgrid_y })._obstacle = false;
+					_grid->Get({ t_position._vgrid_x,t_position._vgrid_y })._player = false;
+				}
 				t_position._vgrid_x = t_position._grid_x;
 				t_position._vgrid_y = t_position._grid_y;
+				if (t_position._is_player) {
+					_grid->Get({ t_position._vgrid_x,t_position._vgrid_y })._obstacle = true;
+					_grid->Get({ t_position._vgrid_x,t_position._vgrid_y })._player = true;
+				}
 			}
 			else {
 				t_position._grid_x = t_position._vgrid_x;
@@ -899,7 +953,7 @@ struct Sys_TileMoveSpriteState : public System {
 				sprite._flip = false;
 			}
 		}
-		else {
+		else if (sprite._current_frame_segment == 1) {
 			sprite._current_frame_segment = 0;
 		}
 	}
@@ -1287,14 +1341,14 @@ struct Sys_Projectile2 : public System {
 //for spawning of enemies 
 -------------------------------------------*/
 struct Com_EnemySpawn {
-	size_t numberofenemies{ 2 }; //number of enemies to spawn
-	size_t CurrNoOfEnemies{ 0 }; //keep track of enemies on map
-	size_t DEATHEnemiespawncounter{ 0 };
+	int numberofenemies{ 2 }; //number of enemies to spawn
+	int CurrNoOfEnemies{ 0 }; //keep track of enemies on map
+	int DEATHEnemiespawncounter{ 0 };
 };
 
 struct Com_Wave {
 	float timerforwave{ 3.0f }; //if timer hits 0 in secsm spawn new wave 
-	size_t numberofwaves{ 2 }; //if number of wave hit 0, level unlocked 
+	size_t numberofwaves{ 8 }; //if number of wave hit 0, level unlocked 
 };
 
 //logic for spawning of enemies 
@@ -1302,27 +1356,37 @@ struct Sys_EnemySpawning : public System {
 	// Initialization
 	eid _tilemap = { -1 };
 	eid playerpos = -1;
-	float timer = 3;
+	float timer{ 0.0f };
+	Grid* _grid{ nullptr };
+	int _max{ 2 };
 	//eid _spawner_id{ -1 };
 	void OncePerFrame() override
 	{
 	}
 	void UpdateComponent() override {
+		if (!_grid) {
+			return;
+		}
 		//static Com_EnemySpawn& Enemyspawn = get<Com_EnemySpawn>();
 		Com_Wave& wave = get<Com_Wave>();
 		//if the timer hits for set time 
 		//if timer hit 0 spawn wave/ number of enemies hit 0 
 		Com_EnemySpawn& _spawner = get<Com_EnemySpawn>();
-		if (timer < 0.0f && wave.numberofwaves > 0 && _spawner.CurrNoOfEnemies < 4)
+		if (timer < 0.0f && wave.numberofwaves > 0 && _spawner.CurrNoOfEnemies < _max)
 		{
 			timer = wave.timerforwave;
 			--wave.numberofwaves;		//decrease the number of waves left 
 			for (int i = 0; i < 2; ++i) {
-				int randomx = rand() % 9;
-				int randomy = rand() % 5;
-				Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
-				Factory::SpriteData man{ "hero.png", 100.0f, 160.0f, 3, 3, 8, 0.1f, 0, passin };
-				eid enemy = Factory::Instance().FF_CreateEnemy(man, _tilemap, randomx, randomy);
+				Vec2i ran = { rand() % 9,rand() % 5 };
+				while (_grid->Get(ran)._obstacle && _grid->Get(ran)._player) {
+					ran = { rand() % 9,rand() % 5 };
+				}
+				/*int randomx = rand() % 9;
+				int randomy = rand() % 5;*/
+				Vec2i passin[5] = { {0,3},{4,7},{8,11},{0,0},{0,0} };
+				Factory::SpriteData dog{ "dog.png", 100.0f, 160.0f, 4, 3, 12, 0.1f, 0, passin };
+				eid enemy = Factory::Instance().FF_CreateEnemy(dog, _tilemap, ran.x, ran.y);
+				_grid->Get({ ran })._obstacle = true;
 				Factory::Instance()[enemy].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[playerpos].Get<Com_TilePosition>();
 				Factory::Instance()[enemy].Get<Com_EnemyStateOne>().playerHealth = &Factory::Instance()[playerpos].Get<Com_Health>();
 				++_spawner.CurrNoOfEnemies;
@@ -2004,12 +2068,18 @@ struct Com_GridColData {
 
 //grid collision
 struct Sys_GridCollision : public System {
+	Grid* _grid{ nullptr };
+	Com_EnemySpawn* _spawner{ nullptr };
 	std::vector<Com_GridColData> GridCol; //to store all collision data of player
 	void UpdateComponent() override {
+		if (!_grid || !_spawner) {
+			std::cout << "sys_gridcollision requires grid!" << std::endl;
+			return;
+		}
 		Com_type* type = &get<Com_type>();
 		Com_TilePosition* tilepos = &get<Com_TilePosition>();
 		Com_GridColData& gridcoldata = get<Com_GridColData>();
-		Com_EnemySpawn& gridspaen = get<Com_EnemySpawn>();
+		//Com_EnemySpawn& gridspaen = get<Com_EnemySpawn>();
 		if (gridcoldata.emplacedvec == false) {
 			GridCol.emplace_back(Com_GridColData{ tilepos,type });
 			gridcoldata.emplacedvec = true;
@@ -2019,37 +2089,45 @@ struct Sys_GridCollision : public System {
 				//range attack with enemy 
 				if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
 					std::cout << "Collided" << std::endl;
+					_grid->Get({ tilepos->_vgrid_x,tilepos->_vgrid_y })._obstacle = false;
+					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
+					--_spawner->CurrNoOfEnemies;
 					RemoveEntity();
-					++gridspaen.DEATHEnemiespawncounter;
-					--gridspaen.CurrNoOfEnemies;
-					std::cout << gridspaen.DEATHEnemiespawncounter << std::endl;
+					//++gridspaen.DEATHEnemiespawncounter;
+					//--gridspaen.CurrNoOfEnemies;
+					//std::cout << gridspaen.DEATHEnemiespawncounter << std::endl;
 
 				}
-				//range attack with enemy 
-				if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
-					std::cout << "Collided" << std::endl;
-					RemoveEntity();
-				}
-				//range attack with enemy 
-				if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
-					std::cout << "Collided" << std::endl;
-					RemoveEntity();
-				}
+
+				////range attack with enemy 
+				//if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
+				//	std::cout << "Collided" << std::endl;
+				//	RemoveEntity();
+				//}
+				////range attack with enemy 
+				//if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
+				//	std::cout << "Collided" << std::endl;
+				//	RemoveEntity();
+				//}
 				//testing
 				//if player with enemy
 				//if (type->type == type->player && GridCol[i].type->type == type->enemy) {
 				//	RemoveEntity();
 				//}
 				//if enemy with player 
-				if (type->type == type->enemy && GridCol[i].type->type == type->player) {
+				//if (type->type == type->enemy && GridCol[i].type->type == type->player) {
+				//	std::cout << "Collided" << std::endl;
+				//	RemoveEntity();
+				//}
+				if (type->type == type->bullet && GridCol[i].type->type == type->enemy) {
 					std::cout << "Collided" << std::endl;
 					RemoveEntity();
 				}
-				//enemy with bullet 
-				if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
-					std::cout << "Collided" << std::endl;
-					RemoveEntity();
-				}
+				////enemy with bullet 
+				//if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
+				//	std::cout << "Collided" << std::endl;
+				//	RemoveEntity();
+				//}
 			}
 		}
 	}
@@ -2064,100 +2142,198 @@ struct Sys_GridCollision : public System {
 	}
 };
 
-/*																				Component::SOUND
-____________________________________________________________________________________________________*/
-struct Com_Sound {
-	static std::vector<char*> gPathList;
-	
-	FMOD::System* sound_system;
-	FMOD::Sound* sound1;
-	FMOD::Channel* channel = 0;
-	FMOD_RESULT       result;
-	unsigned int      version;
-	void* extradriverdata = 0;
-	bool playing = false;
-	bool mute = false;
+//edits level editor generate map
+struct Com_GUItextboxinput {
+	bool inputting{ false };
+	std::vector<char> result;
+	std::string input;
+
+	//destructor 
+	//~Com_GUItextboxinput() {
+	//	result.~vector();	
+	//}
 };
 
-struct Sys_Sound : public System 
-{
-	bool init = false;
+struct Sys_GUItextboxinput : public System {
 	void UpdateComponent() override {
-			std::cout << "hip" << std::endl;
-			Com_Sound& soundless = get<Com_Sound>();
-			soundless.result = FMOD::System_Create(&soundless.sound_system);
-			//ERRCHECK(result);
-
-
-			soundless.result = soundless.sound_system->getVersion(&soundless.version);
-			//ERRCHECK(result);
-
-
-			if (soundless.version < FMOD_VERSION)
-			{
-				std::cout << "FMOD lib version" << soundless.version << "doesn't math hearder version" << FMOD_VERSION;
+		Com_GUItextboxinput& input = get<Com_GUItextboxinput>();
+		Com_GUIMouseCheck& mouse = get<Com_GUIMouseCheck>();
+		Com_Text& text = get<Com_Text>();
+		//input 
+		if (input.inputting) {
+			//AEInputReset();
+			int limit = 2;
+			if (text._data._text.size() < limit) {
+				if (AEInputCheckTriggered(AEVK_0)) { text._data._text += '0'; input.result.push_back('0'); }
+				if (AEInputCheckTriggered(AEVK_1)) { text._data._text += '1'; input.result.push_back('1'); }
+				if (AEInputCheckTriggered(AEVK_2)) { text._data._text += '2'; input.result.push_back('2'); }
+				if (AEInputCheckTriggered(AEVK_3)) { text._data._text += '3'; input.result.push_back('3'); }
+				if (AEInputCheckTriggered(AEVK_4)) { text._data._text += '4'; input.result.push_back('4'); }
+				if (AEInputCheckTriggered(AEVK_5)) { text._data._text += '5'; input.result.push_back('5'); }
+				if (AEInputCheckTriggered(AEVK_6)) { text._data._text += '6'; input.result.push_back('6'); }
+				if (AEInputCheckTriggered(AEVK_7)) { text._data._text += '7'; input.result.push_back('7'); }
+				if (AEInputCheckTriggered(AEVK_8)) { text._data._text += '8'; input.result.push_back('8'); }
+				if (AEInputCheckTriggered(AEVK_9)) { text._data._text += '9'; input.result.push_back('9'); }
 			}
-
-			//init sound track
-			soundless.result = soundless.sound_system->init(32, FMOD_INIT_NORMAL, soundless.extradriverdata);
-
-			//load tracks
-			//char* filePath = new char;
-
-			//result = sound_system->createSound(Common_MediaPath("drumloop.wav"), FMOD_DEFAULT, 0, &sound1);
-			soundless.result = soundless.sound_system->createSound("../Assets/Sound/singing.wav", FMOD_DEFAULT, 0, &soundless.sound1);
-			soundless.result = soundless.sound1->setMode(FMOD_LOOP_OFF);  /* drumloop.wav has embedded loop points which automatically makes looping turn on, */
-
-
-
-			//result = sound_system->createSound(Common_SoundPath("drumloop.wav"), FMOD_DEFAULT, 0, &sound1);
-			std::cout << "Sound load";
-			
+			if (AEInputCheckTriggered(AEVK_BACK) && input.result.size() != 0) {
+				std::cout << "bspace" << std::endl;
+				text._data._text.resize(text._data._text.size() - 1);
+				input.result.pop_back();
+			}
+			//end 
+			if (AEInputCheckTriggered(AEVK_SPACE) || !mouse._over && AEInputCheckTriggered(AEVK_LBUTTON)) {
+				//break;
+				for (char x : input.result) {
+					input.input += x;
+				}
+				std::cout << input.input << std::endl;
+				input.inputting = false;
+			}
 		}
-		
-
-
-	void sound_update(FMOD::System* system_sound, FMOD_RESULT tluser, FMOD::Channel* channe, FMOD::Sound* ound, bool& play, bool& muting) {
-		//std::cout<< AEFrameRateControllerGetFrameTime()<<std::endl;
-		std::cout << "Sound update" << std::endl;
-
-		//mute
-		if (AEInputCheckTriggered(AEVK_M)) {
-			muting = !muting;
-			//channel->getMute(&mute);
-			//channel->setMute(&mute);
-		}
-		if (!muting) {
-			//Play sound
-			//Player jump
-			if (AEInputCheckTriggered(AEVK_SPACE) && !play)
-			{
-				tluser = system_sound->playSound(ound, 0, false, &channe);
-				std::cout << "sound pressed";
-				//ERRCHECK(result);
-			}
-
-			tluser = system_sound->update();
-
-			//system pause
-			if (AEInputCheckTriggered(AEVK_P)) {
-				bool paused;
-				tluser = channe->getPaused(&paused);
-				paused = !paused;
-				tluser = channe->setPaused(paused);
-			}
-
-			if (channe) {
-
-				tluser = channe->isPlaying(&play);
-
-			}
-
+		//trigger on click 
+		//AEInputCheckTriggered(AEVK_0) && input.inputting == fals
+		if (mouse._over && AEInputCheckTriggered(AEVK_LBUTTON) && input.inputting == false) {
+			std::cout << "entered" << std::endl;
+			//reset result
+			input.input.clear();
+			input.result.clear();
+			//for (size_t i{ 0 }; i < result.size(); ++i) {
+			//	result.pop_back();
+			//}
+			//clearing data 
+			text._data._text.clear();
+			input.inputting = true;
 		}
 	}
+};
 
-	void sound_free(FMOD_RESULT tluser, FMOD::Sound* ound) {
-		tluser = ound->release();
+struct Com_Writetofile {
+	char _filler = 0;
+	//std::string* col;
+	//std::string* row;
+	//Com_Text* col;
+	//Com_Text* row;
+	//Com_Text* name;
+	std::string* col;
+	std::string* row;
+	std::string* name;
+};
+
+
+struct Sys_writetofile : public System {
+	void UpdateComponent() override {
+		Com_GUIMouseCheck& mouse = get<Com_GUIMouseCheck>();
+		Com_Tilemap& tile = get<Com_Tilemap>();
+		Com_Writetofile& wtf = get<Com_Writetofile>();
+		//Com_Tilemap* tileptr = &get<Com_Tilemap>();
+		if (mouse._over && AEInputCheckTriggered(AEVK_LBUTTON)) {
+			//write file 
+			std::cout << "writing to file now!" << std::endl;
+			//ResourceManager::Instance().GetResource(tilemap._render_pack._texture, tilemap._render_pack._mesh, texture, 4, 4, 16);
+			//tile._scale_x = 50;
+			//tile._scale_y = 50;
+			//tile._map = { 234,34,124,214,3 };
+			//tile._width = Factory::Instance()[tilemap].Get<Com_Text>().= 2;
+			tile._width = stoi(*(wtf.row));
+			tile._height = stoi(*(wtf.col));
+			tile._initialized = { true };
+			//init all to 1
+			for (size_t i{ 0 }; i < tile._height; ++i) {
+				for (size_t j{ 0 }; j < tile._width; ++j) {
+					tile._map.push_back(1);
+				}
+			}
+			*wtf.name += ".txt";
+			//tile._map= { 2,1,4,5 ,6,7};
+			//tileptr->_height = 5;
+			//tileptr->_width = 5;
+			ResourceManager::Instance().WriteTilemapTxt(*wtf.name, tile);
+
+			//ResourceManager::Instance().WriteFloorMapTxt("floorhello.text", tile); //this not working?
+		}
 	}
+};
 
+
+
+
+//edits level editor generate map
+struct Com_GUItextboxinputwords {
+	bool inputting{ false };
+	std::vector<char> result;
+	std::string input;
+
+	//destructor 
+	//~Com_GUItextboxinput() {
+	//	result.~vector();	
+	//}
+};
+
+struct Sys_GUItextboxinputwords : public System {
+	void UpdateComponent() override {
+		Com_GUItextboxinputwords& input = get<Com_GUItextboxinputwords>();
+		Com_GUIMouseCheck& mouse = get<Com_GUIMouseCheck>();
+		Com_Text& text = get<Com_Text>();
+		//input 
+		if (input.inputting) {
+			int limit = 12;
+			//AEInputReset();
+			if (text._data._text.size() < limit) {
+				if (AEInputCheckTriggered(AEVK_A)) { text._data._text += 'A'; input.result.push_back('A'); }
+				if (AEInputCheckTriggered(AEVK_B)) { text._data._text += 'B'; input.result.push_back('B'); }
+				if (AEInputCheckTriggered(AEVK_C)) { text._data._text += 'C'; input.result.push_back('C'); }
+				if (AEInputCheckTriggered(AEVK_D)) { text._data._text += 'D'; input.result.push_back('D'); }
+				if (AEInputCheckTriggered(AEVK_E)) { text._data._text += 'E'; input.result.push_back('E'); }
+				if (AEInputCheckTriggered(AEVK_F)) { text._data._text += 'F'; input.result.push_back('F'); }
+				if (AEInputCheckTriggered(AEVK_G)) { text._data._text += 'G'; input.result.push_back('G'); }
+				if (AEInputCheckTriggered(AEVK_H)) { text._data._text += 'H'; input.result.push_back('H'); }
+				if (AEInputCheckTriggered(AEVK_I)) { text._data._text += 'I'; input.result.push_back('I'); }
+				if (AEInputCheckTriggered(AEVK_J)) { text._data._text += 'J'; input.result.push_back('J'); }
+				if (AEInputCheckTriggered(AEVK_K)) { text._data._text += 'K'; input.result.push_back('K'); }
+				if (AEInputCheckTriggered(AEVK_L)) { text._data._text += 'L'; input.result.push_back('L'); }
+				if (AEInputCheckTriggered(AEVK_M)) { text._data._text += 'M'; input.result.push_back('M'); }
+				if (AEInputCheckTriggered(AEVK_N)) { text._data._text += 'N'; input.result.push_back('N'); }
+				if (AEInputCheckTriggered(AEVK_O)) { text._data._text += 'O'; input.result.push_back('O'); }
+				if (AEInputCheckTriggered(AEVK_P)) { text._data._text += 'P'; input.result.push_back('P'); }
+				if (AEInputCheckTriggered(AEVK_Q)) { text._data._text += 'Q'; input.result.push_back('Q'); }
+				if (AEInputCheckTriggered(AEVK_R)) { text._data._text += 'R'; input.result.push_back('R'); }
+				if (AEInputCheckTriggered(AEVK_S)) { text._data._text += 'S'; input.result.push_back('S'); }
+				if (AEInputCheckTriggered(AEVK_T)) { text._data._text += 'T'; input.result.push_back('T'); }
+				if (AEInputCheckTriggered(AEVK_U)) { text._data._text += 'U'; input.result.push_back('U'); }
+				if (AEInputCheckTriggered(AEVK_V)) { text._data._text += 'V'; input.result.push_back('V'); }
+				if (AEInputCheckTriggered(AEVK_W)) { text._data._text += 'W'; input.result.push_back('W'); }
+				if (AEInputCheckTriggered(AEVK_X)) { text._data._text += 'X'; input.result.push_back('X'); }
+				if (AEInputCheckTriggered(AEVK_Y)) { text._data._text += 'Y'; input.result.push_back('Y'); }
+				if (AEInputCheckTriggered(AEVK_Z)) { text._data._text += 'Z'; input.result.push_back('Z'); }
+			}
+			if (AEInputCheckTriggered(AEVK_BACK) && input.result.size() != 0) {
+				std::cout << "bspace" << std::endl;
+				text._data._text.resize(text._data._text.size() - 1);
+				input.result.pop_back();
+			}
+			//end 
+			if (AEInputCheckTriggered(AEVK_SPACE) || !mouse._over && AEInputCheckTriggered(AEVK_LBUTTON)) {
+				//break;
+				for (char x : input.result) {
+					input.input += x;
+				}
+				std::cout << input.input << std::endl;
+				input.inputting = false;
+			}
+		}
+		//trigger on click 
+		//AEInputCheckTriggered(AEVK_0) && input.inputting == fals
+		if (mouse._over && AEInputCheckTriggered(AEVK_LBUTTON) && input.inputting == false) {
+			std::cout << "entered" << std::endl;
+			//reset result
+			input.input.clear();
+			input.result.clear();
+			//for (size_t i{ 0 }; i < result.size(); ++i) {
+			//	result.pop_back();
+			//}
+			//clearing data 
+			text._data._text.clear();
+			input.inputting = true;
+		}
+	}
 };

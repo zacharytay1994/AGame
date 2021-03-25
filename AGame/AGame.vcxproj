@@ -30,6 +30,8 @@
     <ClInclude Include="Factory.h" />
     <ClInclude Include="Inventory.h" />
     <ClInclude Include="music.h" />
+    <ClInclude Include="Scene_LevelEditor.h" />
+    <ClInclude Include="Scene_LevelEditor2.h" />
     <ClInclude Include="Scene_MainMenu.h" />
     <ClInclude Include="Scene_Noel.h" />
     <ClInclude Include="Scene_Wilfred.h" />
@@ -88,6 +90,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(SolutionDir)Extern\AlphaEngine_V3.08\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Extern\AlphaEngine_V3.08\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -113,7 +117,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Extern\fmod\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

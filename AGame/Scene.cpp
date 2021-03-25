@@ -3,7 +3,8 @@
 #include "zSystem.h"
 #include "CSHeaderDef.h"
 #include "ResourceManager.h"
-
+#include "Scene_LevelEditor.h"
+#include "Scene_LevelEditor2.h"
 #include "Scene_MainMenu.h"
 #include "Scene_Zac.h"
 #include "Scene_Wilfred.h"
@@ -98,6 +99,9 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Text>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUIDrag>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUISurfaceHoverShadow>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_GUItextboxinput>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_Writetofile>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_GUItextboxinputwords>();
 
 	// enemy states
 	ComponentDescription_DB::Instance().RegisterComponent<Com_EnemyStateOne>();
@@ -109,14 +113,15 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_Tilemap, Com_Tilemap>();
 	SystemDatabase::Instance().RegisterSystem<Sys_DrawSprite, Com_Position, Com_Sprite>();
 	SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeys, Com_Position, Com_ArrowKeys>();
+	//SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeysTilemap, Com_TilePosition, Com_ArrowKeysTilemap, Com_Direction>();
+	SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeysTilemap, Com_TilePosition, Com_ArrowKeysTilemap>();
 	SystemDatabase::Instance().RegisterSystem<Sys_TilemapPosition, Com_Tilemap, Com_Position>();
 	SystemDatabase::Instance().RegisterSystem<Sys_TilePosition, Com_TilemapRef, Com_TilePosition, Com_Position>();
 	// SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeysTilemap, Com_TilePosition>();
-	SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeysTilemap, Com_TilePosition, Com_ArrowKeysTilemap, Com_Direction>();
+	//SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeysTilemap, Com_TilePosition, Com_ArrowKeysTilemap, Com_Direction>();
 	SystemDatabase::Instance().RegisterSystem<Sys_PlayerAttack, Com_Direction, Com_WeaponAttack, Com_TilePosition, Com_Projectile>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GameTimer, Com_GameTimer>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Velocity, Com_Position, Com_Velocity>();
-	SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeysTilemap, Com_TilePosition, Com_ArrowKeysTilemap>();
 	SystemDatabase::Instance().RegisterSystem<Sys_YLayering, Com_Sprite, Com_Position, Com_YLayering>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Boundary, Com_Position, Com_Boundary>();
 	SystemDatabase::Instance().RegisterSystem<Sys_ParticleSys,Com_Particle, Com_GameTimer >();
@@ -127,7 +132,7 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem <Sys_AABB, Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_objecttype>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Projectile2, Com_TilePosition, Com_Projectile>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Camera, Com_Position, Com_Camera>();
-	SystemDatabase::Instance().RegisterSystem<Sys_GridCollision, Com_type, Com_TilePosition, Com_GridColData, Com_EnemySpawn>();
+	SystemDatabase::Instance().RegisterSystem<Sys_GridCollision, Com_type, Com_TilePosition, Com_GridColData>();
 
 	SystemDatabase::Instance().RegisterSystem<Sys_TileMoveSpriteState, Com_Sprite, Com_TilePosition, Com_TileMoveSpriteState>();
 	SystemDatabase::Instance().RegisterSystem<Sys_ParentPosition, Com_ParentPosition>();
@@ -139,13 +144,16 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_GUIDrag, Com_GUIMouseCheck, Com_GUIDrag, Com_GUISurface>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUITextRender, Com_Position, Com_GUISurface, Com_Text>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceHoverShadow, Com_GUISurfaceHoverShadow>();
+	SystemDatabase::Instance().RegisterSystem<Sys_GUItextboxinput, Com_GUItextboxinput, Com_Text>();
+	SystemDatabase::Instance().RegisterSystem<Sys_writetofile, Com_Tilemap, Com_Writetofile, Com_GUIMouseCheck>();
+	SystemDatabase::Instance().RegisterSystem<Sys_GUItextboxinputwords, Com_GUItextboxinputwords, Com_Text>();
 
 	// pathfinding
 	SystemDatabase::Instance().RegisterSystem<Sys_PathFinding, Com_FindPath>();
 	//SystemDatabase::Instance().RegisterSystem<Sys_Pathfinding_v2, Com_FindPath>();
 
 	// enemy states, spawn, attack
-	SystemDatabase::Instance().RegisterSystem<Sys_EnemyStateOne, Com_EnemyStateOne, Com_FindPath, Com_TilePosition>();
+	SystemDatabase::Instance().RegisterSystem<Sys_EnemyStateOne, Com_EnemyStateOne, Com_FindPath, Com_TilePosition, Com_Sprite>();
 	SystemDatabase::Instance().RegisterSystem<Sys_EnemySpawning, Com_EnemySpawn, Com_Wave>();
 	//SystemDatabase::Instance().RegisterSystem<Sys_EnemyAttack, Com_Direction, Com_type, Com_TilePosition, Com_Tilemap, Com_EnemyStateOne>();
 	
@@ -161,7 +169,9 @@ void SceneManager::Initialize() {
 	AddScene<MainMenu>("Main Menu");
 	AddScene<TestScenewilfred>("TestScenewilfred");
 	AddScene<ShootingRange>("ShootingRange");
-	//AddScene<Credits>("Credits");
+	AddScene<LevelEditor>("Leveleditor");
+	AddScene<LevelEditor2>("Leveleditor2");
+	AddScene<LevelEditor>("Credits");
 }
 
 void SceneManager::Free()
@@ -218,12 +228,13 @@ void SceneManager::Update(const float& dt)
 {
 	if (_current_scene) {
 		_current_scene->Update(dt);
-		if (AEInputCheckTriggered('H')) {
-			SceneManager::Instance().ChangeScene("Main Menu");
-		}
+		//if (AEInputCheckTriggered('H')) {
+		//	SceneManager::Instance().ChangeScene("Main Menu");
+		//}
 		SystemDatabase::Instance().SystemDatabaseUpdate((float)AEFrameRateControllerGetFrameTime());
 		ResourceManager::Instance().FlushDraw();
 		ResourceManager::Instance().FlushDrawText();
+		ResourceManager::Instance().Update(dt);
 		SystemDatabase::Instance().RemoveAllEntities();
 	}
 }
