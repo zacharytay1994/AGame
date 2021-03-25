@@ -25,10 +25,13 @@ struct MainMenu : public Scene {
 	float original_dim_x = 0.8f;
 	float original_dim_y = 0.3f;
 	//Sys_PathFinding _pathfinding;
+	Sys_Sound sound;
 
 	bool _gui_change_scene{ false };
 	void Initialize() override {
 		std::cout << "SYSTEM MESSAGE: Now entering main menu." << std::endl;
+
+		sound = *SystemDatabase::Instance().GetSystem<Sys_Sound>();
 
 		// main background
 		main = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.5f, 0.5f, 1.0f, 1.0f, 100);
@@ -48,6 +51,7 @@ struct MainMenu : public Scene {
 
 		// initialize gui settings
 		GUISettingsInitialize();
+
 	}
 	void Update(const float& dt) override {
 		UNREFERENCED_PARAMETER(dt);

@@ -12,6 +12,7 @@
 #include "zSystem.h"
 
 #include "zMath.h"
+#include "music.h"
 
 using namespace std;
 
@@ -2061,4 +2062,102 @@ struct Sys_GridCollision : public System {
 		}
 	
 	}
+};
+
+/*																				Component::SOUND
+____________________________________________________________________________________________________*/
+struct Com_Sound {
+	static std::vector<char*> gPathList;
+	
+	FMOD::System* sound_system;
+	FMOD::Sound* sound1;
+	FMOD::Channel* channel = 0;
+	FMOD_RESULT       result;
+	unsigned int      version;
+	void* extradriverdata = 0;
+	bool playing = false;
+	bool mute = false;
+};
+
+struct Sys_Sound : public System 
+{
+	bool init = false;
+	void UpdateComponent() override {
+			std::cout << "hip" << std::endl;
+			Com_Sound& soundless = get<Com_Sound>();
+			soundless.result = FMOD::System_Create(&soundless.sound_system);
+			//ERRCHECK(result);
+
+
+			soundless.result = soundless.sound_system->getVersion(&soundless.version);
+			//ERRCHECK(result);
+
+
+			if (soundless.version < FMOD_VERSION)
+			{
+				std::cout << "FMOD lib version" << soundless.version << "doesn't math hearder version" << FMOD_VERSION;
+			}
+
+			//init sound track
+			soundless.result = soundless.sound_system->init(32, FMOD_INIT_NORMAL, soundless.extradriverdata);
+
+			//load tracks
+			//char* filePath = new char;
+
+			//result = sound_system->createSound(Common_MediaPath("drumloop.wav"), FMOD_DEFAULT, 0, &sound1);
+			soundless.result = soundless.sound_system->createSound("../Assets/Sound/singing.wav", FMOD_DEFAULT, 0, &soundless.sound1);
+			soundless.result = soundless.sound1->setMode(FMOD_LOOP_OFF);  /* drumloop.wav has embedded loop points which automatically makes looping turn on, */
+
+
+
+			//result = sound_system->createSound(Common_SoundPath("drumloop.wav"), FMOD_DEFAULT, 0, &sound1);
+			std::cout << "Sound load";
+			
+		}
+		
+
+
+	void sound_update(FMOD::System* system_sound, FMOD_RESULT tluser, FMOD::Channel* channe, FMOD::Sound* ound, bool& play, bool& muting) {
+		//std::cout<< AEFrameRateControllerGetFrameTime()<<std::endl;
+		std::cout << "Sound update" << std::endl;
+
+		//mute
+		if (AEInputCheckTriggered(AEVK_M)) {
+			muting = !muting;
+			//channel->getMute(&mute);
+			//channel->setMute(&mute);
+		}
+		if (!muting) {
+			//Play sound
+			//Player jump
+			if (AEInputCheckTriggered(AEVK_SPACE) && !play)
+			{
+				tluser = system_sound->playSound(ound, 0, false, &channe);
+				std::cout << "sound pressed";
+				//ERRCHECK(result);
+			}
+
+			tluser = system_sound->update();
+
+			//system pause
+			if (AEInputCheckTriggered(AEVK_P)) {
+				bool paused;
+				tluser = channe->getPaused(&paused);
+				paused = !paused;
+				tluser = channe->setPaused(paused);
+			}
+
+			if (channe) {
+
+				tluser = channe->isPlaying(&play);
+
+			}
+
+		}
+	}
+
+	void sound_free(FMOD_RESULT tluser, FMOD::Sound* ound) {
+		tluser = ound->release();
+	}
+
 };

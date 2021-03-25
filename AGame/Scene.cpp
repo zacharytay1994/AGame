@@ -103,6 +103,7 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_EnemyStateOne>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_TileMoveSpriteState>();
 
+	
 	// 3. Registering all systems for the game
 	//SystemDatabase::Instance().RegisterSystem<Example_UpdatePosition, Position, Example_Velocity>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Tilemap, Com_Tilemap>();

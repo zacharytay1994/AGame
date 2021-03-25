@@ -193,6 +193,7 @@ struct TestScenePF : public Scene
 		pf2._grid = Grid(com_tilemap._width, com_tilemap._height, com_tilemap._map);
 		pf2._initialized = true;
 
+
 		player = Factory::Instance().FF_SpriteTile(data2, tilemap, 0, 0);
 		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne>();
 		SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
