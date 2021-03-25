@@ -314,11 +314,11 @@ struct TestScenePF : public Scene
 		if (AEInputCheckTriggered('R')) {
 			SceneManager::Instance().RestartScene();
 		}
-		if (AEInputCheckTriggered(AEVK_G)) {
+		/*if (AEInputCheckTriggered(AEVK_G)) {
 			_playerInv.Inventory_PrintCurrentWeapon();
 		}
 
-		/*(if (AEInputCheckTriggered(AEVK_F)) {
+		(if (AEInputCheckTriggered(AEVK_F)) {
 			_playerInv.Inventory_SetWeaponUnlocked("Pistol");
 			_playerInv.Inventory_EquipWeapon("Pistol");
 			std::cout << "EQUIPPED PISTOL" << std::endl;
