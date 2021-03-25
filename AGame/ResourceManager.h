@@ -5,6 +5,10 @@
 #include <queue>
 #include "AEEngine.h"
 #include "zMath.h"
+#include <iostream>
+#include <vector>
+#include <string>
+#include "music.h"
 
 // forward deckaratuibs
 struct Com_Tilemap;
@@ -61,6 +65,18 @@ private:
 	std::vector<RenderPack*> _render_queue_vector;
 	//std::priority_queue <RenderPack*, std::vector<RenderPack*>, RM_Compare> _render_queue;
 	std::vector<TextPack*> _text_pack;
+
+	//Fmod (Music)
+	FMOD::System* sound_system;
+	FMOD::Sound* sound1;
+	FMOD::Channel* channel = 0;
+	FMOD_RESULT       result;
+	unsigned int      version;
+	void* extradriverdata = 0;
+	bool playing = FALSE;
+	bool mute = FALSE;
+
+
 public:
 	void Update(const float& dt);
 	// render queue
@@ -90,6 +106,10 @@ public:
 	void WriteFloorMapBin(const std::string& path, Com_Tilemap& tilemap);
 	void ReadFloorMapTxt(const std::string& path, Com_Tilemap& tilemap);
 	void WriteFloorMapTxt(const std::string& path, Com_Tilemap& tilemap);
+
+	void CreateMusic();
+	void UpdateAndPlayMusic();
+	void FreeMusic();
 
 	AEMtx33 ScreenShake();
 }; 

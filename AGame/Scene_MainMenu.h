@@ -25,13 +25,13 @@ struct MainMenu : public Scene {
 	float original_dim_x = 0.8f;
 	float original_dim_y = 0.3f;
 	//Sys_PathFinding _pathfinding;
-	Sys_Sound sound;
 
 	bool _gui_change_scene{ false };
 	void Initialize() override {
 		std::cout << "SYSTEM MESSAGE: Now entering main menu." << std::endl;
-
-		sound = *SystemDatabase::Instance().GetSystem<Sys_Sound>();
+		
+		// music
+		ResourceManager::Instance().CreateMusic();
 
 		// main background
 		main = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.5f, 0.5f, 1.0f, 1.0f, 100);
@@ -56,9 +56,16 @@ struct MainMenu : public Scene {
 	void Update(const float& dt) override {
 		UNREFERENCED_PARAMETER(dt);
 		GUISettingsUpdate();
+		ResourceManager::Instance().UpdateAndPlayMusic();
 		offset_rad = offset_rad + dt > 2.0f*PI ? 0.0f : offset_rad + dt;
 		offset_y = sin(offset_rad);
 		Factory::Instance()[_buttons_surface].Get<Com_GUISurface>()._position.y = original_y + offset_y * 0.03f;
 		Factory::Instance()[_title].Get<Com_GUISurface>()._dimensions = { original_dim_x + (offset_y+1.0f) * 0.03f, original_dim_y + (offset_y+1.0f) * 0.03f };
+	}
+	/*
+	Exit Override (optional)
+	________________________________*/
+	void Exit() override {
+		ResourceManager::Instance().FreeMusic();
 	}
 };
