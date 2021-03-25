@@ -318,7 +318,7 @@ struct TestScenePF : public Scene
 			_playerInv.Inventory_PrintCurrentWeapon();
 		}
 
-		if (AEInputCheckTriggered(AEVK_F)) {
+		/*(if (AEInputCheckTriggered(AEVK_F)) {
 			_playerInv.Inventory_SetWeaponUnlocked("Pistol");
 			_playerInv.Inventory_EquipWeapon("Pistol");
 			std::cout << "EQUIPPED PISTOL" << std::endl;
@@ -346,9 +346,12 @@ struct TestScenePF : public Scene
 			_playerInv.Inventory_SetWeaponUnlocked("Dagger");
 			_playerInv.Inventory_EquipWeapon("Dagger");
 			std::cout << "EQUIPPED DAGGER" << std::endl;
-		}
+		}*/
 
 		if (AEInputCheckTriggered(AEVK_D)) {
+			_playerInv.Inventory_SetWeaponUnlocked("Pistol");
+			_playerInv.Inventory_EquipWeapon("Pistol");
+			std::cout << "EQUIPPED PISTOL" << std::endl;
 			_playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
 		}
 		if (AEInputCheckCurr(AEVK_LEFT)) {
