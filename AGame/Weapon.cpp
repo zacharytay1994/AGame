@@ -47,7 +47,7 @@ Weapon::~Weapon()
 
 void Weapon::Weapon_Shoot()
 {
-	Factory::SpriteData data{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
+	Factory::SpriteData data{ "bullet.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };
 	for (unsigned int i = 0; i < weapon_Pattern.size(); i++)
 	{
 		// Spawn bullet at weapon_Pattern[i] relative to player
@@ -194,7 +194,7 @@ TrickPistol::TrickPistol() : Weapon(2)
 
 void TrickPistol::Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap) const
 {
-	Factory::SpriteData data{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
+	Factory::SpriteData data{ "bullet.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };
 
 	// Spawn bullet at weapon_Pattern[i] relative to player
 	if (direction.currdir == direction.right)
@@ -245,7 +245,7 @@ DualDiagPistol::DualDiagPistol() : Weapon(4)
 
 void DualDiagPistol::Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap) const
 {
-	Factory::SpriteData data{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
+	Factory::SpriteData data{ "bullet.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };
 
 	// Spawn bullet at weapon_Pattern[i] relative to player
 	if (direction.currdir == direction.right)
@@ -283,7 +283,7 @@ Dagger::Dagger()
 
 void Dagger::Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap) const
 {
-	Factory::SpriteData data{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
+	Factory::SpriteData data{ "bullet.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };
 
 	// Spawn bullet at weapon_Pattern[i] relative to player
 	if (direction.currdir == direction.right)
