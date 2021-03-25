@@ -2097,6 +2097,7 @@ struct Sys_GridCollision : public System {
 					//std::cout << gridspaen.DEATHEnemiespawncounter << std::endl;
 
 				}
+
 				////range attack with enemy 
 				//if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
 				//	std::cout << "Collided" << std::endl;
@@ -2113,7 +2114,11 @@ struct Sys_GridCollision : public System {
 				//	RemoveEntity();
 				//}
 				//if enemy with player 
-				if (type->type == type->enemy && GridCol[i].type->type == type->player) {
+				//if (type->type == type->enemy && GridCol[i].type->type == type->player) {
+				//	std::cout << "Collided" << std::endl;
+				//	RemoveEntity();
+				//}
+				if (type->type == type->bullet && GridCol[i].type->type == type->enemy) {
 					std::cout << "Collided" << std::endl;
 					RemoveEntity();
 				}
