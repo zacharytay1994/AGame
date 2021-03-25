@@ -56,18 +56,26 @@ void Weapon::Weapon_Shoot()
 
 void Weapon::Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap) const
 {
-	Factory::SpriteData data{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
+	Factory::SpriteData data{ "bullet.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };
 	for (unsigned int i = 0; i < weapon_Pattern.size(); i++)
 	{
 		// Spawn bullet at weapon_Pattern[i] relative to player
-		if(direction.currdir == direction.right)
-			Factory::Instance().FF_Createproj2(data, spawn.x + weapon_Pattern[i].x, spawn.y + weapon_Pattern[i].y, 1, 0, tilemap);
-		else if (direction.currdir == direction.left)
-			Factory::Instance().FF_Createproj2(data, spawn.x - weapon_Pattern[i].x, spawn.y - weapon_Pattern[i].y, -1, 0, tilemap);
-		else if (direction.currdir == direction.up)
-			Factory::Instance().FF_Createproj2(data, spawn.x - weapon_Pattern[i].y, spawn.y - weapon_Pattern[i].x, 0, 1, tilemap);
-		else if (direction.currdir == direction.down)
-			Factory::Instance().FF_Createproj2(data, spawn.x + weapon_Pattern[i].y, spawn.y + weapon_Pattern[i].x, 0, -1, tilemap);
+		if (direction.currdir == direction.right) {
+			eid j = Factory::Instance().FF_Createproj2(data, spawn.x + weapon_Pattern[i].x, spawn.y + weapon_Pattern[i].y, 1, 0, tilemap);
+			Factory::Instance()[j].AddComponent<Com_YLayering>();
+		}
+		else if (direction.currdir == direction.left) {
+			eid j = Factory::Instance().FF_Createproj2(data, spawn.x - weapon_Pattern[i].x, spawn.y - weapon_Pattern[i].y, -1, 0, tilemap);
+			Factory::Instance()[j].AddComponent<Com_YLayering>();
+		}
+		else if (direction.currdir == direction.up) {
+			eid j = Factory::Instance().FF_Createproj2(data, spawn.x - weapon_Pattern[i].y, spawn.y - weapon_Pattern[i].x, 0, 1, tilemap);
+			Factory::Instance()[j].AddComponent<Com_YLayering>();
+		}
+		else if (direction.currdir == direction.down) {
+			eid j = Factory::Instance().FF_Createproj2(data, spawn.x + weapon_Pattern[i].y, spawn.y + weapon_Pattern[i].x, 0, -1, tilemap);
+			Factory::Instance()[j].AddComponent<Com_YLayering>();
+		}
 	}
 }
 
