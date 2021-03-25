@@ -63,6 +63,17 @@ void ChangeMainMenu(Com_GUISurface* surface) {
 	SceneManager::Instance().ChangeScene("Main Menu");
 }
 
+void OpenSurvey(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	#ifdef _WIN32 
+		system("start https://forms.gle/KPbjkFks2SYmj9af8");
+	#elif __APPLE__ 
+		system("open https://forms.gle/KPbjkFks2SYmj9af8");
+	#elif __linux__ 
+		system("xdg-open https://forms.gle/KPbjkFks2SYmj9af8");
+	#endif
+}
+
 void ChangeLevelEditor(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	SceneManager::Instance().ChangeScene("Credits");
