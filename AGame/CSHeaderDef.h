@@ -387,7 +387,8 @@ struct Com_type {
 		bullet,
 		wall,
 		bombbarrel,
-		enemyrange
+		enemyrange,
+		EnemyBalls
 	};
 };
 
@@ -414,6 +415,8 @@ struct Sys_EnemyStateOne : public System {
 	eid		_player_id{ -1 };
 	Entity* _player{ nullptr };
 	Grid* _grid{ nullptr };
+	eid	_tilemap{ -1 };
+
 	void OncePerFrame() override {
 		_turn_step_counter -= _dt;
 		_player = &Factory::Instance()[_player_id];
@@ -479,6 +482,7 @@ struct Sys_EnemyStateOne : public System {
 		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
 		Com_FindPath& fp = get<Com_FindPath>();
 		Com_TilePosition& pos = get<Com_TilePosition>();
+		Com_Direction& direction = get<Com_Direction>();
 		if (!state._counter) {
 			std::cout << "MOVE_UPDATE" << std::endl;
 			// see if can find path to player
@@ -486,7 +490,25 @@ struct Sys_EnemyStateOne : public System {
 			fp._end = Vec2i(state._player->_vgrid_x, state._player->_vgrid_y);
 			fp._find = true;
 
-			//if next path is the player
+			// To change direction
+			if (fp._next.x < pos._vgrid_x) 
+			{
+				direction.currdir = direction.left;
+			}
+			else if (fp._next.x > pos._vgrid_x) 
+			{
+				direction.currdir = direction.right;
+			}
+			else if (fp._next.y < pos._vgrid_y) 
+			{
+				direction.currdir = direction.up;
+			}
+			else if (fp._next.y > pos._vgrid_y) 
+			{
+				direction.currdir = direction.down;
+			}
+
+			//if next path is the player as
 			//std::cout << "x: " << fp._next.x << "y: " << fp._next.y << std::endl;
 			//std::cout << "x: " << pos._grid_x << " & y: " << pos._grid_y << std::endl;
 			// if path found
@@ -515,6 +537,9 @@ struct Sys_EnemyStateOne : public System {
 		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
 		Com_FindPath& fp = get<Com_FindPath>();
 		Com_TilePosition& pos = get<Com_TilePosition>();
+		Com_type& ct = get<Com_type>();
+		Com_Direction& direct = get<Com_Direction>();
+		
 		if (!state._counter)
 		{
 			std::cout << "ATTACK_UPDATE" << std::endl;
@@ -526,18 +551,47 @@ struct Sys_EnemyStateOne : public System {
 			}
 			else if (fp._reached)
 			{
-				// to decrease health - temporary check (theres a bug, cant die if walking out of map)
-				if (state.playerHealth != nullptr && _grid->Get(fp._end)._player)
+				if (ct.type == ct.enemyrange) 
 				{
-					std::cout << "hit" << std::endl;
-					--(state.playerHealth->health);
-					if (state.playerHealth->health <= 0)
+					Factory::SpriteData Enemydata{ "EnemyBall.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };
+
+					// to create balls base on direction
+					if (direct.currdir == direct.right) 
 					{
-						/*std::cout << "お前もう死んで " << std::endl;
-						std::cout << "何？" << std::endl;*/
-						ChangeState(Com_EnemyStateOne::STATES::IDLE);
+						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 1, 0, _tilemap, 5);
+						Factory::Instance()[j].AddComponent<Com_YLayering>();
+					}
+					else if (direct.currdir == direct.left) 
+					{
+						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, -1, 0, _tilemap, 5);
+						Factory::Instance()[j].AddComponent<Com_YLayering>();
+					}
+					else if (direct.currdir == direct.up) 
+					{
+						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 0, 1, _tilemap, 5);
+						Factory::Instance()[j].AddComponent<Com_YLayering>();
+					}
+					else if (direct.currdir == direct.down) 
+					{
+						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 0, -1, _tilemap, 5);
+						Factory::Instance()[j].AddComponent<Com_YLayering>();
 					}
 				}
+				else if (ct.type == ct.enemy)
+				{
+					// to decrease health - temporary check (theres a bug, cant die if walking out of map)
+					if (state.playerHealth != nullptr && _grid->Get(fp._end)._player)
+					{
+						std::cout << "hit" << std::endl;
+						--(state.playerHealth->health);
+						if (state.playerHealth->health <= 0)
+						{
+							/*std::cout << "お前もう死んで " << std::endl;
+							std::cout << "何？" << std::endl;*/
+							ChangeState(Com_EnemyStateOne::STATES::IDLE);
+						}
+					}
+				}	
 				/*else {
 					ChangeState(Com_EnemyStateOne::STATES::MOVE);
 				}*/
@@ -1363,7 +1417,7 @@ struct Com_EnemySpawn {
 
 struct Com_Wave {
 	float timerforwave{ 3.0f }; //if timer hits 0 in secsm spawn new wave 
-	size_t numberofwaves{ 8 }; //if number of wave hit 0, level unlocked 
+	size_t numberofwaves{ 3 }; //if number of wave hit 0, level unlocked 
 };
 
 //logic for spawning of enemies 
@@ -1399,7 +1453,7 @@ struct Sys_EnemySpawning : public System {
 				/*int randomx = rand() % 9;
 				int randomy = rand() % 5;*/
 				Vec2i passin[5] = { {0,3},{4,7},{8,11},{0,0},{0,0} };
-				int randomEnemyCreation = 1 + (rand() % 2 * 4);
+				int randomEnemyCreation = 5; //1 +(rand() % 2 * 4);
 				if(randomEnemyCreation == 1) // melee
 				{
 					Factory::SpriteData dog{ "dog.png", 100.0f, 160.0f, 4, 3, 12, 0.1f, 0, passin };
@@ -1505,8 +1559,10 @@ struct Sys_PathFinding : public System
 					tpos._grid_x = _path[0].x;
 					tpos._grid_y = _path[0].y;
 					_grid.Get({ tpos._grid_x, tpos._grid_y })._obstacle = true;
+					fp._next.x = _path[1].x;
+					fp._next.y = _path[1].y;
 				}
-				else if (fp._found && _path.size() > 1) // melee enemy
+				else if (fp._found && _path.size() > 1 && ct.type == ct.enemy) // melee enemy
 				{
 					fp._reached = false;
 					_grid.Get({ tpos._grid_x, tpos._grid_y })._obstacle = false;
@@ -1514,7 +1570,11 @@ struct Sys_PathFinding : public System
 					tpos._grid_y = _path[0].y;
 					_grid.Get({ tpos._grid_x, tpos._grid_y })._obstacle = true;
 				}
-				else if (_path.size() == 1) {
+				else if (_path.size() >= 1 && ct.type == ct.enemyrange) {
+					fp._reached = true;
+				}
+				else if (_path.size() == 1 && ct.type == ct.enemy) 
+				{
 					fp._reached = true;
 				}
 				fp._find = false;
@@ -1920,6 +1980,7 @@ struct Com_GridColData {
 struct Sys_GridCollision : public System {
 	Grid* _grid{ nullptr };
 	Com_EnemySpawn* _spawner{ nullptr };
+	eid player_id{ -1 };
 	std::vector<Com_GridColData> GridCol; //to store all collision data of player
 	void UpdateComponent() override {
 		if (!_grid || !_spawner) {
@@ -1929,11 +1990,14 @@ struct Sys_GridCollision : public System {
 		Com_type* type = &get<Com_type>();
 		Com_TilePosition* tilepos = &get<Com_TilePosition>();
 		Com_GridColData& gridcoldata = get<Com_GridColData>();
+		Com_Health* chikara = &Factory::Instance()[player_id].Get<Com_Health>();
+		bool hit = false;
 		//Com_EnemySpawn& gridspaen = get<Com_EnemySpawn>();
 		if (gridcoldata.emplacedvec == false) {
 			GridCol.emplace_back(Com_GridColData{ tilepos,type });
 			gridcoldata.emplacedvec = true;
 		}
+
 		for (size_t i{ 0 }; i < GridCol.size(); ++i) {
 			if (gridcollisioncheck(*tilepos, *GridCol[i].tilepos)) {
 				//range attack with enemy 
@@ -1948,6 +2012,21 @@ struct Sys_GridCollision : public System {
 					//std::cout << gridspaen.DEATHEnemiespawncounter << std::endl;
 
 				}
+
+				if (type->type == type->EnemyBalls && (GridCol[i].type->type == type->player)) {
+					std::cout << "Collided Human" << std::endl;
+					RemoveEntity();
+					hit = true;
+					std::cout << "Damage Taken" << std::endl;
+					_grid->Get({ tilepos->_vgrid_x,tilepos->_vgrid_y })._obstacle = false;
+					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
+					if (chikara->health > 0 && hit == true)
+					{
+						--chikara->health;
+						hit = false;
+					}
+				}
+				
 
 				////range attack with enemy 
 				//if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
@@ -1969,10 +2048,11 @@ struct Sys_GridCollision : public System {
 				//	std::cout << "Collided" << std::endl;
 				//	RemoveEntity();
 				//}
-				if (type->type == type->bullet && GridCol[i].type->type == type->enemy) {
-					std::cout << "Collided" << std::endl;
+				if (type->type == type->bullet && (GridCol[i].type->type == type->enemy || GridCol[i].type->type == type->enemyrange)) {
+					std::cout << "Collided Enemy" << std::endl;
 					RemoveEntity();
 				}
+				
 				////enemy with bullet 
 				//if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
 				//	std::cout << "Collided" << std::endl;
