@@ -1453,7 +1453,7 @@ struct Sys_EnemySpawning : public System {
 				/*int randomx = rand() % 9;
 				int randomy = rand() % 5;*/
 				Vec2i passin[5] = { {0,3},{4,7},{8,11},{0,0},{0,0} };
-				int randomEnemyCreation = 5; //1 +(rand() % 2 * 4);
+				int randomEnemyCreation = 1 +(rand() % 2 * 4);
 				if(randomEnemyCreation == 1) // melee
 				{
 					Factory::SpriteData dog{ "dog.png", 100.0f, 160.0f, 4, 3, 12, 0.1f, 0, passin };
