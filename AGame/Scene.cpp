@@ -149,11 +149,11 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_GUItextboxinputwords, Com_GUItextboxinputwords, Com_Text>();
 
 	// pathfinding
-	SystemDatabase::Instance().RegisterSystem<Sys_PathFinding, Com_FindPath>();
+	SystemDatabase::Instance().RegisterSystem<Sys_PathFinding, Com_type,Com_FindPath>();
 	//SystemDatabase::Instance().RegisterSystem<Sys_Pathfinding_v2, Com_FindPath>();
 
 	// enemy states, spawn, attack
-	SystemDatabase::Instance().RegisterSystem<Sys_EnemyStateOne, Com_EnemyStateOne, Com_FindPath, Com_TilePosition, Com_Sprite>();
+	SystemDatabase::Instance().RegisterSystem<Sys_EnemyStateOne, Com_EnemyStateOne, Com_FindPath, Com_TilePosition, Com_Sprite, Com_type>();
 	SystemDatabase::Instance().RegisterSystem<Sys_EnemySpawning, Com_EnemySpawn, Com_Wave>();
 	//SystemDatabase::Instance().RegisterSystem<Sys_EnemyAttack, Com_Direction, Com_type, Com_TilePosition, Com_Tilemap, Com_EnemyStateOne>();
 	

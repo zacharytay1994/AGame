@@ -101,7 +101,7 @@ public:
 	//eid FF_CreateEnemy(const SpriteData& data, const eid& tilemap, const int& x, const int& y);
 
 	eid FF_CreateSpawner();
-	eid FF_CreateEnemy(const SpriteData& data, const eid& tilemap, const int& x, const int& y); //create enemy
+	eid FF_CreateEnemy(const SpriteData& data, const eid& tilemap, const int& x, const int& y, const int& type); //create enemy
 	eid FF_CreateParticle(const SpriteData& data, const int& x, const int& y, const float& velx, const float& vely); // create particle
 	eid FF_CreateBomb(const SpriteData& data, const int& x, const int& y);//create bomb
 };

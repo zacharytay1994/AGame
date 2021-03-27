@@ -219,11 +219,12 @@ eid Factory::FF_CreateSpawner()
     return id;
 }
 
-eid Factory::FF_CreateEnemy(const SpriteData& data, const eid& tilemap ,const int& x, const int& y) {
+eid Factory::FF_CreateEnemy(const SpriteData& data, const eid& tilemap ,const int& x, const int& y, const int& type) {
     eid id = FF_Sprite(data, 0.0f, 0.0f);
     Factory::Instance()[id].AddComponent<Com_TilePosition, Com_TilemapRef, Com_Direction, Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_type, Com_GridColData, Com_TileMoveSpriteState>();
     Entity& e = Factory::Instance()[id];
-    e.Get<Com_type>().type = 1;
+    std::cout << type << std::endl;
+    e.Get<Com_type>().type = type;
     e.Get<Com_TilePosition>() = { x,y,x,y };
     e.Get<Com_TilemapRef>()._tilemap = &Factory::Instance()[tilemap].Get<Com_Tilemap>();
     return id;

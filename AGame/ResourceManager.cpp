@@ -337,8 +337,8 @@ void ResourceManager::CreateMusic()
 	//char* filePath = new char;
 
 	//result = sound_system->createSound(Common_MediaPath("drumloop.wav"), FMOD_DEFAULT, 0, &sound1);
-	result = sound_system->createSound("../bin/Assets/Sound/singing.wav", FMOD_DEFAULT, 0, &sound1);
-	result = sound1->setMode(FMOD_LOOP_OFF);  /* drumloop.wav has embedded loop points which automatically makes looping turn on, */
+	result = sound_system->createSound("../bin/Assets/Sound/SoulFly.wav", FMOD_DEFAULT, 0, &sound1);
+	result = sound1->setMode(FMOD_LOOP_NORMAL); 
 
 
 
@@ -350,7 +350,7 @@ void ResourceManager::CreateMusic()
 void ResourceManager::UpdateAndPlayMusic() 
 {
 	//std::cout<< AEFrameRateControllerGetFrameTime()<<std::endl;
-	std::cout << "Sound update" << std::endl;
+	//std::cout << "Sound update" << std::endl;
 
 	//mute
 	if (AEInputCheckTriggered(AEVK_M)) {
@@ -361,10 +361,10 @@ void ResourceManager::UpdateAndPlayMusic()
 	if (!mute) {
 		//Play sound
 		//Player jump
-		if (AEInputCheckTriggered(AEVK_SPACE) && !playing)
+		if (!playing)
 		{
 			result = sound_system->playSound(sound1, 0, false, &channel);
-			std::cout << "sound pressed";
+			std::cout << "sound played";
 			//ERRCHECK(result);
 		}
 
@@ -390,6 +390,7 @@ void ResourceManager::UpdateAndPlayMusic()
 void ResourceManager::FreeMusic() 
 {
 	result = sound1->release();
+	std::cout << "Freed" << std::endl;
 }
 
 //void ResourceManager::WriteFloorMapTxt(const std::string& path, Com_Tilemap& tilemap)

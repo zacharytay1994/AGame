@@ -14,7 +14,6 @@
     <ClCompile Include="..\main.cpp" />
     <ClCompile Include="Factory.cpp" />
     <ClCompile Include="Inventory.cpp" />
-    <ClCompile Include="music.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Scene_Credits.h" />
