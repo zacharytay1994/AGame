@@ -337,18 +337,35 @@ eid Factory::FF_CreateGUIChildClickableSurfaceWordsTextBox(eid parent, const Spr
 }
 
 
-eid Factory::FF_CreateGUIChildClickableTileMap(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string mapname, const std::string texturename)
-{
-    //create the gui 
-    eid id = FF_CreateGUIChildSurface(parent, data, x, y, width, height);
-    Entity& e = Factory::Instance()[id].AddComponent<Com_GUIOnClick, Com_GUIMouseCheck, Com_GUItextboxinput>();
-    e.Get<Com_GUIOnClick>()._click_event = onclick;
+//eid Factory::FF_CreateGUIChildClickableTileMap(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string mapname, const std::string texturename)
+//{
+//    //create the gui 
+//    eid id = FF_CreateGUIChildSurface(parent, data, x, y, width, height);
+//    Entity& e = Factory::Instance()[id].AddComponent<Com_GUIOnClick, Com_GUIMouseCheck, Com_GUItextboxinput>();
+//    e.Get<Com_GUIOnClick>()._click_event = onclick;
+//
+//    //create tilemap 
+//    eid tilemap = Factory::Instance().FF_Tilemap(texturename, mapname, mapname);
+//    //Factory::Instance()[tilemap].Get <Com_Writetofile>().name;
+//    Factory::Instance()[tilemap].Get<Com_Position>().x = -8;
+//    Factory::Instance()[tilemap].Get<Com_Position>().y = 5;
+//    Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
+//    return id;
+//}
 
-    //create tilemap 
-    eid tilemap = Factory::Instance().FF_Tilemap("tilemap", mapname, mapname);
-    //Factory::Instance()[tilemap].Get <Com_Writetofile>().name;
-    Factory::Instance()[tilemap].Get<Com_Position>().x = -8;
-    Factory::Instance()[tilemap].Get<Com_Position>().y = 5;
-    Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
+
+eid Factory::FF_TilemapGUI(const std::string& texture, const std::string& bottom, const std::string& top)
+{
+    eid id = CreateEntity<Com_Tilemap, Com_Position, Com_GUIMap,Com_TilePosition>();
+    Entity& e = Factory::Instance()[id];
+    Com_Tilemap& tilemap = e.Get<Com_Tilemap>();
+    ResourceManager::Instance().GetResource(tilemap._render_pack._texture, tilemap._render_pack._mesh, texture, 4, 4/*, 16*/);
+    ResourceManager::Instance().ReadTilemapTxt(top, tilemap);
+    ResourceManager::Instance().ReadFloorMapTxt(bottom, tilemap);
+    //make individual grid bounding box based on tilemap 
+
+    tilemap._scale_x = 50.0f;
+    tilemap._scale_y = 50.0f;
+    tilemap._initialized = true;
     return id;
 }

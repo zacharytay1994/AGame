@@ -103,13 +103,14 @@ struct LevelEditor2 : public Scene {
 		//tilemap = Factory::Instance().FF_Tilemap("tilemap", "tilehello.txt", "tilehello.txt");
 		// 
 	
-		tilemap = Factory::Instance().FF_Tilemap("tilemap", mapname, mapname);
+		tilemap = Factory::Instance().FF_TilemapGUI("tilemap", mapname, mapname);
 		Factory::Instance()[tilemap].Get<Com_Position>().x = -8;
 		Factory::Instance()[tilemap].Get<Com_Position>().y = 5;
 		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
+		SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->_tilemap = tilemap;
 
 
-		//eid tile = Factory::Instance().FF_CreateGUIChildClickableTileMap(main, { "transparent" }, 0.5f, 0.15f, 0.8f, 0.2f, nocolbut, mapname, "tilemap");
+		/*eid tile = Factory::Instance().FF_CreateGUIChildClickableTileMap(main, { "transparent" }, 0.5f, 0.15f, 0.8f, 0.2f, nocolbut, mapname, "tilemap");*/
 
 		main = Factory::Instance().FF_CreateGUISurface({ "menubackground" }, 0.85f, 0.5f, 0.25f, 1.0f, 100);																	// surface
 		//non collidable - unlimited 

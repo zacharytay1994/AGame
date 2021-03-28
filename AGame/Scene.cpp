@@ -88,6 +88,7 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_type>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GridColData>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Health>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_GUIMap>();
 
 	// Pathfinding
 	ComponentDescription_DB::Instance().RegisterComponent<Com_FindPath>();
@@ -146,7 +147,7 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_GUItextboxinput, Com_GUItextboxinput, Com_Text>();
 	SystemDatabase::Instance().RegisterSystem<Sys_writetofile, Com_Tilemap, Com_Writetofile, Com_GUIMouseCheck>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUItextboxinputwords, Com_GUItextboxinputwords, Com_Text>();
-
+	SystemDatabase::Instance().RegisterSystem <Sys_GUIMapClick, Com_TilePosition, Com_GUIMap>();
 	// pathfinding
 	SystemDatabase::Instance().RegisterSystem<Sys_PathFinding, Com_FindPath>();
 	//SystemDatabase::Instance().RegisterSystem<Sys_Pathfinding_v2, Com_FindPath>();

@@ -2340,4 +2340,33 @@ struct Sys_GUItextboxinputwords : public System {
 };
 
 
+struct Com_GUIMap {
+	char _filler = 0;
+	s32  cursorposy;
+	s32  cursorposx;
+};
+
+
+struct Sys_GUIMapClick : public System {
+	eid _tilemap = { -1 };
+	void UpdateComponent() override {
+		Com_TilePosition& tilepos = get<Com_TilePosition>();
+		//Com_Tilemap& tilemap = get<Com_Tilemap>();
+		Com_GUIMap& guimap = get<Com_GUIMap>();
+		AEInputGetCursorPosition(&guimap.cursorposx,&guimap.cursorposy);
+		
+		//tilepos._grid_x * tilemap._scale_x
+		if (AEInputCheckTriggered(AEVK_LBUTTON)) {
+			Vec2i passin[5] = { {0,3},{4,7},{8,11},{0,0},{0,0} };
+			Factory::SpriteData dog{ "dog.png", 100.0f, 160.0f, 4, 3, 12, 0.1f, 0, passin };
+			Factory::Instance().FF_SpriteTile(dog, _tilemap,0 , 0);
+		}
+	}
+	bool checkhover() {
+		//get the bounding box of each tile 
+		//return the tile that you are hovering over 
+	}
+};
+
+
 
