@@ -98,6 +98,7 @@ public:
 	eid FF_CreateGUIChildClickableSurfaceTextLoadTileMap(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string& text, const std::string& font);
 	eid FF_CreateGUIChildClickableSurfaceWordsTextBox(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string& text, const std::string& font);
 	eid FF_CreateGUIChildClickableTextboxWordsSurface(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*));
+	eid FF_CreateGUIChildClickableTileMap(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*) ,const std::string mapname, const std::string texturename);
 	//eid FF_CreateEnemy(const SpriteData& data, const eid& tilemap, const int& x, const int& y);
 
 	eid FF_CreateSpawner();

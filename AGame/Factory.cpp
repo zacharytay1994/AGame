@@ -335,3 +335,20 @@ eid Factory::FF_CreateGUIChildClickableSurfaceWordsTextBox(eid parent, const Spr
     com_text._data._layer = Factory::Instance()[parent].Get<Com_GUISurface>()._layer + 2;
     return id;
 }
+
+
+eid Factory::FF_CreateGUIChildClickableTileMap(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string mapname, const std::string texturename)
+{
+    //create the gui 
+    eid id = FF_CreateGUIChildSurface(parent, data, x, y, width, height);
+    Entity& e = Factory::Instance()[id].AddComponent<Com_GUIOnClick, Com_GUIMouseCheck, Com_GUItextboxinput>();
+    e.Get<Com_GUIOnClick>()._click_event = onclick;
+
+    //create tilemap 
+    eid tilemap = Factory::Instance().FF_Tilemap("tilemap", mapname, mapname);
+    //Factory::Instance()[tilemap].Get <Com_Writetofile>().name;
+    Factory::Instance()[tilemap].Get<Com_Position>().x = -8;
+    Factory::Instance()[tilemap].Get<Com_Position>().y = 5;
+    Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
+    return id;
+}
