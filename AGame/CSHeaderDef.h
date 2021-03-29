@@ -2411,6 +2411,8 @@ struct Sys_GUIMapClick : public System {
 					spawnspritey = guimap.bounding[a].y;
 					//appear at this position 
 					Factory::Instance().FF_SpriteTile(dog, _tilemap, spawnspritex, spawnspritey);
+					//change the data in the the map 
+					tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = -1;
 					//Factory::Instance().FF_SpriteTile(dog, _tilemap, 11, 0);
 					break;
 				}

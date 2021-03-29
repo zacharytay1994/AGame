@@ -98,16 +98,39 @@ struct LevelEditor2 : public Scene {
 		// 
 		// 
 		// 
+		//tilemap = Factory::Instance().FF_Tilemap("tilemap", "C_WilfTile.txt", "T_WilfTile.txt");
+		//Factory::Instance()[tilemap].Get<Com_Position>().x = -5;
+		//Factory::Instance()[tilemap].Get<Com_Position>().y = 2;
+		//Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
+		////passing in ref to tilemap for enemy
+		//SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->_tilemap = tilemap;
+		////SystemDatabase::Instance().GetSystem<Sys_Projectile>().tilemap = tilemap;
+		////init tile map 
+		//Com_Tilemap& com_tilemap = Factory::Instance()[tilemap].Get<Com_Tilemap>();
+		//Sys_PathFinding& pf2 = *SystemDatabase::Instance().GetSystem<Sys_PathFinding>();
+		//pf2._grid = Grid(com_tilemap._width, com_tilemap._height, com_tilemap._map);
+		//pf2._initialized = true;
+
+		//////player
+		//player = Factory::Instance().FF_SpriteTile(data2, tilemap, 0, 0);
+		//Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Projectile, Com_WeaponAttack, Com_Camera, Com_type, Com_GridColData, Com_Health>();
+		//SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
+		//SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
+
+
 		//render 
 		std::cout << "name of map " << mapname << "this is what i want" << std::endl;
 		//tilemap = Factory::Instance().FF_Tilemap("tilemap", "tilehello.txt", "tilehello.txt");
-		// 
-	
 		tilemap = Factory::Instance().FF_TilemapGUI("tilemap", mapname, mapname);
+		//tilemap = Factory::Instance().FF_TilemapGUI("tilemap", "C_WilfTile.txt", "C_WilfTile.txt");
 		Factory::Instance()[tilemap].Get<Com_Position>().x = -8;
 		Factory::Instance()[tilemap].Get<Com_Position>().y = 5;
 		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
+		Com_Tilemap& com_tilemap = Factory::Instance()[tilemap].Get<Com_Tilemap>();
 		SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->_tilemap = tilemap;
+
+		//testing
+		eid player = Factory::Instance().FF_SpriteTile(data2, tilemap, 0, 0);
 
 
 		/*eid tile = Factory::Instance().FF_CreateGUIChildClickableTileMap(main, { "transparent" }, 0.5f, 0.15f, 0.8f, 0.2f, nocolbut, mapname, "tilemap");*/
