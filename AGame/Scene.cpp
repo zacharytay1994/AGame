@@ -148,7 +148,7 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_GUItextboxinput, Com_GUItextboxinput, Com_Text>();
 	SystemDatabase::Instance().RegisterSystem<Sys_writetofile, Com_Tilemap, Com_Writetofile, Com_GUIMouseCheck>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUItextboxinputwords, Com_GUItextboxinputwords, Com_Text>();
-	SystemDatabase::Instance().RegisterSystem <Sys_GUIMapClick, Com_TilePosition, Com_GUIMap, Com_Tilemap, Com_BoundingBoxGUI>();
+	SystemDatabase::Instance().RegisterSystem <Sys_GUIMapClick, Com_GUIMap, Com_Tilemap, Com_BoundingBoxGUI>();
 	// pathfinding
 	SystemDatabase::Instance().RegisterSystem<Sys_PathFinding, Com_FindPath>();
 	//SystemDatabase::Instance().RegisterSystem<Sys_Pathfinding_v2, Com_FindPath>();

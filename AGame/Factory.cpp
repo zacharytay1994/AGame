@@ -356,7 +356,7 @@ eid Factory::FF_CreateGUIChildClickableSurfaceWordsTextBox(eid parent, const Spr
 
 eid Factory::FF_TilemapGUI(const std::string& texture, const std::string& bottom, const std::string& top)
 {
-    eid id = CreateEntity<Com_Tilemap, Com_Position, Com_GUIMap,Com_TilePosition,Com_BoundingBoxGUI>();
+    eid id = CreateEntity<Com_Tilemap, Com_Position, Com_GUIMap,Com_BoundingBoxGUI>();
     Entity& e = Factory::Instance()[id];
     Com_Tilemap& tilemap = e.Get<Com_Tilemap>();
     ResourceManager::Instance().GetResource(tilemap._render_pack._texture, tilemap._render_pack._mesh, texture, 4, 4/*, 16*/);
@@ -367,5 +367,16 @@ eid Factory::FF_TilemapGUI(const std::string& texture, const std::string& bottom
     tilemap._scale_x = 50.0f;
     tilemap._scale_y = 50.0f;
     tilemap._initialized = true;
+    return id;
+}
+
+
+eid Factory::FF_SpriteTileGUI(const SpriteData& data, const eid& tilemap, const int& x, const int& y)
+{
+    eid id = FF_Sprite(data, x, y);
+    Factory::Instance()[id].AddComponent<Com_TilePosition, Com_TilemapRef, Com_Direction>();
+    Entity& e = Factory::Instance()[id];
+    e.Get<Com_TilePosition>() = { x,y,x,y };
+    e.Get<Com_TilemapRef>()._tilemap = &Factory::Instance()[tilemap].Get<Com_Tilemap>();
     return id;
 }

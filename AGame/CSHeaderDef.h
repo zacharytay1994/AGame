@@ -2361,7 +2361,7 @@ struct Com_BoundingBoxGUI
 struct Sys_GUIMapClick : public System {
 	eid _tilemap = { -1 };
 	void UpdateComponent() override {
-		Com_TilePosition& tilepos = get<Com_TilePosition>();
+		//Com_TilePosition& tilepos = get<Com_TilePosition>();
 		Com_Tilemap& tilemap = get<Com_Tilemap>();
 		Com_GUIMap& guimap = get<Com_GUIMap>();
 		//Com_BoundingBoxGUI& boundingboxgui = get<Com_BoundingBoxGUI>();
@@ -2410,10 +2410,10 @@ struct Sys_GUIMapClick : public System {
 					spawnspritex = guimap.bounding[a].x;
 					spawnspritey = guimap.bounding[a].y;
 					//appear at this position 
-					Factory::Instance().FF_SpriteTile(dog, _tilemap, spawnspritex, spawnspritey);
+					//Factory::Instance().FF_SpriteTile(dog, _tilemap, spawnspritex, spawnspritey);
 					//change the data in the the map 
-					tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = -1;
-					//Factory::Instance().FF_SpriteTile(dog, _tilemap, 11, 0);
+					//tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = -1;
+					Factory::Instance().FF_SpriteTileGUI(dog, _tilemap, 11,11);
 					break;
 				}
 			}
