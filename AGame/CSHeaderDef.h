@@ -2351,22 +2351,121 @@ struct Sys_GUIMapClick : public System {
 	eid _tilemap = { -1 };
 	void UpdateComponent() override {
 		Com_TilePosition& tilepos = get<Com_TilePosition>();
-		//Com_Tilemap& tilemap = get<Com_Tilemap>();
+		Com_Tilemap& tilemap = get<Com_Tilemap>();
 		Com_GUIMap& guimap = get<Com_GUIMap>();
 		AEInputGetCursorPosition(&guimap.cursorposx,&guimap.cursorposy);
+		//std::cout << guimap.cursorposx << std::endl;
+		//std::cout << tilemap._height << std::endl;
+
+		//t position is the tile position x y 
+		//position x and y is the middle of the obj
+		//position.x = tilemap._offset_x * tilemap._scale_x + (float)t_position._vgrid_x * tilemap._scale_x;
+		//position.y = tilemap._offset_y * tilemap._scale_y - (float)t_position._vgrid_y * tilemap._scale_y;
+
+
 		
 		//tilepos._grid_x * tilemap._scale_x
 		if (AEInputCheckTriggered(AEVK_LBUTTON)) {
 			Vec2i passin[5] = { {0,3},{4,7},{8,11},{0,0},{0,0} };
 			Factory::SpriteData dog{ "dog.png", 100.0f, 160.0f, 4, 3, 12, 0.1f, 0, passin };
-			Factory::Instance().FF_SpriteTile(dog, _tilemap,0 , 0);
+			//loop by the bounding box of all tile and check
+			int x;
+			int y;
+			checkboundingwithall(tilemap,x,y);
+
+			//appear at this position 
+			Factory::Instance().FF_SpriteTile(dog, _tilemap,1 , 2);
 		}
 	}
-	bool checkhover() {
+	void checkboundingwithall(const Com_Tilemap& tilemap,const int& x, const int& y) {
 		//get the bounding box of each tile 
+		// 
+		// each tile is tilemap._scale_x & y 
 		//return the tile that you are hovering over 
+		//loop by all the tiles and check 
+		for (size_t i{ 0 }; i < tilemap._map.size(); ++i) {
+			//compute the bounding box
+			//check with the mouse
+			//return the tile map x & y ;
+		}
 	}
 };
 
 
 
+//eid Factory::FF_SpriteTile(const SpriteData& data, const eid& tilemap, const int& x, const int& y)
+//{
+//	eid id = FF_Sprite(data, 0.0f, 0.0f);
+//	Factory::Instance()[id].AddComponent<Com_TilePosition, Com_TilemapRef, Com_Direction>();
+//	Entity& e = Factory::Instance()[id];
+//	e.Get<Com_TilePosition>() = { x,y,x,y };
+//	e.Get<Com_TilemapRef>()._tilemap = &Factory::Instance()[tilemap].Get<Com_Tilemap>();
+//	return id;
+//}
+
+
+//struct Sys_TilePosition : public System {
+//	Grid* _grid{ nullptr };
+//	void UpdateComponent() override {
+//		if (!_grid) {
+//			return;
+//		}
+//		Com_TilemapRef& tilemapref = get<Com_TilemapRef>();
+//		Com_Tilemap* tilemap = tilemapref._tilemap;
+//		Com_Position& position = get<Com_Position>();
+//		Com_TilePosition& t_position = get<Com_TilePosition>();
+//		bool check = false;
+//		if (tilemap) {
+//			// check if new tile position is within grid - would be checked with collision_mask after
+//			if (t_position._vgrid_x == t_position._grid_x && t_position._vgrid_y == t_position._grid_y) {
+//				if (t_position._is_player) {
+//					_grid->Get({ t_position._vgrid_x,t_position._vgrid_y })._obstacle = false;
+//				}
+//			}
+//			else if (t_position._grid_x >= 0 && t_position._grid_x < tilemap->_width && t_position._grid_y >= 0 && t_position._grid_y < tilemap->_height &&
+//				tilemap->_floor_mask[(size_t)t_position._grid_x * (size_t)tilemap->_height + (size_t)t_position._grid_y] >= 0 &&
+//				(!_grid->Get({ t_position._grid_x, t_position._grid_y })._obstacle || !t_position._is_player)) {
+//				check = (t_position._vgrid_x != t_position._grid_x || t_position._vgrid_y != t_position._grid_y);
+//				if (t_position._is_player) {
+//					_grid->Get({ t_position._vgrid_x,t_position._vgrid_y })._obstacle = false;
+//					_grid->Get({ t_position._vgrid_x,t_position._vgrid_y })._player = false;
+//				}
+//				t_position._vgrid_x = t_position._grid_x;
+//				t_position._vgrid_y = t_position._grid_y;
+//				if (t_position._is_player) {
+//					_grid->Get({ t_position._vgrid_x,t_position._vgrid_y })._obstacle = true;
+//					_grid->Get({ t_position._vgrid_x,t_position._vgrid_y })._player = true;
+//				}
+//			}
+//			else {
+//				t_position._grid_x = t_position._vgrid_x;
+//				t_position._grid_y = t_position._vgrid_y;
+//			}
+//			// bind position to grid position
+//			if (!t_position._initialized) {
+//				t_position._initialized = true;
+//				position.x = tilemap->_offset_x * tilemap->_scale_x + (float)t_position._vgrid_x * tilemap->_scale_x;
+//				position.y = tilemap->_offset_y * tilemap->_scale_y - (float)t_position._vgrid_y * tilemap->_scale_y;
+//			}
+//			float dst_x = tilemap->_offset_x * tilemap->_scale_x + (float)t_position._vgrid_x * tilemap->_scale_x;
+//			float dst_y = tilemap->_offset_y * tilemap->_scale_y - (float)t_position._vgrid_y * tilemap->_scale_y;
+//			float dis_x = dst_x - position.x;
+//			float dis_y = dst_y - position.y;
+//			if (check) {
+//				t_position._direction = { dis_x,dis_y };
+//			}
+//			if (dis_x < 0.2f && dis_x > -0.2f && dis_y < 0.2f && dis_y > -0.2f) {
+//				position.x = dst_x;
+//				position.y = dst_y;
+//				t_position._moving = false;
+//			}
+//			else {
+//				//Vec2f direction = { dis_x, dis_y };
+//				//direction.NormalizeSelf();
+//				position.x += t_position._direction.x * _dt * t_position._speed;
+//				position.y += t_position._direction.y * _dt * t_position._speed;
+//				t_position._moving = true;
+//			}
+//		}
+//	}
+//};
