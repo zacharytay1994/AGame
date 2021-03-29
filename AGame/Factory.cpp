@@ -356,7 +356,7 @@ eid Factory::FF_CreateGUIChildClickableSurfaceWordsTextBox(eid parent, const Spr
 
 eid Factory::FF_TilemapGUI(const std::string& texture, const std::string& bottom, const std::string& top)
 {
-    eid id = CreateEntity<Com_Tilemap, Com_Position, Com_GUIMap,Com_TilePosition>();
+    eid id = CreateEntity<Com_Tilemap, Com_Position, Com_GUIMap,Com_TilePosition,Com_BoundingBoxGUI>();
     Entity& e = Factory::Instance()[id];
     Com_Tilemap& tilemap = e.Get<Com_Tilemap>();
     ResourceManager::Instance().GetResource(tilemap._render_pack._texture, tilemap._render_pack._mesh, texture, 4, 4/*, 16*/);
