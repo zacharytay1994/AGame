@@ -2362,6 +2362,7 @@ struct Sys_GUIMapClick : public System {
 	eid _tilemap = { -1 };
 	int Leveledittyp = 0;
 	std::string nameofmap;
+	bool savedmap = false;
 	void UpdateComponent() override {
 		//Com_TilePosition& tilepos = get<Com_TilePosition>();
 		Com_Tilemap& tilemap = get<Com_Tilemap>();
@@ -2437,7 +2438,6 @@ struct Sys_GUIMapClick : public System {
 					//change the data in the the map 
 					//tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = -1;
 					//Factory::Instance().FF_SpriteTile(dog, _tilemap, 11,11);
-					break;
 				}
 			}
 			if (Leveledittyp == 4) {
@@ -2447,8 +2447,8 @@ struct Sys_GUIMapClick : public System {
 
 
 				//write to file 
+				savedmap = true;
 				ResourceManager::Instance().WriteTilemapTxt(nameofmap, tilemap);
-
 			}
 		}
 	}

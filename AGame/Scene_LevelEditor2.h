@@ -90,8 +90,6 @@ struct LevelEditor2 : public Scene {
 		SystemDatabase::Instance().GetSystem<Sys_TilePosition>()->_grid = &pf2._grid;
 		//**** needed 
 
-		//testing
-		eid player = Factory::Instance().FF_SpriteTile(dataskeleton, tilemap, 0, 0);
 		//Factory::Instance()[player].AddComponent<Com_YLayering>();
 
 
@@ -111,29 +109,15 @@ struct LevelEditor2 : public Scene {
 		eid obstacles = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(main, { "background1" }, 0.5f, 0.9f, 0.8f, 0.2f, obstaclesbut, "Save Map", "courier");
 		UNREFERENCED_PARAMETER(obstacles);
 
-
-
-
-		//eid buttons = Factory::Instance().FF_CreateGUIChildSurface(main, { "background1" }, 0.5f, 0.5f, 1.f, 1.f);												// non clickable child surface
-
-		//render grid map 
-
-		//render choosing options 
-
-		//render naming and save file 
-		//write to file 
-
-		// initialize gui settings
 		GUISettingsInitialize();
-
-		//std::vector<int> flags = { 0,0,0,0,1,1,0,0,0 };
-		//Pathfinding::Grid grid{ 3,3,flags };
-		//std::vector<Vec2i> path;
-		//_pathfinding.SolveAStar({ 0,0 }, { 2,2 }, grid, path);
 	}
 	void Update(const float& dt) override {
 		UNREFERENCED_PARAMETER(dt);
 		GUISettingsUpdate();
+		//one more frame
+		if (SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp == 4 && SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->savedmap == true){
+			SceneManager::Instance().ChangeScene("Main Menu");
+		}
 	}
 	void Exit() override {
 
