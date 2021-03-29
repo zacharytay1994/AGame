@@ -2366,7 +2366,11 @@ struct Sys_GUIMapClick : public System {
 		Com_GUIMap& guimap = get<Com_GUIMap>();
 		//Com_BoundingBoxGUI& boundingboxgui = get<Com_BoundingBoxGUI>();
 		AEInputGetCursorPosition(&guimap.cursorposx,&guimap.cursorposy);
-		std::cout << guimap.cursorposx << std::endl;
+		//of set cursor 
+		guimap.cursorposx -= AEGetWindowWidth() / 2;
+		guimap.cursorposy -= AEGetWindowHeight() / 2;
+		guimap.cursorposy = -guimap.cursorposy;
+
 		//std::cout << tilemap._height << std::endl;
 
 		//t position is the tile position x y 
@@ -2383,6 +2387,7 @@ struct Sys_GUIMapClick : public System {
 				for (int j{ 0 }; j < width; ++j) {
 					Vec2f position;
 					//got the position of each tile centre 
+					//get centre of screen
 					position.x = tilemap._offset_x * tilemap._scale_x + (float)j * tilemap._scale_x;
 					position.y = tilemap._offset_y * tilemap._scale_y - (float)i * tilemap._scale_y;
 					//get the bounding box nd pass it in 
@@ -2410,10 +2415,10 @@ struct Sys_GUIMapClick : public System {
 					spawnspritex = guimap.bounding[a].x;
 					spawnspritey = guimap.bounding[a].y;
 					//appear at this position 
-					//Factory::Instance().FF_SpriteTile(dog, _tilemap, spawnspritex, spawnspritey);
+					Factory::Instance().FF_SpriteTile(dog, _tilemap, spawnspritex, spawnspritey);
 					//change the data in the the map 
 					//tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = -1;
-					Factory::Instance().FF_SpriteTileGUI(dog, _tilemap, 11,11);
+					//Factory::Instance().FF_SpriteTile(dog, _tilemap, 11,11);
 					break;
 				}
 			}

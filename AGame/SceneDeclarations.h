@@ -394,7 +394,7 @@ struct TestScenePF : public Scene
 		}
 
 		GUISettingsUpdate();
-	}
+	}	
 	/*
 	Exit Override (optional)
 	________________________________*/
