@@ -15,6 +15,7 @@
 void nocolbut(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	std::cout << "entered row" << std::endl;
+	//Factory::Instance()[tilemap].Get<Com_Position>().y = 1;
 }
 void playerspawnbut(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
