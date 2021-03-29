@@ -2360,6 +2360,8 @@ struct Com_BoundingBoxGUI
 
 struct Sys_GUIMapClick : public System {
 	eid _tilemap = { -1 };
+	int Leveledittyp = 0;
+	std::string nameofmap;
 	void UpdateComponent() override {
 		//Com_TilePosition& tilepos = get<Com_TilePosition>();
 		Com_Tilemap& tilemap = get<Com_Tilemap>();
@@ -2405,8 +2407,6 @@ struct Sys_GUIMapClick : public System {
 		//do once , calculate the bounding box and return the x y 
 		//tilepos._grid_x * tilemap._scale_x
 		if (AEInputCheckTriggered(AEVK_LBUTTON)) {
-			Vec2i passin[5] = { {0,3},{4,7},{8,11},{0,0},{0,0} };
-			Factory::SpriteData dog{ "dog.png", 100.0f, 160.0f, 4, 3, 12, 0.1f, 0, passin };
 			//loop by the bounding box of all tile and check
 			for (size_t a{ 0 }; a < guimap.bounding.size(); ++a) {
 				//if it's within 
@@ -2415,34 +2415,41 @@ struct Sys_GUIMapClick : public System {
 					spawnspritex = guimap.bounding[a].x;
 					spawnspritey = guimap.bounding[a].y;
 					//appear at this position 
-					Factory::Instance().FF_SpriteTile(dog, _tilemap, spawnspritex, spawnspritey);
+					if (Leveledittyp == 0) {
+						break;
+					}
+					if (Leveledittyp == 1) {
+						Vec2i passin[5] = { {0,3},{4,7},{8,11},{0,0},{0,0} };
+						Factory::SpriteData dog{ "dog.png", 100.0f, 160.0f, 4, 3, 12, 0.1f, 0, passin };
+						Factory::Instance().FF_SpriteTile(dog, _tilemap, spawnspritex, spawnspritey);
+						tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = 0;
+					}
+					if (Leveledittyp == 2) {
+						Vec2i passin[5] = { {0,3},{4,7},{8,11},{0,0},{0,0} };
+						Factory::SpriteData dog{ "dog.png", 100.0f, 160.0f, 4, 3, 12, 0.1f, 0, passin };
+						Factory::Instance().FF_SpriteTile(dog, _tilemap, spawnspritex, spawnspritey);
+					}
+					if (Leveledittyp == 3) {
+						Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
+						Factory::SpriteData man{ "hero.png", 100.0f, 160.0f, 3, 3, 8, 0.1f, 0, passin };
+						Factory::Instance().FF_SpriteTile(man, _tilemap, spawnspritex, spawnspritey);
+					}
 					//change the data in the the map 
 					//tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = -1;
 					//Factory::Instance().FF_SpriteTile(dog, _tilemap, 11,11);
 					break;
 				}
 			}
+			if (Leveledittyp == 4) {
+				/*Vec2i passin2[5] = { {0,1},{2,3},{4,5},{6,7},{0,0} };
+				Factory::SpriteData arrows{ "arrows.png", 50.0f, 50.0f, 3, 3, 8, 0.1f, -900, passin2 };
+				Factory::Instance().FF_SpriteTile(arrows, _tilemap, spawnspritex, spawnspritey);*/
+
+
+				//write to file 
+				ResourceManager::Instance().WriteTilemapTxt(nameofmap, tilemap);
+
+			}
 		}
 	}
-	//void calculateboundingofall(const Com_Tilemap& tilemap,const int& x, const int& y,const Com_GUIMap& guimap) {
-	//	int height = tilemap._height;
-	//	int width = tilemap._width;
-	//	for (int i{ 0 }; i < height; ++i) {
-	//		for (int j{ 0 }; j < width; ++j) {
-	//			Vec2f position;
-	//			//got the position of each tile centre 
-	//			position.x = tilemap._offset_x * tilemap._scale_x + (float)j * tilemap._scale_x;
-	//			position.y = tilemap._offset_y * tilemap._scale_y - (float)i * tilemap._scale_y;
-	//			//get the bounding box nd pass it in 
-	//			float minx = position.x - 0.5f * tilemap._scale_x;
-	//			float miny = position.y + 0.5f * tilemap._scale_y;
-	//			float maxx = position.x + 0.5f * tilemap._scale_x;
-	//			float maxy = position.y - 0.5f * tilemap._scale_y;
-	//			Com_BoundingBoxGUI tmp{minx,miny,maxx,maxy,j,i};
-	//			//guimap.bounding.push_back(tmp);
-	//			//guimap.bounding.pu
-	//		}
-	//	}
-	//}
-
 };
