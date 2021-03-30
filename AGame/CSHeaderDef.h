@@ -2071,6 +2071,7 @@ struct Sys_GridCollision : public System {
 	Grid* _grid{ nullptr };
 	Com_EnemySpawn* _spawner{ nullptr };
 	std::vector<Com_GridColData> GridCol; //to store all collision data of player
+	std::vector<std::vector<Com_GridColData>::iterator> Gridcoliterator; 
 	void UpdateComponent() override {
 		if (!_grid || !_spawner) {
 			std::cout << "sys_gridcollision requires grid!" << std::endl;
@@ -2084,6 +2085,9 @@ struct Sys_GridCollision : public System {
 			GridCol.emplace_back(Com_GridColData{ tilepos,type });
 			gridcoldata.emplacedvec = true;
 		}
+		bool erase = false;
+		std::vector<Com_GridColData>::iterator iteratorcomgrid; 
+		iteratorcomgrid = GridCol.begin();
 		for (size_t i{ 0 }; i < GridCol.size(); ++i) {
 			if (gridcollisioncheck(*tilepos, *GridCol[i].tilepos)) {
 				//range attack with enemy 
@@ -2092,7 +2096,10 @@ struct Sys_GridCollision : public System {
 					_grid->Get({ tilepos->_vgrid_x,tilepos->_vgrid_y })._obstacle = false;
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					--_spawner->CurrNoOfEnemies;
+					Gridcoliterator.push_back(iteratorcomgrid);
+					erase = true;
 					RemoveEntity();
+					break;
 					//++gridspaen.DEATHEnemiespawncounter;
 					//--gridspaen.CurrNoOfEnemies;
 					//std::cout << gridspaen.DEATHEnemiespawncounter << std::endl;
@@ -2129,6 +2136,16 @@ struct Sys_GridCollision : public System {
 				//	RemoveEntity();
 				//}
 			}
+			++iteratorcomgrid;
+		}
+
+		//remove the data of destroyed 
+		if (erase) {
+			for (size_t i{ 0 }; i < Gridcoliterator.size(); ++i) {
+				GridCol.erase(Gridcoliterator[i]);
+			}
+			//clear the gridcoliterator
+			Gridcoliterator.clear();
 		}
 	}
 	bool gridcollisioncheck(const Com_TilePosition& tilepos1,const Com_TilePosition& tilepos2){
