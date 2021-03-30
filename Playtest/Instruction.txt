@@ -1,0 +1,13 @@
+movement - press up, down, left, right
+
+Press D to shoot (default pistol)
+
+Press F to equip pistol
+
+Press A to equip Diagonal dualshot gun
+
+Press H to equip left right shooting gun
+
+Press S to equip dualshot gual
+
+Press B to equip Dagger

@@ -40,7 +40,7 @@ ________________________________*/
 		std::cout << test << " this is a test scene" << std::endl;
 		std::cout << sizeof(Com_Tilemap) << std::endl;
 
-		tilemap = Factory::Instance().FF_Tilemap("tilemap", "C_WilfTile.txt", "T_WilfTile.txt");
+		tilemap = Factory::Instance().FF_Tilemap("tilemap", "TEST.txt", "TEST.txt");
 		Factory::Instance()[tilemap].Get<Com_Position>().x = -5;
 		Factory::Instance()[tilemap].Get<Com_Position>().y = 2;
 		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;

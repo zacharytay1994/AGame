@@ -210,6 +210,18 @@ eid Factory::FF_Createproj2(const SpriteData& data, const int& x, const int& y, 
     return id;
 }
 
+eid Factory::FF_CreateprojEnemy(const SpriteData& data, const int& x, const int& y, const int& vel_x, const int& vel_y, eid const& tilemap, int lifetime)
+{
+    eid id = FF_SpriteTile(data, tilemap, x, y);
+    //for the projectile not the entity calling it 
+    Entity& e = Factory::Instance()[id].AddComponent<Com_Projectile, Com_type, Com_GridColData, Com_EnemySpawn>();
+    Com_Projectile& proj = e.Get<Com_Projectile>();
+    e.Get<Com_type>().type = 6;
+    proj.grid_vel_x = vel_x;
+    proj.grid_vel_y = vel_y;
+    proj.lifetime = lifetime;
+    return id;
+}
 
 eid Factory::FF_CreateSpawner()
 {
@@ -219,11 +231,11 @@ eid Factory::FF_CreateSpawner()
     return id;
 }
 
-eid Factory::FF_CreateEnemy(const SpriteData& data, const eid& tilemap ,const int& x, const int& y) {
+eid Factory::FF_CreateEnemy(const SpriteData& data, const eid& tilemap ,const int& x, const int& y, const int& type) {
     eid id = FF_Sprite(data, 0.0f, 0.0f);
     Factory::Instance()[id].AddComponent<Com_TilePosition, Com_TilemapRef, Com_Direction, Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_type, Com_GridColData, Com_TileMoveSpriteState>();
     Entity& e = Factory::Instance()[id];
-    e.Get<Com_type>().type = 1;
+    e.Get<Com_type>().type = type;
     e.Get<Com_TilePosition>() = { x,y,x,y };
     e.Get<Com_TilemapRef>()._tilemap = &Factory::Instance()[tilemap].Get<Com_Tilemap>();
     return id;
@@ -333,5 +345,35 @@ eid Factory::FF_CreateGUIChildClickableSurfaceWordsTextBox(eid parent, const Spr
     com_text._data._text = text;
     com_text._data._font = ResourceManager::Instance().GetFont(font);
     com_text._data._layer = Factory::Instance()[parent].Get<Com_GUISurface>()._layer + 2;
+    return id;
+}
+
+
+eid Factory::FF_TilemapGUI(const std::string& texture, const std::string& bottom, const std::string& top)
+{
+    eid id = CreateEntity<Com_Tilemap, Com_Position, Com_GUIMap,Com_BoundingBoxGUI>();
+    Entity& e = Factory::Instance()[id];
+    Com_Tilemap& tilemap = e.Get<Com_Tilemap>();
+    ResourceManager::Instance().GetResource(tilemap._render_pack._texture, tilemap._render_pack._mesh, texture, 4, 4/*, 16*/);
+    ResourceManager::Instance().ReadTilemapTxt(top, tilemap);
+    ResourceManager::Instance().ReadFloorMapTxt(bottom, tilemap);
+    //make individual grid bounding box based on tilemap 
+
+    tilemap._scale_x = 50.0f;
+    tilemap._scale_y = 50.0f;
+    tilemap._initialized = true;
+    return id;
+}
+
+eid Factory::FF_CreateGUIChildClickableSurfaceTextLevelEditor(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string& text, const std::string& font)
+{
+    eid id = FF_CreateGUIChildClickableSurface(parent, data, x, y, width, height, onclick);
+    Entity& e = Factory::Instance()[id].AddComponent<Com_Text>();
+    Com_Text& com_text = e.Get<Com_Text>();
+    com_text._data._text = text;
+    com_text._data._font = ResourceManager::Instance().GetFont(font);
+    com_text._data._layer = Factory::Instance()[parent].Get<Com_GUISurface>()._layer + 2;
+    com_text._data._scale = 0.8f;
+
     return id;
 }

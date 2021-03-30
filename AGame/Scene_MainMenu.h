@@ -29,6 +29,7 @@ struct MainMenu : public Scene {
 	bool _gui_change_scene{ false };
 	void Initialize() override {
 		std::cout << "SYSTEM MESSAGE: Now entering main menu." << std::endl;
+		
 
 		// main background
 		main = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.5f, 0.5f, 1.0f, 1.0f, 100);
@@ -49,6 +50,7 @@ struct MainMenu : public Scene {
 
 		// initialize gui settings
 		GUISettingsInitialize();
+
 	}
 	void Update(const float& dt) override {
 		UNREFERENCED_PARAMETER(dt);
@@ -57,5 +59,11 @@ struct MainMenu : public Scene {
 		offset_y = sin(offset_rad);
 		Factory::Instance()[_buttons_surface].Get<Com_GUISurface>()._position.y = original_y + offset_y * 0.03f;
 		Factory::Instance()[_title].Get<Com_GUISurface>()._dimensions = { original_dim_x + (offset_y+1.0f) * 0.03f, original_dim_y + (offset_y+1.0f) * 0.03f };
+	}
+	/*
+	Exit Override (optional)
+	________________________________*/
+	void Exit() override {
+		
 	}
 };

@@ -314,6 +314,85 @@ AEMtx33 ResourceManager::ScreenShake()
 	return trans;
 }
 
+void ResourceManager::CreateMusic() 
+{
+	//Create system object and initailize it
+	result = FMOD::System_Create(&sound_system);
+	//ERRCHECK(result);
+
+
+	result = sound_system->getVersion(&version);
+	//ERRCHECK(result);
+
+
+	if (version < FMOD_VERSION)
+	{
+		std::cout << "FMOD lib version" << version << "doesn't math hearder version" << FMOD_VERSION;
+	}
+
+	//init sound track
+	result = sound_system->init(32, FMOD_INIT_NORMAL, extradriverdata);
+
+	//load tracks
+	//char* filePath = new char;
+
+	//result = sound_system->createSound(Common_MediaPath("drumloop.wav"), FMOD_DEFAULT, 0, &sound1);
+	result = sound_system->createSound("../bin/Assets/Sound/SoulFly.wav", FMOD_DEFAULT, 0, &sound1);
+	result = sound1->setMode(FMOD_LOOP_NORMAL); 
+
+
+
+	//result = sound_system->createSound(Common_SoundPath("drumloop.wav"), FMOD_DEFAULT, 0, &sound1);
+	std::cout << "Sound load";
+
+}
+
+void ResourceManager::UpdateAndPlayMusic() 
+{
+	//std::cout<< AEFrameRateControllerGetFrameTime()<<std::endl;
+	//std::cout << "Sound update" << std::endl;
+
+	//mute
+	if (AEInputCheckTriggered(AEVK_M)) {
+		mute = !mute;
+		//channel->getMute(&mute);
+		//channel->setMute(&mute);
+	}
+	if (!mute) {
+		//Play sound
+		//Player jump
+		if (!playing)
+		{
+			result = sound_system->playSound(sound1, 0, false, &channel);
+			std::cout << "sound played";
+			//ERRCHECK(result);
+		}
+
+		result = sound_system->update();
+
+		//system pause
+		if (AEInputCheckTriggered(AEVK_P)) {
+			bool paused;
+			result = channel->getPaused(&paused);
+			paused = !paused;
+			result = channel->setPaused(paused);
+		}
+
+		if (channel) {
+
+			result = channel->isPlaying(&playing);
+
+		}
+
+	}
+}
+
+void ResourceManager::FreeMusic() 
+{
+	result = sound1->release();
+	std::cout << "Freed" << std::endl;
+}
+
 //void ResourceManager::WriteFloorMapTxt(const std::string& path, Com_Tilemap& tilemap)
 //{
 //}

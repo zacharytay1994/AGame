@@ -82,13 +82,15 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Particle>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_ParticleEmitter>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_objecttype>();
-	ComponentDescription_DB::Instance().RegisterComponent<Com_BoundingBox>();
+	//ComponentDescription_DB::Instance().RegisterComponent<Com_BoundingBox>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_CollisionData>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Camera>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_ParentPosition>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_type>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GridColData>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Health>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_GUIMap>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_BoundingBoxGUI>();
 
 	// Pathfinding
 	ComponentDescription_DB::Instance().RegisterComponent<Com_FindPath>();
@@ -108,6 +110,7 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_EnemyStateOne>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_TileMoveSpriteState>();
 
+	
 	// 3. Registering all systems for the game
 	//SystemDatabase::Instance().RegisterSystem<Example_UpdatePosition, Position, Example_Velocity>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Tilemap, Com_Tilemap>();
@@ -147,13 +150,13 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_GUItextboxinput, Com_GUItextboxinput, Com_Text>();
 	SystemDatabase::Instance().RegisterSystem<Sys_writetofile, Com_Tilemap, Com_Writetofile, Com_GUIMouseCheck>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUItextboxinputwords, Com_GUItextboxinputwords, Com_Text>();
-
+	SystemDatabase::Instance().RegisterSystem <Sys_GUIMapClick, Com_GUIMap, Com_Tilemap, Com_BoundingBoxGUI>();
 	// pathfinding
-	SystemDatabase::Instance().RegisterSystem<Sys_PathFinding, Com_FindPath>();
+	SystemDatabase::Instance().RegisterSystem<Sys_PathFinding, Com_type, Com_FindPath>();
 	//SystemDatabase::Instance().RegisterSystem<Sys_Pathfinding_v2, Com_FindPath>();
 
 	// enemy states, spawn, attack
-	SystemDatabase::Instance().RegisterSystem<Sys_EnemyStateOne, Com_EnemyStateOne, Com_FindPath, Com_TilePosition, Com_Sprite>();
+	SystemDatabase::Instance().RegisterSystem<Sys_EnemyStateOne, Com_EnemyStateOne, Com_FindPath, Com_TilePosition, Com_Sprite, Com_type>();
 	SystemDatabase::Instance().RegisterSystem<Sys_EnemySpawning, Com_EnemySpawn, Com_Wave>();
 	//SystemDatabase::Instance().RegisterSystem<Sys_EnemyAttack, Com_Direction, Com_type, Com_TilePosition, Com_Tilemap, Com_EnemyStateOne>();
 	
