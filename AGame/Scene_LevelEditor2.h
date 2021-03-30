@@ -114,6 +114,9 @@ struct LevelEditor2 : public Scene {
 		if (SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp == 4 && SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->savedmap == true){
 			SceneManager::Instance().ChangeScene("Main Menu");
 		}
+		if (AEInputCheckTriggered('R')) {
+			SceneManager::Instance().RestartScene();
+		}
 	}
 	void Exit() override {
 

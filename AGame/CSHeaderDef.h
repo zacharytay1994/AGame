@@ -2199,12 +2199,12 @@ struct Sys_GUItextboxinput : public System {
 			//reset result
 			input.input.clear();
 			input.result.clear();
-			//for (size_t i{ 0 }; i < result.size(); ++i) {
-			//	result.pop_back();
-			//}
-			//clearing data 
 			text._data._text.clear();
 			input.inputting = true;
+			//change the text colour 
+			//text._data._r = 0.0f;
+			//text._data._g = 1.0f;
+			//text._data._b = 0.0f;
 		}
 	}
 };
@@ -2229,29 +2229,28 @@ struct Sys_writetofile : public System {
 		Com_Writetofile& wtf = get<Com_Writetofile>();
 		//Com_Tilemap* tileptr = &get<Com_Tilemap>();
 		if (mouse._over && AEInputCheckTriggered(AEVK_LBUTTON)) {
-			//write file 
-			std::cout << "writing to file now!" << std::endl;
-			//ResourceManager::Instance().GetResource(tilemap._render_pack._texture, tilemap._render_pack._mesh, texture, 4, 4, 16);
-			//tile._scale_x = 50;
-			//tile._scale_y = 50;
-			//tile._map = { 234,34,124,214,3 };
-			//tile._width = Factory::Instance()[tilemap].Get<Com_Text>().= 2;
-			tile._width = stoi(*(wtf.row));
-			tile._height = stoi(*(wtf.col));
-			tile._initialized = { true };
-			//init all to 1
-			for (size_t i{ 0 }; i < tile._height; ++i) {
-				for (size_t j{ 0 }; j < tile._width; ++j) {
-					tile._map.push_back(1);
-				}
-			}
-			*wtf.name += ".txt";
-			//tile._map= { 2,1,4,5 ,6,7};
-			//tileptr->_height = 5;
-			//tileptr->_width = 5;
-			ResourceManager::Instance().WriteTilemapTxt(*wtf.name, tile);
+			//write file if col and col is not empty
+			if (!(*wtf.row).empty() && !(*wtf.col).empty()) {
+				std::cout << "writing to file now!" << std::endl;
+				tile._width = stoi(*(wtf.row));
+				tile._height = stoi(*(wtf.col));
 
-			//ResourceManager::Instance().WriteFloorMapTxt("floorhello.text", tile); //this not working?
+				//check if it's within boundary
+				if (tile._width > 12 || tile._height > 12) {
+					std::cout << "too small! the column or the row" << std::endl;
+					return;
+				}
+
+				tile._initialized = { true };
+				//init all to 1
+				for (size_t i{ 0 }; i < tile._height; ++i) {
+					for (size_t j{ 0 }; j < tile._width; ++j) {
+						tile._map.push_back(1);
+					}
+				}
+				*wtf.name += ".txt";
+				ResourceManager::Instance().WriteTilemapTxt(*wtf.name, tile);
+			}
 		}
 	}
 };
@@ -2321,6 +2320,10 @@ struct Sys_GUItextboxinputwords : public System {
 				}
 				std::cout << input.input << std::endl;
 				input.inputting = false;
+				//change the text colour 
+				//text._data._r = 0.0f;
+				//text._data._g = 1.0f;
+				//text._data._b = 0.0f;
 			}
 		}
 		//trigger on click 
@@ -2330,9 +2333,6 @@ struct Sys_GUItextboxinputwords : public System {
 			//reset result
 			input.input.clear();
 			input.result.clear();
-			//for (size_t i{ 0 }; i < result.size(); ++i) {
-			//	result.pop_back();
-			//}
 			//clearing data 
 			text._data._text.clear();
 			input.inputting = true;
@@ -2368,19 +2368,12 @@ struct Sys_GUIMapClick : public System {
 		//Com_TilePosition& tilepos = get<Com_TilePosition>();
 		Com_Tilemap& tilemap = get<Com_Tilemap>();
 		Com_GUIMap& guimap = get<Com_GUIMap>();
-		//Com_BoundingBoxGUI& boundingboxgui = get<Com_BoundingBoxGUI>();
 		AEInputGetCursorPosition(&guimap.cursorposx,&guimap.cursorposy);
 		//of set cursor 
 		guimap.cursorposx -= AEGetWindowWidth() / 2;
 		guimap.cursorposy -= AEGetWindowHeight() / 2;
 		guimap.cursorposy = -guimap.cursorposy;
 
-		//std::cout << tilemap._height << std::endl;
-
-		//t position is the tile position x y 
-		//position x and y is the middle of the obj
-		//position.x = tilemap._offset_x * tilemap._scale_x + (float)t_position._vgrid_x * tilemap._scale_x;
-		//position.y = tilemap._offset_y * tilemap._scale_y - (float)t_position._vgrid_y * tilemap._scale_y;
 		int spawnspritex;
 		int spawnspritey;
 		if (guimap.uninitialised == true) {
