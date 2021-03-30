@@ -210,6 +210,18 @@ eid Factory::FF_Createproj2(const SpriteData& data, const int& x, const int& y, 
     return id;
 }
 
+eid Factory::FF_CreateprojEnemy(const SpriteData& data, const int& x, const int& y, const int& vel_x, const int& vel_y, eid const& tilemap, int lifetime)
+{
+    eid id = FF_SpriteTile(data, tilemap, x, y);
+    //for the projectile not the entity calling it 
+    Entity& e = Factory::Instance()[id].AddComponent<Com_Projectile, Com_type, Com_GridColData, Com_EnemySpawn>();
+    Com_Projectile& proj = e.Get<Com_Projectile>();
+    e.Get<Com_type>().type = 6;
+    proj.grid_vel_x = vel_x;
+    proj.grid_vel_y = vel_y;
+    proj.lifetime = lifetime;
+    return id;
+}
 
 eid Factory::FF_CreateSpawner()
 {
@@ -219,11 +231,11 @@ eid Factory::FF_CreateSpawner()
     return id;
 }
 
-eid Factory::FF_CreateEnemy(const SpriteData& data, const eid& tilemap ,const int& x, const int& y) {
+eid Factory::FF_CreateEnemy(const SpriteData& data, const eid& tilemap ,const int& x, const int& y, const int& type) {
     eid id = FF_Sprite(data, 0.0f, 0.0f);
     Factory::Instance()[id].AddComponent<Com_TilePosition, Com_TilemapRef, Com_Direction, Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_type, Com_GridColData, Com_TileMoveSpriteState>();
     Entity& e = Factory::Instance()[id];
-    e.Get<Com_type>().type = 1;
+    e.Get<Com_type>().type = type;
     e.Get<Com_TilePosition>() = { x,y,x,y };
     e.Get<Com_TilemapRef>()._tilemap = &Factory::Instance()[tilemap].Get<Com_Tilemap>();
     return id;

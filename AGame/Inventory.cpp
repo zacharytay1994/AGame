@@ -1,6 +1,6 @@
 #include "Inventory.h"
 
-Inventory::Inventory() : equipped_weapon{ nullptr }
+Inventory::Inventory() : equipped_weapon{ nullptr }, coins{ 100 }
 {
 	inventory_weapon.insert(std::make_pair("NoWeapon", new NoWeapon()));
 	inventory_weapon.insert(std::make_pair("Pistol", new Pistol()));
@@ -138,4 +138,10 @@ void Inventory::Inventory_PrintCurrentWeapon() const
 	}*/
 
 }
+
+size_t Inventory::Inventory_GetSize() const
+{
+	return inventory_weapon.size();
+}
+
 //#endif

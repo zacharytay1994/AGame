@@ -29,6 +29,7 @@ struct MainMenu : public Scene {
 	bool _gui_change_scene{ false };
 	void Initialize() override {
 		std::cout << "SYSTEM MESSAGE: Now entering main menu." << std::endl;
+		
 
 		// main background
 		main = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.5f, 0.5f, 1.0f, 1.0f, 100);
@@ -37,7 +38,8 @@ struct MainMenu : public Scene {
 		Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "AGame", "courier");
 		Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.5f, 0.6f, 0.8f, 0.4f, "by HCMR", "courier");
 		_buttons_surface = Factory::Instance().FF_CreateGUISurface(buttonbg, 0.5f, original_y, 0.9f, 0.6f, 120);
-		eid start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.30f, 0.35f, 0.4f, 0.2f, ChangeTestScenePF, "Start", "courier");
+		//eid start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.30f, 0.35f, 0.4f, 0.2f, ChangeTestScenePF, "Start", "courier");
+		eid start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.30f, 0.35f, 0.4f, 0.2f, ChangeInventoryScene, "Start", "courier");
 		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
 		start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.70f, 0.35f, 0.4f, 0.2f, OpenSurvey, "Survey", "courier");
 		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
@@ -48,6 +50,7 @@ struct MainMenu : public Scene {
 
 		// initialize gui settings
 		GUISettingsInitialize();
+
 	}
 	void Update(const float& dt) override {
 		UNREFERENCED_PARAMETER(dt);
@@ -56,5 +59,11 @@ struct MainMenu : public Scene {
 		offset_y = sin(offset_rad);
 		Factory::Instance()[_buttons_surface].Get<Com_GUISurface>()._position.y = original_y + offset_y * 0.03f;
 		Factory::Instance()[_title].Get<Com_GUISurface>()._dimensions = { original_dim_x + (offset_y+1.0f) * 0.03f, original_dim_y + (offset_y+1.0f) * 0.03f };
+	}
+	/*
+	Exit Override (optional)
+	________________________________*/
+	void Exit() override {
+		
 	}
 };

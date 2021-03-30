@@ -10,6 +10,7 @@
 #include "Scene_Wilfred.h"
 #include "Scene_Noel.h"
 #include "Scene_Credits.h"
+#include "Scene_Inventory.h"
 
 #include <iostream>
 
@@ -109,6 +110,7 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_EnemyStateOne>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_TileMoveSpriteState>();
 
+	
 	// 3. Registering all systems for the game
 	//SystemDatabase::Instance().RegisterSystem<Example_UpdatePosition, Position, Example_Velocity>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Tilemap, Com_Tilemap>();
@@ -150,11 +152,11 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_GUItextboxinputwords, Com_GUItextboxinputwords, Com_Text>();
 	SystemDatabase::Instance().RegisterSystem <Sys_GUIMapClick, Com_GUIMap, Com_Tilemap, Com_BoundingBoxGUI>();
 	// pathfinding
-	SystemDatabase::Instance().RegisterSystem<Sys_PathFinding, Com_FindPath>();
+	SystemDatabase::Instance().RegisterSystem<Sys_PathFinding, Com_type, Com_FindPath>();
 	//SystemDatabase::Instance().RegisterSystem<Sys_Pathfinding_v2, Com_FindPath>();
 
 	// enemy states, spawn, attack
-	SystemDatabase::Instance().RegisterSystem<Sys_EnemyStateOne, Com_EnemyStateOne, Com_FindPath, Com_TilePosition, Com_Sprite>();
+	SystemDatabase::Instance().RegisterSystem<Sys_EnemyStateOne, Com_EnemyStateOne, Com_FindPath, Com_TilePosition, Com_Sprite, Com_type>();
 	SystemDatabase::Instance().RegisterSystem<Sys_EnemySpawning, Com_EnemySpawn, Com_Wave>();
 	//SystemDatabase::Instance().RegisterSystem<Sys_EnemyAttack, Com_Direction, Com_type, Com_TilePosition, Com_Tilemap, Com_EnemyStateOne>();
 	
@@ -173,6 +175,7 @@ void SceneManager::Initialize() {
 	AddScene<LevelEditor>("Leveleditor");
 	AddScene<LevelEditor2>("Leveleditor2");
 	AddScene<LevelEditor>("Credits");
+	AddScene<InventoryMenu>("InventoryMenu");
 }
 
 void SceneManager::Free()
