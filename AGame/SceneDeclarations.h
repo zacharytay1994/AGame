@@ -50,7 +50,7 @@ void ChangeInventoryScene(Com_GUISurface* surface) {
 
 void ChangeTestScenePF(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
-	if(_playerInv.Inventory_GetCurrentWeapon().GetWeapon_Name() != "NoWepaon")
+	if(_playerInv.Inventory_GetCurrentWeapon().GetWeapon_Name() != "NoWeapon")
 		SceneManager::Instance().ChangeScene("Test PathFinding");
 }
 
@@ -78,12 +78,6 @@ void OpenSurvey(Com_GUISurface* surface) {
 	#elif __linux__ 
 		system("xdg-open https://forms.gle/KPbjkFks2SYmj9af8");
 	#endif
-}
-
-void EquipPistol() {
-	_playerInv.Inventory_SetWeaponUnlocked("Pistol");
-	_playerInv.Inventory_EquipWeapon("Pistol");
-	std::cout << "EQUIPPED PISTOL" << std::endl;
 }
 
 void ChangeLevelEditor(Com_GUISurface* surface) {
@@ -124,6 +118,42 @@ void GUISettingsInitialize() {
 void GUISettingsUpdate() {
 	Factory::Instance()[_settings].Get<Com_GUISurface>()._active = _settings_toggle;
 	Factory::Instance()[_change_scene].Get<Com_GUISurface>()._active = _change_scene_toggle;
+}
+
+// WEAPON STUFF
+void EquipPistol(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	_playerInv.Inventory_SetWeaponUnlocked("Pistol");
+	_playerInv.Inventory_EquipWeapon("Pistol");
+	std::cout << "EQUIPPED PISTOL" << std::endl;
+}
+
+void EquipTrickPistol(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	_playerInv.Inventory_SetWeaponUnlocked("TrickPistol");
+	_playerInv.Inventory_EquipWeapon("TrickPistol");
+	std::cout << "EQUIPPED TRICKPISTOL" << std::endl;
+}
+
+void EquipDualPistol(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	_playerInv.Inventory_SetWeaponUnlocked("DualPistol");
+	_playerInv.Inventory_EquipWeapon("DualPistol");
+	std::cout << "EQUIPPED DUALPISTOL" << std::endl;
+}
+
+void EquipDualDiagPistol(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	_playerInv.Inventory_SetWeaponUnlocked("DualDiagPistol");
+	_playerInv.Inventory_EquipWeapon("DualDiagPistol");
+	std::cout << "EQUIPPED DUALDIAGPISTOL" << std::endl;
+}
+
+void EquipDagger(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	_playerInv.Inventory_SetWeaponUnlocked("Dagger");
+	_playerInv.Inventory_EquipWeapon("Dagger");
+	std::cout << "EQUIPPED DAGGER" << std::endl;
 }
 
 /*!___________________________________________________________________
@@ -361,9 +391,9 @@ struct TestScenePF : public Scene
 		}*/
 
 		if (AEInputCheckTriggered(AEVK_D)) {
-			_playerInv.Inventory_SetWeaponUnlocked("Pistol");
-			_playerInv.Inventory_EquipWeapon("Pistol");
-			std::cout << "EQUIPPED PISTOL" << std::endl;
+			//_playerInv.Inventory_SetWeaponUnlocked("Pistol");
+			//_playerInv.Inventory_EquipWeapon("Pistol");
+			//std::cout << "EQUIPPED PISTOL" << std::endl;
 			_playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
 		}
 		if (AEInputCheckCurr(AEVK_LEFT)) {
