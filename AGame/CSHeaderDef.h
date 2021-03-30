@@ -48,6 +48,7 @@ struct Com_Text;
 struct Com_textboxinput;
 // Type
 struct Com_type;
+struct Com_BoundingBoxGUI;
 /*__________________________________________________________________________________________________
 																				Component::BASIC DATA
 ____________________________________________________________________________________________________*/
@@ -1982,6 +1983,7 @@ struct Sys_GridCollision : public System {
 	Com_EnemySpawn* _spawner{ nullptr };
 	eid player_id{ -1 };
 	std::vector<Com_GridColData> GridCol; //to store all collision data of player
+	std::vector<std::vector<Com_GridColData>::iterator> Gridcoliterator; 
 	void UpdateComponent() override {
 		if (!_grid || !_spawner) {
 			std::cout << "sys_gridcollision requires grid!" << std::endl;
@@ -1997,6 +1999,9 @@ struct Sys_GridCollision : public System {
 			GridCol.emplace_back(Com_GridColData{ tilepos,type });
 			gridcoldata.emplacedvec = true;
 		}
+		bool erase = false;
+		std::vector<Com_GridColData>::iterator iteratorcomgrid; 
+		iteratorcomgrid = GridCol.begin();
 
 		for (size_t i{ 0 }; i < GridCol.size(); ++i) {
 			if (gridcollisioncheck(*tilepos, *GridCol[i].tilepos)) {
@@ -2006,11 +2011,21 @@ struct Sys_GridCollision : public System {
 					_grid->Get({ tilepos->_vgrid_x,tilepos->_vgrid_y })._obstacle = false;
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					--_spawner->CurrNoOfEnemies;
+					Gridcoliterator.push_back(iteratorcomgrid);
+					erase = true;
 					RemoveEntity();
+					break;
 					//++gridspaen.DEATHEnemiespawncounter;
 					//--gridspaen.CurrNoOfEnemies;
 					//std::cout << gridspaen.DEATHEnemiespawncounter << std::endl;
 
+				}
+				
+				if (type->type == type->bullet && (GridCol[i].type->type == type->enemy || GridCol[i].type->type == type->enemyrange)) {
+					std::cout << "Collided Enemy" << std::endl;
+					_grid->Get({ tilepos->_vgrid_x,tilepos->_vgrid_y })._obstacle = false;
+					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
+					RemoveEntity();
 				}
 
 				if ((type->type == type->player) && GridCol[i].type->type == type->EnemyBalls) 
@@ -2033,10 +2048,11 @@ struct Sys_GridCollision : public System {
 						hit = false;
 					}
 					RemoveEntity();
-
+					Gridcoliterator.push_back(iteratorcomgrid);
+					erase = true;
+					break;
 
 				}
-				
 
 				////range attack with enemy 
 				//if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
@@ -2058,12 +2074,6 @@ struct Sys_GridCollision : public System {
 				//	std::cout << "Collided" << std::endl;
 				//	RemoveEntity();
 				//}
-				if (type->type == type->bullet && (GridCol[i].type->type == type->enemy || GridCol[i].type->type == type->enemyrange)) {
-					std::cout << "Collided Enemy" << std::endl;
-					_grid->Get({ tilepos->_vgrid_x,tilepos->_vgrid_y })._obstacle = false;
-					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
-					RemoveEntity();
-				}
 				
 				////enemy with bullet 
 				//if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
@@ -2071,6 +2081,16 @@ struct Sys_GridCollision : public System {
 				//	RemoveEntity();
 				//}
 			}
+			++iteratorcomgrid;
+		}
+
+		//remove the data of destroyed 
+		if (erase) {
+			for (size_t i{ 0 }; i < Gridcoliterator.size(); ++i) {
+				GridCol.erase(Gridcoliterator[i]);
+			}
+			//clear the gridcoliterator
+			Gridcoliterator.clear();
 		}
 	}
 
@@ -2141,12 +2161,12 @@ struct Sys_GUItextboxinput : public System {
 			//reset result
 			input.input.clear();
 			input.result.clear();
-			//for (size_t i{ 0 }; i < result.size(); ++i) {
-			//	result.pop_back();
-			//}
-			//clearing data 
 			text._data._text.clear();
 			input.inputting = true;
+			//change the text colour 
+			//text._data._r = 0.0f;
+			//text._data._g = 1.0f;
+			//text._data._b = 0.0f;
 		}
 	}
 };
@@ -2171,29 +2191,28 @@ struct Sys_writetofile : public System {
 		Com_Writetofile& wtf = get<Com_Writetofile>();
 		//Com_Tilemap* tileptr = &get<Com_Tilemap>();
 		if (mouse._over && AEInputCheckTriggered(AEVK_LBUTTON)) {
-			//write file 
-			std::cout << "writing to file now!" << std::endl;
-			//ResourceManager::Instance().GetResource(tilemap._render_pack._texture, tilemap._render_pack._mesh, texture, 4, 4, 16);
-			//tile._scale_x = 50;
-			//tile._scale_y = 50;
-			//tile._map = { 234,34,124,214,3 };
-			//tile._width = Factory::Instance()[tilemap].Get<Com_Text>().= 2;
-			tile._width = stoi(*(wtf.row));
-			tile._height = stoi(*(wtf.col));
-			tile._initialized = { true };
-			//init all to 1
-			for (size_t i{ 0 }; i < tile._height; ++i) {
-				for (size_t j{ 0 }; j < tile._width; ++j) {
-					tile._map.push_back(1);
-				}
-			}
-			*wtf.name += ".txt";
-			//tile._map= { 2,1,4,5 ,6,7};
-			//tileptr->_height = 5;
-			//tileptr->_width = 5;
-			ResourceManager::Instance().WriteTilemapTxt(*wtf.name, tile);
+			//write file if col and col is not empty
+			if (!(*wtf.row).empty() && !(*wtf.col).empty()) {
+				std::cout << "writing to file now!" << std::endl;
+				tile._width = stoi(*(wtf.row));
+				tile._height = stoi(*(wtf.col));
 
-			//ResourceManager::Instance().WriteFloorMapTxt("floorhello.text", tile); //this not working?
+				//check if it's within boundary
+				if (tile._width > 12 || tile._height > 12) {
+					std::cout << "too small! the column or the row" << std::endl;
+					return;
+				}
+
+				tile._initialized = { true };
+				//init all to 1
+				for (size_t i{ 0 }; i < tile._height; ++i) {
+					for (size_t j{ 0 }; j < tile._width; ++j) {
+						tile._map.push_back(1);
+					}
+				}
+				*wtf.name += ".txt";
+				ResourceManager::Instance().WriteTilemapTxt(*wtf.name, tile);
+			}
 		}
 	}
 };
@@ -2263,6 +2282,10 @@ struct Sys_GUItextboxinputwords : public System {
 				}
 				std::cout << input.input << std::endl;
 				input.inputting = false;
+				//change the text colour 
+				//text._data._r = 0.0f;
+				//text._data._g = 1.0f;
+				//text._data._b = 0.0f;
 			}
 		}
 		//trigger on click 
@@ -2272,12 +2295,119 @@ struct Sys_GUItextboxinputwords : public System {
 			//reset result
 			input.input.clear();
 			input.result.clear();
-			//for (size_t i{ 0 }; i < result.size(); ++i) {
-			//	result.pop_back();
-			//}
 			//clearing data 
 			text._data._text.clear();
 			input.inputting = true;
+		}
+	}
+};
+
+
+struct Com_GUIMap {
+	s32  cursorposy;
+	s32  cursorposx;
+	std::vector<Com_BoundingBoxGUI> bounding;
+	bool uninitialised = true;
+};
+
+struct Com_BoundingBoxGUI
+{
+	float minx;
+	float miny;
+	float maxx;
+	float maxy;
+	int x;
+	int y;
+	bool tileintialised = false;
+};
+
+struct Sys_GUIMapClick : public System {
+	eid _tilemap = { -1 };
+	int Leveledittyp = 0;
+	std::string nameofmap;
+	bool savedmap = false;
+	void UpdateComponent() override {
+		//Com_TilePosition& tilepos = get<Com_TilePosition>();
+		Com_Tilemap& tilemap = get<Com_Tilemap>();
+		Com_GUIMap& guimap = get<Com_GUIMap>();
+		AEInputGetCursorPosition(&guimap.cursorposx,&guimap.cursorposy);
+		//of set cursor 
+		guimap.cursorposx -= AEGetWindowWidth() / 2;
+		guimap.cursorposy -= AEGetWindowHeight() / 2;
+		guimap.cursorposy = -guimap.cursorposy;
+
+		int spawnspritex;
+		int spawnspritey;
+		if (guimap.uninitialised == true) {
+			//calculateboundingofall(tilemap, x, y, guimap);
+			int height = tilemap._height;
+			int width = tilemap._width;
+			for (int i{ 0 }; i < height; ++i) {
+				for (int j{ 0 }; j < width; ++j) {
+					Vec2f position;
+					//got the position of each tile centre 
+					//get centre of screen
+					position.x = tilemap._offset_x * tilemap._scale_x + (float)j * tilemap._scale_x;
+					position.y = tilemap._offset_y * tilemap._scale_y - (float)i * tilemap._scale_y;
+					//get the bounding box nd pass it in 
+					float minx = position.x - 0.5f * tilemap._scale_x;
+					float miny = position.y + 0.5f * tilemap._scale_y;
+					float maxx = position.x + 0.5f * tilemap._scale_x;
+					float maxy = position.y - 0.5f * tilemap._scale_y;
+					Com_BoundingBoxGUI tmp{ minx,miny,maxx,maxy,j,i, false };
+					guimap.bounding.push_back(tmp);
+					//guimap.bounding.pu
+				}
+			}
+			guimap.uninitialised = false;
+		}
+		//do once , calculate the bounding box and return the x y 
+		//tilepos._grid_x * tilemap._scale_x
+		if (AEInputCheckTriggered(AEVK_LBUTTON)) {
+			//loop by the bounding box of all tile and check
+			for (size_t a{ 0 }; a < guimap.bounding.size(); ++a) {
+				//if it's within 
+				if (guimap.cursorposx < guimap.bounding[a].maxx && guimap.cursorposx > guimap.bounding[a].minx && guimap.cursorposy > guimap.bounding[a].maxy
+					&& guimap.cursorposy < guimap.bounding[a].miny && guimap.bounding[a].tileintialised == false) {
+					spawnspritex = guimap.bounding[a].x;
+					spawnspritey = guimap.bounding[a].y;
+					//appear at this position 
+					if (Leveledittyp == 0) {
+						break;
+					}
+					if (Leveledittyp == 1) {
+						//Vec2i passin[5] = { {0,3},{4,7},{8,11},{0,0},{0,0} };
+						//Factory::SpriteData dog{ "dog.png", 100.0f, 160.0f, 4, 3, 12, 0.1f, 0, passin };
+						Factory::SpriteData boom{ "kaboom", 40.0f, 40.0f, 1, 1, 1, 0.15f };
+						Factory::Instance().FF_SpriteTile(boom, _tilemap, spawnspritex, spawnspritey);
+						tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = 0;
+						guimap.bounding[a].tileintialised = true;
+					}
+					if (Leveledittyp == 2) {
+						Vec2i passin[5] = { {0,3},{4,7},{8,11},{0,0},{0,0} };
+						Factory::SpriteData dog{ "dog.png", 100.0f, 160.0f, 4, 3, 12, 0.1f, 0, passin };
+						Factory::Instance().FF_SpriteTile(dog, _tilemap, spawnspritex, spawnspritey);
+						guimap.bounding[a].tileintialised = true;
+					}
+					if (Leveledittyp == 3) {
+						Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
+						Factory::SpriteData man{ "hero.png", 100.0f, 160.0f, 3, 3, 8, 0.1f, 0, passin };
+						Factory::Instance().FF_SpriteTile(man, _tilemap, spawnspritex, spawnspritey);
+						guimap.bounding[a].tileintialised = true;
+					}
+					//change the data in the the map 
+					//tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = -1;
+					//Factory::Instance().FF_SpriteTile(dog, _tilemap, 11,11);
+				}
+			}
+			if (Leveledittyp == 4) {
+				/*Vec2i passin2[5] = { {0,1},{2,3},{4,5},{6,7},{0,0} };
+				Factory::SpriteData arrows{ "arrows.png", 50.0f, 50.0f, 3, 3, 8, 0.1f, -900, passin2 };
+				Factory::Instance().FF_SpriteTile(arrows, _tilemap, spawnspritex, spawnspritey);*/
+				//write to file 
+				savedmap = true;
+				ResourceManager::Instance().WriteTilemapTxt(nameofmap, tilemap);
+			}
 		}
 	}
 };

@@ -43,9 +43,15 @@ void ChangeTestScene(Com_GUISurface* surface) {
 	SceneManager::Instance().ChangeScene("Test Scene");
 }
 
+void ChangeInventoryScene(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	SceneManager::Instance().ChangeScene("InventoryMenu");
+}
+
 void ChangeTestScenePF(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
-	SceneManager::Instance().ChangeScene("Test PathFinding");
+	if(_playerInv.Inventory_GetCurrentWeapon().GetWeapon_Name() != "NoWeapon")
+		SceneManager::Instance().ChangeScene("Test PathFinding");
 }
 
 void ChangeShootingRangeScene(Com_GUISurface* surface) {
@@ -102,7 +108,7 @@ void GUISettingsInitialize() {
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
 	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.5f, 0.9f, 0.08f, ChangeShootingRangeScene, "Noel", "courier");	// clickable child surface text
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
-	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.65f, 0.9f, 0.08f, ChangeWilf, "Wilf", "courier");	// clickable child surface text
+	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.65f, 0.9f, 0.08f, ChangeWilf, "Play Custom", "courier");	// clickable child surface text
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
 	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.8f, 0.9f, 0.08f, ChangeTestScene, "Zac", "courier");	// clickable child surface text
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
@@ -112,6 +118,42 @@ void GUISettingsInitialize() {
 void GUISettingsUpdate() {
 	Factory::Instance()[_settings].Get<Com_GUISurface>()._active = _settings_toggle;
 	Factory::Instance()[_change_scene].Get<Com_GUISurface>()._active = _change_scene_toggle;
+}
+
+// WEAPON STUFF
+void EquipPistol(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	_playerInv.Inventory_SetWeaponUnlocked("Pistol");
+	_playerInv.Inventory_EquipWeapon("Pistol");
+	std::cout << "EQUIPPED PISTOL" << std::endl;
+}
+
+void EquipTrickPistol(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	_playerInv.Inventory_SetWeaponUnlocked("TrickPistol");
+	_playerInv.Inventory_EquipWeapon("TrickPistol");
+	std::cout << "EQUIPPED TRICKPISTOL" << std::endl;
+}
+
+void EquipDualPistol(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	_playerInv.Inventory_SetWeaponUnlocked("DualPistol");
+	_playerInv.Inventory_EquipWeapon("DualPistol");
+	std::cout << "EQUIPPED DUALPISTOL" << std::endl;
+}
+
+void EquipDualDiagPistol(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	_playerInv.Inventory_SetWeaponUnlocked("DualDiagPistol");
+	_playerInv.Inventory_EquipWeapon("DualDiagPistol");
+	std::cout << "EQUIPPED DUALDIAGPISTOL" << std::endl;
+}
+
+void EquipDagger(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	_playerInv.Inventory_SetWeaponUnlocked("Dagger");
+	_playerInv.Inventory_EquipWeapon("Dagger");
+	std::cout << "EQUIPPED DAGGER" << std::endl;
 }
 
 /*!___________________________________________________________________
@@ -197,6 +239,7 @@ struct TestScenePF : public Scene
 	eid waves{ -1 };
 	eid spawner{ -1 };
 	eid menu{ -1 };
+	Inventory playerInv;
 	Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
 	Factory::SpriteData man{ "hero.png", 100.0f, 160.0f, 3, 3, 8, 0.1f, 0, passin };
 	Factory::SpriteData data{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.15f };
@@ -281,9 +324,9 @@ struct TestScenePF : public Scene
 		//Factory::Instance().FF_CreateGUISurface(clock, 0.5f, 0.05f, 0.1f, 0.1f, 100);
 
 		GUISettingsInitialize();
-		_playerInv.Inventory_SetWeaponUnlocked("Pistol");
-		_playerInv.Inventory_EquipWeapon("Pistol");
-		std::cout << "EQUIPPED PISTOL" << std::endl;
+		//_playerInv.Inventory_SetWeaponUnlocked("Pistol");
+		//_playerInv.Inventory_EquipWeapon("Pistol");
+		//std::cout << "EQUIPPED PISTOL" << std::endl;
 	}
 	/*
 	Update Override (optional)
@@ -303,28 +346,43 @@ struct TestScenePF : public Scene
 		if (AEInputCheckCurr('L')) {
 			ResourceManager::Instance()._screen_shake = 1.0f;
 		}
-		if (AEInputCheckTriggered('N')) {
-			/*std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i++ << std::endl;
-			std::cout << SystemDatabase::Instance().GetSystem<Sys_Tilemap>().i << std::endl;*/
-		}
-		if (AEInputCheckTriggered('P')) {
-			player = Factory::Instance().FF_Sprite(data, 100.0f, 100.0f);
-			//Factory::Instance().GetEntity(player).Get<Com_Sprite>()._frame_interval -= dt;
-			//Com_Sprite& s = player->Get<Com_Sprite>();
-		}
-		if (AEInputCheckTriggered('O')) {
-			Factory::Instance()[player].AddComponent<Com_ArrowKeys>();
-			Factory::Instance()[player].AddComponent<Com_YLayering>();
-		}
 
-		if (AEInputCheckTriggered('R')) {
-			SceneManager::Instance().RestartScene();
-		}
-		if (AEInputCheckTriggered(AEVK_G)) {
-			_playerInv.Inventory_PrintCurrentWeapon();
+		if (AEInputCheckTriggered(AEVK_H)) {
+			playerInv.Inventory_SetWeaponUnlocked("Pistol");
+			playerInv.Inventory_EquipWeapon("Pistol");
+			std::cout << "EQUIPPED PISTOL" << std::endl;
 		}
 
 		if (AEInputCheckTriggered(AEVK_F)) {
+			playerInv.Inventory_SetWeaponUnlocked("TrickPistol");
+			playerInv.Inventory_EquipWeapon("TrickPistol");
+			std::cout << "EQUIPPED TRICKPISTOL" << std::endl;
+		}
+
+		if (AEInputCheckTriggered(AEVK_S)) {
+			playerInv.Inventory_SetWeaponUnlocked("DualPistol");
+			playerInv.Inventory_EquipWeapon("DualPistol");
+			std::cout << "EQUIPPED DUALPISTOL" << std::endl;
+		}
+
+		if (AEInputCheckTriggered(AEVK_A)) {
+			playerInv.Inventory_SetWeaponUnlocked("DualDiagPistol");
+			playerInv.Inventory_EquipWeapon("DualDiagPistol");
+			std::cout << "EQUIPPED DUALDIAGPISTOL" << std::endl;
+		}
+
+		if (AEInputCheckTriggered(AEVK_D)) {
+			playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
+		}
+//#endif
+		if (AEInputCheckTriggered('R')) {
+			SceneManager::Instance().RestartScene();
+		}
+		/*if (AEInputCheckTriggered(AEVK_G)) {
+			_playerInv.Inventory_PrintCurrentWeapon();
+		}
+
+		(if (AEInputCheckTriggered(AEVK_F)) {
 			_playerInv.Inventory_SetWeaponUnlocked("Pistol");
 			_playerInv.Inventory_EquipWeapon("Pistol");
 			std::cout << "EQUIPPED PISTOL" << std::endl;
@@ -352,9 +410,12 @@ struct TestScenePF : public Scene
 			_playerInv.Inventory_SetWeaponUnlocked("Dagger");
 			_playerInv.Inventory_EquipWeapon("Dagger");
 			std::cout << "EQUIPPED DAGGER" << std::endl;
-		}
+		}*/
 
 		if (AEInputCheckTriggered(AEVK_D)) {
+			//_playerInv.Inventory_SetWeaponUnlocked("Pistol");
+			//_playerInv.Inventory_EquipWeapon("Pistol");
+			//std::cout << "EQUIPPED PISTOL" << std::endl;
 			_playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
 		}
 		if (AEInputCheckCurr(AEVK_LEFT)) {
@@ -384,7 +445,7 @@ struct TestScenePF : public Scene
 		}
 
 		GUISettingsUpdate();
-	}
+	}	
 	/*
 	Exit Override (optional)
 	________________________________*/

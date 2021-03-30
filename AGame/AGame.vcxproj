@@ -17,6 +17,7 @@
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Scene_Credits.h" />
+    <ClCompile Include="Scene_Instruction.cpp" />
     <ClCompile Include="Weapon.cpp" />
     <ClCompile Include="zChunk.cpp" />
     <ClCompile Include="zArchetype.cpp" />
@@ -29,6 +30,7 @@
     <ClInclude Include="Factory.h" />
     <ClInclude Include="Inventory.h" />
     <ClInclude Include="music.h" />
+    <ClInclude Include="Scene_Inventory.h" />
     <ClInclude Include="Scene_LevelEditor.h" />
     <ClInclude Include="Scene_LevelEditor2.h" />
     <ClInclude Include="Scene_MainMenu.h" />

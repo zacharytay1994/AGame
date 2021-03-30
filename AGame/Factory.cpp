@@ -347,3 +347,33 @@ eid Factory::FF_CreateGUIChildClickableSurfaceWordsTextBox(eid parent, const Spr
     com_text._data._layer = Factory::Instance()[parent].Get<Com_GUISurface>()._layer + 2;
     return id;
 }
+
+
+eid Factory::FF_TilemapGUI(const std::string& texture, const std::string& bottom, const std::string& top)
+{
+    eid id = CreateEntity<Com_Tilemap, Com_Position, Com_GUIMap,Com_BoundingBoxGUI>();
+    Entity& e = Factory::Instance()[id];
+    Com_Tilemap& tilemap = e.Get<Com_Tilemap>();
+    ResourceManager::Instance().GetResource(tilemap._render_pack._texture, tilemap._render_pack._mesh, texture, 4, 4/*, 16*/);
+    ResourceManager::Instance().ReadTilemapTxt(top, tilemap);
+    ResourceManager::Instance().ReadFloorMapTxt(bottom, tilemap);
+    //make individual grid bounding box based on tilemap 
+
+    tilemap._scale_x = 50.0f;
+    tilemap._scale_y = 50.0f;
+    tilemap._initialized = true;
+    return id;
+}
+
+eid Factory::FF_CreateGUIChildClickableSurfaceTextLevelEditor(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string& text, const std::string& font)
+{
+    eid id = FF_CreateGUIChildClickableSurface(parent, data, x, y, width, height, onclick);
+    Entity& e = Factory::Instance()[id].AddComponent<Com_Text>();
+    Com_Text& com_text = e.Get<Com_Text>();
+    com_text._data._text = text;
+    com_text._data._font = ResourceManager::Instance().GetFont(font);
+    com_text._data._layer = Factory::Instance()[parent].Get<Com_GUISurface>()._layer + 2;
+    com_text._data._scale = 0.8f;
+
+    return id;
+}

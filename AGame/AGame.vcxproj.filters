@@ -34,6 +34,9 @@
     <ClCompile Include="Scene_Credits.h">
       <Filter>Header Files\Scenes</Filter>
     </ClCompile>
+    <ClCompile Include="Scene_Instruction.cpp">
+      <Filter>Header Files\Scenes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="zArchetype.h">
@@ -100,6 +103,9 @@
       <Filter>Header Files\Scenes</Filter>
     </ClInclude>
     <ClInclude Include="Scene_LevelEditor2.h">
+      <Filter>Header Files\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene_Inventory.h">
       <Filter>Header Files\Scenes</Filter>
     </ClInclude>
   </ItemGroup>

@@ -24,6 +24,9 @@ class Inventory
 			void Inventory_PrintCurrentWeapon() const;
 		//#endif
 
+		int coins;
+		size_t Inventory_GetSize() const;
+
 	private:
 		std::map<std::string, Weapon*> inventory_weapon;
 		Weapon* equipped_weapon;
