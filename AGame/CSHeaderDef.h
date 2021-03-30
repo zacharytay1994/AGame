@@ -2356,6 +2356,7 @@ struct Com_BoundingBoxGUI
 	float maxy;
 	int x;
 	int y;
+	bool tileintialised = false;
 };
 
 struct Sys_GUIMapClick : public System {
@@ -2398,7 +2399,7 @@ struct Sys_GUIMapClick : public System {
 					float miny = position.y + 0.5f * tilemap._scale_y;
 					float maxx = position.x + 0.5f * tilemap._scale_x;
 					float maxy = position.y - 0.5f * tilemap._scale_y;
-					Com_BoundingBoxGUI tmp{ minx,miny,maxx,maxy,j,i };
+					Com_BoundingBoxGUI tmp{ minx,miny,maxx,maxy,j,i, false };
 					guimap.bounding.push_back(tmp);
 					//guimap.bounding.pu
 				}
@@ -2411,8 +2412,8 @@ struct Sys_GUIMapClick : public System {
 			//loop by the bounding box of all tile and check
 			for (size_t a{ 0 }; a < guimap.bounding.size(); ++a) {
 				//if it's within 
-				if (guimap.cursorposx < guimap.bounding[a].maxx && guimap.cursorposx > guimap.bounding[a].minx && guimap.cursorposy > guimap.bounding[a].maxy 
-					&& guimap.cursorposy < guimap.bounding[a].miny) {
+				if (guimap.cursorposx < guimap.bounding[a].maxx && guimap.cursorposx > guimap.bounding[a].minx && guimap.cursorposy > guimap.bounding[a].maxy
+					&& guimap.cursorposy < guimap.bounding[a].miny && guimap.bounding[a].tileintialised == false) {
 					spawnspritex = guimap.bounding[a].x;
 					spawnspritey = guimap.bounding[a].y;
 					//appear at this position 
@@ -2425,16 +2426,19 @@ struct Sys_GUIMapClick : public System {
 						Factory::SpriteData boom{ "kaboom", 40.0f, 40.0f, 1, 1, 1, 0.15f };
 						Factory::Instance().FF_SpriteTile(boom, _tilemap, spawnspritex, spawnspritey);
 						tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = 0;
+						guimap.bounding[a].tileintialised = true;
 					}
 					if (Leveledittyp == 2) {
 						Vec2i passin[5] = { {0,3},{4,7},{8,11},{0,0},{0,0} };
 						Factory::SpriteData dog{ "dog.png", 100.0f, 160.0f, 4, 3, 12, 0.1f, 0, passin };
 						Factory::Instance().FF_SpriteTile(dog, _tilemap, spawnspritex, spawnspritey);
+						guimap.bounding[a].tileintialised = true;
 					}
 					if (Leveledittyp == 3) {
 						Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
 						Factory::SpriteData man{ "hero.png", 100.0f, 160.0f, 3, 3, 8, 0.1f, 0, passin };
 						Factory::Instance().FF_SpriteTile(man, _tilemap, spawnspritex, spawnspritey);
+						guimap.bounding[a].tileintialised = true;
 					}
 					//change the data in the the map 
 					//tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = -1;

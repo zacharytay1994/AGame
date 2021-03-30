@@ -87,7 +87,7 @@ struct LevelEditor2 : public Scene {
 		pf2._initialized = true;
 		SystemDatabase::Instance().GetSystem<Sys_TilePosition>()->_grid = &pf2._grid;
 		//**** needed 
-
+		AEToogleFullScreen(true);
 
 		/*eid tile = Factory::Instance().FF_CreateGUIChildClickableTileMap(main, { "transparent" }, 0.5f, 0.15f, 0.8f, 0.2f, nocolbut, mapname, "tilemap");*/
 
