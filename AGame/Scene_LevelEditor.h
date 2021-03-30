@@ -53,8 +53,11 @@ struct LevelEditor : public Scene {
 	std::string bcdata;
 	eid tilemap = -1;
 	eid mapname = -1;
+	eid col = -1;
+	eid row = -1;
 	static inline std::string* nameofmap;
-
+	static inline std::string* nameofcol;
+	static inline std::string* nameofrow;
 
 	bool _gui_change_scene{ false };
 	void Initialize() override {
@@ -69,8 +72,8 @@ struct LevelEditor : public Scene {
 		Factory::Instance().FF_CreateGUIChildSurfaceText(main, { "transparent" }, 0.2f, 0.15f, 0.04f, 0.04f, "Map Name", "courier");
 		Factory::Instance().FF_CreateGUIChildSurfaceText(main, { "transparent" }, 0.5f, 0.8f, 0.04f, 0.04f, "Load", "courier");
 		//textbox
-		eid col = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBox(buttons, { "background1" }, 0.5f, 0.25f, 0.75f, 0.2f, coltextbox, "", "courier");			// clickable child surface
-		eid row = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBox(buttons, { "background1" }, 0.5f, 0.75f, 0.75f, 0.2f, rowtextbox, "", "courier");				// clickable child surface
+		col = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBox(buttons, { "background1" }, 0.5f, 0.25f, 0.75f, 0.2f, coltextbox, "", "courier");			// clickable child surface
+		row = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBox(buttons, { "background1" }, 0.5f, 0.75f, 0.75f, 0.2f, rowtextbox, "", "courier");				// clickable child surface
 		mapname = Factory::Instance().FF_CreateGUIChildClickableSurfaceWordsTextBox(main, { "background1" }, 0.5f, 0.1f, 0.75f, 0.2f, nametextbox, "", "courier");				// clickable child surface
 		//Load 
 		load = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLoadTileMap(main, { "background1" }, 0.5f, 0.8f, 0.2f, 0.2f, ChangeTestSceneLevelEditor, "Load", "courier");		// clickable child surface
@@ -78,7 +81,8 @@ struct LevelEditor : public Scene {
 		Factory::Instance()[load].Get<Com_Writetofile>().row = &Factory::Instance()[row].Get<Com_Text>()._data._text;
 		Factory::Instance()[load].Get<Com_Writetofile>().name = &Factory::Instance()[mapname].Get<Com_Text>()._data._text;
 		nameofmap = &Factory::Instance()[mapname].Get<Com_Text>()._data._text;
-
+		nameofcol = &Factory::Instance()[col].Get<Com_Text>()._data._text;
+		nameofrow = &Factory::Instance()[row].Get<Com_Text>()._data._text;
 		//render text box
 
 		//render 
@@ -115,6 +119,32 @@ struct LevelEditor : public Scene {
 
 void ChangeTestSceneLevelEditor(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	//check if all the user inputs are there
+	if ((*LevelEditor::nameofmap) == ".txt") {
+		std::cout << "input your name!" << std::endl;
+		SceneManager::Instance().RestartScene();
+		return;
+	}
+	if ((*LevelEditor::nameofcol).empty()) {
+		std::cout << "input your column!" << std::endl;
+		SceneManager::Instance().RestartScene();
+		return;
+	}
+	if ((*LevelEditor::nameofrow).empty()) {
+		std::cout << "input your row!" << std::endl;
+		SceneManager::Instance().RestartScene();
+		return;
+	}
+	if (std::stoi(*LevelEditor::nameofrow) > 10) {
+		std::cout << " too big row" << std::endl;
+		SceneManager::Instance().RestartScene();
+		return;
+	}
+	if (std::stoi(*LevelEditor::nameofcol) > 10) {
+		std::cout << "too big col" << std::endl;
+		SceneManager::Instance().RestartScene();
+		return;
+	}
 	LevelEditor2::mapname = *LevelEditor::nameofmap;
 	SceneManager::Instance().ChangeScene("Leveleditor2");
 }
