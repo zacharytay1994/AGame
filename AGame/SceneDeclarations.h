@@ -43,9 +43,15 @@ void ChangeTestScene(Com_GUISurface* surface) {
 	SceneManager::Instance().ChangeScene("Test Scene");
 }
 
+void ChangeInventoryScene(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	SceneManager::Instance().ChangeScene("InventoryMenu");
+}
+
 void ChangeTestScenePF(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
-	SceneManager::Instance().ChangeScene("Test PathFinding");
+	if(_playerInv.Inventory_GetCurrentWeapon().GetWeapon_Name() != "NoWepaon")
+		SceneManager::Instance().ChangeScene("Test PathFinding");
 }
 
 void ChangeShootingRangeScene(Com_GUISurface* surface) {
@@ -72,6 +78,12 @@ void OpenSurvey(Com_GUISurface* surface) {
 	#elif __linux__ 
 		system("xdg-open https://forms.gle/KPbjkFks2SYmj9af8");
 	#endif
+}
+
+void EquipPistol() {
+	_playerInv.Inventory_SetWeaponUnlocked("Pistol");
+	_playerInv.Inventory_EquipWeapon("Pistol");
+	std::cout << "EQUIPPED PISTOL" << std::endl;
 }
 
 void ChangeLevelEditor(Com_GUISurface* surface) {
@@ -275,9 +287,9 @@ struct TestScenePF : public Scene
 		//Factory::Instance().FF_CreateGUISurface(clock, 0.5f, 0.05f, 0.1f, 0.1f, 100);
 
 		GUISettingsInitialize();
-		_playerInv.Inventory_SetWeaponUnlocked("Pistol");
-		_playerInv.Inventory_EquipWeapon("Pistol");
-		std::cout << "EQUIPPED PISTOL" << std::endl;
+		//_playerInv.Inventory_SetWeaponUnlocked("Pistol");
+		//_playerInv.Inventory_EquipWeapon("Pistol");
+		//std::cout << "EQUIPPED PISTOL" << std::endl;
 	}
 	/*
 	Update Override (optional)

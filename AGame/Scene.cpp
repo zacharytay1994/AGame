@@ -10,6 +10,7 @@
 #include "Scene_Wilfred.h"
 #include "Scene_Noel.h"
 #include "Scene_Credits.h"
+#include "Scene_Inventory.h"
 
 #include <iostream>
 
@@ -171,6 +172,7 @@ void SceneManager::Initialize() {
 	AddScene<LevelEditor>("Leveleditor");
 	AddScene<LevelEditor2>("Leveleditor2");
 	AddScene<LevelEditor>("Credits");
+	AddScene<InventoryMenu>("InventoryMenu");
 }
 
 void SceneManager::Free()
