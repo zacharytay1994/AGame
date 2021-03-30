@@ -76,8 +76,6 @@ struct LevelEditor2 : public Scene {
 		//tilemap = Factory::Instance().FF_TilemapGUI("tilemap", "C_WilfTile.txt", "C_WilfTile.txt");
 		Factory::Instance()[tilemap].Get<Com_Position>().x = -7;
 		Factory::Instance()[tilemap].Get<Com_Position>().y = 4;
-		//Factory::Instance()[tilemap].Get<Com_Position>().x = -5;
-		//Factory::Instance()[tilemap].Get<Com_Position>().y = 2;
 		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
 		Com_Tilemap& com_tilemap = Factory::Instance()[tilemap].Get<Com_Tilemap>();
 		SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->_tilemap = tilemap;
@@ -90,23 +88,21 @@ struct LevelEditor2 : public Scene {
 		SystemDatabase::Instance().GetSystem<Sys_TilePosition>()->_grid = &pf2._grid;
 		//**** needed 
 
-		//Factory::Instance()[player].AddComponent<Com_YLayering>();
-
 
 		/*eid tile = Factory::Instance().FF_CreateGUIChildClickableTileMap(main, { "transparent" }, 0.5f, 0.15f, 0.8f, 0.2f, nocolbut, mapname, "tilemap");*/
 
 		main = Factory::Instance().FF_CreateGUISurface({ "menubackground" }, 0.85f, 0.5f, 0.25f, 1.0f, 100);																	// surface
 		//non collidable - unlimited 
-		eid noncol = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(main, { "background1" }, 0.5f, 0.15f, 0.8f, 0.2f, nocolbut, "non-collidable", "courier");
+		eid noncol = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, { "background1" }, 0.5f, 0.15f, 0.8f, 0.2f, nocolbut, "non-collidable", "courier");
 		UNREFERENCED_PARAMETER(noncol);
 		//player spawn location - limit 1 
-		eid playerspawn = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(main, { "background1" }, 0.5f, 0.4f, 0.8f, 0.2f, playerspawnbut, "playerspawn", "courier");
+		eid playerspawn = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, { "background1" }, 0.5f, 0.4f, 0.8f, 0.2f, playerspawnbut, "playerspawn", "courier");
 		UNREFERENCED_PARAMETER(playerspawn);
 		//enemy spawn location - limit 2 
-		eid enemyspawn = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(main, { "background1" }, 0.5f, 0.65f, 0.8f, 0.2f, enemyspawnbut, "enemyspawn", "courier");
+		eid enemyspawn = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, { "background1" }, 0.5f, 0.65f, 0.8f, 0.2f, enemyspawnbut, "enemyspawn", "courier");
 		UNREFERENCED_PARAMETER(enemyspawn);
 		//obstacle - unlimited
-		eid obstacles = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(main, { "background1" }, 0.5f, 0.9f, 0.8f, 0.2f, obstaclesbut, "Save Map", "courier");
+		eid obstacles = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, { "background1" }, 0.5f, 0.9f, 0.8f, 0.2f, obstaclesbut, "Save Map", "courier");
 		UNREFERENCED_PARAMETER(obstacles);
 
 		GUISettingsInitialize();

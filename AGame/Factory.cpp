@@ -337,23 +337,6 @@ eid Factory::FF_CreateGUIChildClickableSurfaceWordsTextBox(eid parent, const Spr
 }
 
 
-//eid Factory::FF_CreateGUIChildClickableTileMap(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string mapname, const std::string texturename)
-//{
-//    //create the gui 
-//    eid id = FF_CreateGUIChildSurface(parent, data, x, y, width, height);
-//    Entity& e = Factory::Instance()[id].AddComponent<Com_GUIOnClick, Com_GUIMouseCheck, Com_GUItextboxinput>();
-//    e.Get<Com_GUIOnClick>()._click_event = onclick;
-//
-//    //create tilemap 
-//    eid tilemap = Factory::Instance().FF_Tilemap(texturename, mapname, mapname);
-//    //Factory::Instance()[tilemap].Get <Com_Writetofile>().name;
-//    Factory::Instance()[tilemap].Get<Com_Position>().x = -8;
-//    Factory::Instance()[tilemap].Get<Com_Position>().y = 5;
-//    Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
-//    return id;
-//}
-
-
 eid Factory::FF_TilemapGUI(const std::string& texture, const std::string& bottom, const std::string& top)
 {
     eid id = CreateEntity<Com_Tilemap, Com_Position, Com_GUIMap,Com_BoundingBoxGUI>();
@@ -370,3 +353,15 @@ eid Factory::FF_TilemapGUI(const std::string& texture, const std::string& bottom
     return id;
 }
 
+eid Factory::FF_CreateGUIChildClickableSurfaceTextLevelEditor(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string& text, const std::string& font)
+{
+    eid id = FF_CreateGUIChildClickableSurface(parent, data, x, y, width, height, onclick);
+    Entity& e = Factory::Instance()[id].AddComponent<Com_Text>();
+    Com_Text& com_text = e.Get<Com_Text>();
+    com_text._data._text = text;
+    com_text._data._font = ResourceManager::Instance().GetFont(font);
+    com_text._data._layer = Factory::Instance()[parent].Get<Com_GUISurface>()._layer + 2;
+    com_text._data._scale = 0.8f;
+
+    return id;
+}
