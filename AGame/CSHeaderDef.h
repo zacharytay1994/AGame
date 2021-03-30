@@ -495,15 +495,15 @@ struct Sys_EnemyStateOne : public System {
 			{
 				direction.currdir = direction.left;
 			}
-			if (fp._next.x > pos._vgrid_x) 
+			else if (fp._next.x > pos._vgrid_x) 
 			{
 				direction.currdir = direction.right;
 			}
-			if (fp._next.y < pos._vgrid_y) 
+			else if (fp._next.y < pos._vgrid_y) 
 			{
 				direction.currdir = direction.up;
 			}
-			if (fp._next.y > pos._vgrid_y) 
+			else if (fp._next.y > pos._vgrid_y) 
 			{
 				direction.currdir = direction.down;
 			}
@@ -561,17 +561,17 @@ struct Sys_EnemyStateOne : public System {
 						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 1, 0, _tilemap);
 						Factory::Instance()[j].AddComponent<Com_YLayering>();
 					}
-					if (direct.currdir == direct.left) 
+					else if (direct.currdir == direct.left) 
 					{
 						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, -1, 0, _tilemap);
 						Factory::Instance()[j].AddComponent<Com_YLayering>();
 					}
-					if (direct.currdir == direct.up) 
+					else if (direct.currdir == direct.up) 
 					{
 						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 0, 1, _tilemap);
 						Factory::Instance()[j].AddComponent<Com_YLayering>();
 					}
-					if (direct.currdir == direct.down) 
+					else if (direct.currdir == direct.down) 
 					{
 						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 0, -1, _tilemap);
 						Factory::Instance()[j].AddComponent<Com_YLayering>();
@@ -1552,7 +1552,7 @@ struct Sys_PathFinding : public System
 			//std::cout << ct.type << std::endl;
 			if (fp._find) {
 				fp._found = SolveAStar(fp._start, fp._end, _grid, _path);
-				if (fp._found && _path.size() > 2 && ct.type == ct.enemyrange) // ranged enemy
+				if (fp._found && _path.size() > 3 && ct.type == ct.enemyrange) // ranged enemy
 				{
 					fp._reached = false;
 					_grid.Get({ tpos._grid_x, tpos._grid_y })._obstacle = false;
@@ -2024,12 +2024,17 @@ struct Sys_GridCollision : public System {
 				if (type->type == type->EnemyBalls && (GridCol[i].type->type == type->player)) {
 					std::cout << "Collided Human" << std::endl;
 					hit = true;
+
+					_grid->Get({ tilepos->_vgrid_x,tilepos->_vgrid_y })._obstacle = false;
+					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					if (chikara->health > 0 && hit == true)
 					{
 						--chikara->health;
 						hit = false;
 					}
 					RemoveEntity();
+
+
 				}
 				
 
@@ -2055,6 +2060,8 @@ struct Sys_GridCollision : public System {
 				//}
 				if (type->type == type->bullet && (GridCol[i].type->type == type->enemy || GridCol[i].type->type == type->enemyrange)) {
 					std::cout << "Collided Enemy" << std::endl;
+					_grid->Get({ tilepos->_vgrid_x,tilepos->_vgrid_y })._obstacle = false;
+					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					RemoveEntity();
 				}
 				
@@ -2066,6 +2073,8 @@ struct Sys_GridCollision : public System {
 			}
 		}
 	}
+
+
 	bool gridcollisioncheck(const Com_TilePosition& tilepos1,const Com_TilePosition& tilepos2){
 		if (tilepos1._grid_x == tilepos2._grid_x && tilepos1._grid_y == tilepos2._grid_y) {
 			return true;
