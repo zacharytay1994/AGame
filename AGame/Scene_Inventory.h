@@ -36,7 +36,7 @@ struct InventoryMenu : public Scene {
 		//Factory::Instance().FF_CreateGUIChildSurfaceText(main, { "transparent" }, 0.5f, 0.2f, 0.04f, 0.04f, "Inventory", "courier");
 		_title = Factory::Instance().FF_CreateGUISurface(title, 0.5f, 0.2f, original_dim_x, original_dim_y, 140);
 		Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.5f, 0.5f, 0.8f, 0.4f, "Inventory", "courier");
-		std::string current_weapon_text = "Current Weapon: " + _playerInv.Inventory_GetCurrentWeapon().GetWeapon_Name();
+		std::string current_weapon_text = _playerInv.Inventory_GetCurrentWeapon().GetWeapon_Name();
 		current_weapon = Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.5f, 0.6f, 0.8f, 0.4f, current_weapon_text, "courier");
 		
 		_buttons_surface = Factory::Instance().FF_CreateGUISurface(buttonbg, 0.5f, original_y, 0.9f, 0.6f, 120);
@@ -60,7 +60,7 @@ struct InventoryMenu : public Scene {
 	void Update(const float& dt) override {
 		UNREFERENCED_PARAMETER(dt);
 		GUISettingsUpdate();
-		Factory::Instance()[current_weapon].Get<Com_Text>()._data._text = "Current Weapon: " + _playerInv.Inventory_GetCurrentWeapon().GetWeapon_Name();
+		Factory::Instance()[current_weapon].Get<Com_Text>()._data._text = _playerInv.Inventory_GetCurrentWeapon().GetWeapon_Name();
 		offset_rad = offset_rad + dt > 2.0f * PI ? 0.0f : offset_rad + dt;
 		offset_y = sin(offset_rad);
 		Factory::Instance()[_buttons_surface].Get<Com_GUISurface>()._position.y = original_y + offset_y * 0.03f;
