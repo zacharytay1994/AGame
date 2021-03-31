@@ -115,11 +115,24 @@ void ResourceManager::ResetTextStack()
 	_text_pack = std::vector<TextPack*>();
 }
 
-void ResourceManager::LoadTexture(const std::string& name, const std::string& path)
+AEGfxTexture* ResourceManager::LoadTexture(const std::string& name, const std::string& path)
 {
+	if (_textures.find(name) != _textures.end()) { return _textures[name]; };
 	_textures[name] = AEGfxTextureLoad((asset_path + texture_path + path).c_str());
 	// make sure texture is successfully loaded
-	assert(_textures[name]);
+	//assert(_textures[name]);
+	if (!_textures[name]) { 
+		std::cout << "TEXTURE NOT LOADED, PATH NOT FOUND!"; return nullptr; 
+	}
+	return _textures[name];
+}
+
+AEGfxTexture* ResourceManager::GetTexture(const std::string& name)
+{
+	if (_textures[name]) {
+		return _textures[name];
+	}
+	return GetTexture("noimage");
 }
 
 void ResourceManager::LoadFont(const std::string& name, const std::string& path, int size)
@@ -140,7 +153,9 @@ void ResourceManager::FreeResources()
 		AEGfxMeshFree(m.second);
 	}
 	for (auto t : _textures) {
-		AEGfxTextureUnload(t.second);
+		if (t.second) {
+			AEGfxTextureUnload(t.second);
+		}
 	}
 	for (auto f : _fonts) {
 		AEGfxDestroyFont(f.second);
@@ -319,11 +334,31 @@ void ResourceManager::ReadTilemapNames()
 	// open file
 	std::ifstream file(asset_path + tilemap_path + _known_tilemaps);
 	if (file) {
+		_tilemap_count = 0;
 		std::string line;
 		while (file >> line) {
-			_tilemap_names.push_back({ "c_" + line,  "t_" + line });
+			_tilemap_names.push_back({ line, "c_" + line,  "t_" + line }); 
+			LoadTexture(line, "tilemaps/" + line + ".png");
+			_tilemap_images.push_back(GetTexture(line));
+			++_tilemap_count;
 		}
 	}
+}
+
+std::string ResourceManager::SwitchTilemap(const int& val)
+{
+	if (_tilemap_count <= 0) {
+		std::cout << "ResourceManager:: No Levels Found." << std::endl;
+		return "no level";
+	}
+	_tilemap_id += val;
+	if (_tilemap_id < 0) {
+		_tilemap_id += _tilemap_id;
+	}
+	else {
+		_tilemap_id = _tilemap_id % _tilemap_count;
+	}
+	return _tilemap_names[_tilemap_id]._name;
 }
 
 void ResourceManager::CreateMusic()
@@ -417,8 +452,7 @@ ResourceManager::ResourceManager()
 void ResourceManager::Initialize()
 {
 	// load all textures
-	LoadTexture("test", "test2.png");
-	LoadTexture("test2", "testguy.png");
+	LoadTexture("noimage", "noimage.png");
 	LoadTexture("test3", "TestAlien.png");
 	LoadTexture("tilemap", "tilemaptest.png");
 	LoadTexture("skeleton", "temp1.png");

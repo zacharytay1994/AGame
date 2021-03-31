@@ -54,10 +54,18 @@ struct ResourceManager {
 	void FreeResources();
 	float _screen_shake{ 0.0f };
 	float _dampening{ 10.0f };
+
+	//<-- Level Select
 	struct tilemap_identifier {
+		std::string _name;
 		std::string _binary;
 		std::string _map;
 	};
+	int _tilemap_id{ 0 };
+	std::vector<tilemap_identifier> _tilemap_names;
+	std::vector<AEGfxTexture*> _tilemap_images;
+	//-->
+
 private:
 	ResourceManager();
 	void Initialize();
@@ -66,8 +74,11 @@ private:
 	std::string font_path = "Fonts/";
 	std::string tilemap_path = "Tilemaps/";
 
-	std::string _known_tilemaps = "tilemap.txt";
-	std::vector<tilemap_identifier> _tilemap_names;
+	//<-- Level Select
+	std::string _known_tilemaps = "tilemaps.txt";
+	int _tilemap_count{ 0 };
+	int _current_tilemap{ -1 };
+	//-->
 
 
 	std::vector<RenderPack*> _render_queue_vector;
@@ -96,7 +107,8 @@ public:
 	void ResetRenderQueue();
 	void ResetTextStack();
 	// texture functions
-	void LoadTexture(const std::string& name, const std::string& path);
+	AEGfxTexture* LoadTexture(const std::string& name, const std::string& path);
+	AEGfxTexture* GetTexture(const std::string& name);
 	void LoadFont(const std::string& name, const std::string& path, int size);
 	char GetFont(const std::string& name);
 	AEGfxVertexList* CreateMesh(const int& x, const int& y);				// gets a mesh based on how many frames there are
@@ -116,6 +128,7 @@ public:
 	void WriteFloorMapTxt(const std::string& path, Com_Tilemap& tilemap);
 
 	void ReadTilemapNames();
+	std::string SwitchTilemap(const int& val);
 
 	void CreateMusic();
 	void UpdateAndPlayMusic();
