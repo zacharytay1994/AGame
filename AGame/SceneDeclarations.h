@@ -289,6 +289,7 @@ struct TestScenePF : public Scene
 		Factory::Instance()[player].Get<Com_TilePosition>()._is_player = true;
 		Factory::Instance()[player].Get<Com_type>().type = 0; // set player type
 		SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->player_id = player;
+		SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->tile = tilemap;
 		SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
 		SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
 

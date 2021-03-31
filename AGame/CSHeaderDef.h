@@ -559,22 +559,22 @@ struct Sys_EnemyStateOne : public System {
 					// to create balls base on direction
 					if (direct.currdir == direct.right) 
 					{
-						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 1, 0, _tilemap);
+						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 1, 0, _tilemap, 3);
 						Factory::Instance()[j].AddComponent<Com_YLayering>();
 					}
 					else if (direct.currdir == direct.left) 
 					{
-						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, -1, 0, _tilemap);
+						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, -1, 0, _tilemap, 3);
 						Factory::Instance()[j].AddComponent<Com_YLayering>();
 					}
 					else if (direct.currdir == direct.up) 
 					{
-						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 0, 1, _tilemap);
+						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 0, 1, _tilemap, 3);
 						Factory::Instance()[j].AddComponent<Com_YLayering>();
 					}
 					else if (direct.currdir == direct.down) 
 					{
-						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 0, -1, _tilemap);
+						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 0, -1, _tilemap, 3);
 						Factory::Instance()[j].AddComponent<Com_YLayering>();
 					}
 				}
@@ -1545,11 +1545,13 @@ ________________________________________________________________________________
 struct Sys_PathFinding : public System
 {
 	eid playerPos{ -1 };
+	eid tile{ -1 };
 	void UpdateComponent() override {
 		if (_initialized) {
 			Com_type& ct = get<Com_type>();
 			Com_FindPath& fp = get<Com_FindPath>();
 			Com_TilePosition& tpos = get<Com_TilePosition>();
+			//Com_Tilemap& ctile = get<Com_Tilemap>();
 			//std::cout << ct.type << std::endl;
 			if (fp._find) {
 				fp._found = SolveAStar(fp._start, fp._end, _grid, _path);
@@ -1560,8 +1562,11 @@ struct Sys_PathFinding : public System
 					tpos._grid_x = _path[0].x;
 					tpos._grid_y = _path[0].y;
 					_grid.Get({ tpos._grid_x, tpos._grid_y })._obstacle = true;
-					fp._next.x = _path[1].x;
-					fp._next.y = _path[1].y;
+					if (fp._next.x != Factory::Instance()[tile].Get<Com_Tilemap>()._width || fp._next.y != Factory::Instance()[tile].Get<Com_Tilemap>()._height)
+					{
+						fp._next.x = _path[1].x;
+						fp._next.y = _path[1].y;
+					}
 				}
 				else if (fp._found && _path.size() > 1 && ct.type == ct.enemy) // melee enemy
 				{
@@ -2026,11 +2031,19 @@ struct Sys_GridCollision : public System {
 					_grid->Get({ tilepos->_vgrid_x,tilepos->_vgrid_y })._obstacle = false;
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					RemoveEntity();
+					break;
 				}
 
 				if ((type->type == type->player) && GridCol[i].type->type == type->EnemyBalls) 
 				{
 					std::cout << "Damage Taken" << std::endl;
+					_grid->Get({ tilepos->_vgrid_x,tilepos->_vgrid_y })._obstacle = false;
+					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
+					break;
+				}
+
+				if (type->type == type->EnemyBalls && (GridCol[i].type->type == type->player)) {
+					std::cout << "Collided Human" << std::endl;
 					hit = true;
 
 					_grid->Get({ tilepos->_vgrid_x,tilepos->_vgrid_y })._obstacle = false;
@@ -2040,16 +2053,10 @@ struct Sys_GridCollision : public System {
 						--chikara->health;
 						hit = false;
 					}
+					RemoveEntity();
 					Gridcoliterator.push_back(iteratorcomgrid);
 					erase = true;
 					break;
-				}
-
-				if (type->type == type->EnemyBalls && (GridCol[i].type->type == type->player)) {
-					std::cout << "Collided Human" << std::endl;
-					_grid->Get({ tilepos->_vgrid_x,tilepos->_vgrid_y })._obstacle = false;
-					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
-					RemoveEntity();
 
 				}
 
