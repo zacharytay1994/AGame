@@ -61,19 +61,19 @@ void Weapon::Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid
 	{
 		// Spawn bullet at weapon_Pattern[i] relative to player
 		if (direction.currdir == direction.right) {
-			eid j = Factory::Instance().FF_Createproj2(data, spawn.x + weapon_Pattern[i].x, spawn.y + weapon_Pattern[i].y, 1, 0, tilemap);
+			eid j = Factory::Instance().FF_Createproj2(data, spawn.x + weapon_Pattern[i].x, spawn.y + weapon_Pattern[i].y, 1, 0, tilemap, 5);
 			Factory::Instance()[j].AddComponent<Com_YLayering>();
 		}
 		else if (direction.currdir == direction.left) {
-			eid j = Factory::Instance().FF_Createproj2(data, spawn.x - weapon_Pattern[i].x, spawn.y - weapon_Pattern[i].y, -1, 0, tilemap);
+			eid j = Factory::Instance().FF_Createproj2(data, spawn.x - weapon_Pattern[i].x, spawn.y - weapon_Pattern[i].y, -1, 0, tilemap, 5);
 			Factory::Instance()[j].AddComponent<Com_YLayering>();
 		}
 		else if (direction.currdir == direction.up) {
-			eid j = Factory::Instance().FF_Createproj2(data, spawn.x - weapon_Pattern[i].y, spawn.y - weapon_Pattern[i].x, 0, 1, tilemap);
+			eid j = Factory::Instance().FF_Createproj2(data, spawn.x - weapon_Pattern[i].y, spawn.y - weapon_Pattern[i].x, 0, 1, tilemap, 5);
 			Factory::Instance()[j].AddComponent<Com_YLayering>();
 		}
 		else if (direction.currdir == direction.down) {
-			eid j = Factory::Instance().FF_Createproj2(data, spawn.x + weapon_Pattern[i].y, spawn.y + weapon_Pattern[i].x, 0, -1, tilemap);
+			eid j = Factory::Instance().FF_Createproj2(data, spawn.x + weapon_Pattern[i].y, spawn.y + weapon_Pattern[i].x, 0, -1, tilemap, 5);
 			Factory::Instance()[j].AddComponent<Com_YLayering>();
 		}
 	}
