@@ -68,7 +68,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	AESysInit(hInstance, nCmdShow, 800, 600, 1, 60, true, NULL);
 
 	// music
-	//ResourceManager::Instance().CreateMusic();
+	ResourceManager::Instance().CreateMusic();
 
 	// Changing the window title
 	AESysSetWindowTitle("A Beautiful Window!");
@@ -94,7 +94,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		// Game loop update
 		SceneManager::Instance().CheckGame(gGameRunning);
 		SceneManager::Instance().Update((float)AEFrameRateControllerGetFrameTime());
-		//ResourceManager::Instance().UpdateAndPlayMusic();
+		ResourceManager::Instance().UpdateAndPlayMusic();
 		// Game loop update end
 		///////////////////////
 
@@ -115,7 +115,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	// free the system
 	AESysExit();
 	// free singleton resources
-	//ResourceManager::Instance().FreeMusic();
+	ResourceManager::Instance().FreeMusic();
 	SceneManager::Instance().Free();
 	SceneManager::Instance().Unload();
 	// free chunk data resources

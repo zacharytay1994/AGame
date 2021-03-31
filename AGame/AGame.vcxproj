@@ -17,6 +17,7 @@
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Scene_Credits.h" />
+    <ClCompile Include="Scene_Instruction.cpp" />
     <ClCompile Include="Weapon.cpp" />
     <ClCompile Include="zChunk.cpp" />
     <ClCompile Include="zArchetype.cpp" />
