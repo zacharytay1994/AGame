@@ -559,22 +559,22 @@ struct Sys_EnemyStateOne : public System {
 					// to create balls base on direction
 					if (direct.currdir == direct.right) 
 					{
-						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 1, 0, _tilemap);
+						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 1, 0, _tilemap, 3);
 						Factory::Instance()[j].AddComponent<Com_YLayering>();
 					}
 					else if (direct.currdir == direct.left) 
 					{
-						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, -1, 0, _tilemap);
+						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, -1, 0, _tilemap, 3);
 						Factory::Instance()[j].AddComponent<Com_YLayering>();
 					}
 					else if (direct.currdir == direct.up) 
 					{
-						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 0, 1, _tilemap);
+						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 0, 1, _tilemap, 3);
 						Factory::Instance()[j].AddComponent<Com_YLayering>();
 					}
 					else if (direct.currdir == direct.down) 
 					{
-						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 0, -1, _tilemap);
+						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 0, -1, _tilemap, 3);
 						Factory::Instance()[j].AddComponent<Com_YLayering>();
 					}
 				}
@@ -1350,7 +1350,7 @@ struct Sys_Projectile2 : public System {
 				proj.lifetime--;
 			}
 
-			if (proj.lifetime == 0)
+			if (proj.lifetime <= 0)
 			{
 				RemoveEntity();
 				return;
@@ -1550,6 +1550,7 @@ struct Sys_PathFinding : public System
 			Com_type& ct = get<Com_type>();
 			Com_FindPath& fp = get<Com_FindPath>();
 			Com_TilePosition& tpos = get<Com_TilePosition>();
+			Com_Tilemap& ctile = get<Com_Tilemap>();
 			//std::cout << ct.type << std::endl;
 			if (fp._find) {
 				fp._found = SolveAStar(fp._start, fp._end, _grid, _path);
@@ -1560,8 +1561,11 @@ struct Sys_PathFinding : public System
 					tpos._grid_x = _path[0].x;
 					tpos._grid_y = _path[0].y;
 					_grid.Get({ tpos._grid_x, tpos._grid_y })._obstacle = true;
-					fp._next.x = _path[1].x;
-					fp._next.y = _path[1].y;
+					if (fp._next.x != ctile._width || fp._next.y != ctile._height)
+					{
+						fp._next.x = _path[1].x;
+						fp._next.y = _path[1].y;
+					}
 				}
 				else if (fp._found && _path.size() > 1 && ct.type == ct.enemy) // melee enemy
 				{
