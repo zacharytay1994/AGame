@@ -1350,7 +1350,7 @@ struct Sys_Projectile2 : public System {
 				proj.lifetime--;
 			}
 
-			if (proj.lifetime <= 0)
+			if (proj.lifetime == 0)
 			{
 				RemoveEntity();
 				return;
