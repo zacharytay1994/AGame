@@ -2031,13 +2031,6 @@ struct Sys_GridCollision : public System {
 				if ((type->type == type->player) && GridCol[i].type->type == type->EnemyBalls) 
 				{
 					std::cout << "Damage Taken" << std::endl;
-					_grid->Get({ tilepos->_vgrid_x,tilepos->_vgrid_y })._obstacle = false;
-					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
-					
-				}
-
-				if (type->type == type->EnemyBalls && (GridCol[i].type->type == type->player)) {
-					std::cout << "Collided Human" << std::endl;
 					hit = true;
 
 					_grid->Get({ tilepos->_vgrid_x,tilepos->_vgrid_y })._obstacle = false;
@@ -2047,10 +2040,16 @@ struct Sys_GridCollision : public System {
 						--chikara->health;
 						hit = false;
 					}
-					RemoveEntity();
 					Gridcoliterator.push_back(iteratorcomgrid);
 					erase = true;
 					break;
+				}
+
+				if (type->type == type->EnemyBalls && (GridCol[i].type->type == type->player)) {
+					std::cout << "Collided Human" << std::endl;
+					_grid->Get({ tilepos->_vgrid_x,tilepos->_vgrid_y })._obstacle = false;
+					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
+					RemoveEntity();
 
 				}
 
