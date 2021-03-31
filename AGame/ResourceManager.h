@@ -54,6 +54,10 @@ struct ResourceManager {
 	void FreeResources();
 	float _screen_shake{ 0.0f };
 	float _dampening{ 10.0f };
+	struct tilemap_identifier {
+		std::string _binary;
+		std::string _map;
+	};
 private:
 	ResourceManager();
 	void Initialize();
@@ -61,6 +65,10 @@ private:
 	std::string texture_path = "Textures/";
 	std::string font_path = "Fonts/";
 	std::string tilemap_path = "Tilemaps/";
+
+	std::string _known_tilemaps = "tilemap.txt";
+	std::vector<tilemap_identifier> _tilemap_names;
+
 
 	std::vector<RenderPack*> _render_queue_vector;
 	//std::priority_queue <RenderPack*, std::vector<RenderPack*>, RM_Compare> _render_queue;
@@ -106,6 +114,8 @@ public:
 	void WriteFloorMapBin(const std::string& path, Com_Tilemap& tilemap);
 	void ReadFloorMapTxt(const std::string& path, Com_Tilemap& tilemap);
 	void WriteFloorMapTxt(const std::string& path, Com_Tilemap& tilemap);
+
+	void ReadTilemapNames();
 
 	void CreateMusic();
 	void UpdateAndPlayMusic();

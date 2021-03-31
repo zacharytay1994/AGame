@@ -29,6 +29,7 @@ struct TestScene : public Scene {
 		std::cout << test << " this is a test scene" << std::endl;
 		std::cout << sizeof(Com_Tilemap) << std::endl;
 
+		//ResourceManager::tilemap_identifier id = 
 		tilemap = Factory::Instance().FF_Tilemap("tilemap", "c_test.txt", "t_test.txt");
 		Factory::Instance()[tilemap].Get<Com_Position>().x = -5;
 		Factory::Instance()[tilemap].Get<Com_Position>().y = 2;

@@ -88,7 +88,7 @@ void ResourceManager::FlushDrawText() {
 		TextPack* pack = _text_pack.back();
 		AEGfxGetPrintSize(pack->_font, const_cast<s8*>(pack->_text.c_str()), 1.0f, width, height);
 		AEGfxPrint(pack->_font, const_cast<s8*>(pack->_text.c_str()), pack->_position.x - width/2.0f, pack->_position.y - height/2.0f, pack->_scale, pack->_r, pack->_g, pack->_b);
-		_text_pack.pop_back();
+		_text_pack.pop_back(); 
 	}
 }
 
@@ -314,7 +314,19 @@ AEMtx33 ResourceManager::ScreenShake()
 	return trans;
 }
 
-void ResourceManager::CreateMusic() 
+void ResourceManager::ReadTilemapNames()
+{
+	// open file
+	std::ifstream file(asset_path + tilemap_path + _known_tilemaps);
+	if (file) {
+		std::string line;
+		while (file >> line) {
+			_tilemap_names.push_back({ "c_" + line,  "t_" + line });
+		}
+	}
+}
+
+void ResourceManager::CreateMusic()
 {
 	//Create system object and initailize it
 	result = FMOD::System_Create(&sound_system);
