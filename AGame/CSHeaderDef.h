@@ -559,22 +559,22 @@ struct Sys_EnemyStateOne : public System {
 					// to create balls base on direction
 					if (direct.currdir == direct.right) 
 					{
-						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 1, 0, _tilemap, 3);
+						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 1, 0, _tilemap);
 						Factory::Instance()[j].AddComponent<Com_YLayering>();
 					}
 					else if (direct.currdir == direct.left) 
 					{
-						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, -1, 0, _tilemap, 3);
+						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, -1, 0, _tilemap);
 						Factory::Instance()[j].AddComponent<Com_YLayering>();
 					}
 					else if (direct.currdir == direct.up) 
 					{
-						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 0, 1, _tilemap, 3);
+						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 0, 1, _tilemap);
 						Factory::Instance()[j].AddComponent<Com_YLayering>();
 					}
 					else if (direct.currdir == direct.down) 
 					{
-						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 0, -1, _tilemap, 3);
+						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 0, -1, _tilemap);
 						Factory::Instance()[j].AddComponent<Com_YLayering>();
 					}
 				}
@@ -2059,33 +2059,6 @@ struct Sys_GridCollision : public System {
 					break;
 
 				}
-
-				////range attack with enemy 
-				//if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
-				//	std::cout << "Collided" << std::endl;
-				//	RemoveEntity();
-				//}
-				////range attack with enemy 
-				//if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
-				//	std::cout << "Collided" << std::endl;
-				//	RemoveEntity();
-				//}
-				//testing
-				//if player with enemy
-				//if (type->type == type->player && GridCol[i].type->type == type->enemy) {
-				//	RemoveEntity();
-				//}
-				//if enemy with player 
-				//if (type->type == type->enemy && GridCol[i].type->type == type->player) {
-				//	std::cout << "Collided" << std::endl;
-				//	RemoveEntity();
-				//}
-				
-				////enemy with bullet 
-				//if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
-				//	std::cout << "Collided" << std::endl;
-				//	RemoveEntity();
-				//}
 			}
 			++iteratorcomgrid;
 		}
