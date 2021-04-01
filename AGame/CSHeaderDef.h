@@ -440,6 +440,16 @@ struct Sys_EnemyStateOne : public System {
 		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
 		state._player = &_player->Get<Com_TilePosition>();
 		state.playerHealth = &_player->Get<Com_Health>();
+		// flip enemies based on player
+		Com_TilePosition& enemypos = get<Com_TilePosition>();
+		Com_Sprite& sprite = get<Com_Sprite>();
+		if (enemypos._grid_x < state._player->_grid_x) {
+			sprite._flip = false;
+		}
+		else {
+			sprite._flip = true;
+		}
+
 		if (_turn) {
 			--state._counter;
 		}
@@ -549,7 +559,7 @@ struct Sys_EnemyStateOne : public System {
 		Com_FindPath& fp = get<Com_FindPath>();
 		Com_TilePosition& pos = get<Com_TilePosition>();
 		Com_type& ct = get<Com_type>();
-		Com_Direction& direct = get<Com_Direction>();
+		//Com_Direction& direct = get<Com_Direction>();
 		
 		if (!state._counter)
 		{
@@ -860,7 +870,7 @@ struct Sys_ArrowKeys : public System {
 
 struct Sys_ArrowKeysTilemap : public System {
 	// hard coded - assuming only 1 player uses arrow keys tilemap
-	float _speed = 1.0f;
+	float _speed = 0.5f;
 	float _counter{ _speed };
 	bool _turn{ false };
 	Grid* _grid{ nullptr };
@@ -878,7 +888,22 @@ struct Sys_ArrowKeysTilemap : public System {
 	void UpdateComponent() override {
 		Com_TilePosition& pos = get<Com_TilePosition>();
 		Com_Direction& direction = get<Com_Direction>();
-		if (AEInputCheckCurr(VK_LEFT)) {
+
+		int x = 0, y = 0;
+		if (AEInputCheckCurr(AEVK_LEFT)) {
+			x -= 1;
+		}
+		if (AEInputCheckCurr(AEVK_RIGHT)) {
+			x += 1;
+		}
+		if (AEInputCheckCurr(AEVK_UP)) {
+			y -= 1;
+		}
+		if (AEInputCheckCurr(AEVK_DOWN)) {
+			y += 1;
+		}
+
+		if (x == -1) {
 			direction.currdir = Com_Direction::left;
 			if (_turn) {
 				if (!_grid->Get({ pos._grid_x - 1, pos._grid_y })._obstacle) {
@@ -888,7 +913,7 @@ struct Sys_ArrowKeysTilemap : public System {
 				}
 			}
 		}
-		if (AEInputCheckCurr(VK_RIGHT)) {
+		else if (x == 1) {
 			direction.currdir = Com_Direction::right;
 			if (_turn) {
 				if (!_grid->Get({ pos._grid_x + 1, pos._grid_y })._obstacle) {
@@ -897,7 +922,7 @@ struct Sys_ArrowKeysTilemap : public System {
 				}
 			}
 		}
-		if (AEInputCheckCurr(VK_UP)) {
+		else if (y == -1) {
 			direction.currdir = Com_Direction::up;
 			if (_turn) {
 				if (!_grid->Get({ pos._grid_x, pos._grid_y - 1 })._obstacle) {
@@ -906,7 +931,7 @@ struct Sys_ArrowKeysTilemap : public System {
 				}
 			}
 		}
-		if (AEInputCheckCurr(VK_DOWN)) {
+		else if (y == 1) {
 			direction.currdir = Com_Direction::down;
 			if (_turn) {
 				if (!_grid->Get({ pos._grid_x, pos._grid_y + 1 })._obstacle) {
@@ -975,7 +1000,7 @@ struct Sys_TilePosition : public System {
 		Com_Tilemap* tilemap = tilemapref._tilemap;
 		Com_Position& position = get<Com_Position>();
 		Com_TilePosition& t_position = get<Com_TilePosition>();
-		bool check = false;
+		//bool check = false;
 		if (tilemap) {
 			// check if new tile position is within grid - would be checked with collision_mask after
 			if (t_position._vgrid_x == t_position._grid_x && t_position._vgrid_y == t_position._grid_y) {
@@ -1563,7 +1588,7 @@ struct Sys_PathFinding : public System
 	eid tile{ -1 };
 	void UpdateComponent() override {
 		if (_initialized) {
-			Com_type& ct = get<Com_type>();
+			//Com_type& ct = get<Com_type>();
 			Com_FindPath& fp = get<Com_FindPath>();
 			Com_TilePosition& tpos = get<Com_TilePosition>();
 			//Com_Tilemap& ctile = get<Com_Tilemap>();

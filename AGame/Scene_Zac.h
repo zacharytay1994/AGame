@@ -31,7 +31,7 @@ struct TestScene : public Scene {
 
 		//ResourceManager::tilemap_identifier id = 
 		std::vector<ResourceManager::tilemap_identifier> testing = ResourceManager::Instance()._tilemap_names;
-		int testing_id = ResourceManager::Instance()._tilemap_id;
+		//int testing_id = ResourceManager::Instance()._tilemap_id;
 		tilemap = Factory::Instance().FF_Tilemap("tilemap", ResourceManager::Instance()._tilemap_names[ResourceManager::Instance()._tilemap_id]._binary + ".txt", 
 															ResourceManager::Instance()._tilemap_names[ResourceManager::Instance()._tilemap_id]._map + ".txt");
 		Factory::Instance()[tilemap].Get<Com_Position>().x = -5;
