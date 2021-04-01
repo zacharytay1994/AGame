@@ -24,13 +24,14 @@ class Weapon
 
 		const unsigned int	GetWeapon_ID() const;
 		const std::string&	GetWeapon_Name() const;
+		const std::string&  GetWeapon_Description() const;
 		const unsigned int	GetWeapon_Damage() const;
 		const unsigned int	GetWeapon_ReloadTime() const;
 		const unsigned int	GetWeapon_Capacity() const;
 		const bool			GetWeapon_Unlocked() const;
-		//#if defined(DEBUG) | defined(_DEBUG)
-			const std::vector<BulletSpawn>& GetWeapon_Pattern() const;
-		//#endif
+
+		const std::vector<BulletSpawn>& GetWeapon_Pattern() const;
+
 
 		int&	Weapon_Curr_ReloadTimer();
 		int&	Weapon_Curr_Capacity();
@@ -38,6 +39,7 @@ class Weapon
 
 	protected:
 		void SetWeapon_Name(std::string const& new_Name);
+		void SetWeapon_Description(std::string const& new_Desc);
 		void SetWeapon_Damage(unsigned int new_Damage);
 		void SetWeapon_ReloadTime(unsigned int new_ReloadTime);
 		void SetWeapon_Capacity(unsigned int new_Capacity);
@@ -48,6 +50,8 @@ class Weapon
 	private:
 		const unsigned int weapon_ID;
 		std::string weapon_Name;
+		std::string weapon_Description;
+		unsigned int weapon_Cost;
 		unsigned int weapon_Damage;
 		unsigned int weapon_ReloadTime;
 		unsigned int weapon_Capacity;
