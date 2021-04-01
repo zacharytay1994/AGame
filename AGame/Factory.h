@@ -101,6 +101,8 @@ public:
 	eid FF_CreateGUIChildClickableTextboxWordsSurface(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*));
 	eid FF_TilemapGUI(const std::string& texture, const std::string& bottom, const std::string& top);
 	eid FF_CreateGUIChildClickableSurfaceTextLevelEditor(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string& text, const std::string& font);
+	eid FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string& text, const std::string& font);
+
 	//eid FF_CreateEnemy(const SpriteData& data, const eid& tilemap, const int& x, const int& y);
 
 	eid FF_CreateSpawner();

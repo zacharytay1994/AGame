@@ -31,6 +31,13 @@ void nametextbox(Com_GUISurface* surface) {
 }
 
 
+void errormessage(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	std::cout << "entered row" << std::endl;
+	SceneManager::Instance().RestartScene();
+}
+
+
 struct LevelEditor : public Scene {
 	eid i{ -1 };
 	eid main{ -1 };
@@ -43,6 +50,9 @@ struct LevelEditor : public Scene {
 	Factory::SpriteData data4{ "button2" };
 	Factory::SpriteData data5{ "button3" };
 	Factory::SpriteData data6{ "transparent" };
+	Factory::SpriteData buttonbg{ "buttonsbg.png", 1.0f, 1.0f, 1, 1, 1, 1.0f, 0 };
+	Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
+	Factory::SpriteData button{ "buttonsprite.png", 1.0f, 1.0f, 3, 3, 8, 0.1f, 0, passin };
 	//Sys_Pathfinding_v2 _pathfinding;
 
 	//test
@@ -72,9 +82,9 @@ struct LevelEditor : public Scene {
 		Factory::Instance().FF_CreateGUIChildSurfaceText(main, { "transparent" }, 0.2f, 0.15f, 0.04f, 0.04f, "Map Name", "courier");
 		Factory::Instance().FF_CreateGUIChildSurfaceText(main, { "transparent" }, 0.5f, 0.8f, 0.04f, 0.04f, "Load", "courier");
 		//textbox
-		col = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBox(buttons, { "background1" }, 0.5f, 0.25f, 0.75f, 0.2f, coltextbox, "", "courier");			// clickable child surface
-		row = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBox(buttons, { "background1" }, 0.5f, 0.75f, 0.75f, 0.2f, rowtextbox, "", "courier");				// clickable child surface
-		mapname = Factory::Instance().FF_CreateGUIChildClickableSurfaceWordsTextBox(main, { "background1" }, 0.5f, 0.1f, 0.75f, 0.2f, nametextbox, "", "courier");				// clickable child surface
+		col = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBox(buttons, button, 0.5f, 0.25f, 0.75f, 0.2f, coltextbox, "", "courier");			// clickable child surface
+		row = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBox(buttons, button, 0.5f, 0.75f, 0.75f, 0.2f, rowtextbox, "", "courier");				// clickable child surface
+		mapname = Factory::Instance().FF_CreateGUIChildClickableSurfaceWordsTextBox(main, button, 0.5f, 0.1f, 0.75f, 0.2f, nametextbox, "", "courier");				// clickable child surface
 		//Load 
 		load = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLoadTileMap(main, { "background1" }, 0.5f, 0.8f, 0.2f, 0.2f, ChangeTestSceneLevelEditor, "Load", "courier");		// clickable child surface
 		Factory::Instance()[load].Get<Com_Writetofile>().col = &Factory::Instance()[col].Get<Com_Text>()._data._text;
@@ -83,33 +93,10 @@ struct LevelEditor : public Scene {
 		nameofmap = &Factory::Instance()[mapname].Get<Com_Text>()._data._text;
 		nameofcol = &Factory::Instance()[col].Get<Com_Text>()._data._text;
 		nameofrow = &Factory::Instance()[row].Get<Com_Text>()._data._text;
-		//render text box
-
-		//render 
-		//tilemap = Factory::Instance().FF_Tilemap("tilemap", "C_WilfTile.txt", "T_WilfTile.txt");
-		//Factory::Instance()[tilemap].Get<Com_Position>().x = -5;
-		//Factory::Instance()[tilemap].Get<Com_Position>().y = 2;
-		//Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
-
-		//level editor
-		//	1. pass in col
-		//	2. pass in row
-		//	3. Render grid based
-		//	4. click and click
-		//	options :
-		//enemy spawn
-		//	player spawn
-		//	wall
-		//	bomb
-		//	5. name, save
 
 		// initialize gui settings
 		GUISettingsInitialize();
 
-		//std::vector<int> flags = { 0,0,0,0,1,1,0,0,0 };
-		//Pathfinding::Grid grid{ 3,3,flags };
-		//std::vector<Vec2i> path;
-		//_pathfinding.SolveAStar({ 0,0 }, { 2,2 }, grid, path);
 	}
 	void Update(const float& dt) override {
 		UNREFERENCED_PARAMETER(dt);
@@ -119,30 +106,37 @@ struct LevelEditor : public Scene {
 
 void ChangeTestSceneLevelEditor(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	eid main = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.5f, 0.5f, 1.0f, 1.0f, 100);
+	Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
+	Factory::SpriteData button{ "buttonsprite.png", 1.0f, 1.0f, 3, 3, 8, 0.1f, 0, passin };
 	//check if all the user inputs are there
-	if ((*LevelEditor::nameofmap) == ".txt") {
+	if ((*LevelEditor::nameofmap).empty()) {
 		std::cout << "input your name!" << std::endl;
-		SceneManager::Instance().RestartScene();
+		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main, button, 0.5f, 0.25f, 0.75f, 0.2f, errormessage, "Hey Man! Input the map name!", "courier");
 		return;
 	}
 	if ((*LevelEditor::nameofcol).empty()) {
 		std::cout << "input your column!" << std::endl;
-		SceneManager::Instance().RestartScene();
+		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main, button, 0.5f, 0.25f, 0.75f, 0.2f, errormessage, "Hey Man! the column in empty!", "courier");
+		//SceneManager::Instance().RestartScene();
 		return;
 	}
 	if ((*LevelEditor::nameofrow).empty()) {
 		std::cout << "input your row!" << std::endl;
-		SceneManager::Instance().RestartScene();
+		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main, button, 0.5f, 0.25f, 0.75f, 0.2f, errormessage, "Hey Man! the row is empty!!", "courier");
+		//SceneManager::Instance().RestartScene();
 		return;
 	}
 	if (std::stoi(*LevelEditor::nameofrow) > 10) {
 		std::cout << " too big row" << std::endl;
-		SceneManager::Instance().RestartScene();
+		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main, button, 0.5f, 0.25f, 0.75f, 0.2f, errormessage, "Hey Man! the biggest in 10 for the row!", "courier");
+		//SceneManager::Instance().RestartScene();
 		return;
 	}
 	if (std::stoi(*LevelEditor::nameofcol) > 10) {
 		std::cout << "too big col" << std::endl;
-		SceneManager::Instance().RestartScene();
+		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main, button, 0.5f, 0.25f, 0.75f, 0.2f, errormessage, "Hey Man! the biggest in 10 for the column!", "courier");
+		//SceneManager::Instance().RestartScene();
 		return;
 	}
 	LevelEditor2::mapname = *LevelEditor::nameofmap;

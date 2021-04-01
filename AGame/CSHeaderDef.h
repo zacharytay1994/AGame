@@ -2115,9 +2115,6 @@ struct Sys_GridCollision : public System {
 //edits level editor generate map
 struct Com_GUItextboxinput {
 	bool inputting{ false };
-	std::vector<char> result;
-	std::string input;
-
 	//destructor 
 	//~Com_GUItextboxinput() {
 	//	result.~vector();	
@@ -2134,29 +2131,23 @@ struct Sys_GUItextboxinput : public System {
 			//AEInputReset();
 			int limit = 2;
 			if (text._data._text.size() < limit) {
-				if (AEInputCheckTriggered(AEVK_0)) { text._data._text += '0'; input.result.push_back('0'); }
-				if (AEInputCheckTriggered(AEVK_1)) { text._data._text += '1'; input.result.push_back('1'); }
-				if (AEInputCheckTriggered(AEVK_2)) { text._data._text += '2'; input.result.push_back('2'); }
-				if (AEInputCheckTriggered(AEVK_3)) { text._data._text += '3'; input.result.push_back('3'); }
-				if (AEInputCheckTriggered(AEVK_4)) { text._data._text += '4'; input.result.push_back('4'); }
-				if (AEInputCheckTriggered(AEVK_5)) { text._data._text += '5'; input.result.push_back('5'); }
-				if (AEInputCheckTriggered(AEVK_6)) { text._data._text += '6'; input.result.push_back('6'); }
-				if (AEInputCheckTriggered(AEVK_7)) { text._data._text += '7'; input.result.push_back('7'); }
-				if (AEInputCheckTriggered(AEVK_8)) { text._data._text += '8'; input.result.push_back('8'); }
-				if (AEInputCheckTriggered(AEVK_9)) { text._data._text += '9'; input.result.push_back('9'); }
+				if (AEInputCheckTriggered(AEVK_0)) { text._data._text += '0'; }
+				if (AEInputCheckTriggered(AEVK_1)) { text._data._text += '1';  }
+				if (AEInputCheckTriggered(AEVK_2)) { text._data._text += '2'; }
+				if (AEInputCheckTriggered(AEVK_3)) { text._data._text += '3'; }
+				if (AEInputCheckTriggered(AEVK_4)) { text._data._text += '4';  }
+				if (AEInputCheckTriggered(AEVK_5)) { text._data._text += '5';}
+				if (AEInputCheckTriggered(AEVK_6)) { text._data._text += '6'; }
+				if (AEInputCheckTriggered(AEVK_7)) { text._data._text += '7';  }
+				if (AEInputCheckTriggered(AEVK_8)) { text._data._text += '8'; }
+				if (AEInputCheckTriggered(AEVK_9)) { text._data._text += '9';  }
 			}
-			if (AEInputCheckTriggered(AEVK_BACK) && input.result.size() != 0) {
+			if (AEInputCheckTriggered(AEVK_BACK) && !text._data._text.empty()) {
 				std::cout << "bspace" << std::endl;
 				text._data._text.resize(text._data._text.size() - 1);
-				input.result.pop_back();
 			}
 			//end 
 			if (AEInputCheckTriggered(AEVK_SPACE) || !mouse._over && AEInputCheckTriggered(AEVK_LBUTTON)) {
-				//break;
-				for (char x : input.result) {
-					input.input += x;
-				}
-				std::cout << input.input << std::endl;
 				input.inputting = false;
 			}
 		}
@@ -2165,25 +2156,14 @@ struct Sys_GUItextboxinput : public System {
 		if (mouse._over && AEInputCheckTriggered(AEVK_LBUTTON) && input.inputting == false) {
 			std::cout << "entered" << std::endl;
 			//reset result
-			input.input.clear();
-			input.result.clear();
 			text._data._text.clear();
 			input.inputting = true;
-			//change the text colour 
-			//text._data._r = 0.0f;
-			//text._data._g = 1.0f;
-			//text._data._b = 0.0f;
 		}
 	}
 };
 
 struct Com_Writetofile {
 	char _filler = 0;
-	//std::string* col;
-	//std::string* row;
-	//Com_Text* col;
-	//Com_Text* row;
-	//Com_Text* name;
 	std::string* col;
 	std::string* row;
 	std::string* name;
@@ -2198,7 +2178,7 @@ struct Sys_writetofile : public System {
 		//Com_Tilemap* tileptr = &get<Com_Tilemap>();
 		if (mouse._over && AEInputCheckTriggered(AEVK_LBUTTON)) {
 			//write file if col and col is not empty
-			if (!(*wtf.row).empty() && !(*wtf.col).empty()) {
+			if (!(*wtf.row).empty() && !(*wtf.col).empty() && !(*wtf.name).empty()) {
 				std::cout << "writing to file now!" << std::endl;
 				tile._width = stoi(*(wtf.row));
 				tile._height = stoi(*(wtf.col));
@@ -2216,6 +2196,14 @@ struct Sys_writetofile : public System {
 						tile._map.push_back(1);
 					}
 				}
+
+				// open text file
+				//std::ofstream file;
+				//assert(file);
+				//// write width, height, size
+				//file.open("tilemaps.txt", std::ios_base::app); // append instead of overwrite
+				//file << *wtf.name << "\n";
+				//file.close();
 				*wtf.name += ".txt";
 				ResourceManager::Instance().WriteTilemapTxt(*wtf.name, tile);
 			}
@@ -2229,8 +2217,6 @@ struct Sys_writetofile : public System {
 //edits level editor generate map
 struct Com_GUItextboxinputwords {
 	bool inputting{ false };
-	std::vector<char> result;
-	std::string input;
 
 	//destructor 
 	//~Com_GUItextboxinput() {
@@ -2248,45 +2234,39 @@ struct Sys_GUItextboxinputwords : public System {
 			int limit = 12;
 			//AEInputReset();
 			if (text._data._text.size() < limit) {
-				if (AEInputCheckTriggered(AEVK_A)) { text._data._text += 'A'; input.result.push_back('A'); }
-				if (AEInputCheckTriggered(AEVK_B)) { text._data._text += 'B'; input.result.push_back('B'); }
-				if (AEInputCheckTriggered(AEVK_C)) { text._data._text += 'C'; input.result.push_back('C'); }
-				if (AEInputCheckTriggered(AEVK_D)) { text._data._text += 'D'; input.result.push_back('D'); }
-				if (AEInputCheckTriggered(AEVK_E)) { text._data._text += 'E'; input.result.push_back('E'); }
-				if (AEInputCheckTriggered(AEVK_F)) { text._data._text += 'F'; input.result.push_back('F'); }
-				if (AEInputCheckTriggered(AEVK_G)) { text._data._text += 'G'; input.result.push_back('G'); }
-				if (AEInputCheckTriggered(AEVK_H)) { text._data._text += 'H'; input.result.push_back('H'); }
-				if (AEInputCheckTriggered(AEVK_I)) { text._data._text += 'I'; input.result.push_back('I'); }
-				if (AEInputCheckTriggered(AEVK_J)) { text._data._text += 'J'; input.result.push_back('J'); }
-				if (AEInputCheckTriggered(AEVK_K)) { text._data._text += 'K'; input.result.push_back('K'); }
-				if (AEInputCheckTriggered(AEVK_L)) { text._data._text += 'L'; input.result.push_back('L'); }
-				if (AEInputCheckTriggered(AEVK_M)) { text._data._text += 'M'; input.result.push_back('M'); }
-				if (AEInputCheckTriggered(AEVK_N)) { text._data._text += 'N'; input.result.push_back('N'); }
-				if (AEInputCheckTriggered(AEVK_O)) { text._data._text += 'O'; input.result.push_back('O'); }
-				if (AEInputCheckTriggered(AEVK_P)) { text._data._text += 'P'; input.result.push_back('P'); }
-				if (AEInputCheckTriggered(AEVK_Q)) { text._data._text += 'Q'; input.result.push_back('Q'); }
-				if (AEInputCheckTriggered(AEVK_R)) { text._data._text += 'R'; input.result.push_back('R'); }
-				if (AEInputCheckTriggered(AEVK_S)) { text._data._text += 'S'; input.result.push_back('S'); }
-				if (AEInputCheckTriggered(AEVK_T)) { text._data._text += 'T'; input.result.push_back('T'); }
-				if (AEInputCheckTriggered(AEVK_U)) { text._data._text += 'U'; input.result.push_back('U'); }
-				if (AEInputCheckTriggered(AEVK_V)) { text._data._text += 'V'; input.result.push_back('V'); }
-				if (AEInputCheckTriggered(AEVK_W)) { text._data._text += 'W'; input.result.push_back('W'); }
-				if (AEInputCheckTriggered(AEVK_X)) { text._data._text += 'X'; input.result.push_back('X'); }
-				if (AEInputCheckTriggered(AEVK_Y)) { text._data._text += 'Y'; input.result.push_back('Y'); }
-				if (AEInputCheckTriggered(AEVK_Z)) { text._data._text += 'Z'; input.result.push_back('Z'); }
+				if (AEInputCheckTriggered(AEVK_A)) { text._data._text += 'A'; }
+				if (AEInputCheckTriggered(AEVK_B)) { text._data._text += 'B'; }
+				if (AEInputCheckTriggered(AEVK_C)) { text._data._text += 'C'; }
+				if (AEInputCheckTriggered(AEVK_D)) { text._data._text += 'D'; }
+				if (AEInputCheckTriggered(AEVK_E)) { text._data._text += 'E'; }
+				if (AEInputCheckTriggered(AEVK_F)) { text._data._text += 'F'; }
+				if (AEInputCheckTriggered(AEVK_G)) { text._data._text += 'G'; }
+				if (AEInputCheckTriggered(AEVK_H)) { text._data._text += 'H'; }
+				if (AEInputCheckTriggered(AEVK_I)) { text._data._text += 'I'; }
+				if (AEInputCheckTriggered(AEVK_J)) { text._data._text += 'J'; }
+				if (AEInputCheckTriggered(AEVK_K)) { text._data._text += 'K'; }
+				if (AEInputCheckTriggered(AEVK_L)) { text._data._text += 'L'; }
+				if (AEInputCheckTriggered(AEVK_M)) { text._data._text += 'M'; }
+				if (AEInputCheckTriggered(AEVK_N)) { text._data._text += 'N'; }
+				if (AEInputCheckTriggered(AEVK_O)) { text._data._text += 'O'; }
+				if (AEInputCheckTriggered(AEVK_P)) { text._data._text += 'P'; }
+				if (AEInputCheckTriggered(AEVK_Q)) { text._data._text += 'Q'; }
+				if (AEInputCheckTriggered(AEVK_R)) { text._data._text += 'R'; }
+				if (AEInputCheckTriggered(AEVK_S)) { text._data._text += 'S'; }
+				if (AEInputCheckTriggered(AEVK_T)) { text._data._text += 'T'; }
+				if (AEInputCheckTriggered(AEVK_U)) { text._data._text += 'U'; }
+				if (AEInputCheckTriggered(AEVK_V)) { text._data._text += 'V'; }
+				if (AEInputCheckTriggered(AEVK_W)) { text._data._text += 'W'; }
+				if (AEInputCheckTriggered(AEVK_X)) { text._data._text += 'X'; }
+				if (AEInputCheckTriggered(AEVK_Y)) { text._data._text += 'Y'; }
+				if (AEInputCheckTriggered(AEVK_Z)) { text._data._text += 'Z'; }
 			}
-			if (AEInputCheckTriggered(AEVK_BACK) && input.result.size() != 0) {
-				std::cout << "bspace" << std::endl;
+			if (AEInputCheckTriggered(AEVK_BACK) && !text._data._text.empty()) {
 				text._data._text.resize(text._data._text.size() - 1);
-				input.result.pop_back();
 			}
 			//end 
 			if (AEInputCheckTriggered(AEVK_SPACE) || !mouse._over && AEInputCheckTriggered(AEVK_LBUTTON)) {
 				//break;
-				for (char x : input.result) {
-					input.input += x;
-				}
-				std::cout << input.input << std::endl;
 				input.inputting = false;
 				//change the text colour 
 				//text._data._r = 0.0f;
@@ -2299,8 +2279,6 @@ struct Sys_GUItextboxinputwords : public System {
 		if (mouse._over && AEInputCheckTriggered(AEVK_LBUTTON) && input.inputting == false) {
 			std::cout << "entered" << std::endl;
 			//reset result
-			input.input.clear();
-			input.result.clear();
 			//clearing data 
 			text._data._text.clear();
 			input.inputting = true;
@@ -2415,5 +2393,21 @@ struct Sys_GUIMapClick : public System {
 				ResourceManager::Instance().WriteTilemapTxt(nameofmap, tilemap);
 			}
 		}
+	}
+};
+
+
+struct Com_errormessageGUI {
+	char _filler = 0;
+	bool skiponeframe = false;
+};
+
+struct Sys_errormessageGUI : public System {
+	void UpdateComponent() override {
+		Com_errormessageGUI& errmsg = get<Com_errormessageGUI>();
+;		if (AEInputCheckTriggered(AEVK_LBUTTON) && errmsg.skiponeframe == true || AEInputCheckTriggered(AEVK_SPACE) && errmsg.skiponeframe == true) {
+			RemoveEntity();
+		}
+		errmsg.skiponeframe = true;
 	}
 };
