@@ -35,7 +35,10 @@ struct InventoryMenu : public Scene {
 		main = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.5f, 0.5f, 1.0f, 1.0f, 100);
 		//Factory::Instance().FF_CreateGUIChildSurfaceText(main, { "transparent" }, 0.5f, 0.2f, 0.04f, 0.04f, "Inventory", "courier");
 		_title = Factory::Instance().FF_CreateGUISurface(title, 0.5f, 0.2f, original_dim_x, original_dim_y, 140);
-		Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.5f, 0.5f, 0.8f, 0.4f, "Inventory", "courier");
+		Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.4f, 0.5f, 0.8f, 0.4f, "Inventory", "courier");
+		std::stringstream current_coins;
+		current_coins << "[Coins: " << _playerInv.coins << ']';
+		Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.6f, 0.5f, 0.8f, 0.4f, current_coins.str().c_str(), "courier");
 		std::string current_weapon_text = _playerInv.Inventory_GetCurrentWeapon().GetWeapon_Name();
 		current_weapon = Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.5f, 0.6f, 0.8f, 0.4f, current_weapon_text, "courier");
 		
