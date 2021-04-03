@@ -1053,10 +1053,14 @@ struct Sys_Boundingbox : public System {
 	void calculateAABB(Com_BoundingBox& boundingbox, Com_Position& position, Com_Sprite& sprite)
 	{
 		//calculate min max
-		boundingbox.maxx = 0.5f * sprite._x_scale + position.x;
-		boundingbox.minx = -0.5f * sprite._x_scale + position.x;
-		boundingbox.miny = -0.5f * sprite._y_scale + position.y;
-		boundingbox.maxy = 0.5f * sprite._y_scale + position.y;
+		//boundingbox.maxx = 0.5f * sprite._x_scale + position.x;
+		//boundingbox.minx = -0.5f * sprite._x_scale + position.x;
+		//boundingbox.miny = -0.5f * sprite._y_scale + position.y;
+		//boundingbox.maxy = 0.5f * sprite._y_scale + position.y;
+		boundingbox.maxx = 0.5f * 50.0f + position.x;
+		boundingbox.minx = -0.5f * 50.0f + position.x;
+		boundingbox.miny = -0.5f * 50.0f + position.y;
+		boundingbox.maxy = 0.5f * 50.0f + position.y;
 	}
 };
 
@@ -1120,6 +1124,7 @@ struct Sys_AABB : public System {
 					break;
 				}
 			}
+			++iteratorcomgrid;
 		}
 		//remove the data of destroyed 
 		if (erase) {

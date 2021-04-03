@@ -340,6 +340,19 @@ struct TestScenePF : public Scene
 	________________________________*/
 	void Update(const float& dt) override {
 		UNREFERENCED_PARAMETER(dt);
+
+
+
+
+		//s32 cursorpox;
+		//s32 cursorposy;
+		//AEInputGetCursorPosition(&cursorpox, &cursorposy);
+		////of set cursor 
+		//cursorpox -= AEGetWindowWidth() / 2;
+		//cursorposy -= AEGetWindowHeight() / 2;
+		//cursorposy = -cursorposy;
+		//std::cout << cursorpox << std::endl;
+
 		//Entity& testing = Factory::Instance()[tilemap];
 		//if (AEInputCheckTriggered('E')) {
 		//}
