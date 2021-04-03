@@ -72,7 +72,7 @@ struct LevelEditor2 : public Scene {
 		//render 
 		std::cout << "name of map " << mapname << "this is what i want" << std::endl;
 		//tilemap = Factory::Instance().FF_Tilemap("tilemap", "tilehello.txt", "tilehello.txt");
-		tilemap = Factory::Instance().FF_TilemapGUI("tilemap", mapname, mapname);
+		tilemap = Factory::Instance().FF_TilemapGUI("tilemap", "c_"+mapname, "t_"+mapname);
 		//tilemap = Factory::Instance().FF_TilemapGUI("tilemap", "C_WilfTile.txt", "C_WilfTile.txt");
 		Factory::Instance()[tilemap].Get<Com_Position>().x = -7;
 		Factory::Instance()[tilemap].Get<Com_Position>().y = 4;

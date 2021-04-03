@@ -2204,8 +2204,13 @@ struct Sys_writetofile : public System {
 				file.open("../bin/Assets/Tilemaps/tilemaps.txt", std::ios_base::app); // append instead of overwrite
 				file <<"\n"<< *wtf.name ;
 				file.close();
-				*wtf.name += ".txt";
-				ResourceManager::Instance().WriteTilemapTxt(*wtf.name, tile);
+				/**wtf.name = "t_" + *wtf.name + ".txt";
+				*wtf.name = "c_" + *wtf.name + ".txt";*/
+				std::string S1 = "t_" + *wtf.name + ".txt";
+				std::string S2 = "c_" + *wtf.name + ".txt";
+				ResourceManager::Instance().WriteTilemapTxt(S1, tile);
+				ResourceManager::Instance().WriteTilemapTxt(S2, tile);
+				*wtf.name =*wtf.name + ".txt";
 			}
 		}
 	}
@@ -2390,7 +2395,10 @@ struct Sys_GUIMapClick : public System {
 				Factory::Instance().FF_SpriteTile(arrows, _tilemap, spawnspritex, spawnspritey);*/
 				//write to file 
 				savedmap = true;
-				ResourceManager::Instance().WriteTilemapTxt(nameofmap, tilemap);
+				std::string S1 = "c_" + nameofmap;
+				std::string S2 = "t_" + nameofmap;
+				ResourceManager::Instance().WriteTilemapTxt(S1, tilemap);
+				ResourceManager::Instance().WriteTilemapTxt(S2, tilemap);
 			}
 		}
 	}
