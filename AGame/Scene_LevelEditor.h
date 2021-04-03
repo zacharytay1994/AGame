@@ -107,35 +107,36 @@ struct LevelEditor : public Scene {
 void ChangeTestSceneLevelEditor(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	eid main = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.5f, 0.5f, 1.0f, 1.0f, 100);
+	eid buttons = Factory::Instance().FF_CreateGUIChildSurface(main, { "background1" }, 0.5f, 0.5f, 0.5f, 0.7f);												// non clickable child surface
 	Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
 	Factory::SpriteData button{ "buttonsprite.png", 1.0f, 1.0f, 3, 3, 8, 0.1f, 0, passin };
 	//check if all the user inputs are there
 	if ((*LevelEditor::nameofmap).empty()) {
 		std::cout << "input your name!" << std::endl;
-		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main, button, 0.5f, 0.25f, 0.75f, 0.2f, errormessage, "Hey Man! Input the map name!", "courier");
+		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(buttons, button, 0.5f, 0.5f, 0.75f, 0.2f, errormessage, "Hey Man! Input the map name!", "courier");
 		return;
 	}
 	if ((*LevelEditor::nameofcol).empty()) {
 		std::cout << "input your column!" << std::endl;
-		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main, button, 0.5f, 0.25f, 0.75f, 0.2f, errormessage, "Hey Man! the column in empty!", "courier");
+		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(buttons, button, 0.5f, 0.5f, 0.75f, 0.2f, errormessage, "Hey Man! the column in empty!", "courier");
 		//SceneManager::Instance().RestartScene();
 		return;
 	}
 	if ((*LevelEditor::nameofrow).empty()) {
 		std::cout << "input your row!" << std::endl;
-		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main, button, 0.5f, 0.25f, 0.75f, 0.2f, errormessage, "Hey Man! the row is empty!!", "courier");
+		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(buttons, button, 0.5f, 0.5f, 0.75f, 0.2f, errormessage, "Hey Man! the row is empty!!", "courier");
 		//SceneManager::Instance().RestartScene();
 		return;
 	}
 	if (std::stoi(*LevelEditor::nameofrow) > 10) {
 		std::cout << " too big row" << std::endl;
-		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main, button, 0.5f, 0.25f, 0.75f, 0.2f, errormessage, "Hey Man! the biggest in 10 for the row!", "courier");
+		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(buttons, button, 0.5f, 0.5f, 0.75f, 0.2f, errormessage, "Hey Man! the biggest is 10 for the row!", "courier");
 		//SceneManager::Instance().RestartScene();
 		return;
 	}
 	if (std::stoi(*LevelEditor::nameofcol) > 10) {
 		std::cout << "too big col" << std::endl;
-		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main, button, 0.5f, 0.25f, 0.75f, 0.2f, errormessage, "Hey Man! the biggest in 10 for the column!", "courier");
+		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(buttons, button, 0.5f, 0.5f, 0.75f, 0.2f, errormessage, "Hey Man! the biggest is 10 for the column!", "courier");
 		//SceneManager::Instance().RestartScene();
 		return;
 	}
