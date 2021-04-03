@@ -6,7 +6,7 @@
 #include <memory>
 #include "AEEngine.h"
 #include "Factory.h"
-
+#include <fstream>
 #include "ResourceManager.h"
 #include "zComponent.h"
 #include "zSystem.h"
@@ -2184,7 +2184,7 @@ struct Sys_writetofile : public System {
 				tile._height = stoi(*(wtf.col));
 
 				//check if it's within boundary
-				if (tile._width > 12 || tile._height > 12) {
+				if (tile._width > 10 || tile._height > 10) {	
 					std::cout << "too small! the column or the row" << std::endl;
 					return;
 				}
@@ -2198,12 +2198,12 @@ struct Sys_writetofile : public System {
 				}
 
 				// open text file
-				//std::ofstream file;
-				//assert(file);
-				//// write width, height, size
-				//file.open("tilemaps.txt", std::ios_base::app); // append instead of overwrite
-				//file << *wtf.name << "\n";
-				//file.close();
+				std::ofstream file;
+				assert(file);
+				// write width, height, size
+				file.open("../bin/Assets/Tilemaps/tilemaps.txt", std::ios_base::app); // append instead of overwrite
+				file <<"\n"<< *wtf.name ;
+				file.close();
 				*wtf.name += ".txt";
 				ResourceManager::Instance().WriteTilemapTxt(*wtf.name, tile);
 			}
