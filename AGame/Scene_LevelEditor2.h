@@ -87,7 +87,7 @@ struct LevelEditor2 : public Scene {
 		pf2._initialized = true;
 		SystemDatabase::Instance().GetSystem<Sys_TilePosition>()->_grid = &pf2._grid;
 		//**** needed 
-		AEToogleFullScreen(true);
+		//	AEToogleFullScreen(true);
 
 		/*eid tile = Factory::Instance().FF_CreateGUIChildClickableTileMap(main, { "transparent" }, 0.5f, 0.15f, 0.8f, 0.2f, nocolbut, mapname, "tilemap");*/
 
@@ -112,6 +112,9 @@ struct LevelEditor2 : public Scene {
 		GUISettingsUpdate();
 		//one more frame
 		if (SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp == 4 && SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->savedmap == true){
+			//reset 
+			//SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp == 0;
+			//SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->savedmap == false;
 			SceneManager::Instance().ChangeScene("Main Menu");
 		}
 		if (AEInputCheckTriggered('R')) {
