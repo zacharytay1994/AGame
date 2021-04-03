@@ -159,22 +159,22 @@ struct Com_BoundingBox
 
 
 // testing for wilfred ////////////////////////////
-struct Com_objecttype {
-	enum type
-	{
-		playert,
-		enemyt,
-		bullett,
-		obstaclest
-	};
-	eid objtype{ playert };
-	bool updated{ false };
-	//to store id of all player 
-	//static std::vector<eid> player;
-	//static std::vector<eid> enemy;
-	//static std::vector<eid> bullet;
-	//static std::vector<eid> obstacle;
-};
+//struct Com_objecttype {
+//	enum type
+//	{
+//		playert,
+//		enemyt,
+//		bullett,
+//		obstaclest
+//	};
+//	eid objtype{ playert };
+//	bool updated{ false };
+//	//to store id of all player 
+//	//static std::vector<eid> player;
+//	//static std::vector<eid> enemy;
+//	//static std::vector<eid> bullet;
+//	//static std::vector<eid> obstacle;
+//};
 
 //global 
 //static std::vector<eid> player;
@@ -217,6 +217,7 @@ struct Com_objecttype {
 struct Com_CollisionData {
 	Com_BoundingBox* aabb{ nullptr };
 	Com_Velocity* vel{ nullptr };
+	Com_type* type{ nullptr };
 	bool emplacedvec{ false };
 };
 
@@ -1063,59 +1064,70 @@ struct Sys_Boundingbox : public System {
 
 
 struct Sys_AABB : public System {
-	std::vector<Com_CollisionData> AABBTestplayer; //to store all collision data of player
-	std::vector<Com_CollisionData> AABBTestEnemy; //to store all collision data of player
-	std::vector<Com_CollisionData> AABBTestBullet; //to store all collision data of player
+	std::vector<Com_CollisionData> AABBColData; //to store all collision data of player
+	std::vector<std::vector<Com_CollisionData>::iterator> Gridcoliterator;
+	//std::vector<Com_CollisionData> AABBTestEnemy; //to store all collision data of player
+	//std::vector<Com_CollisionData> AABBTestBullet; //to store all collision data of player
 	void UpdateComponent() override {
 		//calculate AABB detection
-		bool collisionflag = false;
 		Com_BoundingBox* AABB = &get<Com_BoundingBox>();
 		Com_Velocity* vel = &get<Com_Velocity>();
 		Com_CollisionData& coldata = get<Com_CollisionData>();
-		//for (int i{ 0 }; i < AABBTest.size(); ++i) {
-		//	collisionflag = CollisionAABB(*AABB, *vel, *AABBTest[i].aabb, *AABBTest[i].vel);
-		//}
-		//AABBTest.emplace_back(Com_CollisionData{ AABB,vel });
-		//edits for testing 
-		//collision testing for player
-		Com_objecttype& objtype = get<Com_objecttype>();
-		if (objtype.objtype == objtype.playert && coldata.emplacedvec == false) {
-			AABBTestplayer.emplace_back(Com_CollisionData{ AABB,vel });
-			coldata.emplacedvec = true;
-		}
-		if (objtype.objtype == objtype.playert && coldata.emplacedvec == true) {
-			//test with enemy
-			for (int i{ 0 }; i < AABBTestEnemy.size(); ++i) {
-				//test with enemy
-				collisionflag = CollisionAABB(*AABB, *vel, *AABBTestEnemy[i].aabb, *AABBTestEnemy[i].vel);
-			}
-		}
+		Com_type* type = &get<Com_type>();
 
-		//for enemy 
-		if (objtype.objtype == objtype.enemyt && coldata.emplacedvec == false) {
-			AABBTestEnemy.emplace_back(Com_CollisionData{ AABB,vel });
+		//emplace back all if not initialized
+		if (coldata.emplacedvec == false) {
+			AABBColData.emplace_back(Com_CollisionData{ AABB,vel,type});
 			coldata.emplacedvec = true;
 		}
-		if (objtype.objtype == objtype.enemyt && coldata.emplacedvec == true) {
-			//tbc
-		}
+		bool erase = false;
+		std::vector<Com_CollisionData>::iterator iteratorcomgrid;
+		iteratorcomgrid = AABBColData.begin();
+		for (size_t i{ 0 }; i < AABBColData.size(); ++i) {
+			if (CollisionAABB(*AABB, *vel, *AABBColData[i].aabb, *AABBColData[i].vel)) {
+				//range attack with enemy 
+				//if ((type->type == type->enemy || type->type == type->enemyrange) && AABBColData[i].type->type == type->bullet) {
+				//	Gridcoliterator.push_back(iteratorcomgrid);
+				//	erase = true;
+				//	RemoveEntity();
+				//	break;
+				//}
 
-		//for bullet 
-		if (objtype.objtype == objtype.bullett && coldata.emplacedvec == false) {
-			AABBTestBullet.emplace_back(Com_CollisionData{ AABB,vel });
-			coldata.emplacedvec = true;
-		}
-		if (objtype.objtype == objtype.bullett && coldata.emplacedvec == true) {
-			//test with enemy
-			for (int i{ 0 }; i < AABBTestEnemy.size(); ++i) {
-				//test with enemy
-				collisionflag = CollisionAABB(*AABB, *vel, *AABBTestEnemy[i].aabb, *AABBTestEnemy[i].vel);
-				//if collide 
-				if (collisionflag == true) {
+				//if (type->type == type->bullet && (AABBColData[i].type->type == type->enemy || AABBColData[i].type->type == type->enemyrange)) {
+				//	std::cout << "Collided Enemy" << std::endl;
+				//	RemoveEntity();
+				//	break;
+				//}
+
+				//if ((type->type == type->player) && AABBColData[i].type->type == type->EnemyBalls)
+				//{
+
+				//	break;
+				//}
+				if (type->type == type->enemy && (AABBColData[i].type->type == type->bullet)) {
+					std::cout << "collidied" << std::endl;
 					RemoveEntity();
-					//std::cout << "collidde" << std::endl;
+					Gridcoliterator.push_back(iteratorcomgrid);
+					erase = true;
+					break;
+				}
+
+				if (type->type == type->bullet && (AABBColData[i].type->type == type->enemy)) {
+					std::cout << "collidied" << std::endl;
+					RemoveEntity();
+					//Gridcoliterator.push_back(iteratorcomgrid);
+					//erase = true;
+					break;
 				}
 			}
+		}
+		//remove the data of destroyed 
+		if (erase) {
+			for (size_t i{ 0 }; i < Gridcoliterator.size(); ++i) {
+				AABBColData.erase(Gridcoliterator[i]);
+			}
+			//clear the gridcoliterator
+			Gridcoliterator.clear();
 		}
 
 		//check with diff type objects 

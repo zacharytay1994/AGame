@@ -47,15 +47,18 @@ ________________________________*/
 		//passing in ref to tilemap for enemy
 		SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->_tilemap = tilemap;
 		//SystemDatabase::Instance().GetSystem<Sys_Projectile>().tilemap = tilemap;
+		// 
+		// 
 		//init tile map 
 		Com_Tilemap& com_tilemap = Factory::Instance()[tilemap].Get<Com_Tilemap>();
 		Sys_PathFinding& pf2 = *SystemDatabase::Instance().GetSystem<Sys_PathFinding>();
 		pf2._grid = Grid(com_tilemap._width, com_tilemap._height, com_tilemap._map);
 		pf2._initialized = true;
+		SystemDatabase::Instance().GetSystem<Sys_TilePosition>()->_grid = &pf2._grid;
 
 		//player
 		player = Factory::Instance().FF_SpriteTile(data2, tilemap, 0, 0);
-		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Projectile, Com_WeaponAttack, Com_Camera, Com_type, Com_GridColData, Com_Health>();
+		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Projectile, Com_WeaponAttack, Com_Camera, Com_type, Com_Health, Com_BoundingBox, Com_Velocity, Com_CollisionData>();
 		SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
 		SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
 		//more

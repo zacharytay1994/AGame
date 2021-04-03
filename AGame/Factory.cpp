@@ -171,9 +171,9 @@ eid Factory::FF_Createproj(const SpriteData& data, const int& x, const int& y, c
 {
     eid id = FF_Sprite(data, static_cast<float>(x), static_cast<float>(y));
     //for the projectile not the entity calling it 
-    Factory::Instance()[id].AddComponent<Com_WeaponAttack,Com_Velocity,Com_Boundary, Com_objecttype, Com_CollisionData, Com_BoundingBox>();
+    Factory::Instance()[id].AddComponent<Com_WeaponAttack,Com_Velocity,Com_Boundary, Com_type, Com_CollisionData, Com_BoundingBox>();
     Entity& e = Factory::Instance()[id];
-    e.Get<Com_objecttype>().objtype = Com_objecttype::bullett;
+    e.Get<Com_type>().type = Com_type::bullet;
     //setting of velocity which is not initialized 
     //Com_Direction& direction = e.Get<Com_Direction>();
     Com_Velocity& velocity = e.Get<Com_Velocity>();
@@ -201,8 +201,10 @@ eid Factory::FF_Createproj2(const SpriteData& data, const int& x, const int& y, 
 {
     eid id = FF_SpriteTile(data, tilemap, x, y);
     //for the projectile not the entity calling it 
-    Entity& e = Factory::Instance()[id].AddComponent<Com_Projectile, Com_type, Com_GridColData, Com_EnemySpawn>();
+    Entity& e = Factory::Instance()[id].AddComponent<Com_Projectile, Com_type, Com_EnemySpawn, Com_BoundingBox, Com_Velocity, Com_CollisionData>();
     Com_Projectile& proj = e.Get<Com_Projectile>();
+    e.Get<Com_Velocity>().x = vel_x;
+    e.Get<Com_Velocity>().y = vel_y;
     e.Get<Com_type>().type = 2;
     proj.grid_vel_x = vel_x;
     proj.grid_vel_y = vel_y;
@@ -225,7 +227,7 @@ eid Factory::FF_CreateprojEnemy(const SpriteData& data, const int& x, const int&
 
 eid Factory::FF_CreateSpawner()
 {
-    eid id = CreateEntity<Com_EnemySpawn, Com_Wave, Com_GridColData, Com_type>();
+    eid id = CreateEntity<Com_EnemySpawn, Com_Wave,Com_type, Com_BoundingBox, Com_Velocity, Com_CollisionData>();
     Entity& e = Factory::Instance()[id];
     e.Get<Com_type>().type = 1;
     return id;
