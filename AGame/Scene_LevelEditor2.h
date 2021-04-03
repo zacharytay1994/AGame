@@ -113,8 +113,8 @@ struct LevelEditor2 : public Scene {
 		//one more frame
 		if (SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp == 4 && SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->savedmap == true){
 			//reset 
-			//SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp == 0;
-			//SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->savedmap == false;
+			SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp = 0;
+			SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->savedmap = false;
 			SceneManager::Instance().ChangeScene("Main Menu");
 		}
 		if (AEInputCheckTriggered('R')) {

@@ -2399,6 +2399,10 @@ struct Sys_GUIMapClick : public System {
 				std::string S2 = "t_" + nameofmap;
 				ResourceManager::Instance().WriteTilemapTxt(S1, tilemap);
 				ResourceManager::Instance().WriteTilemapTxt(S2, tilemap);
+				//reset 
+				//savedmap = false;
+				//Leveledittyp = 0;
+				//guimap.uninitialised = true;
 			}
 		}
 	}
