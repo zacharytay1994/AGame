@@ -1153,9 +1153,9 @@ struct Sys_AABB : public System {
 				//}
 				if ((type->type == type->enemy || type->type == type->enemyrange) && (AABBColData[i].type->type == type->bullet)) {
 					std::cout << "collidied" << std::endl;
-					RemoveEntity();
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					--_spawner->CurrNoOfEnemies;
+					RemoveEntity();
 					Gridcoliterator.push_back(iteratorcomgrid);
 					erase = true;
 					break;
@@ -1583,17 +1583,19 @@ struct Sys_PathFinding : public System
 					if (fp._found && _path.size() > 1) 
 					{
 						fp._reached = false;
-						_grid.Get({ tpos._grid_x, tpos._grid_y })._obstacle = false;
-						_grid.Get({ tpos._grid_x, tpos._grid_y })._obstacle = true;
 						if (_path.size() > 2)
 						{
+							_grid.Get({ tpos._grid_x, tpos._grid_y })._obstacle = false;
 							tpos._grid_x = _path[1].x;
 							tpos._grid_y = _path[1].y;
+							_grid.Get({ tpos._grid_x, tpos._grid_y })._obstacle = true;
 						}
 						else 
 						{
+							_grid.Get({ tpos._grid_x, tpos._grid_y })._obstacle = false;
 							tpos._grid_x = _path[0].x;
 							tpos._grid_y = _path[0].y;
+							_grid.Get({ tpos._grid_x, tpos._grid_y })._obstacle = true;
 						}
 					}
 					else if (_path.size() >= 1) 
