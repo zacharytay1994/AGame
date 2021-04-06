@@ -136,7 +136,7 @@ void SceneManager::Initialize() {
 	//SystemDatabase::Instance().RegisterSystem<Sys_RegisteringEntity, Com_objecttype>();
 	//test 
 	SystemDatabase::Instance().RegisterSystem <Sys_Boundingbox, Com_BoundingBox, Com_Position,Com_Sprite>();
-	SystemDatabase::Instance().RegisterSystem <Sys_AABB, Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_type>();
+	SystemDatabase::Instance().RegisterSystem <Sys_AABB, Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_type,Com_Health>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Projectile2, Com_TilePosition, Com_Projectile>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Camera, Com_Position, Com_Camera>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GridCollision, Com_type, Com_TilePosition, Com_GridColData>();

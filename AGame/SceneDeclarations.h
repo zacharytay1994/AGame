@@ -336,8 +336,14 @@ struct TestScenePF : public Scene
 				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 4) {
 					wall = Factory::Instance().FF_SpriteTile(box, tilemap, x, y);
 					Factory::Instance()[wall].AddComponent<Com_YLayering,Com_Health,Com_type, Com_BoundingBox, Com_Velocity, Com_CollisionData>();
-					Entity& a = Factory::Instance()[bomb];
-					a.Get<Com_type>().type = 3;
+					Entity& e = Factory::Instance()[wall];
+					e.Get<Com_Health>().health = 3;
+					e.Get<Com_type>().type = 3;
+
+					//mis = Factory::Instance().FF_SpriteTile(boom, tilemap, x, y);
+					//Factory::Instance()[mis].AddComponent<Com_YLayering, Com_type, Com_GridColData>();
+					//Entity& e = Factory::Instance()[mis];
+					//e.Get<Com_type>().type = 1;
 					continue;
 				}
 				//if it's a explosive barrel 
@@ -345,6 +351,7 @@ struct TestScenePF : public Scene
 					bomb = Factory::Instance().FF_SpriteTile(boom, tilemap, x, y);
 					Factory::Instance()[bomb].AddComponent<Com_YLayering, Com_type, Com_Health, Com_BoundingBox, Com_Velocity, Com_CollisionData>();
 					Entity& e = Factory::Instance()[bomb];
+					e.Get<Com_Health>().health = 1;
 					e.Get<Com_type>().type = 4;
 					continue;
 				}

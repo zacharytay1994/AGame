@@ -1127,6 +1127,7 @@ struct Sys_AABB : public System {
 		Com_Velocity* vel = &get<Com_Velocity>();
 		Com_CollisionData& coldata = get<Com_CollisionData>();
 		Com_type* type = &get<Com_type>();
+		Com_Health& health = get<Com_Health>();
 
 		//emplace back all if not initialized
 		if (coldata.emplacedvec == false) {
@@ -1164,7 +1165,6 @@ struct Sys_AABB : public System {
 					erase = true;
 					break;
 				}
-
 				if (type->type == type->bullet && (AABBColData[i].type->type == type->enemy)) {
 					std::cout << "collidied" << std::endl;
 					RemoveEntity();
@@ -1174,9 +1174,18 @@ struct Sys_AABB : public System {
 				}
 
 				//for wall with bullets 
-				if (type->type == type->bombbarrel && (AABBColData[i].type->type == type->bullet)) {
-
+				if (type->type == type->wall && (AABBColData[i].type->type == type->bullet)) {
+					health.health;
+					--health.health;
+					break;
 				}
+				if (type->type == type->bullet && (AABBColData[i].type->type == type->wall)) {
+					RemoveEntity();
+					break;
+				}
+				//if (type->type == type->bombbarrel && (AABBColData[i].type->type == type->bullet)) {
+
+				//}
 			}
 			++iteratorcomgrid;
 		}
