@@ -890,16 +890,16 @@ struct Sys_ArrowKeysTilemap : public System {
 		Com_Direction& direction = get<Com_Direction>();
 
 		int x = 0, y = 0;
-		if (AEInputCheckCurr(AEVK_LEFT)) {
+		if (AEInputCheckCurr(AEVK_LEFT) || AEInputCheckCurr(AEVK_A)) {
 			x -= 1;
 		}
-		if (AEInputCheckCurr(AEVK_RIGHT)) {
+		if (AEInputCheckCurr(AEVK_RIGHT) || AEInputCheckCurr(AEVK_D)) {
 			x += 1;
 		}
-		if (AEInputCheckCurr(AEVK_UP)) {
+		if (AEInputCheckCurr(AEVK_UP) || AEInputCheckCurr(AEVK_W)) {
 			y -= 1;
 		}
-		if (AEInputCheckCurr(AEVK_DOWN)) {
+		if (AEInputCheckCurr(AEVK_DOWN) || AEInputCheckCurr(AEVK_S)) {
 			y += 1;
 		}
 
@@ -1003,12 +1003,12 @@ struct Sys_TilePosition : public System {
 		//bool check = false;
 		if (tilemap) {
 			// check if new tile position is within grid - would be checked with collision_mask after
-			if (t_position._vgrid_x == t_position._grid_x && t_position._vgrid_y == t_position._grid_y) {
+			/*if (t_position._vgrid_x == t_position._grid_x && t_position._vgrid_y == t_position._grid_y) {
 				if (t_position._is_player) {
 					_grid->Get({ t_position._vgrid_x,t_position._vgrid_y })._obstacle = false;
 				}
-			}
-			else if (t_position._grid_x >= 0 && t_position._grid_x < tilemap->_width && t_position._grid_y >= 0 && t_position._grid_y < tilemap->_height &&
+			}*/
+			if (t_position._grid_x >= 0 && t_position._grid_x < tilemap->_width && t_position._grid_y >= 0 && t_position._grid_y < tilemap->_height &&
 				tilemap->_floor_mask[(size_t)t_position._grid_x * (size_t)tilemap->_height + (size_t)t_position._grid_y] >= 0 &&
 				(!_grid->Get({ t_position._grid_x, t_position._grid_y })._obstacle || !t_position._is_player)) {
 				//check = (t_position._vgrid_x != t_position._grid_x || t_position._vgrid_y != t_position._grid_y);
@@ -1096,6 +1096,13 @@ struct Sys_Boundingbox : public System {
 		boundingbox.minx = -0.5f * sprite._x_scale + position.x;
 		boundingbox.miny = -0.5f * sprite._y_scale + position.y;
 		boundingbox.maxy = 0.5f * sprite._y_scale + position.y;
+
+		// draw a line
+		AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_COLOR);
+		AEGfxLine(boundingbox.minx, boundingbox.miny, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, boundingbox.maxx, boundingbox.miny, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+		AEGfxLine(boundingbox.maxx, boundingbox.miny, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, boundingbox.maxx, boundingbox.maxy, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+		AEGfxLine(boundingbox.maxx, boundingbox.maxy, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, boundingbox.minx, boundingbox.maxy, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+		AEGfxLine(boundingbox.minx, boundingbox.maxy, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, boundingbox.minx, boundingbox.miny, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
 	}
 };
 
@@ -1502,6 +1509,7 @@ struct Sys_EnemySpawning : public System {
 					_grid->Get({ ran })._obstacle = true;
 					Factory::Instance()[enemy].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[playerpos].Get<Com_TilePosition>();
 					Factory::Instance()[enemy].Get<Com_EnemyStateOne>().playerHealth = &Factory::Instance()[playerpos].Get<Com_Health>();
+					//Factory::Instance()[enemy].AddComponent<Com_BoundingBox>();
 					++_spawner.CurrNoOfEnemies;
 				}
 				//else if (randomEnemyCreation == 5) //ranged 
@@ -2064,7 +2072,7 @@ struct Sys_GridCollision : public System {
 					//std::cout << gridspaen.DEATHEnemiespawncounter << std::endl;
 
 				}
-				
+
 				if (type->type == type->bullet && (GridCol[i].type->type == type->enemy || GridCol[i].type->type == type->enemyrange)) {
 					std::cout << "Collided Enemy" << std::endl;
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
@@ -2072,7 +2080,7 @@ struct Sys_GridCollision : public System {
 					break;
 				}
 
-				/*if ((type->type == type->player) && GridCol[i].type->type == type->EnemyBalls) 
+				/*if ((type->type == type->player) && GridCol[i].type->type == type->EnemyBalls)
 				{
 					std::cout << "Damage Taken" << std::endl;
 					_grid->Get({ tilepos->_vgrid_x,tilepos->_vgrid_y })._obstacle = false;
@@ -2117,7 +2125,7 @@ struct Sys_GridCollision : public System {
 				//	std::cout << "Collided" << std::endl;
 				//	RemoveEntity();
 				//}
-				
+
 				////enemy with bullet 
 				//if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
 				//	std::cout << "Collided" << std::endl;
