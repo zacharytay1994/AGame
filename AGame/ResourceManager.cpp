@@ -353,7 +353,7 @@ std::string ResourceManager::SwitchTilemap(const int& val)
 	}
 	_tilemap_id += val;
 	if (_tilemap_id < 0) {
-		_tilemap_id += _tilemap_id;
+		_tilemap_id += _tilemap_count;
 	}
 	else {
 		_tilemap_id = _tilemap_id % _tilemap_count;
