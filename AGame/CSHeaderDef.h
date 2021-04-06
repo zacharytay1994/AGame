@@ -973,13 +973,21 @@ struct Sys_Tilemap : public System {
 					tilemap._render_pack._offset_y = (tilemap._floor_mask[x * (size_t)tilemap._height + y] / 4) * 1.0f / (float)4;
 					//ResourceManager::Instance().DrawQueue(&tilemap._render_pack);
 					AEMtx33Concat(&tilemap._render_pack._transform, &shake, &tilemap._render_pack._transform);
-					AEGfxSetTintColor(tilemap._render_pack.r, tilemap._render_pack.g, tilemap._render_pack.b, 1.0f);
+					AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
+					//for highlighting of tile 
+					for (size_t i{ 0 }; i < tilemap._render_pack.highlightpos.size(); ++i) {
+						if ((x * (size_t)tilemap._height + y) == (tilemap._render_pack.highlightpos[i]._grid_x * (size_t)tilemap._height + tilemap._render_pack.highlightpos[i]._grid_y)) {
+							AEGfxSetTintColor(0.0f, 0.0f, 0.0f, 1.0f);
+						}
+					}
 					AEGfxSetTransform(tilemap._render_pack._transform.m);
 					AEGfxTextureSet(tilemap._render_pack._texture, tilemap._render_pack._offset_x, tilemap._render_pack._offset_y);
 					AEGfxMeshDraw(tilemap._render_pack._mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
 				}
 			}
 		}
+		//clear the vector for the highlighting 
+		tilemap._render_pack.highlightpos.clear();
 	}
 };
 
@@ -1417,6 +1425,7 @@ struct Sys_Projectile2 : public System {
 			Com_TilemapRef& tilemapref = get<Com_TilemapRef>();
 			Com_Tilemap* tilemap = tilemapref._tilemap;
 
+
 			proj.time = static_cast<float>(AEGetTime(nullptr));
 			Com_TilePosition& tileposition = get<Com_TilePosition>();
 			if (tilemap) {
@@ -1431,21 +1440,31 @@ struct Sys_Projectile2 : public System {
 				}
 			}
 			
+			tilemap->_render_pack.highlightpos.push_back({ tileposition._grid_x,tileposition._grid_y });
+			
 			if (proj.grid_vel_x > 0)
 			{
 				tileposition._grid_x++;
+				//passing the current tile to highlight
+				//tilemap->_render_pack.highlightpos.push_back({ tileposition._grid_x,tileposition._grid_y });
 			}
 			else if (proj.grid_vel_x < 0)
 			{
 				tileposition._grid_x--;
+				//passing the current tile to highlight
+				//tilemap->_render_pack.highlightpos.push_back({ tileposition._grid_x,tileposition._grid_y });
 			}
 			if (proj.grid_vel_y > 0)
 			{
 				tileposition._grid_y--;
+				//passing the current tile to highlight
+				//tilemap->_render_pack.highlightpos.push_back({ tileposition._grid_x,tileposition._grid_y });
 			}
 			else if (proj.grid_vel_y < 0)
 			{
 				tileposition._grid_y++;
+				//passing the current tile to highlight
+				//tilemap->_render_pack.highlightpos.push_back({ tileposition._grid_x,tileposition._grid_y });
 			}
 
 			if (tilemap) {
