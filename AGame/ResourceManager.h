@@ -20,6 +20,9 @@ struct RenderPack {
 	AEGfxTexture*		_texture{ nullptr };
 	float				_offset_x;
 	float				_offset_y;
+	float				r{ 1.f };
+	float				g{ 1.f };
+	float				b{ 1.f };
 };
 
 struct TextPack {

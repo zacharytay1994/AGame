@@ -973,6 +973,7 @@ struct Sys_Tilemap : public System {
 					tilemap._render_pack._offset_y = (tilemap._floor_mask[x * (size_t)tilemap._height + y] / 4) * 1.0f / (float)4;
 					//ResourceManager::Instance().DrawQueue(&tilemap._render_pack);
 					AEMtx33Concat(&tilemap._render_pack._transform, &shake, &tilemap._render_pack._transform);
+					AEGfxSetTintColor(tilemap._render_pack.r, tilemap._render_pack.g, tilemap._render_pack.b, 1.0f);
 					AEGfxSetTransform(tilemap._render_pack._transform.m);
 					AEGfxTextureSet(tilemap._render_pack._texture, tilemap._render_pack._offset_x, tilemap._render_pack._offset_y);
 					AEGfxMeshDraw(tilemap._render_pack._mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
@@ -1097,10 +1098,10 @@ struct Sys_Boundingbox : public System {
 		//boundingbox.minx = -0.5f * sprite._x_scale + position.x;
 		//boundingbox.miny = -0.5f * sprite._y_scale + position.y;
 		//boundingbox.maxy = 0.5f * sprite._y_scale + position.y;
-		boundingbox.maxx = 0.5f * 50.0f + position.x;
-		boundingbox.minx = -0.5f * 50.0f + position.x;
-		boundingbox.miny = -0.5f * 50.0f + position.y;
-		boundingbox.maxy = 0.5f * 50.0f + position.y;
+		boundingbox.maxx = 0.5f * 25.0f + position.x;
+		boundingbox.minx = -0.5f * 25.0f + position.x;
+		boundingbox.miny = -0.5f * 25.0f + position.y;
+		boundingbox.maxy = 0.5f * 25.0f + position.y;
 	}
 };
 
@@ -1418,7 +1419,6 @@ struct Sys_Projectile2 : public System {
 
 			proj.time = static_cast<float>(AEGetTime(nullptr));
 			Com_TilePosition& tileposition = get<Com_TilePosition>();
-
 			if (tilemap) {
 				// check if new tile position is within grid - would be checked with collision_mask after
 				if (tileposition._grid_x >= 0 && tileposition._grid_x < tilemap->_width && tileposition._grid_y >= 0 && tileposition._grid_y < tilemap->_height &&
