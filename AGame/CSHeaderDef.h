@@ -399,6 +399,22 @@ struct Com_type {
 	};
 };
 
+/*-------------------------------------
+//for spawning of enemies
+-------------------------------------------*/
+
+struct Com_EnemySpawn {
+	int numberofenemies{ 2 }; //number of enemies to spawn
+	int CurrNoOfEnemies{ 0 }; //keep track of enemies on map
+	int DEATHEnemiespawncounter{ 0 };
+};
+
+struct Com_Wave {
+	float timerforwave{ 3.0f }; //if timer hits 0 in secsm spawn new wave 
+	size_t numberofwaves{ 10 }; //if number of wave hit 0, level unlocked 
+};
+
+
 /*																				system::ENEMY STATES
 ____________________________________________________________________________________________________*/
 struct Com_EnemyStateOne {
@@ -1085,11 +1101,21 @@ struct Sys_Boundingbox : public System {
 
 
 struct Sys_AABB : public System {
+	
+	//Com_Health* _PLayerHealth{ nullptr };
+	Grid* _grid{ nullptr };
+	Com_EnemySpawn* _spawner{ nullptr };
 	std::vector<Com_CollisionData> AABBColData; //to store all collision data of player
 	std::vector<std::vector<Com_CollisionData>::iterator> Gridcoliterator;
 	//std::vector<Com_CollisionData> AABBTestEnemy; //to store all collision data of player
 	//std::vector<Com_CollisionData> AABBTestBullet; //to store all collision data of player
 	void UpdateComponent() override {
+		if (!_grid || !_spawner) {
+			std::cout << "sys_AABB requires grid!" << std::endl;
+			return;
+		}
+		Com_TilePosition* tilepos = &get<Com_TilePosition>();
+
 		//calculate AABB detection
 		Com_BoundingBox* AABB = &get<Com_BoundingBox>();
 		Com_Velocity* vel = &get<Com_Velocity>();
@@ -1125,16 +1151,19 @@ struct Sys_AABB : public System {
 
 				//	break;
 				//}
-				if (type->type == type->enemy && (AABBColData[i].type->type == type->bullet)) {
+				if ((type->type == type->enemy || type->type == type->enemyrange) && (AABBColData[i].type->type == type->bullet)) {
 					std::cout << "collidied" << std::endl;
 					RemoveEntity();
+					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
+					--_spawner->CurrNoOfEnemies;
 					Gridcoliterator.push_back(iteratorcomgrid);
 					erase = true;
 					break;
 				}
 
-				if (type->type == type->bullet && (AABBColData[i].type->type == type->enemy)) {
+				if (type->type == type->bullet && (AABBColData[i].type->type == type->enemy || AABBColData[i].type->type == type->enemyrange)) {
 					std::cout << "collidied" << std::endl;
+					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					RemoveEntity();
 					//Gridcoliterator.push_back(iteratorcomgrid);
 					//erase = true;
@@ -1449,21 +1478,6 @@ struct Sys_Projectile2 : public System {
 	}
 };
 
- /////////Edits  
-
-/*-------------------------------------
-//for spawning of enemies 
--------------------------------------------*/
-struct Com_EnemySpawn {
-	int numberofenemies{ 2 }; //number of enemies to spawn
-	int CurrNoOfEnemies{ 0 }; //keep track of enemies on map
-	int DEATHEnemiespawncounter{ 0 };
-};
-
-struct Com_Wave {
-	float timerforwave{ 3.0f }; //if timer hits 0 in secsm spawn new wave 
-	size_t numberofwaves{ 10 }; //if number of wave hit 0, level unlocked 
-};
 
 //logic for spawning of enemies 
 struct Sys_EnemySpawning : public System {
@@ -1498,7 +1512,7 @@ struct Sys_EnemySpawning : public System {
 				/*int randomx = rand() % 9;
 				int randomy = rand() % 5;*/
 				Vec2i passin[5] = { {0,3},{4,7},{8,11},{0,0},{0,0} };
-				int randomEnemyCreation =  5/*1 +(rand() % 2 * 4)*/;
+				int randomEnemyCreation =  1 +(rand() % 2 * 4);
 				if(randomEnemyCreation == 1) // melee
 				{
 					Factory::SpriteData dog{ "dog.png", 100.0f, 160.0f, 4, 3, 12, 0.1f, 0, passin };
@@ -1516,6 +1530,7 @@ struct Sys_EnemySpawning : public System {
 					_grid->Get({ ran })._obstacle = true;
 					Factory::Instance()[enemy].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[playerpos].Get<Com_TilePosition>();
 					Factory::Instance()[enemy].Get<Com_EnemyStateOne>().playerHealth = &Factory::Instance()[playerpos].Get<Com_Health>();
+					//Factory::Instance()[enemy].AddComponent<Com_BoundingBox>();
 					++_spawner.CurrNoOfEnemies;
 				}
 			}
@@ -2005,7 +2020,7 @@ struct Com_GridColData {
 	bool emplacedvec{ false };
 };
 
-//grid collision
+//grid collision djsdai
 struct Sys_GridCollision : public System {
 	Grid* _grid{ nullptr };
 	Com_EnemySpawn* _spawner{ nullptr };
