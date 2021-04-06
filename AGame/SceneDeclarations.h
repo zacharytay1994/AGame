@@ -272,6 +272,8 @@ struct TestScenePF : public Scene
 		std::cout << test << " this is a test scene" << std::endl;
 		std::cout << sizeof(Com_Tilemap) << std::endl;
 
+
+		//init tilemap 
 		tilemap = Factory::Instance().FF_Tilemap("tilemap", ResourceManager::Instance()._tilemap_names[ResourceManager::Instance()._tilemap_id]._binary + ".txt",
 															ResourceManager::Instance()._tilemap_names[ResourceManager::Instance()._tilemap_id]._map + ".txt");
 		Factory::Instance()[tilemap].Get<Com_Position>().x = -5;
@@ -279,6 +281,8 @@ struct TestScenePF : public Scene
 		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
 		SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->_tilemap = tilemap;
 		SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_tilemap = tilemap;
+
+
 
 		spawner = Factory::Instance().FF_CreateSpawner();
 
@@ -293,50 +297,23 @@ struct TestScenePF : public Scene
 		SystemDatabase::Instance().GetSystem<Sys_ArrowKeysTilemap>()->_grid = &pf2._grid;
 		SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->_spawner = &Factory::Instance()[spawner].Get<Com_EnemySpawn>();
 
-
-		player = Factory::Instance().FF_SpriteTile(man, tilemap, 0, 0);
-		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne, Com_TileMoveSpriteState, Com_type>();
-		Factory::Instance()[player].Get<Com_TilePosition>()._is_player = true;
-		Factory::Instance()[player].Get<Com_type>().type = 0; // set player type
-		SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->player_id = player;
-		SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->tile = tilemap;
-		SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
-		SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
-
-		SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
-
-
-
-		arrow = Factory::Instance().FF_Sprite(arrows, 0.0f, 0.0f);
-		Entity& a = Factory::Instance()[arrow];
-		a.AddComponent<Com_ParentPosition>();
-		a.Get<Com_ParentPosition>()._parent_id = player;
-		arrow_sprite = &a.Get<Com_Sprite>();
-
-		lives = Factory::Instance().FF_CreateGUISurface(underline, 0.2f, 0.1f, 0.4f, 0.1f, 100);
-		Factory::Instance().FF_CreateGUIChildSurfaceText(lives, { "transparent" }, 0.3f, 0.5f, 0.4f, 0.4f, "Lives: ", "courier");
-		std::stringstream ss;
-		ss << Factory::Instance()[player].Get<Com_Health>().health;
-		lives = Factory::Instance().FF_CreateGUIChildSurfaceText(lives, { "transparent" }, 0.5f, 0.5f, 0.8f, 0.4f, ss.str().c_str(), "courier");
-
-		waves = Factory::Instance().FF_CreateGUISurface(underline, 0.8f, 0.1f, 0.4f, 0.1f, 100);
-		Factory::Instance().FF_CreateGUIChildSurfaceText(waves, { "transparent" }, 0.3f, 0.5f, 0.4f, 0.4f, "Waves: ", "courier");
-		std::stringstream ss1;
-		ss1 << Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves;
-		waves = Factory::Instance().FF_CreateGUIChildSurfaceText(waves, { "transparent" }, 0.5f, 0.5f, 0.8f, 0.4f, ss1.str().c_str(), "courier");
-
-		menu = Factory::Instance().FF_CreateGUISurface(buttonsurface, 0.5f, 0.5f, 0.9f, 0.6f, 120);
-		eid start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(menu, button, 0.5f, 0.35f, 0.4f, 0.2f, ChangeTestScenePF, "Restart", "courier");
-		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
-		start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(menu, button, 0.5f, 0.60f, 0.4f, 0.2f, ChangeMainMenu, "Main Menu", "courier");
-		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
-		Factory::Instance()[menu].Get<Com_GUISurface>()._active = false;
-
-
 		//testting for level editor 
-
 		for (int y = 0; y < com_tilemap._height; ++y) {
 			for (int x = 0; x < com_tilemap._width; ++x) {
+				//if it's a player spawn location 
+				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 2) {
+					player = Factory::Instance().FF_SpriteTile(man, tilemap, x, y);
+					Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne, Com_TileMoveSpriteState, Com_type>();
+					Factory::Instance()[player].Get<Com_TilePosition>()._is_player = true;
+					Factory::Instance()[player].Get<Com_type>().type = 0; // set player type
+					SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->player_id = player;
+					SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->tile = tilemap;
+					SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
+					SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
+
+					SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
+
+				}
 				//if it's a enemy spawn location 
 				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 3) {
 					//enemytest = Factory::Instance().FF_SpriteTile(data, tilemap, x, y);
@@ -370,6 +347,47 @@ struct TestScenePF : public Scene
 				}
 			}
 		}
+
+
+		//player = Factory::Instance().FF_SpriteTile(man, tilemap, 0, 0);
+		//Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne, Com_TileMoveSpriteState, Com_type>();
+		//Factory::Instance()[player].Get<Com_TilePosition>()._is_player = true;
+		//Factory::Instance()[player].Get<Com_type>().type = 0; // set player type
+		//SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->player_id = player;
+		//SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->tile = tilemap;
+		//SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
+		//SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
+
+		//SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
+
+
+
+		arrow = Factory::Instance().FF_Sprite(arrows, 0.0f, 0.0f);
+		Entity& a = Factory::Instance()[arrow];
+		a.AddComponent<Com_ParentPosition>();
+		a.Get<Com_ParentPosition>()._parent_id = player;
+		arrow_sprite = &a.Get<Com_Sprite>();
+
+		lives = Factory::Instance().FF_CreateGUISurface(underline, 0.2f, 0.1f, 0.4f, 0.1f, 100);
+		Factory::Instance().FF_CreateGUIChildSurfaceText(lives, { "transparent" }, 0.3f, 0.5f, 0.4f, 0.4f, "Lives: ", "courier");
+		std::stringstream ss;
+		ss << Factory::Instance()[player].Get<Com_Health>().health;
+		lives = Factory::Instance().FF_CreateGUIChildSurfaceText(lives, { "transparent" }, 0.5f, 0.5f, 0.8f, 0.4f, ss.str().c_str(), "courier");
+
+		waves = Factory::Instance().FF_CreateGUISurface(underline, 0.8f, 0.1f, 0.4f, 0.1f, 100);
+		Factory::Instance().FF_CreateGUIChildSurfaceText(waves, { "transparent" }, 0.3f, 0.5f, 0.4f, 0.4f, "Waves: ", "courier");
+		std::stringstream ss1;
+		ss1 << Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves;
+		waves = Factory::Instance().FF_CreateGUIChildSurfaceText(waves, { "transparent" }, 0.5f, 0.5f, 0.8f, 0.4f, ss1.str().c_str(), "courier");
+
+		menu = Factory::Instance().FF_CreateGUISurface(buttonsurface, 0.5f, 0.5f, 0.9f, 0.6f, 120);
+		eid start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(menu, button, 0.5f, 0.35f, 0.4f, 0.2f, ChangeTestScenePF, "Restart", "courier");
+		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
+		start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(menu, button, 0.5f, 0.60f, 0.4f, 0.2f, ChangeMainMenu, "Main Menu", "courier");
+		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
+		Factory::Instance()[menu].Get<Com_GUISurface>()._active = false;
+
+
 
 		//Factory::Instance().FF_CreateGUISurface(clock, 0.5f, 0.05f, 0.1f, 0.1f, 100);
 
