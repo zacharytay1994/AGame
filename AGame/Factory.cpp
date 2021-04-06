@@ -203,8 +203,8 @@ eid Factory::FF_Createproj2(const SpriteData& data, const int& x, const int& y, 
     //for the projectile not the entity calling it 
     Entity& e = Factory::Instance()[id].AddComponent<Com_Projectile, Com_type, Com_EnemySpawn, Com_BoundingBox, Com_Velocity, Com_CollisionData>();
     Com_Projectile& proj = e.Get<Com_Projectile>();
-    e.Get<Com_Velocity>().x = vel_x;
-    e.Get<Com_Velocity>().y = vel_y;
+    e.Get<Com_Velocity>().x = (float)vel_x;
+    e.Get<Com_Velocity>().y = (float)vel_y;
     e.Get<Com_type>().type = 2;
     proj.grid_vel_x = vel_x;
     proj.grid_vel_y = vel_y;

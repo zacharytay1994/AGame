@@ -941,12 +941,21 @@ struct Sys_Tilemap : public System {
 					tilemap._render_pack._offset_y = (tilemap._floor_mask[x * (size_t)tilemap._height + y] / 4) * 1.0f / (float)4;
 					//ResourceManager::Instance().DrawQueue(&tilemap._render_pack);
 					AEMtx33Concat(&tilemap._render_pack._transform, &shake, &tilemap._render_pack._transform);
+					AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
+					//for highlighting of tile 
+					for (size_t i{ 0 }; i < tilemap._render_pack.highlightpos.size(); ++i) {
+						if ((x * (size_t)tilemap._height + y) == (tilemap._render_pack.highlightpos[i]._grid_x * (size_t)tilemap._height + tilemap._render_pack.highlightpos[i]._grid_y)) {
+							AEGfxSetTintColor(0.0f, 0.0f, 0.0f, 1.0f);
+						}
+					}
 					AEGfxSetTransform(tilemap._render_pack._transform.m);
 					AEGfxTextureSet(tilemap._render_pack._texture, tilemap._render_pack._offset_x, tilemap._render_pack._offset_y);
 					AEGfxMeshDraw(tilemap._render_pack._mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
 				}
 			}
 		}
+		//clear the vector for the highlighting 
+		tilemap._render_pack.highlightpos.clear();
 	}
 };
 
@@ -1065,10 +1074,10 @@ struct Sys_Boundingbox : public System {
 		//boundingbox.minx = -0.5f * sprite._x_scale + position.x;
 		//boundingbox.miny = -0.5f * sprite._y_scale + position.y;
 		//boundingbox.maxy = 0.5f * sprite._y_scale + position.y;
-		boundingbox.maxx = 0.5f * 50.0f + position.x;
-		boundingbox.minx = -0.5f * 50.0f + position.x;
-		boundingbox.miny = -0.5f * 50.0f + position.y;
-		boundingbox.maxy = 0.5f * 50.0f + position.y;
+		boundingbox.maxx = 0.5f * 25.0f + position.x;
+		boundingbox.minx = -0.5f * 25.0f + position.x;
+		boundingbox.miny = -0.5f * 25.0f + position.y;
+		boundingbox.maxy = 0.5f * 25.0f + position.y;
 	}
 };
 
@@ -1384,9 +1393,9 @@ struct Sys_Projectile2 : public System {
 			Com_TilemapRef& tilemapref = get<Com_TilemapRef>();
 			Com_Tilemap* tilemap = tilemapref._tilemap;
 
+
 			proj.time = static_cast<float>(AEGetTime(nullptr));
 			Com_TilePosition& tileposition = get<Com_TilePosition>();
-
 			if (tilemap) {
 				// check if new tile position is within grid - would be checked with collision_mask after
 				if (tileposition._grid_x >= 0 && tileposition._grid_x < tilemap->_width && tileposition._grid_y >= 0 && tileposition._grid_y < tilemap->_height &&
@@ -1399,21 +1408,31 @@ struct Sys_Projectile2 : public System {
 				}
 			}
 			
+			tilemap->_render_pack.highlightpos.push_back({ tileposition._grid_x,tileposition._grid_y });
+			
 			if (proj.grid_vel_x > 0)
 			{
 				tileposition._grid_x++;
+				//passing the current tile to highlight
+				//tilemap->_render_pack.highlightpos.push_back({ tileposition._grid_x,tileposition._grid_y });
 			}
 			else if (proj.grid_vel_x < 0)
 			{
 				tileposition._grid_x--;
+				//passing the current tile to highlight
+				//tilemap->_render_pack.highlightpos.push_back({ tileposition._grid_x,tileposition._grid_y });
 			}
 			if (proj.grid_vel_y > 0)
 			{
 				tileposition._grid_y--;
+				//passing the current tile to highlight
+				//tilemap->_render_pack.highlightpos.push_back({ tileposition._grid_x,tileposition._grid_y });
 			}
 			else if (proj.grid_vel_y < 0)
 			{
 				tileposition._grid_y++;
+				//passing the current tile to highlight
+				//tilemap->_render_pack.highlightpos.push_back({ tileposition._grid_x,tileposition._grid_y });
 			}
 
 			if (tilemap) {
@@ -1922,12 +1941,14 @@ struct Sys_Obstacle : public System {
 			//if hit, explode 
 			if (l_obstacle.numofhitstodestroy == 0) {
 				//explode 
+				RemoveEntity();
 			}
 		}
 		//if it's a breakable wall 
 		if (l_obstacle.obstacletype == l_obstacle.breakablewall) {
 			if (l_obstacle.numofhitstodestroy == 0) {
 				//destroy wall, free space to walk on 
+				RemoveEntity();
 			}
 		}
 	}
@@ -2165,6 +2186,19 @@ struct Sys_writetofile : public System {
 				for (size_t i{ 0 }; i < tile._height; ++i) {
 					for (size_t j{ 0 }; j < tile._width; ++j) {
 						tile._map.push_back(1);
+					}
+				}
+
+				//double check if the file name already exist 
+				std::ifstream filecheck;
+				filecheck.open("../bin/Assets/Tilemaps/tilemaps.txt");
+				std::string tmp;
+				while (std::getline(filecheck, tmp)) {
+					//already exist! 
+					if (tmp == *wtf.name) {
+						//clear the name 
+						*wtf.name = "duplicate name";
+						return;
 					}
 				}
 

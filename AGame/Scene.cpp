@@ -92,6 +92,7 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Health>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUIMap>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_BoundingBoxGUI>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_Obstacle>();
 
 	// Pathfinding
 	ComponentDescription_DB::Instance().RegisterComponent<Com_FindPath>();
@@ -131,6 +132,7 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_Boundary, Com_Position, Com_Boundary>();
 	SystemDatabase::Instance().RegisterSystem<Sys_ParticleSys,Com_Particle, Com_GameTimer >();
 	SystemDatabase::Instance().RegisterSystem<Sys_ParticleEmitter, Com_ParticleEmitter, Com_GameTimer>();
+	SystemDatabase::Instance().RegisterSystem<Sys_Obstacle, Com_Obstacle>();
 	//SystemDatabase::Instance().RegisterSystem<Sys_RegisteringEntity, Com_objecttype>();
 	//test 
 	SystemDatabase::Instance().RegisterSystem <Sys_Boundingbox, Com_BoundingBox, Com_Position,Com_Sprite>();
