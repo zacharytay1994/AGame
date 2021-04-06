@@ -27,8 +27,12 @@ struct TestScenewilfred : public Scene
 	eid lives{ -1 };
 	eid waves{ -1 };
 	eid spawner{ -1 };
+	eid mis{ -1 };
 	eid menu{ -1 };
 	Inventory playerInv;
+	Factory::SpriteData box{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
+	Factory::SpriteData boom{ "kaboom", 40.0f, 40.0f, 1, 1, 1, 0.15f };
+
 	Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
 	Factory::SpriteData man{ "hero.png", 100.0f, 160.0f, 3, 3, 8, 0.1f, 0, passin };
 	Factory::SpriteData data{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.15f };
@@ -113,6 +117,27 @@ struct TestScenewilfred : public Scene
 		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
 		Factory::Instance()[menu].Get<Com_GUISurface>()._active = false;
 
+
+
+		//obstacles
+		// 
+		// 
+		//for (int y = 0; y < com_tilemap._height; ++y) {
+		//	for (int x = 0; x < com_tilemap._width; ++x) {
+		//		//if it's a explosive barrel 
+		//		if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 2) {
+		//			mis = Factory::Instance().FF_SpriteTile(boom, tilemap, x, y);
+		//			Factory::Instance()[mis].AddComponent<Com_YLayering, Com_Obstacle>();
+		//			Entity& e = Factory::Instance()[mis];
+		//			e.Get<Com_type>().type = 1;
+		//		}
+		//		//if its' a destructible wall 
+		//		if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 3) {
+		//			mis = Factory::Instance().FF_SpriteTile(box, tilemap, x, y);
+		//			Factory::Instance()[mis].AddComponent<Com_YLayering, Com_Obstacle>();
+		//		}
+		//	}
+		//}
 		//Factory::Instance().FF_CreateGUISurface(clock, 0.5f, 0.05f, 0.1f, 0.1f, 100);
 
 		GUISettingsInitialize();
@@ -260,3 +285,26 @@ struct TestScenewilfred : public Scene
 
 	}
 };
+
+
+
+//obstacles
+// 
+// 
+//for (int y = 0; y < com_tilemap._height; ++y) {
+//	for (int x = 0; x < com_tilemap._width; ++x) {
+//		//if it's a explosive barrel 
+//		if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 2) {
+//			mis = Factory::Instance().FF_SpriteTile(boom, tilemap, x, y);
+//			Factory::Instance()[mis].AddComponent<Com_YLayering, Com_Obstacle>();
+//			Entity& e = Factory::Instance()[mis];
+//			e.Get<Com_type>().type = 1;
+//		}
+//		//if its' a destructible wall 
+//		if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 3) {
+//			mis = Factory::Instance().FF_SpriteTile(box, tilemap, x, y);
+//			Factory::Instance()[mis].AddComponent<Com_YLayering, Com_Obstacle>();
+//		}
+//	}
+//}
+//Factory::Instance().FF_CreateGUISurface(clock, 0.5f, 0.05f, 0.1f, 0.1f, 100);

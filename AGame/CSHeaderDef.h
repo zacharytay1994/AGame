@@ -1172,6 +1172,11 @@ struct Sys_AABB : public System {
 					//erase = true;
 					break;
 				}
+
+				//for wall with bullets 
+				if (type->type == type->bombbarrel && (AABBColData[i].type->type == type->bullet)) {
+
+				}
 			}
 			++iteratorcomgrid;
 		}
@@ -1979,30 +1984,33 @@ struct Sys_GUIDrag : public System {
 
 
 //edits by wilfred
-struct Com_Obstacle {
-	enum obst {
-		bombbarrel,
-		breakablewall,
-	};
-	size_t obstacletype{ 0 };
-	size_t numofhitstodestroy{ 1 };
-};
+//struct Com_Obstacle {
+//	enum obst {
+//		bombbarrel,
+//		breakablewall,
+//	};
+//	size_t obstacletype{ 0 };
+//	size_t numofhitstodestroy{ 1 };
+//};
 
 struct Sys_Obstacle : public System {
 
 	void UpdateComponent() override {
-		Com_Obstacle& l_obstacle = get<Com_Obstacle>();
+		/*Com_Obstacle& l_obstacle = get<Com_Obstacle>();*/
+		Com_type& type = get<Com_type>();
+		Com_Health& health = get<Com_Health>();
+
 		//if it's a bomb barrel 
-		if (l_obstacle.obstacletype == l_obstacle.bombbarrel) {
+		if (type.type == type.bombbarrel) {
 			//if hit, explode 
-			if (l_obstacle.numofhitstodestroy == 0) {
+			if (health.health == 0) {
 				//explode 
 				RemoveEntity();
 			}
 		}
 		//if it's a breakable wall 
-		if (l_obstacle.obstacletype == l_obstacle.breakablewall) {
-			if (l_obstacle.numofhitstodestroy == 0) {
+		if (type.type == type.wall) {
+			if (health.health == 0) {
 				//destroy wall, free space to walk on 
 				RemoveEntity();
 			}
@@ -2453,6 +2461,7 @@ struct Sys_GUIMapClick : public System {
 					if (Leveledittyp == 0) {
 						break;
 					}
+					//non collidable 
 					if (Leveledittyp == 1) {
 						//Vec2i passin[5] = { {0,3},{4,7},{8,11},{0,0},{0,0} };
 						//Factory::SpriteData dog{ "dog.png", 100.0f, 160.0f, 4, 3, 12, 0.1f, 0, passin };
@@ -2461,16 +2470,34 @@ struct Sys_GUIMapClick : public System {
 						tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = 0;
 						guimap.bounding[a].tileintialised = true;
 					}
+					//player spawn 
 					if (Leveledittyp == 2) {
 						Vec2i passin[5] = { {0,3},{4,7},{8,11},{0,0},{0,0} };
-						Factory::SpriteData dog{ "dog.png", 100.0f, 160.0f, 4, 3, 12, 0.1f, 0, passin };
-						Factory::Instance().FF_SpriteTile(dog, _tilemap, spawnspritex, spawnspritey);
-						guimap.bounding[a].tileintialised = true;
-					}
-					if (Leveledittyp == 3) {
-						Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
 						Factory::SpriteData man{ "hero.png", 100.0f, 160.0f, 3, 3, 8, 0.1f, 0, passin };
 						Factory::Instance().FF_SpriteTile(man, _tilemap, spawnspritex, spawnspritey);
+						tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = 2;
+						guimap.bounding[a].tileintialised = true;
+					}
+					//enemy spawn 
+					if (Leveledittyp == 3) {
+						Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
+						Factory::SpriteData dog{ "dog.png", 100.0f, 160.0f, 4, 3, 12, 0.1f, 0, passin };
+						Factory::Instance().FF_SpriteTile(dog, _tilemap, spawnspritex, spawnspritey);
+						tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = 3;
+						guimap.bounding[a].tileintialised = true;
+					}
+					//wall 4 taken for load 
+					if (Leveledittyp == 7) {
+						Factory::SpriteData box{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
+						Factory::Instance().FF_SpriteTile(box, _tilemap, spawnspritex, spawnspritey);
+						tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = 4;
+						guimap.bounding[a].tileintialised = true;
+					}
+					//bomb 
+					if (Leveledittyp == 5) {
+						Factory::SpriteData boom{ "kaboom", 40.0f, 40.0f, 1, 1, 1, 0.15f };
+						Factory::Instance().FF_SpriteTile(boom, _tilemap, spawnspritex, spawnspritey);
+						tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = 5;
 						guimap.bounding[a].tileintialised = true;
 					}
 					//change the data in the the map 
