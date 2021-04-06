@@ -2394,6 +2394,8 @@ struct Com_GUIMap {
 	s32  cursorposx;
 	std::vector<Com_BoundingBoxGUI> bounding;
 	bool uninitialised = true;
+	size_t playercount{ 0 };
+	size_t enemycount{ 0 };
 };
 
 struct Com_BoundingBoxGUI
@@ -2471,19 +2473,21 @@ struct Sys_GUIMapClick : public System {
 						guimap.bounding[a].tileintialised = true;
 					}
 					//player spawn 
-					if (Leveledittyp == 2) {
+					if (Leveledittyp == 2 && guimap.playercount != 1) {
 						Vec2i passin[5] = { {0,3},{4,7},{8,11},{0,0},{0,0} };
 						Factory::SpriteData man{ "hero.png", 100.0f, 160.0f, 3, 3, 8, 0.1f, 0, passin };
 						Factory::Instance().FF_SpriteTile(man, _tilemap, spawnspritex, spawnspritey);
 						tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = 2;
+						++guimap.playercount;
 						guimap.bounding[a].tileintialised = true;
 					}
 					//enemy spawn 
-					if (Leveledittyp == 3) {
+					if (Leveledittyp == 3 && guimap.enemycount != 1) {
 						Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
 						Factory::SpriteData dog{ "dog.png", 100.0f, 160.0f, 4, 3, 12, 0.1f, 0, passin };
 						Factory::Instance().FF_SpriteTile(dog, _tilemap, spawnspritex, spawnspritey);
 						tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = 3;
+						++guimap.enemycount;
 						guimap.bounding[a].tileintialised = true;
 					}
 					//wall 4 taken for load 
