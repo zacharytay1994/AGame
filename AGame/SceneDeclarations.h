@@ -292,7 +292,7 @@ struct TestScenePF : public Scene
 
 
 		player = Factory::Instance().FF_SpriteTile(man, tilemap, 0, 0);
-		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne, Com_TileMoveSpriteState, Com_type, Com_GridColData>();
+		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne, Com_TileMoveSpriteState, Com_type>();
 		Factory::Instance()[player].Get<Com_TilePosition>()._is_player = true;
 		Factory::Instance()[player].Get<Com_type>().type = 0; // set player type
 		SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->_PLayerHealth = &Factory::Instance()[player].Get<Com_Health>();
@@ -341,6 +341,19 @@ struct TestScenePF : public Scene
 	________________________________*/
 	void Update(const float& dt) override {
 		UNREFERENCED_PARAMETER(dt);
+
+
+
+
+		//s32 cursorpox;
+		//s32 cursorposy;
+		//AEInputGetCursorPosition(&cursorpox, &cursorposy);
+		////of set cursor 
+		//cursorpox -= AEGetWindowWidth() / 2;
+		//cursorposy -= AEGetWindowHeight() / 2;
+		//cursorposy = -cursorposy;
+		//std::cout << cursorpox << std::endl;
+
 		//Entity& testing = Factory::Instance()[tilemap];
 		//if (AEInputCheckTriggered('E')) {
 		//}

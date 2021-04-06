@@ -6,7 +6,7 @@
 #include <memory>
 #include "AEEngine.h"
 #include "Factory.h"
-
+#include <fstream>
 #include "ResourceManager.h"
 #include "zComponent.h"
 #include "zSystem.h"
@@ -159,22 +159,22 @@ struct Com_BoundingBox
 
 
 // testing for wilfred ////////////////////////////
-struct Com_objecttype {
-	enum type
-	{
-		playert,
-		enemyt,
-		bullett,
-		obstaclest
-	};
-	eid objtype{ playert };
-	bool updated{ false };
-	//to store id of all player 
-	//static std::vector<eid> player;
-	//static std::vector<eid> enemy;
-	//static std::vector<eid> bullet;
-	//static std::vector<eid> obstacle;
-};
+//struct Com_objecttype {
+//	enum type
+//	{
+//		playert,
+//		enemyt,
+//		bullett,
+//		obstaclest
+//	};
+//	eid objtype{ playert };
+//	bool updated{ false };
+//	//to store id of all player 
+//	//static std::vector<eid> player;
+//	//static std::vector<eid> enemy;
+//	//static std::vector<eid> bullet;
+//	//static std::vector<eid> obstacle;
+//};
 
 //global 
 //static std::vector<eid> player;
@@ -217,6 +217,7 @@ struct Com_objecttype {
 struct Com_CollisionData {
 	Com_BoundingBox* aabb{ nullptr };
 	Com_Velocity* vel{ nullptr };
+	Com_type* type{ nullptr };
 	bool emplacedvec{ false };
 };
 
@@ -1060,17 +1061,14 @@ struct Sys_Boundingbox : public System {
 	void calculateAABB(Com_BoundingBox& boundingbox, Com_Position& position, Com_Sprite& sprite)
 	{
 		//calculate min max
-		boundingbox.maxx = 0.5f * sprite._x_scale + position.x;
-		boundingbox.minx = -0.5f * sprite._x_scale + position.x;
-		boundingbox.miny = -0.5f * sprite._y_scale + position.y;
-		boundingbox.maxy = 0.5f * sprite._y_scale + position.y;
-
-		// draw a line
-		AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_COLOR);
-		AEGfxLine(boundingbox.minx, boundingbox.miny, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, boundingbox.maxx, boundingbox.miny, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-		AEGfxLine(boundingbox.maxx, boundingbox.miny, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, boundingbox.maxx, boundingbox.maxy, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-		AEGfxLine(boundingbox.maxx, boundingbox.maxy, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, boundingbox.minx, boundingbox.maxy, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-		AEGfxLine(boundingbox.minx, boundingbox.maxy, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, boundingbox.minx, boundingbox.miny, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+		//boundingbox.maxx = 0.5f * sprite._x_scale + position.x;
+		//boundingbox.minx = -0.5f * sprite._x_scale + position.x;
+		//boundingbox.miny = -0.5f * sprite._y_scale + position.y;
+		//boundingbox.maxy = 0.5f * sprite._y_scale + position.y;
+		boundingbox.maxx = 0.5f * 50.0f + position.x;
+		boundingbox.minx = -0.5f * 50.0f + position.x;
+		boundingbox.miny = -0.5f * 50.0f + position.y;
+		boundingbox.maxy = 0.5f * 50.0f + position.y;
 	}
 };
 
@@ -1078,59 +1076,71 @@ struct Sys_Boundingbox : public System {
 
 
 struct Sys_AABB : public System {
-	std::vector<Com_CollisionData> AABBTestplayer; //to store all collision data of player
-	std::vector<Com_CollisionData> AABBTestEnemy; //to store all collision data of player
-	std::vector<Com_CollisionData> AABBTestBullet; //to store all collision data of player
+	std::vector<Com_CollisionData> AABBColData; //to store all collision data of player
+	std::vector<std::vector<Com_CollisionData>::iterator> Gridcoliterator;
+	//std::vector<Com_CollisionData> AABBTestEnemy; //to store all collision data of player
+	//std::vector<Com_CollisionData> AABBTestBullet; //to store all collision data of player
 	void UpdateComponent() override {
 		//calculate AABB detection
-		bool collisionflag = false;
 		Com_BoundingBox* AABB = &get<Com_BoundingBox>();
 		Com_Velocity* vel = &get<Com_Velocity>();
 		Com_CollisionData& coldata = get<Com_CollisionData>();
-		//for (int i{ 0 }; i < AABBTest.size(); ++i) {
-		//	collisionflag = CollisionAABB(*AABB, *vel, *AABBTest[i].aabb, *AABBTest[i].vel);
-		//}
-		//AABBTest.emplace_back(Com_CollisionData{ AABB,vel });
-		//edits for testing 
-		//collision testing for player
-		Com_objecttype& objtype = get<Com_objecttype>();
-		if (objtype.objtype == objtype.playert && coldata.emplacedvec == false) {
-			AABBTestplayer.emplace_back(Com_CollisionData{ AABB,vel });
-			coldata.emplacedvec = true;
-		}
-		if (objtype.objtype == objtype.playert && coldata.emplacedvec == true) {
-			//test with enemy
-			for (int i{ 0 }; i < AABBTestEnemy.size(); ++i) {
-				//test with enemy
-				collisionflag = CollisionAABB(*AABB, *vel, *AABBTestEnemy[i].aabb, *AABBTestEnemy[i].vel);
-			}
-		}
+		Com_type* type = &get<Com_type>();
 
-		//for enemy 
-		if (objtype.objtype == objtype.enemyt && coldata.emplacedvec == false) {
-			AABBTestEnemy.emplace_back(Com_CollisionData{ AABB,vel });
+		//emplace back all if not initialized
+		if (coldata.emplacedvec == false) {
+			AABBColData.emplace_back(Com_CollisionData{ AABB,vel,type});
 			coldata.emplacedvec = true;
 		}
-		if (objtype.objtype == objtype.enemyt && coldata.emplacedvec == true) {
-			//tbc
-		}
+		bool erase = false;
+		std::vector<Com_CollisionData>::iterator iteratorcomgrid;
+		iteratorcomgrid = AABBColData.begin();
+		for (size_t i{ 0 }; i < AABBColData.size(); ++i) {
+			if (CollisionAABB(*AABB, *vel, *AABBColData[i].aabb, *AABBColData[i].vel)) {
+				//range attack with enemy 
+				//if ((type->type == type->enemy || type->type == type->enemyrange) && AABBColData[i].type->type == type->bullet) {
+				//	Gridcoliterator.push_back(iteratorcomgrid);
+				//	erase = true;
+				//	RemoveEntity();
+				//	break;
+				//}
 
-		//for bullet 
-		if (objtype.objtype == objtype.bullett && coldata.emplacedvec == false) {
-			AABBTestBullet.emplace_back(Com_CollisionData{ AABB,vel });
-			coldata.emplacedvec = true;
-		}
-		if (objtype.objtype == objtype.bullett && coldata.emplacedvec == true) {
-			//test with enemy
-			for (int i{ 0 }; i < AABBTestEnemy.size(); ++i) {
-				//test with enemy
-				collisionflag = CollisionAABB(*AABB, *vel, *AABBTestEnemy[i].aabb, *AABBTestEnemy[i].vel);
-				//if collide 
-				if (collisionflag == true) {
+				//if (type->type == type->bullet && (AABBColData[i].type->type == type->enemy || AABBColData[i].type->type == type->enemyrange)) {
+				//	std::cout << "Collided Enemy" << std::endl;
+				//	RemoveEntity();
+				//	break;
+				//}
+
+				//if ((type->type == type->player) && AABBColData[i].type->type == type->EnemyBalls)
+				//{
+
+				//	break;
+				//}
+				if (type->type == type->enemy && (AABBColData[i].type->type == type->bullet)) {
+					std::cout << "collidied" << std::endl;
 					RemoveEntity();
-					//std::cout << "collidde" << std::endl;
+					Gridcoliterator.push_back(iteratorcomgrid);
+					erase = true;
+					break;
+				}
+
+				if (type->type == type->bullet && (AABBColData[i].type->type == type->enemy)) {
+					std::cout << "collidied" << std::endl;
+					RemoveEntity();
+					//Gridcoliterator.push_back(iteratorcomgrid);
+					//erase = true;
+					break;
 				}
 			}
+			++iteratorcomgrid;
+		}
+		//remove the data of destroyed 
+		if (erase) {
+			for (size_t i{ 0 }; i < Gridcoliterator.size(); ++i) {
+				AABBColData.erase(Gridcoliterator[i]);
+			}
+			//clear the gridcoliterator
+			Gridcoliterator.clear();
 		}
 
 		//check with diff type objects 
@@ -2076,9 +2086,6 @@ struct Sys_GridCollision : public System {
 //edits level editor generate map
 struct Com_GUItextboxinput {
 	bool inputting{ false };
-	std::vector<char> result;
-	std::string input;
-
 	//destructor 
 	//~Com_GUItextboxinput() {
 	//	result.~vector();	
@@ -2095,29 +2102,23 @@ struct Sys_GUItextboxinput : public System {
 			//AEInputReset();
 			int limit = 2;
 			if (text._data._text.size() < limit) {
-				if (AEInputCheckTriggered(AEVK_0)) { text._data._text += '0'; input.result.push_back('0'); }
-				if (AEInputCheckTriggered(AEVK_1)) { text._data._text += '1'; input.result.push_back('1'); }
-				if (AEInputCheckTriggered(AEVK_2)) { text._data._text += '2'; input.result.push_back('2'); }
-				if (AEInputCheckTriggered(AEVK_3)) { text._data._text += '3'; input.result.push_back('3'); }
-				if (AEInputCheckTriggered(AEVK_4)) { text._data._text += '4'; input.result.push_back('4'); }
-				if (AEInputCheckTriggered(AEVK_5)) { text._data._text += '5'; input.result.push_back('5'); }
-				if (AEInputCheckTriggered(AEVK_6)) { text._data._text += '6'; input.result.push_back('6'); }
-				if (AEInputCheckTriggered(AEVK_7)) { text._data._text += '7'; input.result.push_back('7'); }
-				if (AEInputCheckTriggered(AEVK_8)) { text._data._text += '8'; input.result.push_back('8'); }
-				if (AEInputCheckTriggered(AEVK_9)) { text._data._text += '9'; input.result.push_back('9'); }
+				if (AEInputCheckTriggered(AEVK_0)) { text._data._text += '0'; }
+				if (AEInputCheckTriggered(AEVK_1)) { text._data._text += '1';  }
+				if (AEInputCheckTriggered(AEVK_2)) { text._data._text += '2'; }
+				if (AEInputCheckTriggered(AEVK_3)) { text._data._text += '3'; }
+				if (AEInputCheckTriggered(AEVK_4)) { text._data._text += '4';  }
+				if (AEInputCheckTriggered(AEVK_5)) { text._data._text += '5';}
+				if (AEInputCheckTriggered(AEVK_6)) { text._data._text += '6'; }
+				if (AEInputCheckTriggered(AEVK_7)) { text._data._text += '7';  }
+				if (AEInputCheckTriggered(AEVK_8)) { text._data._text += '8'; }
+				if (AEInputCheckTriggered(AEVK_9)) { text._data._text += '9';  }
 			}
-			if (AEInputCheckTriggered(AEVK_BACK) && input.result.size() != 0) {
+			if (AEInputCheckTriggered(AEVK_BACK) && !text._data._text.empty()) {
 				std::cout << "bspace" << std::endl;
 				text._data._text.resize(text._data._text.size() - 1);
-				input.result.pop_back();
 			}
 			//end 
 			if (AEInputCheckTriggered(AEVK_SPACE) || !mouse._over && AEInputCheckTriggered(AEVK_LBUTTON)) {
-				//break;
-				for (char x : input.result) {
-					input.input += x;
-				}
-				std::cout << input.input << std::endl;
 				input.inputting = false;
 			}
 		}
@@ -2126,25 +2127,14 @@ struct Sys_GUItextboxinput : public System {
 		if (mouse._over && AEInputCheckTriggered(AEVK_LBUTTON) && input.inputting == false) {
 			std::cout << "entered" << std::endl;
 			//reset result
-			input.input.clear();
-			input.result.clear();
 			text._data._text.clear();
 			input.inputting = true;
-			//change the text colour 
-			//text._data._r = 0.0f;
-			//text._data._g = 1.0f;
-			//text._data._b = 0.0f;
 		}
 	}
 };
 
 struct Com_Writetofile {
 	char _filler = 0;
-	//std::string* col;
-	//std::string* row;
-	//Com_Text* col;
-	//Com_Text* row;
-	//Com_Text* name;
 	std::string* col;
 	std::string* row;
 	std::string* name;
@@ -2159,13 +2149,13 @@ struct Sys_writetofile : public System {
 		//Com_Tilemap* tileptr = &get<Com_Tilemap>();
 		if (mouse._over && AEInputCheckTriggered(AEVK_LBUTTON)) {
 			//write file if col and col is not empty
-			if (!(*wtf.row).empty() && !(*wtf.col).empty()) {
+			if (!(*wtf.row).empty() && !(*wtf.col).empty() && !(*wtf.name).empty()) {
 				std::cout << "writing to file now!" << std::endl;
 				tile._width = stoi(*(wtf.row));
 				tile._height = stoi(*(wtf.col));
 
 				//check if it's within boundary
-				if (tile._width > 12 || tile._height > 12) {
+				if (tile._width > 10 || tile._height > 10) {	
 					std::cout << "too small! the column or the row" << std::endl;
 					return;
 				}
@@ -2177,8 +2167,21 @@ struct Sys_writetofile : public System {
 						tile._map.push_back(1);
 					}
 				}
-				*wtf.name += ".txt";
-				ResourceManager::Instance().WriteTilemapTxt(*wtf.name, tile);
+
+				// open text file
+				std::ofstream file;
+				assert(file);
+				// write width, height, size
+				file.open("../bin/Assets/Tilemaps/tilemaps.txt", std::ios_base::app); // append instead of overwrite
+				file <<"\n"<< *wtf.name ;
+				file.close();
+				/**wtf.name = "t_" + *wtf.name + ".txt";
+				*wtf.name = "c_" + *wtf.name + ".txt";*/
+				std::string S1 = "t_" + *wtf.name + ".txt";
+				std::string S2 = "c_" + *wtf.name + ".txt";
+				ResourceManager::Instance().WriteTilemapTxt(S1, tile);
+				ResourceManager::Instance().WriteTilemapTxt(S2, tile);
+				*wtf.name =*wtf.name + ".txt";
 			}
 		}
 	}
@@ -2190,8 +2193,6 @@ struct Sys_writetofile : public System {
 //edits level editor generate map
 struct Com_GUItextboxinputwords {
 	bool inputting{ false };
-	std::vector<char> result;
-	std::string input;
 
 	//destructor 
 	//~Com_GUItextboxinput() {
@@ -2209,45 +2210,39 @@ struct Sys_GUItextboxinputwords : public System {
 			int limit = 12;
 			//AEInputReset();
 			if (text._data._text.size() < limit) {
-				if (AEInputCheckTriggered(AEVK_A)) { text._data._text += 'A'; input.result.push_back('A'); }
-				if (AEInputCheckTriggered(AEVK_B)) { text._data._text += 'B'; input.result.push_back('B'); }
-				if (AEInputCheckTriggered(AEVK_C)) { text._data._text += 'C'; input.result.push_back('C'); }
-				if (AEInputCheckTriggered(AEVK_D)) { text._data._text += 'D'; input.result.push_back('D'); }
-				if (AEInputCheckTriggered(AEVK_E)) { text._data._text += 'E'; input.result.push_back('E'); }
-				if (AEInputCheckTriggered(AEVK_F)) { text._data._text += 'F'; input.result.push_back('F'); }
-				if (AEInputCheckTriggered(AEVK_G)) { text._data._text += 'G'; input.result.push_back('G'); }
-				if (AEInputCheckTriggered(AEVK_H)) { text._data._text += 'H'; input.result.push_back('H'); }
-				if (AEInputCheckTriggered(AEVK_I)) { text._data._text += 'I'; input.result.push_back('I'); }
-				if (AEInputCheckTriggered(AEVK_J)) { text._data._text += 'J'; input.result.push_back('J'); }
-				if (AEInputCheckTriggered(AEVK_K)) { text._data._text += 'K'; input.result.push_back('K'); }
-				if (AEInputCheckTriggered(AEVK_L)) { text._data._text += 'L'; input.result.push_back('L'); }
-				if (AEInputCheckTriggered(AEVK_M)) { text._data._text += 'M'; input.result.push_back('M'); }
-				if (AEInputCheckTriggered(AEVK_N)) { text._data._text += 'N'; input.result.push_back('N'); }
-				if (AEInputCheckTriggered(AEVK_O)) { text._data._text += 'O'; input.result.push_back('O'); }
-				if (AEInputCheckTriggered(AEVK_P)) { text._data._text += 'P'; input.result.push_back('P'); }
-				if (AEInputCheckTriggered(AEVK_Q)) { text._data._text += 'Q'; input.result.push_back('Q'); }
-				if (AEInputCheckTriggered(AEVK_R)) { text._data._text += 'R'; input.result.push_back('R'); }
-				if (AEInputCheckTriggered(AEVK_S)) { text._data._text += 'S'; input.result.push_back('S'); }
-				if (AEInputCheckTriggered(AEVK_T)) { text._data._text += 'T'; input.result.push_back('T'); }
-				if (AEInputCheckTriggered(AEVK_U)) { text._data._text += 'U'; input.result.push_back('U'); }
-				if (AEInputCheckTriggered(AEVK_V)) { text._data._text += 'V'; input.result.push_back('V'); }
-				if (AEInputCheckTriggered(AEVK_W)) { text._data._text += 'W'; input.result.push_back('W'); }
-				if (AEInputCheckTriggered(AEVK_X)) { text._data._text += 'X'; input.result.push_back('X'); }
-				if (AEInputCheckTriggered(AEVK_Y)) { text._data._text += 'Y'; input.result.push_back('Y'); }
-				if (AEInputCheckTriggered(AEVK_Z)) { text._data._text += 'Z'; input.result.push_back('Z'); }
+				if (AEInputCheckTriggered(AEVK_A)) { text._data._text += 'A'; }
+				if (AEInputCheckTriggered(AEVK_B)) { text._data._text += 'B'; }
+				if (AEInputCheckTriggered(AEVK_C)) { text._data._text += 'C'; }
+				if (AEInputCheckTriggered(AEVK_D)) { text._data._text += 'D'; }
+				if (AEInputCheckTriggered(AEVK_E)) { text._data._text += 'E'; }
+				if (AEInputCheckTriggered(AEVK_F)) { text._data._text += 'F'; }
+				if (AEInputCheckTriggered(AEVK_G)) { text._data._text += 'G'; }
+				if (AEInputCheckTriggered(AEVK_H)) { text._data._text += 'H'; }
+				if (AEInputCheckTriggered(AEVK_I)) { text._data._text += 'I'; }
+				if (AEInputCheckTriggered(AEVK_J)) { text._data._text += 'J'; }
+				if (AEInputCheckTriggered(AEVK_K)) { text._data._text += 'K'; }
+				if (AEInputCheckTriggered(AEVK_L)) { text._data._text += 'L'; }
+				if (AEInputCheckTriggered(AEVK_M)) { text._data._text += 'M'; }
+				if (AEInputCheckTriggered(AEVK_N)) { text._data._text += 'N'; }
+				if (AEInputCheckTriggered(AEVK_O)) { text._data._text += 'O'; }
+				if (AEInputCheckTriggered(AEVK_P)) { text._data._text += 'P'; }
+				if (AEInputCheckTriggered(AEVK_Q)) { text._data._text += 'Q'; }
+				if (AEInputCheckTriggered(AEVK_R)) { text._data._text += 'R'; }
+				if (AEInputCheckTriggered(AEVK_S)) { text._data._text += 'S'; }
+				if (AEInputCheckTriggered(AEVK_T)) { text._data._text += 'T'; }
+				if (AEInputCheckTriggered(AEVK_U)) { text._data._text += 'U'; }
+				if (AEInputCheckTriggered(AEVK_V)) { text._data._text += 'V'; }
+				if (AEInputCheckTriggered(AEVK_W)) { text._data._text += 'W'; }
+				if (AEInputCheckTriggered(AEVK_X)) { text._data._text += 'X'; }
+				if (AEInputCheckTriggered(AEVK_Y)) { text._data._text += 'Y'; }
+				if (AEInputCheckTriggered(AEVK_Z)) { text._data._text += 'Z'; }
 			}
-			if (AEInputCheckTriggered(AEVK_BACK) && input.result.size() != 0) {
-				std::cout << "bspace" << std::endl;
+			if (AEInputCheckTriggered(AEVK_BACK) && !text._data._text.empty()) {
 				text._data._text.resize(text._data._text.size() - 1);
-				input.result.pop_back();
 			}
 			//end 
 			if (AEInputCheckTriggered(AEVK_SPACE) || !mouse._over && AEInputCheckTriggered(AEVK_LBUTTON)) {
 				//break;
-				for (char x : input.result) {
-					input.input += x;
-				}
-				std::cout << input.input << std::endl;
 				input.inputting = false;
 				//change the text colour 
 				//text._data._r = 0.0f;
@@ -2260,8 +2255,6 @@ struct Sys_GUItextboxinputwords : public System {
 		if (mouse._over && AEInputCheckTriggered(AEVK_LBUTTON) && input.inputting == false) {
 			std::cout << "entered" << std::endl;
 			//reset result
-			input.input.clear();
-			input.result.clear();
 			//clearing data 
 			text._data._text.clear();
 			input.inputting = true;
@@ -2373,8 +2366,31 @@ struct Sys_GUIMapClick : public System {
 				Factory::Instance().FF_SpriteTile(arrows, _tilemap, spawnspritex, spawnspritey);*/
 				//write to file 
 				savedmap = true;
-				ResourceManager::Instance().WriteTilemapTxt(nameofmap, tilemap);
+				std::string S1 = "c_" + nameofmap;
+				std::string S2 = "t_" + nameofmap;
+				ResourceManager::Instance().WriteTilemapTxt(S1, tilemap);
+				ResourceManager::Instance().WriteTilemapTxt(S2, tilemap);
+				//reset 
+				//savedmap = false;
+				//Leveledittyp = 0;
+				//guimap.uninitialised = true;
 			}
 		}
+	}
+};
+
+
+struct Com_errormessageGUI {
+	char _filler = 0;
+	bool skiponeframe = false;
+};
+
+struct Sys_errormessageGUI : public System {
+	void UpdateComponent() override {
+		Com_errormessageGUI& errmsg = get<Com_errormessageGUI>();
+;		if (AEInputCheckTriggered(AEVK_LBUTTON) && errmsg.skiponeframe == true || AEInputCheckTriggered(AEVK_SPACE) && errmsg.skiponeframe == true) {
+			RemoveEntity();
+		}
+		errmsg.skiponeframe = true;
 	}
 };
