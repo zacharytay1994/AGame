@@ -210,13 +210,14 @@ eid Factory::FF_Createproj2(const SpriteData& data, const int& x, const int& y, 
     return id;
 }
 
-eid Factory::FF_CreateprojEnemy(const SpriteData& data, const int& x, const int& y, const int& vel_x, const int& vel_y, eid const& tilemap, int lifetime)
+eid Factory::FF_CreateprojEnemy(const SpriteData& data, const int& x, const int& y, const int& vel_x, const int& vel_y, eid const& tilemap,Com_Direction const& dir ,int lifetime)
 {
     eid id = FF_SpriteTile(data, tilemap, x, y);
     //for the projectile not the entity calling it 
-    Entity& e = Factory::Instance()[id].AddComponent<Com_Projectile, Com_type, Com_GridColData, Com_EnemySpawn>();
+    Entity& e = Factory::Instance()[id].AddComponent<Com_Projectile, Com_type, Com_GridColData, Com_EnemySpawn,Com_Direction>();
     Com_Projectile& proj = e.Get<Com_Projectile>();
     e.Get<Com_type>().type = 6;
+    e.Get<Com_Direction>().currdir = dir.currdir;
     proj.grid_vel_x = vel_x;
     proj.grid_vel_y = vel_y;
     proj.lifetime = lifetime;
