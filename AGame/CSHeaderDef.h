@@ -1997,12 +1997,14 @@ struct Sys_Obstacle : public System {
 			//if hit, explode 
 			if (l_obstacle.numofhitstodestroy == 0) {
 				//explode 
+				RemoveEntity();
 			}
 		}
 		//if it's a breakable wall 
 		if (l_obstacle.obstacletype == l_obstacle.breakablewall) {
 			if (l_obstacle.numofhitstodestroy == 0) {
 				//destroy wall, free space to walk on 
+				RemoveEntity();
 			}
 		}
 	}
