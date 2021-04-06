@@ -140,7 +140,7 @@ struct Com_TilePosition {
 	int _grid_y = 0;
 	int _vgrid_x = 0;	// verified grid positions - do not set
 	int _vgrid_y = 0;	// verified grid positions - do not set
-	float _speed = 2.0f;
+	float _speed = 4.0f;
 	Vec2f _direction = { 0.0f,0.0f };
 	bool _moving{ false };
 	bool _initialized{ false };
@@ -331,7 +331,11 @@ struct Grid {
 	size_t _width{ 0 };
 	size_t _height{ 0 };
 	vector<Com_Node> _grid;
+	Com_Node _set_obstacle{ Vec2i{-1,-1},1};
 	Com_Node& Get(const Vec2i& pos) {
+		if (pos.x < 0 || pos.x > _width - 1 || pos.y < 0 || pos.y > _height - 1) {
+			return _set_obstacle;
+		}
 		return _grid[pos.y * _width + pos.x];
 	}
 	void GetNeighbours(Com_Node*& node, std::vector<Com_Node*>& neighbours) {
@@ -437,6 +441,16 @@ struct Sys_EnemyStateOne : public System {
 		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
 		state._player = &_player->Get<Com_TilePosition>();
 		state.playerHealth = &_player->Get<Com_Health>();
+		// flip enemies based on player
+		Com_TilePosition& enemypos = get<Com_TilePosition>();
+		Com_Sprite& sprite = get<Com_Sprite>();
+		if (enemypos._grid_x < state._player->_grid_x) {
+			sprite._flip = false;
+		}
+		else {
+			sprite._flip = true;
+		}
+
 		if (_turn) {
 			--state._counter;
 		}
@@ -456,6 +470,9 @@ struct Sys_EnemyStateOne : public System {
 	// idle
 	void IDLE_ENTER() {
 		std::cout << "IDLE_ENTER" << std::endl;
+		Com_Sprite& sprite = get<Com_Sprite>();
+		sprite._current_frame_segment = 0;
+		sprite._current_frame = 0;
 	}
 	void IDLE_UPDATE() {
 		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
@@ -464,13 +481,13 @@ struct Sys_EnemyStateOne : public System {
 		if (!state._counter) {
 			std::cout << "IDLE_UPDATE" << std::endl;
 			// see if can find path to player
-			fp._start = Vec2i(pos._vgrid_x, pos._vgrid_y);
-			fp._end = Vec2i(state._player->_vgrid_x, state._player->_vgrid_y);
+			fp._start = Vec2i(pos._grid_x, pos._grid_y);
+			fp._end = Vec2i(state._player->_grid_x, state._player->_grid_y);
 			fp._find = true;
-			// if path found
-			if (fp._found) {
-				ChangeState(Com_EnemyStateOne::STATES::MOVE);
-			}
+		}
+		// if path found
+		if (fp._found) {
+			ChangeState(Com_EnemyStateOne::STATES::MOVE);
 		}
 	}
 	void IDLE_EXIT() {
@@ -479,6 +496,9 @@ struct Sys_EnemyStateOne : public System {
 	// move
 	void MOVE_ENTER() {
 		std::cout << "MOVE_ENTER" << std::endl;
+		Com_Sprite& sprite = get<Com_Sprite>();
+		sprite._current_frame_segment = 1;
+		sprite._current_frame = 0;
 	}
 	void MOVE_UPDATE() {
 		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
@@ -488,24 +508,24 @@ struct Sys_EnemyStateOne : public System {
 		if (!state._counter) {
 			std::cout << "MOVE_UPDATE" << std::endl;
 			// see if can find path to player
-			fp._start = Vec2i(pos._vgrid_x, pos._vgrid_y);
-			fp._end = Vec2i(state._player->_vgrid_x, state._player->_vgrid_y);
+			fp._start = Vec2i(pos._grid_x, pos._grid_y);
+			fp._end = Vec2i(state._player->_grid_x, state._player->_grid_y);
 			fp._find = true;
 
 			// To change direction
-			if (fp._next.x < pos._vgrid_x) 
+			if (fp._next.x < pos._grid_x) 
 			{
 				direction.currdir = direction.left;
 			}
-			else if (fp._next.x > pos._vgrid_x) 
+			else if (fp._next.x > pos._grid_x) 
 			{
 				direction.currdir = direction.right;
 			}
-			else if (fp._next.y < pos._vgrid_y) 
+			else if (fp._next.y < pos._grid_y) 
 			{
 				direction.currdir = direction.up;
 			}
-			else if (fp._next.y > pos._vgrid_y) 
+			else if (fp._next.y > pos._grid_y) 
 			{
 				direction.currdir = direction.down;
 			}
@@ -540,7 +560,7 @@ struct Sys_EnemyStateOne : public System {
 		Com_FindPath& fp = get<Com_FindPath>();
 		Com_TilePosition& pos = get<Com_TilePosition>();
 		Com_type& ct = get<Com_type>();
-		Com_Direction& direct = get<Com_Direction>();
+		//Com_Direction& direct = get<Com_Direction>();
 		
 		if (!state._counter)
 		{
@@ -551,38 +571,38 @@ struct Sys_EnemyStateOne : public System {
 			{
 				ChangeState(Com_EnemyStateOne::STATES::MOVE);
 			}
-			else if (fp._reached)
+			else
 			{
-				if (ct.type == ct.enemyrange) 
-				{
-					Factory::SpriteData Enemydata{ "EnemyBall.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };
+				//if (ct.type == ct.enemyrange) 
+				//{
+				//	Factory::SpriteData Enemydata{ "EnemyBall.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };
 
-					// to create balls base on direction
-					if (direct.currdir == direct.right) 
-					{
-						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 1, 0, _tilemap, 3);
-						Factory::Instance()[j].AddComponent<Com_YLayering>();
-					}
-					else if (direct.currdir == direct.left) 
-					{
-						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, -1, 0, _tilemap, 3);
-						Factory::Instance()[j].AddComponent<Com_YLayering>();
-					}
-					else if (direct.currdir == direct.up) 
-					{
-						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 0, 1, _tilemap, 3);
-						Factory::Instance()[j].AddComponent<Com_YLayering>();
-					}
-					else if (direct.currdir == direct.down) 
-					{
-						eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 0, -1, _tilemap, 3);
-						Factory::Instance()[j].AddComponent<Com_YLayering>();
-					}
-				}
-				else if (ct.type == ct.enemy)
+				//	// to create balls base on direction
+				//	if (direct.currdir == direct.right) 
+				//	{
+				//		eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 1, 0, _tilemap, 3);
+				//		Factory::Instance()[j].AddComponent<Com_YLayering>();
+				//	}
+				//	else if (direct.currdir == direct.left) 
+				//	{
+				//		eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, -1, 0, _tilemap, 3);
+				//		Factory::Instance()[j].AddComponent<Com_YLayering>();
+				//	}
+				//	else if (direct.currdir == direct.up) 
+				//	{
+				//		eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 0, 1, _tilemap, 3);
+				//		Factory::Instance()[j].AddComponent<Com_YLayering>();
+				//	}
+				//	else if (direct.currdir == direct.down) 
+				//	{
+				//		eid j = Factory::Instance().FF_CreateprojEnemy(Enemydata, fp._next.x, fp._next.y, 0, -1, _tilemap, 3);
+				//		Factory::Instance()[j].AddComponent<Com_YLayering>();
+				//	}
+				//}
+				if (ct.type == ct.enemy)
 				{
 					// to decrease health - temporary check (theres a bug, cant die if walking out of map)
-					if (state.playerHealth != nullptr && _grid->Get(fp._end)._player)
+					if (state.playerHealth != nullptr/* && _grid->Get(fp._end)._player*/)
 					{
 						std::cout << "hit" << std::endl;
 						--(state.playerHealth->health);
@@ -599,8 +619,8 @@ struct Sys_EnemyStateOne : public System {
 				}*/
 
 			}
-			fp._start = Vec2i(pos._vgrid_x, pos._vgrid_y);
-			fp._end = Vec2i(state._player->_vgrid_x, state._player->_vgrid_y);
+			fp._start = Vec2i(pos._grid_x, pos._grid_y);
+			fp._end = Vec2i(state._player->_grid_x, state._player->_grid_y);
 			fp._find = true;
 		}
 	}
@@ -851,9 +871,10 @@ struct Sys_ArrowKeys : public System {
 
 struct Sys_ArrowKeysTilemap : public System {
 	// hard coded - assuming only 1 player uses arrow keys tilemap
-	float _speed = 1.0f;
+	float _speed = 0.5f;
 	float _counter{ _speed };
 	bool _turn{ false };
+	Grid* _grid{ nullptr };
 	void OncePerFrame() {
 		_counter -= _dt;
 		if (_counter <= 0.0f) {
@@ -868,28 +889,56 @@ struct Sys_ArrowKeysTilemap : public System {
 	void UpdateComponent() override {
 		Com_TilePosition& pos = get<Com_TilePosition>();
 		Com_Direction& direction = get<Com_Direction>();
-		if (AEInputCheckCurr(VK_LEFT)) {
+
+		int x = 0, y = 0;
+		if (AEInputCheckCurr(AEVK_LEFT) || AEInputCheckCurr(AEVK_A)) {
+			x -= 1;
+		}
+		if (AEInputCheckCurr(AEVK_RIGHT) || AEInputCheckCurr(AEVK_D)) {
+			x += 1;
+		}
+		if (AEInputCheckCurr(AEVK_UP) || AEInputCheckCurr(AEVK_W)) {
+			y -= 1;
+		}
+		if (AEInputCheckCurr(AEVK_DOWN) || AEInputCheckCurr(AEVK_S)) {
+			y += 1;
+		}
+
+		if (x == -1) {
 			direction.currdir = Com_Direction::left;
 			if (_turn) {
-				pos._grid_x -= 1;
+				if (!_grid->Get({ pos._grid_x - 1, pos._grid_y })._obstacle) {
+					// set current position !obstacle
+					_grid->Get({ pos._grid_x, pos._grid_y })._obstacle = 0;
+					pos._grid_x -= 1;
+				}
 			}
 		}
-		if (AEInputCheckCurr(VK_RIGHT)) {
+		else if (x == 1) {
 			direction.currdir = Com_Direction::right;
 			if (_turn) {
-				pos._grid_x += 1;
+				if (!_grid->Get({ pos._grid_x + 1, pos._grid_y })._obstacle) {
+					_grid->Get({ pos._grid_x, pos._grid_y })._obstacle = 0;
+					pos._grid_x += 1;
+				}
 			}
 		}
-		if (AEInputCheckCurr(VK_UP)) {
+		else if (y == -1) {
 			direction.currdir = Com_Direction::up;
 			if (_turn) {
-				pos._grid_y -= 1;
+				if (!_grid->Get({ pos._grid_x, pos._grid_y - 1 })._obstacle) {
+					_grid->Get({ pos._grid_x, pos._grid_y })._obstacle = 0;
+					pos._grid_y -= 1;
+				}
 			}
 		}
-		if (AEInputCheckCurr(VK_DOWN)) {
+		else if (y == 1) {
 			direction.currdir = Com_Direction::down;
 			if (_turn) {
-				pos._grid_y += 1;
+				if (!_grid->Get({ pos._grid_x, pos._grid_y + 1 })._obstacle) {
+					_grid->Get({ pos._grid_x, pos._grid_y })._obstacle = 0;
+					pos._grid_y += 1;
+				}
 			}
 		}
 	}
@@ -952,44 +1001,34 @@ struct Sys_TilePosition : public System {
 		Com_Tilemap* tilemap = tilemapref._tilemap;
 		Com_Position& position = get<Com_Position>();
 		Com_TilePosition& t_position = get<Com_TilePosition>();
-		bool check = false;
+		//bool check = false;
 		if (tilemap) {
 			// check if new tile position is within grid - would be checked with collision_mask after
-			if (t_position._vgrid_x == t_position._grid_x && t_position._vgrid_y == t_position._grid_y) {
+			/*if (t_position._vgrid_x == t_position._grid_x && t_position._vgrid_y == t_position._grid_y) {
 				if (t_position._is_player) {
 					_grid->Get({ t_position._vgrid_x,t_position._vgrid_y })._obstacle = false;
 				}
-			}
-			else if (t_position._grid_x >= 0 && t_position._grid_x < tilemap->_width && t_position._grid_y >= 0 && t_position._grid_y < tilemap->_height &&
+			}*/
+			if (t_position._grid_x >= 0 && t_position._grid_x < tilemap->_width && t_position._grid_y >= 0 && t_position._grid_y < tilemap->_height &&
 				tilemap->_floor_mask[(size_t)t_position._grid_x * (size_t)tilemap->_height + (size_t)t_position._grid_y] >= 0 &&
 				(!_grid->Get({ t_position._grid_x, t_position._grid_y })._obstacle || !t_position._is_player)) {
-				check = (t_position._vgrid_x != t_position._grid_x || t_position._vgrid_y != t_position._grid_y);
+				//check = (t_position._vgrid_x != t_position._grid_x || t_position._vgrid_y != t_position._grid_y);
 				if (t_position._is_player) {
 					_grid->Get({ t_position._vgrid_x,t_position._vgrid_y })._obstacle = false;
 					_grid->Get({ t_position._vgrid_x,t_position._vgrid_y })._player = false;
 				}
-				t_position._vgrid_x = t_position._grid_x;
-				t_position._vgrid_y = t_position._grid_y;
-				if (t_position._is_player) {
-					_grid->Get({ t_position._vgrid_x,t_position._vgrid_y })._obstacle = true;
-					_grid->Get({ t_position._vgrid_x,t_position._vgrid_y })._player = true;
-				}
-			}
-			else {
-				t_position._grid_x = t_position._vgrid_x;
-				t_position._grid_y = t_position._vgrid_y;
 			}
 			// bind position to grid position
 			if (!t_position._initialized) {
 				t_position._initialized = true;
-				position.x = tilemap->_offset_x * tilemap->_scale_x + (float)t_position._vgrid_x * tilemap->_scale_x;
-				position.y = tilemap->_offset_y * tilemap->_scale_y - (float)t_position._vgrid_y * tilemap->_scale_y;
+				position.x = tilemap->_offset_x * tilemap->_scale_x + (float)t_position._grid_x * tilemap->_scale_x;
+				position.y = tilemap->_offset_y * tilemap->_scale_y - (float)t_position._grid_y * tilemap->_scale_y;
 			}
-			float dst_x = tilemap->_offset_x * tilemap->_scale_x + (float)t_position._vgrid_x * tilemap->_scale_x;
-			float dst_y = tilemap->_offset_y * tilemap->_scale_y - (float)t_position._vgrid_y * tilemap->_scale_y;
+			float dst_x = tilemap->_offset_x * tilemap->_scale_x + (float)t_position._grid_x * tilemap->_scale_x;
+			float dst_y = tilemap->_offset_y * tilemap->_scale_y - (float)t_position._grid_y * tilemap->_scale_y;
 			float dis_x = dst_x - position.x;
 			float dis_y = dst_y - position.y;
-			if (check) {
+			if (true) {
 				t_position._direction = { dis_x,dis_y };
 			}
 			if (dis_x < 0.2f && dis_x > -0.2f && dis_y < 0.2f && dis_y > -0.2f) {
@@ -1015,18 +1054,19 @@ struct Sys_TileMoveSpriteState : public System {
 	void UpdateComponent() override {
 		Com_Sprite& sprite = get<Com_Sprite>();
 		Com_TilePosition& pos = get<Com_TilePosition>();
-		if (pos._moving) {
-			sprite._current_frame_segment = 1;
-			if (pos._direction.x < -0.01f) {
-				sprite._flip = true;
-			}
-			else if (pos._direction.x > 0.01f) {
-				sprite._flip = false;
-			}
+		/*if (pos._moving) {
+			
+		}*/
+		//sprite._current_frame_segment = 1;
+		if (pos._direction.x < -0.01f) {
+			sprite._flip = true;
 		}
-		else if (sprite._current_frame_segment == 1) {
+		else if (pos._direction.x > 0.01f) {
+			sprite._flip = false;
+		}
+		/*else if (sprite._current_frame_segment == 1) {
 			sprite._current_frame_segment = 0;
-		}
+		}*/
 	}
 };
 /*																				system::COLLISION
@@ -1465,13 +1505,13 @@ struct Sys_EnemySpawning : public System {
 			--wave.numberofwaves;		//decrease the number of waves left 
 			for (int i = 0; i < 2; ++i) {
 				Vec2i ran = { rand() % 9,rand() % 5 };
-				while (_grid->Get(ran)._obstacle && _grid->Get(ran)._player) {
+				while (_grid->Get(ran)._obstacle || _grid->Get(ran)._player) {
 					ran = { rand() % 9,rand() % 5 };
 				}
 				/*int randomx = rand() % 9;
 				int randomy = rand() % 5;*/
 				Vec2i passin[5] = { {0,3},{4,7},{8,11},{0,0},{0,0} };
-				int randomEnemyCreation = 1 +(rand() % 2 * 4);
+				int randomEnemyCreation = 1/* +(rand() % 2 * 4)*/;
 				if(randomEnemyCreation == 1) // melee
 				{
 					Factory::SpriteData dog{ "dog.png", 100.0f, 160.0f, 4, 3, 12, 0.1f, 0, passin };
@@ -1479,17 +1519,18 @@ struct Sys_EnemySpawning : public System {
 					_grid->Get({ ran })._obstacle = true;
 					Factory::Instance()[enemy].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[playerpos].Get<Com_TilePosition>();
 					Factory::Instance()[enemy].Get<Com_EnemyStateOne>().playerHealth = &Factory::Instance()[playerpos].Get<Com_Health>();
+					//Factory::Instance()[enemy].AddComponent<Com_BoundingBox>();
 					++_spawner.CurrNoOfEnemies;
 				}
-				else if (randomEnemyCreation == 5) //ranged 
-				{
-					Factory::SpriteData dogRange{ "dogRange.png", 100.0f, 160.0f, 4, 3, 12, 0.1f, 0, passin };
-					eid enemy = Factory::Instance().FF_CreateEnemy(dogRange, _tilemap, ran.x, ran.y, randomEnemyCreation);
-					_grid->Get({ ran })._obstacle = true;
-					Factory::Instance()[enemy].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[playerpos].Get<Com_TilePosition>();
-					Factory::Instance()[enemy].Get<Com_EnemyStateOne>().playerHealth = &Factory::Instance()[playerpos].Get<Com_Health>();
-					++_spawner.CurrNoOfEnemies;
-				}
+				//else if (randomEnemyCreation == 5) //ranged 
+				//{
+				//	Factory::SpriteData dogRange{ "dogRange.png", 100.0f, 160.0f, 4, 3, 12, 0.1f, 0, passin };
+				//	eid enemy = Factory::Instance().FF_CreateEnemy(dogRange, _tilemap, ran.x, ran.y, randomEnemyCreation);
+				//	_grid->Get({ ran })._obstacle = true;
+				//	Factory::Instance()[enemy].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[playerpos].Get<Com_TilePosition>();
+				//	Factory::Instance()[enemy].Get<Com_EnemyStateOne>().playerHealth = &Factory::Instance()[playerpos].Get<Com_Health>();
+				//	++_spawner.CurrNoOfEnemies;
+				//}
 			}
 		}
 		else {
@@ -1565,38 +1606,38 @@ struct Sys_PathFinding : public System
 	eid tile{ -1 };
 	void UpdateComponent() override {
 		if (_initialized) {
-			Com_type& ct = get<Com_type>();
+			//Com_type& ct = get<Com_type>();
 			Com_FindPath& fp = get<Com_FindPath>();
 			Com_TilePosition& tpos = get<Com_TilePosition>();
 			//Com_Tilemap& ctile = get<Com_Tilemap>();
 			//std::cout << ct.type << std::endl;
 			if (fp._find) {
 				fp._found = SolveAStar(fp._start, fp._end, _grid, _path);
-				if (fp._found && _path.size() > 3 && ct.type == ct.enemyrange) // ranged enemy
+				//if (fp._found && _path.size() > 3 && ct.type == ct.enemyrange) // ranged enemy
+				//{
+				//	fp._reached = false;
+				//	_grid.Get({ tpos._grid_x, tpos._grid_y })._obstacle = false;
+				//	tpos._grid_x = _path[0].x;
+				//	tpos._grid_y = _path[0].y;
+				//	_grid.Get({ tpos._grid_x, tpos._grid_y })._obstacle = true;
+				//	if (fp._next.x != Factory::Instance()[tile].Get<Com_Tilemap>()._width || fp._next.y != Factory::Instance()[tile].Get<Com_Tilemap>()._height)
+				//	{
+				//		fp._next.x = _path[1].x;
+				//		fp._next.y = _path[1].y;
+				//	}
+				//}
+				if (fp._found && _path.size() > 1 /*&& ct.type == ct.enemy*/) // melee enemy
 				{
 					fp._reached = false;
 					_grid.Get({ tpos._grid_x, tpos._grid_y })._obstacle = false;
 					tpos._grid_x = _path[0].x;
 					tpos._grid_y = _path[0].y;
 					_grid.Get({ tpos._grid_x, tpos._grid_y })._obstacle = true;
-					if (fp._next.x != Factory::Instance()[tile].Get<Com_Tilemap>()._width || fp._next.y != Factory::Instance()[tile].Get<Com_Tilemap>()._height)
-					{
-						fp._next.x = _path[1].x;
-						fp._next.y = _path[1].y;
-					}
 				}
-				else if (fp._found && _path.size() > 1 && ct.type == ct.enemy) // melee enemy
-				{
-					fp._reached = false;
-					_grid.Get({ tpos._grid_x, tpos._grid_y })._obstacle = false;
-					tpos._grid_x = _path[0].x;
-					tpos._grid_y = _path[0].y;
-					_grid.Get({ tpos._grid_x, tpos._grid_y })._obstacle = true;
-				}
-				else if (_path.size() >= 1 && ct.type == ct.enemyrange) {
+				/*else if (_path.size() >= 1 && ct.type == ct.enemyrange) {
 					fp._reached = true;
-				}
-				else if (_path.size() == 1 && ct.type == ct.enemy) 
+				}*/
+				else if (_path.size() == 1 /*&& ct.type == ct.enemy*/) 
 				{
 					fp._reached = true;
 				}
@@ -2030,7 +2071,6 @@ struct Sys_GridCollision : public System {
 				//range attack with enemy 
 				if ((type->type == type->enemy || type->type == type->enemyrange) && GridCol[i].type->type == type->bullet) {
 					std::cout << "Collided" << std::endl;
-					_grid->Get({ tilepos->_vgrid_x,tilepos->_vgrid_y })._obstacle = false;
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					--_spawner->CurrNoOfEnemies;
 					Gridcoliterator.push_back(iteratorcomgrid);
@@ -2042,28 +2082,26 @@ struct Sys_GridCollision : public System {
 					//std::cout << gridspaen.DEATHEnemiespawncounter << std::endl;
 
 				}
-				
+
 				if (type->type == type->bullet && (GridCol[i].type->type == type->enemy || GridCol[i].type->type == type->enemyrange)) {
 					std::cout << "Collided Enemy" << std::endl;
-					_grid->Get({ tilepos->_vgrid_x,tilepos->_vgrid_y })._obstacle = false;
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					RemoveEntity();
 					break;
 				}
 
-				if ((type->type == type->player) && GridCol[i].type->type == type->EnemyBalls) 
+				/*if ((type->type == type->player) && GridCol[i].type->type == type->EnemyBalls)
 				{
 					std::cout << "Damage Taken" << std::endl;
 					_grid->Get({ tilepos->_vgrid_x,tilepos->_vgrid_y })._obstacle = false;
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					break;
-				}
+				}*/
 
 				if (type->type == type->EnemyBalls && (GridCol[i].type->type == type->player)) {
 					std::cout << "Collided Human" << std::endl;
 					hit = true;
 
-					_grid->Get({ tilepos->_vgrid_x,tilepos->_vgrid_y })._obstacle = false;
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					if (chikara->health > 0 && hit == true)
 					{
@@ -2097,7 +2135,7 @@ struct Sys_GridCollision : public System {
 				//	std::cout << "Collided" << std::endl;
 				//	RemoveEntity();
 				//}
-				
+
 				////enemy with bullet 
 				//if (type->type == type->enemy && GridCol[i].type->type == type->bullet) {
 				//	std::cout << "Collided" << std::endl;
