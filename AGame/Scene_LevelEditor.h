@@ -53,6 +53,8 @@ struct LevelEditor : public Scene {
 	Factory::SpriteData buttonbg{ "buttonsbg.png", 1.0f, 1.0f, 1, 1, 1, 1.0f, 0 };
 	Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
 	Factory::SpriteData button{ "buttonsprite.png", 1.0f, 1.0f, 3, 3, 8, 0.1f, 0, passin };
+	Vec2i passin4[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
+	Factory::SpriteData buttonload{ "background2.png", 2.0f, 1.0f, 2, 1, 2, 0.05f, 0, passin4 };
 	//Sys_Pathfinding_v2 _pathfinding;
 
 	//test
@@ -78,15 +80,15 @@ struct LevelEditor : public Scene {
 
 		//text 
 		Factory::Instance().FF_CreateGUIChildSurfaceText(main, { "transparent" }, 0.36f, 0.26f, 0.04f, 0.04f, "Column", "courier");
-		Factory::Instance().FF_CreateGUIChildSurfaceText(main, { "transparent" }, 0.36f, 0.51f, 0.04f, 0.04f, "Row", "courier");
+		Factory::Instance().FF_CreateGUIChildSurfaceText(main, { "transparent" }, 0.36f, 0.41f, 0.04f, 0.04f, "Row", "courier");
 		Factory::Instance().FF_CreateGUIChildSurfaceText(main, { "transparent" }, 0.23f, 0.12f, 0.04f, 0.04f, "Map Name", "courier");
 		Factory::Instance().FF_CreateGUIChildSurfaceText(main, { "transparent" }, 0.5f, 0.8f, 0.04f, 0.04f, "Load", "courier");
 		//textbox
 		col = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBox(main, button, 0.5f, 0.25f, 0.25f, 0.2f, coltextbox, "", "courier");			// clickable child surface
-		row = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBox(main, button, 0.5f, 0.5f, 0.25f, 0.2f, rowtextbox, "", "courier");				// clickable child surface
+		row = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBox(main, button, 0.5f, 0.4f, 0.25f, 0.2f, rowtextbox, "", "courier");				// clickable child surface
 		mapname = Factory::Instance().FF_CreateGUIChildClickableSurfaceWordsTextBox(main, button, 0.5f, 0.1f, 0.75f, 0.2f, nametextbox, "", "courier");				// clickable child surface
 		//Load 
-		load = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLoadTileMap(main, { "background1" }, 0.5f, 0.8f, 0.2f, 0.2f, ChangeTestSceneLevelEditor, "Load", "courier");		// clickable child surface
+		load = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLoadTileMap(main, buttonload, 0.5f, 0.8f, 0.2f, 0.2f, ChangeTestSceneLevelEditor, "Load", "courier");		// clickable child surface
 		Factory::Instance()[load].Get<Com_Writetofile>().col = &Factory::Instance()[col].Get<Com_Text>()._data._text;
 		Factory::Instance()[load].Get<Com_Writetofile>().row = &Factory::Instance()[row].Get<Com_Text>()._data._text;
 		Factory::Instance()[load].Get<Com_Writetofile>().name = &Factory::Instance()[mapname].Get<Com_Text>()._data._text;
@@ -107,42 +109,43 @@ struct LevelEditor : public Scene {
 void ChangeTestSceneLevelEditor(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	eid main = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.5f, 0.5f, 1.0f, 1.0f, 100);
-	eid buttons = Factory::Instance().FF_CreateGUIChildSurface(main, { "background1" }, 0.5f, 0.5f, 0.5f, 0.7f);												// non clickable child surface
-	Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
-	Factory::SpriteData button{ "buttonsprite.png", 1.0f, 1.0f, 3, 3, 8, 0.1f, 0, passin };
+	//eid buttons = Factory::Instance().FF_CreateGUIChildSurface(main, { "background1" }, 0.5f, 0.5f, 0.5f, 0.7f);												// non clickable child surface
+
+	Vec2i passin4[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
+	Factory::SpriteData button{ "background2.png", 2.0f, 1.0f, 2, 1, 2, 0.05f, 0, passin4 };
 	//check if all the user inputs are there
 	if ((*LevelEditor::nameofmap).empty()) {
 		std::cout << "input your name!" << std::endl;
-		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(buttons, button, 0.5f, 0.5f, 0.75f, 0.2f, errormessage, "Hey Man! Input the map name!", "courier");
+		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main, button, 0.5f, 0.6f, 0.75f, 0.2f, errormessage, "Hey Man! Input the map name!", "courier");
 		return;
 	}
 	if ((*LevelEditor::nameofcol).empty()) {
 		std::cout << "input your column!" << std::endl;
-		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(buttons, button, 0.5f, 0.5f, 0.75f, 0.2f, errormessage, "Hey Man! the column in empty!", "courier");
+		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main, button, 0.5f, 0.6f, 0.75f, 0.2f, errormessage, "Hey Man! the column in empty!", "courier");
 		//SceneManager::Instance().RestartScene();
 		return;
 	}
 	if ((*LevelEditor::nameofrow).empty()) {
 		std::cout << "input your row!" << std::endl;
-		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(buttons, button, 0.5f, 0.5f, 0.75f, 0.2f, errormessage, "Hey Man! the row is empty!!", "courier");
+		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main, button, 0.5f, 0.6f, 0.75f, 0.2f, errormessage, "Hey Man! the row is empty!!", "courier");
 		//SceneManager::Instance().RestartScene();
 		return;
 	}
 	if (std::stoi(*LevelEditor::nameofrow) > 10) {
 		std::cout << " too big row" << std::endl;
-		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(buttons, button, 0.5f, 0.5f, 0.75f, 0.2f, errormessage, "Hey Man! the biggest is 10 for the row!", "courier");
+		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main, button, 0.5f, 0.6f, 0.75f, 0.2f, errormessage, "Hey Man! the biggest is 10 for the row!", "courier");
 		//SceneManager::Instance().RestartScene();
 		return;
 	}
 	if (std::stoi(*LevelEditor::nameofcol) > 10) {
 		std::cout << "too big col" << std::endl;
-		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(buttons, button, 0.5f, 0.5f, 0.75f, 0.2f, errormessage, "Hey Man! the biggest is 10 for the column!", "courier");
+		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main, button, 0.5f, 0.6f, 0.75f, 0.2f, errormessage, "Hey Man! the biggest is 10 for the column!", "courier");
 		//SceneManager::Instance().RestartScene();
 		return;
 	}
 	if (*LevelEditor::nameofmap == "duplicate name") {
 		std::cout << "duplicate name" << std::endl;
-		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(buttons, button, 0.5f, 0.5f, 0.75f, 0.2f, errormessage, "Hey Man! The name already exist!", "courier");
+		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main, button, 0.5f, 0.6f, 0.75f, 0.2f, errormessage, "Hey Man! The name already exist!", "courier");
 		//SceneManager::Instance().RestartScene();
 		return;
 	}
