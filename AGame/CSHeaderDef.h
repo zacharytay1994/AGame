@@ -2490,8 +2490,8 @@ struct Sys_GUIMapClick : public System {
 						++guimap.enemycount;
 						guimap.bounding[a].tileintialised = true;
 					}
-					//wall 4 taken for load 
-					if (Leveledittyp == 7) {
+					//wall 
+					if (Leveledittyp == 4) {
 						Factory::SpriteData box{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
 						Factory::Instance().FF_SpriteTile(box, _tilemap, spawnspritex, spawnspritey);
 						tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = 4;
@@ -2509,7 +2509,7 @@ struct Sys_GUIMapClick : public System {
 					//Factory::Instance().FF_SpriteTile(dog, _tilemap, 11,11);
 				}
 			}
-			if (Leveledittyp == 4) {
+			if (Leveledittyp == 6) {
 				/*Vec2i passin2[5] = { {0,1},{2,3},{4,5},{6,7},{0,0} };
 				Factory::SpriteData arrows{ "arrows.png", 50.0f, 50.0f, 3, 3, 8, 0.1f, -900, passin2 };
 				Factory::Instance().FF_SpriteTile(arrows, _tilemap, spawnspritex, spawnspritey);*/
