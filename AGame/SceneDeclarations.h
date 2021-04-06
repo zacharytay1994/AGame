@@ -244,7 +244,8 @@ struct TestScenePF : public Scene
 	eid waves{ -1 };
 	eid spawner{ -1 };
 	eid menu{ -1 };
-	eid mis{ -1 };
+	eid wall{ -1 };
+	eid bomb{ -1 };
 	Inventory playerInv;
 	Factory::SpriteData box{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
 	Factory::SpriteData boom{ "kaboom", 40.0f, 40.0f, 1, 1, 1, 0.15f };
@@ -333,16 +334,18 @@ struct TestScenePF : public Scene
 				}
 				//if its' a destructible wall 
 				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 4) {
-					mis = Factory::Instance().FF_SpriteTile(box, tilemap, x, y);
-					Factory::Instance()[mis].AddComponent<Com_YLayering>();
+					wall = Factory::Instance().FF_SpriteTile(box, tilemap, x, y);
+					Factory::Instance()[wall].AddComponent<Com_YLayering,Com_Health,Com_type, Com_BoundingBox, Com_Velocity, Com_CollisionData>();
+					Entity& a = Factory::Instance()[bomb];
+					a.Get<Com_type>().type = 3;
 					continue;
 				}
 				//if it's a explosive barrel 
 				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 5) {
-					mis = Factory::Instance().FF_SpriteTile(boom, tilemap, x, y);
-					Factory::Instance()[mis].AddComponent<Com_YLayering, Com_type, Com_GridColData>();
-					Entity& e = Factory::Instance()[mis];
-					e.Get<Com_type>().type = 1;
+					bomb = Factory::Instance().FF_SpriteTile(boom, tilemap, x, y);
+					Factory::Instance()[bomb].AddComponent<Com_YLayering, Com_type, Com_Health, Com_BoundingBox, Com_Velocity, Com_CollisionData>();
+					Entity& e = Factory::Instance()[bomb];
+					e.Get<Com_type>().type = 4;
 					continue;
 				}
 			}
