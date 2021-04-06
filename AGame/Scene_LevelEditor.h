@@ -140,6 +140,12 @@ void ChangeTestSceneLevelEditor(Com_GUISurface* surface) {
 		//SceneManager::Instance().RestartScene();
 		return;
 	}
+	if (*LevelEditor::nameofmap == "duplicate name") {
+		std::cout << "duplicate name" << std::endl;
+		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(buttons, button, 0.5f, 0.5f, 0.75f, 0.2f, errormessage, "Hey Man! The name already exist!", "courier");
+		//SceneManager::Instance().RestartScene();
+		return;
+	}
 	LevelEditor2::mapname = *LevelEditor::nameofmap;
 	SceneManager::Instance().ChangeScene("Leveleditor2");
 }

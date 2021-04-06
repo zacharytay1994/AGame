@@ -2271,6 +2271,19 @@ struct Sys_writetofile : public System {
 					}
 				}
 
+				//double check if the file name already exist 
+				std::ifstream filecheck;
+				filecheck.open("../bin/Assets/Tilemaps/tilemaps.txt");
+				std::string tmp;
+				while (std::getline(filecheck, tmp)) {
+					//already exist! 
+					if (tmp == *wtf.name) {
+						//clear the name 
+						*wtf.name = "duplicate name";
+						return;
+					}
+				}
+
 				// open text file
 				std::ofstream file;
 				assert(file);
