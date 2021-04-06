@@ -2263,24 +2263,13 @@ struct Sys_writetofile : public System {
 		if (mouse._over && AEInputCheckTriggered(AEVK_LBUTTON)) {
 			//write file if col and col is not empty
 			if (!(*wtf.row).empty() && !(*wtf.col).empty() && !(*wtf.name).empty()) {
-				std::cout << "writing to file now!" << std::endl;
 				tile._width = stoi(*(wtf.row));
 				tile._height = stoi(*(wtf.col));
 
 				//check if it's within boundary
 				if (tile._width > 10 || tile._height > 10) {	
-					std::cout << "too small! the column or the row" << std::endl;
 					return;
 				}
-
-				tile._initialized = { true };
-				//init all to 1
-				for (size_t i{ 0 }; i < tile._height; ++i) {
-					for (size_t j{ 0 }; j < tile._width; ++j) {
-						tile._map.push_back(1);
-					}
-				}
-
 				//double check if the file name already exist 
 				std::ifstream filecheck;
 				filecheck.open("../bin/Assets/Tilemaps/tilemaps.txt");
@@ -2291,6 +2280,14 @@ struct Sys_writetofile : public System {
 						//clear the name 
 						*wtf.name = "duplicate name";
 						return;
+					}
+				}
+
+				tile._initialized = { true };
+				//init all to 1
+				for (size_t i{ 0 }; i < tile._height; ++i) {
+					for (size_t j{ 0 }; j < tile._width; ++j) {
+						tile._map.push_back(1);
 					}
 				}
 
