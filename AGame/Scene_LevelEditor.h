@@ -82,8 +82,8 @@ struct LevelEditor : public Scene {
 		Factory::Instance().FF_CreateGUIChildSurfaceText(main, { "transparent" }, 0.2f, 0.15f, 0.04f, 0.04f, "Map Name", "courier");
 		Factory::Instance().FF_CreateGUIChildSurfaceText(main, { "transparent" }, 0.5f, 0.8f, 0.04f, 0.04f, "Load", "courier");
 		//textbox
-		col = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBox(buttons, button, 0.5f, 0.25f, 0.75f, 0.2f, coltextbox, "", "courier");			// clickable child surface
-		row = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBox(buttons, button, 0.5f, 0.75f, 0.75f, 0.2f, rowtextbox, "", "courier");				// clickable child surface
+		col = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBox(buttons, button, 0.5f, 0.25f, 1.f, 0.2f, coltextbox, "", "courier");			// clickable child surface
+		row = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBox(buttons, button, 0.5f, 0.75f, 1.f, 0.2f, rowtextbox, "", "courier");				// clickable child surface
 		mapname = Factory::Instance().FF_CreateGUIChildClickableSurfaceWordsTextBox(main, button, 0.5f, 0.1f, 0.75f, 0.2f, nametextbox, "", "courier");				// clickable child surface
 		//Load 
 		load = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLoadTileMap(main, { "background1" }, 0.5f, 0.8f, 0.2f, 0.2f, ChangeTestSceneLevelEditor, "Load", "courier");		// clickable child surface
