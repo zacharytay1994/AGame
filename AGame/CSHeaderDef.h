@@ -1806,9 +1806,11 @@ struct Com_ParticleEmitter {
 
 
 struct Sys_ParticleEmitter : public System {
+	eid tilemap{ -1 };
 	void UpdateComponent() override {
 		Com_GameTimer& timer = get<Com_GameTimer>();
 		Com_ParticleEmitter& emitter = get<Com_ParticleEmitter>();
+		Com_TilePosition& tilepos = get<Com_TilePosition>();
 		//Com_Position& position = get<Com_Position>();
 		//if timer reaches 0 emit particles 
 		if (emitter.active == true) {
@@ -1817,8 +1819,39 @@ struct Sys_ParticleEmitter : public System {
 				for (int i{ 0 }; i < emitter.numberofparticle; ++i) {
 					//create particles 
 					emitparticle();
-					//create dmg 
-					dmg();
+				}
+				//create dmg all around 
+				Factory::SpriteData data{ "bullet.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };
+				for (size_t i{ 0 }; i < 8; ++i) {
+					switch (i)
+					{
+					case 1:
+						Factory::Instance().FF_BombProjectile(data, tilepos._grid_x-1, tilepos._grid_y-1, tilemap,2);
+						continue;
+					case 2:
+						Factory::Instance().FF_BombProjectile(data, tilepos._grid_x , tilepos._grid_y-1, tilemap, 2);
+						continue;
+					case 3:
+						Factory::Instance().FF_BombProjectile(data, tilepos._grid_x +1, tilepos._grid_y-1, tilemap, 2);
+						continue;
+					case 4:
+						Factory::Instance().FF_BombProjectile(data, tilepos._grid_x - 1, tilepos._grid_y, tilemap, 2);
+						continue;
+					case 5:
+						Factory::Instance().FF_BombProjectile(data, tilepos._grid_x + 1, tilepos._grid_y, tilemap, 2);
+						continue;
+					case 6:
+						Factory::Instance().FF_BombProjectile(data, tilepos._grid_x - 1, tilepos._grid_y +1 , tilemap, 2);
+						continue;
+					case 7:
+						Factory::Instance().FF_BombProjectile(data, tilepos._grid_x , tilepos._grid_y + 1, tilemap, 2);
+						continue;
+					case 8:
+						Factory::Instance().FF_BombProjectile(data, tilepos._grid_x+1, tilepos._grid_y + 1, tilemap, 2);
+						continue;
+					default:
+						break;
+					}
 				}
 				timer.timerinseconds = 0;
 				RemoveEntity();
@@ -1841,9 +1874,6 @@ struct Sys_ParticleEmitter : public System {
 		Factory::Instance().FF_CreateParticle(data, static_cast<int>(get<Com_Position>().x), static_cast<int>(get<Com_Position>().y), rand_velocityx ,rand_velocityy);
 	}
 
-	void dmg() {
-		
-	}
 };
 
 

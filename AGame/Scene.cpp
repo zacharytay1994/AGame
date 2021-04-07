@@ -131,7 +131,7 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_YLayering, Com_Sprite, Com_Position, Com_YLayering>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Boundary, Com_Position, Com_Boundary>();
 	SystemDatabase::Instance().RegisterSystem<Sys_ParticleSys,Com_Particle, Com_GameTimer >();
-	SystemDatabase::Instance().RegisterSystem<Sys_ParticleEmitter, Com_ParticleEmitter, Com_GameTimer>();
+	SystemDatabase::Instance().RegisterSystem<Sys_ParticleEmitter, Com_ParticleEmitter, Com_GameTimer, Com_TilePosition>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Obstacle, Com_type,Com_Health,Com_TilePosition, Com_ParticleEmitter>();
 	//SystemDatabase::Instance().RegisterSystem<Sys_RegisteringEntity, Com_objecttype>();
 	//test 
