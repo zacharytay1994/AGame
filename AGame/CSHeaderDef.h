@@ -32,6 +32,7 @@ struct Com_ArrowKeysTilemap;
 struct Com_Tilemap;
 struct Com_TilemapRef;
 struct Com_TilePosition;
+
 // collision
 struct Com_BoundingBox;
 struct Com_CollisionData;
@@ -158,58 +159,6 @@ struct Com_BoundingBox
 };
 
 
-// testing for wilfred ////////////////////////////
-//struct Com_objecttype {
-//	enum type
-//	{
-//		playert,
-//		enemyt,
-//		bullett,
-//		obstaclest
-//	};
-//	eid objtype{ playert };
-//	bool updated{ false };
-//	//to store id of all player 
-//	//static std::vector<eid> player;
-//	//static std::vector<eid> enemy;
-//	//static std::vector<eid> bullet;
-//	//static std::vector<eid> obstacle;
-//};
-
-//global 
-//static std::vector<eid> player;
-//static std::vector<eid> enemy;
-//static std::vector<eid> bullet;
-//static std::vector<eid> obstacle;
-//
-//struct Sys_RegisteringEntity :public System{
-//	void UpdateComponent() override {
-//		Com_objecttype& obtype = get<Com_objecttype>();
-//		if (obtype.updated == false) {
-//			//if it's a player 
-//			if (obtype.objtype == obtype.playert) {
-//				player.emplace_back(player.size()+1);
-//				std::cout << "assigning player" << std::endl;
-//			}
-//			//if it's a enemy 
-//			if (obtype.objtype == obtype.enemyt) {
-//				enemy.emplace_back(enemy.size() + 1);
-//				std::cout << "assigning enemy" << std::endl;
-//			}
-//			//if it's a bullet
-//			if (obtype.objtype == obtype.bullett) {
-//				bullet.emplace_back(bullet.size() + 1);
-//				std::cout << "assigning bullet" << std::endl;
-//			}
-//			//if it's a obstacle
-//			if (obtype.objtype == obtype.obstaclest) {
-//				obstacle.emplace_back(obstacle.size() + 1);
-//				std::cout << "assigning obstacle" << std::endl;
-//			}
-//			obtype.updated = true;
-//		}
-//	}
-//};
 
 
 // testing for wilfred ////////////////////////////
@@ -948,6 +897,7 @@ struct Sys_ArrowKeysTilemap : public System {
 ____________________________________________________________________________________________________*/
 
 struct Sys_Tilemap : public System {
+	std::vector<Com_TilePosition> highlight;
 	void UpdateComponent() override {
 		Com_Tilemap& tilemap = get<Com_Tilemap>();
 		if (tilemap._initialized) {
@@ -959,7 +909,6 @@ struct Sys_Tilemap : public System {
 		AEMtx33Scale(&scale, tilemap._scale_x, tilemap._scale_y);
 		AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
 		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
-
 		AEMtx33 shake = ResourceManager::Instance().ScreenShake();
 		for (size_t y = 0; y < (size_t)tilemap._height; ++y) {
 			for (size_t x = 0; x < (size_t)tilemap._width; ++x) {
@@ -975,11 +924,12 @@ struct Sys_Tilemap : public System {
 					AEMtx33Concat(&tilemap._render_pack._transform, &shake, &tilemap._render_pack._transform);
 					AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
 					//for highlighting of tile 
-					for (size_t i{ 0 }; i < tilemap._render_pack.highlightpos.size(); ++i) {
-						if ((x * (size_t)tilemap._height + y) == (tilemap._render_pack.highlightpos[i]._grid_x * (size_t)tilemap._height + tilemap._render_pack.highlightpos[i]._grid_y)) {
+					for (size_t i{ 0 }; i < highlight.size(); ++i) {
+						if ((x * (size_t)tilemap._height + y) == (highlight[i]._grid_x * (size_t)tilemap._height + highlight[i]._grid_y)) {
 							AEGfxSetTintColor(0.0f, 0.0f, 0.0f, 1.0f);
 						}
 					}
+					
 					AEGfxSetTransform(tilemap._render_pack._transform.m);
 					AEGfxTextureSet(tilemap._render_pack._texture, tilemap._render_pack._offset_x, tilemap._render_pack._offset_y);
 					AEGfxMeshDraw(tilemap._render_pack._mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
@@ -987,7 +937,7 @@ struct Sys_Tilemap : public System {
 			}
 		}
 		//clear the vector for the highlighting 
-		tilemap._render_pack.highlightpos.clear();
+		highlight.clear();
 	}
 };
 
@@ -1463,31 +1413,23 @@ struct Sys_Projectile2 : public System {
 			}
 			
 			//highlighting of tile 
-			tilemap->_render_pack.highlightpos.push_back({ tileposition._grid_x,tileposition._grid_y });
+			SystemDatabase::Instance().GetSystem<Sys_Tilemap>()->highlight.push_back({ tileposition._grid_x,tileposition._grid_y });
 			
 			if (proj.grid_vel_x > 0)
 			{
 				tileposition._grid_x++;
-				//passing the current tile to highlight
-				//tilemap->_render_pack.highlightpos.push_back({ tileposition._grid_x,tileposition._grid_y });
 			}
 			else if (proj.grid_vel_x < 0)
 			{
 				tileposition._grid_x--;
-				//passing the current tile to highlight
-				//tilemap->_render_pack.highlightpos.push_back({ tileposition._grid_x,tileposition._grid_y });
 			}
 			if (proj.grid_vel_y > 0)
 			{
 				tileposition._grid_y--;
-				//passing the current tile to highlight
-				//tilemap->_render_pack.highlightpos.push_back({ tileposition._grid_x,tileposition._grid_y });
 			}
 			else if (proj.grid_vel_y < 0)
 			{
 				tileposition._grid_y++;
-				//passing the current tile to highlight
-				//tilemap->_render_pack.highlightpos.push_back({ tileposition._grid_x,tileposition._grid_y });
 			}
 
 			if (tilemap) {

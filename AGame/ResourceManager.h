@@ -24,7 +24,7 @@ struct RenderPack {
 	float				r{ 1.f };
 	float				g{ 1.f };
 	float				b{ 1.f };
-	std::vector<Com_TilePosition> highlightpos;
+	/*std::vector<Com_TilePosition> highlightpos;*/
 };
 
 struct TextPack {
