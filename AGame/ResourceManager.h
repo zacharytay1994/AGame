@@ -92,8 +92,19 @@ private:
 
 	//Fmod (Music)
 	FMOD::System* sound_system;
-	FMOD::Sound* sound1;
-	FMOD::Channel* channel = 0;
+	
+	// Sounds
+	FMOD::Sound* sound1; // BGM
+	FMOD::Sound* soundWalk;
+	FMOD::Sound* soundShoot;
+	FMOD::Sound* soundEnemyDeath;
+	
+	// Channels required for sound
+	FMOD::Channel* channel = 0;  // BGM
+	FMOD::Channel* channelWalkingPlayer = 0;
+	FMOD::Channel* channelGunEffect = 0;
+	FMOD::Channel* channelEnemyDeath = 0;
+	
 	FMOD_RESULT       result;
 	unsigned int      version;
 	void* extradriverdata = 0;
@@ -137,6 +148,9 @@ public:
 
 	void CreateMusic();
 	void UpdateAndPlayMusic();
+	void WalkingSound();
+	void ShootingSound();
+	void EnemyDeathSound();
 	void FreeMusic();
 
 	AEMtx33 ScreenShake();

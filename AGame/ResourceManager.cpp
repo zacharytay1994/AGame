@@ -389,11 +389,29 @@ void ResourceManager::CreateMusic()
 	result = sound_system->createSound("../bin/Assets/Sound/SoulFly.wav", FMOD_DEFAULT, 0, &sound1);
 	result = sound1->setMode(FMOD_LOOP_NORMAL); 
 
-
+	result = sound_system->createSound("../bin/Assets/Sound/WalkingPlayer1.wav", FMOD_DEFAULT, 0, &soundWalk);
+	result = sound_system->createSound("../bin/Assets/Sound/Gun.wav", FMOD_DEFAULT, 0, &soundShoot);
+	result = sound_system->createSound("../bin/Assets/Sound/Death.wav", FMOD_DEFAULT, 0, &soundEnemyDeath);
+	result = soundWalk->setMode(FMOD_LOOP_OFF);
 
 	//result = sound_system->createSound(Common_SoundPath("drumloop.wav"), FMOD_DEFAULT, 0, &sound1);
 	std::cout << "Sound load";
 
+}
+
+void ResourceManager::WalkingSound()
+{
+	result = sound_system->playSound(soundWalk, 0, false, &channelWalkingPlayer);
+}
+
+void ResourceManager::ShootingSound()
+{
+	result = sound_system->playSound(soundShoot, 0, false, &channelGunEffect);
+}
+
+void ResourceManager::EnemyDeathSound()
+{
+	result = sound_system->playSound(soundEnemyDeath, 0, false, &channelEnemyDeath);
 }
 
 void ResourceManager::UpdateAndPlayMusic() 
@@ -440,6 +458,8 @@ void ResourceManager::UpdateAndPlayMusic()
 void ResourceManager::FreeMusic() 
 {
 	result = sound1->release();
+	result = soundWalk->release();
+	result = soundShoot->release();
 	std::cout << "Freed" << std::endl;
 }
 

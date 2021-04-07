@@ -874,20 +874,24 @@ struct Sys_ArrowKeysTilemap : public System {
 		Com_TilePosition& pos = get<Com_TilePosition>();
 		Com_Direction& direction = get<Com_Direction>();
 
+
 		int x = 0, y = 0;
 		if (AEInputCheckCurr(AEVK_LEFT) || AEInputCheckCurr(AEVK_A)) {
 			x -= 1;
 		}
 		if (AEInputCheckCurr(AEVK_RIGHT) || AEInputCheckCurr(AEVK_D)) {
+			
 			x += 1;
 		}
 		if (AEInputCheckCurr(AEVK_UP) || AEInputCheckCurr(AEVK_W)) {
+			
 			y -= 1;
 		}
 		if (AEInputCheckCurr(AEVK_DOWN) || AEInputCheckCurr(AEVK_S)) {
+			
 			y += 1;
 		}
-
+		
 		if (x == -1) {
 			direction.currdir = Com_Direction::left;
 			if (_turn) {
@@ -896,6 +900,7 @@ struct Sys_ArrowKeysTilemap : public System {
 					_grid->Get({ pos._grid_x, pos._grid_y })._obstacle = 0;
 					pos._grid_x -= 1;
 				}
+				ResourceManager::Instance().WalkingSound();
 			}
 		}
 		else if (x == 1) {
@@ -905,6 +910,7 @@ struct Sys_ArrowKeysTilemap : public System {
 					_grid->Get({ pos._grid_x, pos._grid_y })._obstacle = 0;
 					pos._grid_x += 1;
 				}
+				ResourceManager::Instance().WalkingSound();
 			}
 		}
 		else if (y == -1) {
@@ -914,6 +920,7 @@ struct Sys_ArrowKeysTilemap : public System {
 					_grid->Get({ pos._grid_x, pos._grid_y })._obstacle = 0;
 					pos._grid_y -= 1;
 				}
+				ResourceManager::Instance().WalkingSound();
 			}
 		}
 		else if (y == 1) {
@@ -923,6 +930,7 @@ struct Sys_ArrowKeysTilemap : public System {
 					_grid->Get({ pos._grid_x, pos._grid_y })._obstacle = 0;
 					pos._grid_y += 1;
 				}
+				ResourceManager::Instance().WalkingSound();
 			}
 		}
 	}
@@ -1158,6 +1166,7 @@ struct Sys_AABB : public System {
 					RemoveEntity();
 					Gridcoliterator.push_back(iteratorcomgrid);
 					erase = true;
+					ResourceManager::Instance().EnemyDeathSound();
 					break;
 				}
 
