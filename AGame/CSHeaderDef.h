@@ -1121,6 +1121,7 @@ struct Sys_AABB : public System {
 		Com_Velocity* vel = &get<Com_Velocity>();
 		Com_CollisionData& coldata = get<Com_CollisionData>();
 		Com_type* type = &get<Com_type>();
+		Com_Health& health = get<Com_Health>();
 
 		//emplace back all if not initialized
 		if (coldata.emplacedvec == false) {
@@ -1169,6 +1170,20 @@ struct Sys_AABB : public System {
 					//erase = true;
 					break;
 				}
+
+				//for wall with bullets 
+				if (type->type == type->wall && (AABBColData[i].type->type == type->bullet)) {
+					health.health;
+					--health.health;
+					break;
+				}
+				if (type->type == type->bullet && (AABBColData[i].type->type == type->wall)) {
+					RemoveEntity();
+					break;
+				}
+				//if (type->type == type->bombbarrel && (AABBColData[i].type->type == type->bullet)) {
+
+				//}
 			}
 			++iteratorcomgrid;
 		}
@@ -1940,30 +1955,37 @@ struct Sys_GUIDrag : public System {
 
 
 //edits by wilfred
-struct Com_Obstacle {
-	enum obst {
-		bombbarrel,
-		breakablewall,
-	};
-	size_t obstacletype{ 0 };
-	size_t numofhitstodestroy{ 1 };
-};
+//struct Com_Obstacle {
+//	enum obst {
+//		bombbarrel,
+//		breakablewall,
+//	};
+//	size_t obstacletype{ 0 };
+//	size_t numofhitstodestroy{ 1 };
+//};
 
 struct Sys_Obstacle : public System {
-
+	Grid* _grid{ nullptr };
 	void UpdateComponent() override {
-		Com_Obstacle& l_obstacle = get<Com_Obstacle>();
+		Com_type& type = get<Com_type>();
+		Com_Health& health = get<Com_Health>();
+		Com_TilePosition& tilepos = get<Com_TilePosition>();
+
 		//if it's a bomb barrel 
-		if (l_obstacle.obstacletype == l_obstacle.bombbarrel) {
+		if (type.type == type.bombbarrel) {
 			//if hit, explode 
-			if (l_obstacle.numofhitstodestroy == 0) {
+			_grid->Get({ tilepos._grid_x,tilepos._grid_y })._obstacle = true;
+			if (health.health == 0) {
+				_grid->Get({ tilepos._grid_x,tilepos._grid_y })._obstacle = false;
 				//explode 
 				RemoveEntity();
 			}
 		}
 		//if it's a breakable wall 
-		if (l_obstacle.obstacletype == l_obstacle.breakablewall) {
-			if (l_obstacle.numofhitstodestroy == 0) {
+		if (type.type == type.wall) {
+			_grid->Get({ tilepos._grid_x,tilepos._grid_y })._obstacle = true;
+			if (health.health == 0) {
+				_grid->Get({ tilepos._grid_x,tilepos._grid_y })._obstacle = false;
 				//destroy wall, free space to walk on 
 				RemoveEntity();
 			}
@@ -2188,24 +2210,13 @@ struct Sys_writetofile : public System {
 		if (mouse._over && AEInputCheckTriggered(AEVK_LBUTTON)) {
 			//write file if col and col is not empty
 			if (!(*wtf.row).empty() && !(*wtf.col).empty() && !(*wtf.name).empty()) {
-				std::cout << "writing to file now!" << std::endl;
 				tile._width = stoi(*(wtf.row));
 				tile._height = stoi(*(wtf.col));
 
 				//check if it's within boundary
 				if (tile._width > 10 || tile._height > 10) {	
-					std::cout << "too small! the column or the row" << std::endl;
 					return;
 				}
-
-				tile._initialized = { true };
-				//init all to 1
-				for (size_t i{ 0 }; i < tile._height; ++i) {
-					for (size_t j{ 0 }; j < tile._width; ++j) {
-						tile._map.push_back(1);
-					}
-				}
-
 				//double check if the file name already exist 
 				std::ifstream filecheck;
 				filecheck.open("../bin/Assets/Tilemaps/tilemaps.txt");
@@ -2216,6 +2227,14 @@ struct Sys_writetofile : public System {
 						//clear the name 
 						*wtf.name = "duplicate name";
 						return;
+					}
+				}
+
+				tile._initialized = { true };
+				//init all to 1
+				for (size_t i{ 0 }; i < tile._height; ++i) {
+					for (size_t j{ 0 }; j < tile._width; ++j) {
+						tile._map.push_back(1);
 					}
 				}
 
@@ -2319,6 +2338,8 @@ struct Com_GUIMap {
 	s32  cursorposx;
 	std::vector<Com_BoundingBoxGUI> bounding;
 	bool uninitialised = true;
+	size_t playercount{ 0 };
+	size_t enemycount{ 0 };
 };
 
 struct Com_BoundingBoxGUI
@@ -2337,6 +2358,7 @@ struct Sys_GUIMapClick : public System {
 	int Leveledittyp = 0;
 	std::string nameofmap;
 	bool savedmap = false;
+	bool error = false;
 	void UpdateComponent() override {
 		//Com_TilePosition& tilepos = get<Com_TilePosition>();
 		Com_Tilemap& tilemap = get<Com_Tilemap>();
@@ -2386,6 +2408,7 @@ struct Sys_GUIMapClick : public System {
 					if (Leveledittyp == 0) {
 						break;
 					}
+					//non collidable 
 					if (Leveledittyp == 1) {
 						//Vec2i passin[5] = { {0,3},{4,7},{8,11},{0,0},{0,0} };
 						//Factory::SpriteData dog{ "dog.png", 100.0f, 160.0f, 4, 3, 12, 0.1f, 0, passin };
@@ -2394,16 +2417,36 @@ struct Sys_GUIMapClick : public System {
 						tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = 0;
 						guimap.bounding[a].tileintialised = true;
 					}
-					if (Leveledittyp == 2) {
+					//player spawn needs 1 
+					if (Leveledittyp == 2 && guimap.playercount != 1) {
 						Vec2i passin[5] = { {0,3},{4,7},{8,11},{0,0},{0,0} };
-						Factory::SpriteData dog{ "dog.png", 100.0f, 160.0f, 4, 3, 12, 0.1f, 0, passin };
-						Factory::Instance().FF_SpriteTile(dog, _tilemap, spawnspritex, spawnspritey);
-						guimap.bounding[a].tileintialised = true;
-					}
-					if (Leveledittyp == 3) {
-						Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
 						Factory::SpriteData man{ "hero.png", 100.0f, 160.0f, 3, 3, 8, 0.1f, 0, passin };
 						Factory::Instance().FF_SpriteTile(man, _tilemap, spawnspritex, spawnspritey);
+						tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = 2;
+						++guimap.playercount;
+						guimap.bounding[a].tileintialised = true;
+					}
+					//enemy spawn 
+					if (Leveledittyp == 3 && guimap.enemycount != 1) {
+						Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
+						Factory::SpriteData dog{ "dog.png", 100.0f, 160.0f, 4, 3, 12, 0.1f, 0, passin };
+						Factory::Instance().FF_SpriteTile(dog, _tilemap, spawnspritex, spawnspritey);
+						tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = 3;
+						++guimap.enemycount;
+						guimap.bounding[a].tileintialised = true;
+					}
+					//wall 
+					if (Leveledittyp == 4) {
+						Factory::SpriteData box{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
+						Factory::Instance().FF_SpriteTile(box, _tilemap, spawnspritex, spawnspritey);
+						tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = 4;
+						guimap.bounding[a].tileintialised = true;
+					}
+					//bomb 
+					if (Leveledittyp == 5) {
+						Factory::SpriteData boom{ "kaboom", 40.0f, 40.0f, 1, 1, 1, 0.15f };
+						Factory::Instance().FF_SpriteTile(boom, _tilemap, spawnspritex, spawnspritey);
+						tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = 5;
 						guimap.bounding[a].tileintialised = true;
 					}
 					//change the data in the the map 
@@ -2411,7 +2454,14 @@ struct Sys_GUIMapClick : public System {
 					//Factory::Instance().FF_SpriteTile(dog, _tilemap, 11,11);
 				}
 			}
-			if (Leveledittyp == 4) {
+			if (Leveledittyp == 6) {
+				//player not placed 
+				if (guimap.playercount == 0) {
+					error = true;
+					std::cout << "player not placed" << std::endl;
+					return; 
+				}
+
 				/*Vec2i passin2[5] = { {0,1},{2,3},{4,5},{6,7},{0,0} };
 				Factory::SpriteData arrows{ "arrows.png", 50.0f, 50.0f, 3, 3, 8, 0.1f, -900, passin2 };
 				Factory::Instance().FF_SpriteTile(arrows, _tilemap, spawnspritex, spawnspritey);*/
