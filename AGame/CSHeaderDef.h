@@ -1462,6 +1462,7 @@ struct Sys_Projectile2 : public System {
 				}
 			}
 			
+			//highlighting of tile 
 			tilemap->_render_pack.highlightpos.push_back({ tileposition._grid_x,tileposition._grid_y });
 			
 			if (proj.grid_vel_x > 0)
@@ -1821,7 +1822,9 @@ struct Sys_ParticleEmitter : public System {
 					emitparticle();
 				}
 				//create dmg all around 
-				Factory::SpriteData data{ "bullet.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };
+				//LoadTexture("transparent", "transparent.png");
+				Factory::SpriteData data{ "transparent.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };
+				//Factory::SpriteData data{ "bullet.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };
 				for (size_t i{ 0 }; i < 8; ++i) {
 					switch (i)
 					{
