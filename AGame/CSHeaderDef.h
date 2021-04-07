@@ -1817,6 +1817,8 @@ struct Sys_ParticleEmitter : public System {
 				for (int i{ 0 }; i < emitter.numberofparticle; ++i) {
 					//create particles 
 					emitparticle();
+					//create dmg 
+					dmg();
 				}
 				timer.timerinseconds = 0;
 				RemoveEntity();
@@ -1837,6 +1839,10 @@ struct Sys_ParticleEmitter : public System {
 		//Factory::SpriteData data = { "test3", 1,8, 8, 0.1f, rand_sizex, rand_sizey };
 		//create particle 
 		Factory::Instance().FF_CreateParticle(data, static_cast<int>(get<Com_Position>().x), static_cast<int>(get<Com_Position>().y), rand_velocityx ,rand_velocityy);
+	}
+
+	void dmg() {
+		
 	}
 };
 
