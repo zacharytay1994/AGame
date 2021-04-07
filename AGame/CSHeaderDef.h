@@ -1130,6 +1130,7 @@ struct Sys_AABB : public System {
 		Com_CollisionData& coldata = get<Com_CollisionData>();
 		Com_type* type = &get<Com_type>();
 		Com_Health& health = get<Com_Health>();
+		//Com_ParticleEmitter& particle = get<Com_ParticleEmitter>();
 
 		//emplace back all if not initialized
 		if (coldata.emplacedvec == false) {
@@ -1190,9 +1191,16 @@ struct Sys_AABB : public System {
 					RemoveEntity();
 					break;
 				}
-				//if (type->type == type->bombbarrel && (AABBColData[i].type->type == type->bullet)) {
-
-				//}
+				//bomb barrel 
+				if (type->type == type->bombbarrel && (AABBColData[i].type->type == type->bullet)) {
+					health.health;
+					--health.health;
+					break;
+				}
+				if (type->type == type->bullet && (AABBColData[i].type->type == type->bombbarrel)) {
+					RemoveEntity();
+					break;
+				}
 			}
 			++iteratorcomgrid;
 		}
@@ -1761,25 +1769,60 @@ struct Sys_ParticleSys : public System {
 
 
 struct Com_ParticleEmitter {
-	size_t timeforemitter{ 5 };
+	size_t timeforemitter{ 1 };
 	size_t numberofparticle{ 20 };
-	bool active{true};
+	bool active{false};
 };
 
 
 
 struct Sys_ParticleEmitter : public System {
+	eid tilemap{ -1 };
 	void UpdateComponent() override {
 		Com_GameTimer& timer = get<Com_GameTimer>();
 		Com_ParticleEmitter& emitter = get<Com_ParticleEmitter>();
+		Com_TilePosition& tilepos = get<Com_TilePosition>();
 		//Com_Position& position = get<Com_Position>();
 		//if timer reaches 0 emit particles 
 		if (emitter.active == true) {
-			if (timer.timerinseconds == emitter.timeforemitter)
+			if (timer.timerinseconds >= emitter.timeforemitter)
 			{
 				for (int i{ 0 }; i < emitter.numberofparticle; ++i) {
 					//create particles 
 					emitparticle();
+				}
+				//create dmg all around 
+				Factory::SpriteData data{ "bullet.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };
+				for (size_t i{ 0 }; i < 8; ++i) {
+					switch (i)
+					{
+					case 1:
+						Factory::Instance().FF_BombProjectile(data, tilepos._grid_x-1, tilepos._grid_y-1, tilemap,2);
+						continue;
+					case 2:
+						Factory::Instance().FF_BombProjectile(data, tilepos._grid_x , tilepos._grid_y-1, tilemap, 2);
+						continue;
+					case 3:
+						Factory::Instance().FF_BombProjectile(data, tilepos._grid_x +1, tilepos._grid_y-1, tilemap, 2);
+						continue;
+					case 4:
+						Factory::Instance().FF_BombProjectile(data, tilepos._grid_x - 1, tilepos._grid_y, tilemap, 2);
+						continue;
+					case 5:
+						Factory::Instance().FF_BombProjectile(data, tilepos._grid_x + 1, tilepos._grid_y, tilemap, 2);
+						continue;
+					case 6:
+						Factory::Instance().FF_BombProjectile(data, tilepos._grid_x - 1, tilepos._grid_y +1 , tilemap, 2);
+						continue;
+					case 7:
+						Factory::Instance().FF_BombProjectile(data, tilepos._grid_x , tilepos._grid_y + 1, tilemap, 2);
+						continue;
+					case 8:
+						Factory::Instance().FF_BombProjectile(data, tilepos._grid_x+1, tilepos._grid_y + 1, tilemap, 2);
+						continue;
+					default:
+						break;
+					}
 				}
 				timer.timerinseconds = 0;
 				RemoveEntity();
@@ -1801,6 +1844,7 @@ struct Sys_ParticleEmitter : public System {
 		//create particle 
 		Factory::Instance().FF_CreateParticle(data, static_cast<int>(get<Com_Position>().x), static_cast<int>(get<Com_Position>().y), rand_velocityx ,rand_velocityy);
 	}
+
 };
 
 
@@ -1979,7 +2023,7 @@ struct Sys_Obstacle : public System {
 		Com_type& type = get<Com_type>();
 		Com_Health& health = get<Com_Health>();
 		Com_TilePosition& tilepos = get<Com_TilePosition>();
-
+		Com_ParticleEmitter& particle = get<Com_ParticleEmitter>();
 		//if it's a bomb barrel 
 		if (type.type == type.bombbarrel) {
 			//if hit, explode 
@@ -1987,7 +2031,8 @@ struct Sys_Obstacle : public System {
 			if (health.health == 0) {
 				_grid->Get({ tilepos._grid_x,tilepos._grid_y })._obstacle = false;
 				//explode 
-				RemoveEntity();
+				particle.active = true;
+				//RemoveEntity();
 			}
 		}
 		//if it's a breakable wall 

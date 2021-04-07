@@ -391,3 +391,14 @@ eid Factory::FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(eid parent, co
     com_text._data._layer = Factory::Instance()[parent].Get<Com_GUISurface>()._layer + 2;
     return id;
 }
+
+eid Factory::FF_BombProjectile(const SpriteData& data, const int& x, const int& y, eid const& tilemap, int lifetime)
+{
+    eid id = FF_SpriteTile(data, tilemap, x, y);
+    //for the projectile not the entity calling it 
+    Entity& e = Factory::Instance()[id].AddComponent<Com_Projectile, Com_type, Com_EnemySpawn, Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_Health>();
+    Com_Projectile& proj = e.Get<Com_Projectile>();
+    e.Get<Com_type>().type = 2;
+    proj.lifetime = lifetime;
+    return id;
+}
