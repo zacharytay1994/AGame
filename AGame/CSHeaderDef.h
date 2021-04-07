@@ -1128,6 +1128,7 @@ struct Sys_AABB : public System {
 		Com_CollisionData& coldata = get<Com_CollisionData>();
 		Com_type* type = &get<Com_type>();
 		Com_Health& health = get<Com_Health>();
+		//Com_ParticleEmitter& particle = get<Com_ParticleEmitter>();
 
 		//emplace back all if not initialized
 		if (coldata.emplacedvec == false) {
@@ -1183,9 +1184,16 @@ struct Sys_AABB : public System {
 					RemoveEntity();
 					break;
 				}
-				//if (type->type == type->bombbarrel && (AABBColData[i].type->type == type->bullet)) {
-
-				//}
+				//bomb barrel 
+				if (type->type == type->bombbarrel && (AABBColData[i].type->type == type->bullet)) {
+					health.health;
+					--health.health;
+					break;
+				}
+				if (type->type == type->bullet && (AABBColData[i].type->type == type->bombbarrel)) {
+					RemoveEntity();
+					break;
+				}
 			}
 			++iteratorcomgrid;
 		}
@@ -1790,9 +1798,9 @@ struct Sys_ParticleSys : public System {
 
 
 struct Com_ParticleEmitter {
-	size_t timeforemitter{ 5 };
+	size_t timeforemitter{ 1 };
 	size_t numberofparticle{ 20 };
-	bool active{true};
+	bool active{false};
 };
 
 
@@ -1804,7 +1812,7 @@ struct Sys_ParticleEmitter : public System {
 		//Com_Position& position = get<Com_Position>();
 		//if timer reaches 0 emit particles 
 		if (emitter.active == true) {
-			if (timer.timerinseconds == emitter.timeforemitter)
+			if (timer.timerinseconds >= emitter.timeforemitter)
 			{
 				for (int i{ 0 }; i < emitter.numberofparticle; ++i) {
 					//create particles 
@@ -2008,7 +2016,7 @@ struct Sys_Obstacle : public System {
 		Com_type& type = get<Com_type>();
 		Com_Health& health = get<Com_Health>();
 		Com_TilePosition& tilepos = get<Com_TilePosition>();
-
+		Com_ParticleEmitter& particle = get<Com_ParticleEmitter>();
 		//if it's a bomb barrel 
 		if (type.type == type.bombbarrel) {
 			//if hit, explode 
@@ -2016,7 +2024,8 @@ struct Sys_Obstacle : public System {
 			if (health.health == 0) {
 				_grid->Get({ tilepos._grid_x,tilepos._grid_y })._obstacle = false;
 				//explode 
-				RemoveEntity();
+				particle.active = true;
+				//RemoveEntity();
 			}
 		}
 		//if it's a breakable wall 

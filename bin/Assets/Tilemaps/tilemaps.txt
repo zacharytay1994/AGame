@@ -3,3 +3,4 @@ test
 WilfTile
 CUSTOMMAP
 TESTB
+NEWCUSTOM
