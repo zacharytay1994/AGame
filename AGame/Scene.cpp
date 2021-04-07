@@ -12,6 +12,7 @@
 #include "Scene_Credits.h"
 #include "Scene_Inventory.h"
 #include "Scene_LevelSelect.h"
+#include "Scene_Instruction.h"
 
 #include <iostream>
 
@@ -183,6 +184,7 @@ void SceneManager::Initialize() {
 	AddScene<LevelEditor>("Credits");
 	AddScene<InventoryMenu>("InventoryMenu");
 	AddScene<LevelSelect>("LevelSelect");
+	AddScene< Scene_Instructions>("Instructions");
 }
 
 void SceneManager::Free()
