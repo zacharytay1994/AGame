@@ -28,12 +28,37 @@ void enemyspawnbut(Com_GUISurface* surface) {
 	std::cout << "activated enemy" << std::endl;
 	SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp = 3;
 }
-void obstaclesbut(Com_GUISurface* surface) {
+void wallbut(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	std::cout << "Save map" << std::endl;
 	SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp = 4;
 	//SceneManager::Instance().ChangeScene("Main Menu");
 }
+void bombbut(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	std::cout << "Save map" << std::endl;
+	SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp = 5;
+	//SceneManager::Instance().ChangeScene("Main Menu");
+}
+void resetbut(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	std::cout << "Save map" << std::endl;
+	SceneManager::Instance().RestartScene();
+	//SceneManager::Instance().ChangeScene("Main Menu");
+}
+void savemapbut(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	std::cout << "Save map" << std::endl;
+	SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp = 6;
+	//SceneManager::Instance().ChangeScene("Main Menu");
+}
+
+void errormessage2(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	std::cout << "entered row" << std::endl;
+	SceneManager::Instance().RestartScene();
+}
+
 
 
 void ChangeTestSceneLevelEditor2(Com_GUISurface* surface) {
@@ -54,6 +79,7 @@ struct LevelEditor2 : public Scene {
 	Factory::SpriteData data6{ "transparent" };
 	Factory::SpriteData dataskeleton{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.15f };
 	//Sys_Pathfinding_v2 _pathfinding;
+	bool frameskipped = false;
 
 
 	eid tilemap = -1;
@@ -88,38 +114,68 @@ struct LevelEditor2 : public Scene {
 		SystemDatabase::Instance().GetSystem<Sys_TilePosition>()->_grid = &pf2._grid;
 		//**** needed 
 		//	AEToogleFullScreen(true);
-
+		
 		/*eid tile = Factory::Instance().FF_CreateGUIChildClickableTileMap(main, { "transparent" }, 0.5f, 0.15f, 0.8f, 0.2f, nocolbut, mapname, "tilemap");*/
+		
 
-		main = Factory::Instance().FF_CreateGUISurface({ "menubackground" }, 0.85f, 0.5f, 0.25f, 1.0f, 100);																	// surface
+		Vec2i passin4[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
+		Factory::SpriteData button{ "background2.png", 2.0f, 1.0f, 2, 1, 2, 0.05f, 0, passin4 };
+
+
+		main = Factory::Instance().FF_CreateGUISurface({ "menubackground" }, 0.85f, 0.5f, 0.27f, 1.0f, 100);																	// surface
 		//non collidable - unlimited 
-		eid noncol = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, { "background1" }, 0.5f, 0.15f, 0.8f, 0.2f, nocolbut, "non-collidable", "courier");
+		eid noncol = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, button, 0.5f, 0.1f, 0.8f, 0.1f, nocolbut, "Non-Collidable", "courier");
 		UNREFERENCED_PARAMETER(noncol);
 		//player spawn location - limit 1 
-		eid playerspawn = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, { "background1" }, 0.5f, 0.4f, 0.8f, 0.2f, playerspawnbut, "playerspawn", "courier");
+		eid playerspawn = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, button, 0.5f, 0.22f, 0.8f, 0.1f, playerspawnbut, "Player Spawn", "courier");
 		UNREFERENCED_PARAMETER(playerspawn);
 		//enemy spawn location - limit 2 
-		eid enemyspawn = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, { "background1" }, 0.5f, 0.65f, 0.8f, 0.2f, enemyspawnbut, "enemyspawn", "courier");
+		eid enemyspawn = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, button, 0.5f, 0.34f, 0.8f, 0.1f, enemyspawnbut, "Enemy Spawn ", "courier");
 		UNREFERENCED_PARAMETER(enemyspawn);
-		//obstacle - unlimited
-		eid obstacles = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, { "background1" }, 0.5f, 0.9f, 0.8f, 0.2f, obstaclesbut, "Save Map", "courier");
-		UNREFERENCED_PARAMETER(obstacles);
+		//wall - unlimited 
+		eid wall = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, button, 0.5f, 0.46f, 0.8f, 0.1f, wallbut, "Wall", "courier");
+		UNREFERENCED_PARAMETER(wall);
+		//bomb - unlimited 
+		eid bomb = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, button, 0.5f, 0.58f, 0.8f, 0.1f, bombbut, "Bomb", "courier");
+		UNREFERENCED_PARAMETER(bomb);
+		//resetmap - 1
+		eid resetmap = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, button, 0.5f, 0.7f, 0.8f, 0.1f, resetbut, "Reset Map", "courier");
+		UNREFERENCED_PARAMETER(resetmap);
+		//savemap - 1
+		eid savemap = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, button, 0.5f, 0.82f, 0.8f, 0.1f, savemapbut, "Save Map", "courier");
+		UNREFERENCED_PARAMETER(savemap);
 
 		GUISettingsInitialize();
 	}
 	void Update(const float& dt) override {
 		UNREFERENCED_PARAMETER(dt);
 		GUISettingsUpdate();
+
 		//one more frame
-		if (SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp == 4 && SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->savedmap == true){
+		if (SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp == 6 && SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->savedmap == true){
 			//reset 
 			SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp = 0;
 			SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->savedmap = false;
 			SceneManager::Instance().ChangeScene("Main Menu");
 		}
-		if (AEInputCheckTriggered('R')) {
-			SceneManager::Instance().RestartScene();
+		//error 
+		if (SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp == 6 && SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->savedmap == false) {
+			//skip one frame 
+			if (frameskipped && SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->error == true) {
+
+				eid main2 = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.5f, 0.5f, 1.0f, 1.0f, 100);
+				Vec2i passin4[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
+				Factory::SpriteData button2{ "background2.png", 2.0f, 1.0f, 2, 1, 2, 0.05f, 0, passin4 };
+				Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main2, button2, 0.5f, 0.5f, 0.75f, 0.2f, errormessage2, "You did not placed the player!", "courier");
+				SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp = 0;
+				SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->error = false;
+				frameskipped = false;
+			}
+			frameskipped = true;
 		}
+		//if (AEInputCheckTriggered('R')) {
+		//	SceneManager::Instance().RestartScene();
+		//}
 	}
 	void Exit() override {
 
