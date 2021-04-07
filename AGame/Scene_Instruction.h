@@ -310,7 +310,7 @@ struct Scene_Instructions : public Scene
 			eid main2 = Factory::Instance().FF_CreateGUISurface({ "transparent" }, 0.5f, 0.5f, 1.0f, 1.0f, 100);
 			Vec2i passin4[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
 			Factory::SpriteData button2{ "background2.png", 2.0f, 1.0f, 2, 1, 2, 0.05f, 0, passin4 };
-			Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main2, button2, 0.5f, 0.5f, 0.75f, 0.2f, instructions, "Press WASD or Arrow Keys to Move", "courier");
+			Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwithinstructions(main2, button2, 0.5f, 0.5f, 0.75f, 0.2f, instructions, "Press WASD or Arrow Keys to Move", "courier");
 			SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->error = false;
 			messageseen = true;
 		}
@@ -353,12 +353,14 @@ struct Scene_Instructions : public Scene
 				SceneManager::Instance().RestartScene();
 			}
 		}
-		//Message to kill monsters 
-		
-		//spawn monsters 
-		
-		//Once wave 0, show congratz! you can now conquer the game! 
-		
+		if (currentinstructions == 2) {	
+			ss1 << Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves;
+			Factory::Instance()[waves].Get<Com_Text>()._data._text = ss1.str();
+			Com_Wave& com_wave = Factory::Instance()[spawner].Get<Com_Wave>();
+			if (Factory::Instance()[player].Get<Com_Health>().health <= 0 || com_wave.numberofwaves <= 0) {
+				Factory::Instance()[menu].Get<Com_GUISurface>()._active = true;
+			}
+		}
 
 
 		GUISettingsUpdate();

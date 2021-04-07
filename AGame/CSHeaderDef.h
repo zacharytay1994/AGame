@@ -2538,16 +2538,30 @@ struct Sys_GUIMapClick : public System {
 
 
 struct Com_errormessageGUI {
-	char _filler = 0;
 	bool skiponeframe = false;
 };
 
 struct Sys_errormessageGUI : public System {
 	void UpdateComponent() override {
 		Com_errormessageGUI& errmsg = get<Com_errormessageGUI>();
-;		if (AEInputCheckTriggered(AEVK_LBUTTON) && errmsg.skiponeframe == true || AEInputCheckTriggered(AEVK_SPACE) && errmsg.skiponeframe == true) {
+;		if (AEInputCheckTriggered(AEVK_LBUTTON) && errmsg.skiponeframe == true || AEInputCheckTriggered(AEVK_SPACE) && errmsg.skiponeframe == true ) {
 			RemoveEntity();
 		}
 		errmsg.skiponeframe = true;
+	}
+};
+
+struct Com_instructionsGUI {
+	bool skiponeframe = false;
+};
+struct Sys_InstructionsGUI : public System {
+	void UpdateComponent() override {
+		Com_instructionsGUI& msg = get<Com_instructionsGUI>();
+		if (AEInputCheckTriggered(AEVK_LBUTTON) && msg.skiponeframe == true || AEInputCheckTriggered(AEVK_UP) && msg.skiponeframe == true || AEInputCheckTriggered(AEVK_DOWN) && msg.skiponeframe == true || AEInputCheckTriggered(AEVK_LEFT) && msg.skiponeframe == true
+			|| AEInputCheckTriggered(AEVK_RIGHT) && msg.skiponeframe == true || AEInputCheckTriggered(AEVK_W) && msg.skiponeframe == true || AEInputCheckTriggered(AEVK_A) && msg.skiponeframe == true || AEInputCheckTriggered(AEVK_S) && msg.skiponeframe == true
+			|| AEInputCheckTriggered(AEVK_D) && msg.skiponeframe == true) {
+			RemoveEntity();
+		}
+		msg.skiponeframe = true;
 	}
 };
