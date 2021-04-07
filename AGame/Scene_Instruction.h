@@ -13,6 +13,15 @@
 #include "SceneDeclarations.h"
 
 
+
+
+void instructions(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	std::cout << "entered row" << std::endl;
+	//SceneManager::Instance().RestartScene();
+}
+
+
 struct Scene_Instructions : public Scene
 {
 	/*
@@ -47,6 +56,12 @@ struct Scene_Instructions : public Scene
 	Com_Sprite* arrow_sprite{ nullptr };
 	//Factory::SpriteData data{ 0,"test2", 1, 8, 8, 0.1f, 100.0f, 200.0f };
 	size_t currentinstructions{ 0 };
+	bool messageseen{ false };
+	bool up{ false };
+	bool down{ false };
+	bool left{ false };
+	bool right{ false };
+	size_t spacetriggered{ 0 };
 	Factory::SpriteData buttonsurface{ "title.png", 1.0f, 1.0f, 2, 2, 4, 0.2f, 0 };
 	Vec2i passin3[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
 	Factory::SpriteData button{ "buttonsprite.png", 1.0f, 1.0f, 3, 3, 8, 0.1f, 0, passin3 };
@@ -59,19 +74,15 @@ struct Scene_Instructions : public Scene
 
 
 		//init tilemap 
-		tilemap = Factory::Instance().FF_Tilemap("tilemap", ResourceManager::Instance()._tilemap_names[ResourceManager::Instance()._tilemap_id]._binary + ".txt",
-			ResourceManager::Instance()._tilemap_names[ResourceManager::Instance()._tilemap_id]._map + ".txt");
+		tilemap = Factory::Instance().FF_Tilemap("tilemap", "c_INSTRUCTION.txt", "t_INSTRUCTION.txt");
 		Factory::Instance()[tilemap].Get<Com_Position>().x = -5;
 		Factory::Instance()[tilemap].Get<Com_Position>().y = 2;
 		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
 		SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->_tilemap = tilemap;
 		SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_tilemap = tilemap;
-
-
-
-		spawner = Factory::Instance().FF_CreateSpawner();
-
 		Com_Tilemap& com_tilemap = Factory::Instance()[tilemap].Get<Com_Tilemap>();
+
+
 		Sys_PathFinding& pf2 = *SystemDatabase::Instance().GetSystem<Sys_PathFinding>();
 		pf2._grid = Grid(com_tilemap._width, com_tilemap._height, com_tilemap._map);
 		pf2._initialized = true;
@@ -80,80 +91,149 @@ struct Scene_Instructions : public Scene
 		SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->_grid = &pf2._grid;
 		SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->_grid = &pf2._grid;
 		SystemDatabase::Instance().GetSystem<Sys_ArrowKeysTilemap>()->_grid = &pf2._grid;
-		SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->_spawner = &Factory::Instance()[spawner].Get<Com_EnemySpawn>();
-
 
 
 		//first 
 		if (currentinstructions == 0) {
 			//only spawn player 
-			
-		}
-		//second
-		if (currentinstructions == 1) {
+			for (int y = 0; y < com_tilemap._height; ++y) {
+				for (int x = 0; x < com_tilemap._width; ++x) {
+					//if it's a player spawn location 
+					if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 2) {
+						player = Factory::Instance().FF_SpriteTile(man, tilemap, x, y);
+						Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne, Com_TileMoveSpriteState, Com_type>();
+						Factory::Instance()[player].Get<Com_TilePosition>()._is_player = true;
+						Factory::Instance()[player].Get<Com_type>().type = 0; // set player type
+						SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->player_id = player;
+						SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->tile = tilemap;
+						SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
+						SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
 
-		}
-		//third
-		if (currentinstructions == 2) {
+						SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
 
-		}
-		//testting for level editor 
-		for (int y = 0; y < com_tilemap._height; ++y) {
-			for (int x = 0; x < com_tilemap._width; ++x) {
-				//if it's a player spawn location 
-				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 2) {
-					player = Factory::Instance().FF_SpriteTile(man, tilemap, x, y);
-					Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne, Com_TileMoveSpriteState, Com_type>();
-					Factory::Instance()[player].Get<Com_TilePosition>()._is_player = true;
-					Factory::Instance()[player].Get<Com_type>().type = 0; // set player type
-					SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->player_id = player;
-					SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->tile = tilemap;
-					SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
-					SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
-
-					SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
-
-				}
-				//if it's a enemy spawn location 
-				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 3) {
-					//enemytest = Factory::Instance().FF_SpriteTile(data, tilemap, x, y);
-					////Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_type, Com_GridColData,Com_EnemySpawn,Com_Wave>();
-					////Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
-					////Factory::Instance()[enemytest].Get<Com_EnemyStateOne>().playerHealth = &Factory::Instance()[player].Get<Com_Health>();
-					//////passing
-					////SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
-					////++Factory::Instance()[enemytest].Get<Com_EnemySpawn>().CurrNoOfEnemies;
-					////Entity& e = Factory::Instance()[enemytest];
-					////e.Get<Com_type>().type = 1;
-					//Factory::Instance().FF_CreateSpawner();
-					//SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
-					////++Factory::Instance()[enemytest].Get<Com_EnemySpawn>().CurrNoOfEnemies;
-					////Entity& e = Factory::Instance()[enemytest];
-					////e.Get<Com_type>().type = 1;
-				}
-				//if its' a destructible wall 
-				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 4) {
-					wall = Factory::Instance().FF_SpriteTile(box, tilemap, x, y);
-					Factory::Instance()[wall].AddComponent<Com_YLayering, Com_Health, Com_type, Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_ParticleEmitter>();
-					SystemDatabase::Instance().GetSystem<Sys_Obstacle>()->_grid = &pf2._grid;
-					Entity& e = Factory::Instance()[wall];
-					e.Get<Com_Health>().health = 3;
-					e.Get<Com_type>().type = 3;
-					continue;
-				}
-				//if it's a explosive barrel 
-				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 5) {
-					bomb = Factory::Instance().FF_SpriteTile(boom, tilemap, x, y);
-					Factory::Instance()[bomb].AddComponent<Com_YLayering, Com_type, Com_Health, Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_ParticleEmitter, Com_GameTimer>();
-					SystemDatabase::Instance().GetSystem<Sys_ParticleEmitter>()->tilemap = tilemap;
-					SystemDatabase::Instance().GetSystem<Sys_Obstacle>()->_grid = &pf2._grid;
-					Entity& e = Factory::Instance()[bomb];
-					e.Get<Com_Health>().health = 1;
-					e.Get<Com_type>().type = 4;
-					continue;
+					}
 				}
 			}
 		}
+		//second
+		if (currentinstructions == 1) {
+			for (int y = 0; y < com_tilemap._height; ++y) {
+				for (int x = 0; x < com_tilemap._width; ++x) {
+					//if it's a player spawn location 
+					if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 2) {
+						player = Factory::Instance().FF_SpriteTile(man, tilemap, x, y);
+						Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne, Com_TileMoveSpriteState, Com_type>();
+						Factory::Instance()[player].Get<Com_TilePosition>()._is_player = true;
+						Factory::Instance()[player].Get<Com_type>().type = 0; // set player type
+						SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->player_id = player;
+						SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->tile = tilemap;
+						SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
+						SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
+
+						SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
+
+					}
+				}
+			}
+		}
+		//third
+		if (currentinstructions == 2) {
+			//spawn player and monster
+			for (int y = 0; y < com_tilemap._height; ++y) {
+				for (int x = 0; x < com_tilemap._width; ++x) {
+					//if it's a player spawn location 
+					if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 2) {
+						player = Factory::Instance().FF_SpriteTile(man, tilemap, x, y);
+						Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne, Com_TileMoveSpriteState, Com_type>();
+						Factory::Instance()[player].Get<Com_TilePosition>()._is_player = true;
+						Factory::Instance()[player].Get<Com_type>().type = 0; // set player type
+						SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->player_id = player;
+						SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->tile = tilemap;
+						SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
+						SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
+
+						SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
+
+					}
+					//if it's a enemy spawn location 
+					if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 3) {
+						spawner = Factory::Instance().FF_CreateSpawner();
+						Sys_PathFinding& pf2 = *SystemDatabase::Instance().GetSystem<Sys_PathFinding>();
+						pf2._grid = Grid(com_tilemap._width, com_tilemap._height, com_tilemap._map);
+						pf2._initialized = true;
+						SystemDatabase::Instance().GetSystem<Sys_TilePosition>()->_grid = &pf2._grid;
+						SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_grid = &pf2._grid;
+						SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->_grid = &pf2._grid;
+						SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->_grid = &pf2._grid;
+						SystemDatabase::Instance().GetSystem<Sys_ArrowKeysTilemap>()->_grid = &pf2._grid;
+						SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->_spawner = &Factory::Instance()[spawner].Get<Com_EnemySpawn>();
+
+						waves = Factory::Instance().FF_CreateGUISurface(underline, 0.8f, 0.1f, 0.4f, 0.1f, 100);
+						Factory::Instance().FF_CreateGUIChildSurfaceText(waves, { "transparent" }, 0.3f, 0.5f, 0.4f, 0.4f, "Waves: ", "courier");
+						std::stringstream ss1;
+						ss1 << Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves;
+						waves = Factory::Instance().FF_CreateGUIChildSurfaceText(waves, { "transparent" }, 0.5f, 0.5f, 0.8f, 0.4f, ss1.str().c_str(), "courier");
+					}
+				}
+			}
+		}
+		//testting for level editor 
+		//for (int y = 0; y < com_tilemap._height; ++y) {
+		//	for (int x = 0; x < com_tilemap._width; ++x) {
+		//		//if it's a player spawn location 
+		//		if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 2) {
+		//			player = Factory::Instance().FF_SpriteTile(man, tilemap, x, y);
+		//			Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne, Com_TileMoveSpriteState, Com_type>();
+		//			Factory::Instance()[player].Get<Com_TilePosition>()._is_player = true;
+		//			Factory::Instance()[player].Get<Com_type>().type = 0; // set player type
+		//			SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->player_id = player;
+		//			SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->tile = tilemap;
+		//			SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
+		//			SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
+
+		//			SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
+
+		//		}
+		//		//if it's a enemy spawn location 
+		//		if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 3) {
+		//			//enemytest = Factory::Instance().FF_SpriteTile(data, tilemap, x, y);
+		//			////Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_type, Com_GridColData,Com_EnemySpawn,Com_Wave>();
+		//			////Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
+		//			////Factory::Instance()[enemytest].Get<Com_EnemyStateOne>().playerHealth = &Factory::Instance()[player].Get<Com_Health>();
+		//			//////passing
+		//			////SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
+		//			////++Factory::Instance()[enemytest].Get<Com_EnemySpawn>().CurrNoOfEnemies;
+		//			////Entity& e = Factory::Instance()[enemytest];
+		//			////e.Get<Com_type>().type = 1;
+		//			//Factory::Instance().FF_CreateSpawner();
+		//			//SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
+		//			////++Factory::Instance()[enemytest].Get<Com_EnemySpawn>().CurrNoOfEnemies;
+		//			////Entity& e = Factory::Instance()[enemytest];
+		//			////e.Get<Com_type>().type = 1;
+		//		}
+		//		//if its' a destructible wall 
+		//		if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 4) {
+		//			wall = Factory::Instance().FF_SpriteTile(box, tilemap, x, y);
+		//			Factory::Instance()[wall].AddComponent<Com_YLayering, Com_Health, Com_type, Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_ParticleEmitter>();
+		//			SystemDatabase::Instance().GetSystem<Sys_Obstacle>()->_grid = &pf2._grid;
+		//			Entity& e = Factory::Instance()[wall];
+		//			e.Get<Com_Health>().health = 3;
+		//			e.Get<Com_type>().type = 3;
+		//			continue;
+		//		}
+		//		//if it's a explosive barrel 
+		//		if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 5) {
+		//			bomb = Factory::Instance().FF_SpriteTile(boom, tilemap, x, y);
+		//			Factory::Instance()[bomb].AddComponent<Com_YLayering, Com_type, Com_Health, Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_ParticleEmitter, Com_GameTimer>();
+		//			SystemDatabase::Instance().GetSystem<Sys_ParticleEmitter>()->tilemap = tilemap;
+		//			SystemDatabase::Instance().GetSystem<Sys_Obstacle>()->_grid = &pf2._grid;
+		//			Entity& e = Factory::Instance()[bomb];
+		//			e.Get<Com_Health>().health = 1;
+		//			e.Get<Com_type>().type = 4;
+		//			continue;
+		//		}
+		//	}
+		//}
 
 
 
@@ -169,12 +249,6 @@ struct Scene_Instructions : public Scene
 		std::stringstream ss;
 		ss << Factory::Instance()[player].Get<Com_Health>().health;
 		lives = Factory::Instance().FF_CreateGUIChildSurfaceText(lives, { "transparent" }, 0.5f, 0.5f, 0.8f, 0.4f, ss.str().c_str(), "courier");
-
-		waves = Factory::Instance().FF_CreateGUISurface(underline, 0.8f, 0.1f, 0.4f, 0.1f, 100);
-		Factory::Instance().FF_CreateGUIChildSurfaceText(waves, { "transparent" }, 0.3f, 0.5f, 0.4f, 0.4f, "Waves: ", "courier");
-		std::stringstream ss1;
-		ss1 << Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves;
-		waves = Factory::Instance().FF_CreateGUIChildSurfaceText(waves, { "transparent" }, 0.5f, 0.5f, 0.8f, 0.4f, ss1.str().c_str(), "courier");
 
 		menu = Factory::Instance().FF_CreateGUISurface(buttonsurface, 0.5f, 0.5f, 0.9f, 0.6f, 120);
 		eid start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(menu, button, 0.5f, 0.35f, 0.4f, 0.2f, ChangeTestScenePF, "Restart", "courier");
@@ -196,8 +270,8 @@ struct Scene_Instructions : public Scene
 		ss << Factory::Instance()[player].Get<Com_Health>().health;
 		Factory::Instance()[lives].Get<Com_Text>()._data._text = ss.str();
 		std::stringstream ss1;
-		ss1 << Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves;
-		Factory::Instance()[waves].Get<Com_Text>()._data._text = ss1.str();
+		//ss1 << Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves;
+		//Factory::Instance()[waves].Get<Com_Text>()._data._text = ss1.str();
 
 		if (AEInputCheckCurr('L')) {
 			ResourceManager::Instance()._screen_shake = 1.0f;
@@ -224,20 +298,61 @@ struct Scene_Instructions : public Scene
 		else {
 			arrow_sprite->_visible = false;
 		}
-		Com_Wave& com_wave = Factory::Instance()[spawner].Get<Com_Wave>();
-		if (Factory::Instance()[player].Get<Com_Health>().health <= 0 || com_wave.numberofwaves <= 0) {
-			Factory::Instance()[menu].Get<Com_GUISurface>()._active = true;
-		}
+		//Com_Wave& com_wave = Factory::Instance()[spawner].Get<Com_Wave>();
+		//if (Factory::Instance()[player].Get<Com_Health>().health <= 0 || com_wave.numberofwaves <= 0) {
+		//	Factory::Instance()[menu].Get<Com_GUISurface>()._active = true;
+		//}
+		// 
+
 		//message to WASD 
-		if (AEInputCheckTriggered(AEVK_UP) || AEInputCheckTriggered(AEVK_DOWN) || AEInputCheckTriggered(AEVK_DOWN)) {
-
-		}
 		//press WASD / Up Down Left Right to move
-		
+		if (currentinstructions == 0 && messageseen == false) {
+			eid main2 = Factory::Instance().FF_CreateGUISurface({ "transparent" }, 0.5f, 0.5f, 1.0f, 1.0f, 100);
+			Vec2i passin4[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
+			Factory::SpriteData button2{ "background2.png", 2.0f, 1.0f, 2, 1, 2, 0.05f, 0, passin4 };
+			Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main2, button2, 0.5f, 0.5f, 0.75f, 0.2f, instructions, "Press WASD or Arrow Keys to Move", "courier");
+			SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->error = false;
+			messageseen = true;
+		}
+		if (currentinstructions == 0 && messageseen == true) {
+			if (AEInputCheckTriggered(AEVK_UP) || AEInputCheckTriggered(AEVK_W)) {
+				up = true;
+			}
+			if (AEInputCheckTriggered(AEVK_DOWN) || AEInputCheckTriggered(AEVK_S)) {
+				down = true;
+			}
+			if (AEInputCheckTriggered(AEVK_LEFT) || AEInputCheckTriggered(AEVK_A)) {
+				left = true;
+			}
+			if (AEInputCheckTriggered(AEVK_RIGHT) || AEInputCheckTriggered(AEVK_S)) {
+				right = true;
+			}
+			if (up == true && down == true && right == true && left == true) {
+				++currentinstructions;
+				messageseen = false;
+				SceneManager::Instance().RestartScene();
+			}
+		}
 		//Message to shoot 
-		
+		if (currentinstructions == 1 && messageseen == false) {
+			eid main2 = Factory::Instance().FF_CreateGUISurface({ "transparent" }, 0.5f, 0.5f, 1.0f, 1.0f, 100);
+			Vec2i passin4[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
+			Factory::SpriteData button2{ "background2.png", 2.0f, 1.0f, 2, 1, 2, 0.05f, 0, passin4 };
+			Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main2, button2, 0.5f, 0.5f, 0.75f, 0.2f, instructions, "Press Space to Shoot!! Try Shooting 5 times!", "courier");
+			SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->error = false;
+			messageseen = true;
+		}
 		//Press space to shoot 
-
+		if (currentinstructions == 1 && messageseen == true) {
+			if (AEInputCheckTriggered(AEVK_SPACE)) {
+				++spacetriggered;
+			}
+			if (spacetriggered >= 5) {
+				++currentinstructions;
+				messageseen = false;
+				SceneManager::Instance().RestartScene();
+			}
+		}
 		//Message to kill monsters 
 		
 		//spawn monsters 
