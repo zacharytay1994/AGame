@@ -2003,23 +2003,27 @@ struct Sys_GUIDrag : public System {
 //};
 
 struct Sys_Obstacle : public System {
-
+	Grid* _grid{ nullptr };
 	void UpdateComponent() override {
-		/*Com_Obstacle& l_obstacle = get<Com_Obstacle>();*/
 		Com_type& type = get<Com_type>();
 		Com_Health& health = get<Com_Health>();
+		Com_TilePosition& tilepos = get<Com_TilePosition>();
 
 		//if it's a bomb barrel 
 		if (type.type == type.bombbarrel) {
 			//if hit, explode 
+			_grid->Get({ tilepos._grid_x,tilepos._grid_y })._obstacle = true;
 			if (health.health == 0) {
+				_grid->Get({ tilepos._grid_x,tilepos._grid_y })._obstacle = false;
 				//explode 
 				RemoveEntity();
 			}
 		}
 		//if it's a breakable wall 
 		if (type.type == type.wall) {
+			_grid->Get({ tilepos._grid_x,tilepos._grid_y })._obstacle = true;
 			if (health.health == 0) {
+				_grid->Get({ tilepos._grid_x,tilepos._grid_y })._obstacle = false;
 				//destroy wall, free space to walk on 
 				RemoveEntity();
 			}

@@ -336,6 +336,7 @@ struct TestScenePF : public Scene
 				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 4) {
 					wall = Factory::Instance().FF_SpriteTile(box, tilemap, x, y);
 					Factory::Instance()[wall].AddComponent<Com_YLayering,Com_Health,Com_type, Com_BoundingBox, Com_Velocity, Com_CollisionData>();
+					SystemDatabase::Instance().GetSystem<Sys_Obstacle>()->_grid = &pf2._grid;
 					Entity& e = Factory::Instance()[wall];
 					e.Get<Com_Health>().health = 3;
 					e.Get<Com_type>().type = 3;
