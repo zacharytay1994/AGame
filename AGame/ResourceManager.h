@@ -146,6 +146,7 @@ public:
 	void ReadTilemapNames();
 	std::string SwitchTilemap(const int& val);
 
+	// music and sound effect
 	void CreateMusic();
 	void UpdateAndPlayMusic();
 	void WalkingSound();
