@@ -54,7 +54,14 @@ void ArchetypeDatabase::FlushEntities() {
 	for (auto t : v) {
 		t->~Com_Tilemap();
 	}
-
+	std::vector<Com_Sprite*> sv = SystemDatabase::Instance().GetAllComponents<Com_Sprite>();
+	for (auto s : sv) {
+		s->~Com_Sprite();
+	}
+	std::vector<Com_GUIMap*> guimaps = SystemDatabase::Instance().GetAllComponents<Com_GUIMap>();
+	for (auto m : guimaps) {
+		m->~Com_GUIMap();
+	}
 	// freeing of resources
 	for (auto& archetype : _database) {
 		for (auto& chunk : archetype.second->_chunk_database) {

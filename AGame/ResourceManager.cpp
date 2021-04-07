@@ -334,6 +334,8 @@ void ResourceManager::ReadTilemapNames()
 	// open file
 	std::ifstream file(asset_path + tilemap_path + _known_tilemaps);
 	if (file) {
+		_tilemap_names.resize(0);
+		_tilemap_images.resize(0);
 		_tilemap_count = 0;
 		std::string line;
 		while (file >> line) {
