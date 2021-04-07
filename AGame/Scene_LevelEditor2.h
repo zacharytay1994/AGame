@@ -53,6 +53,13 @@ void savemapbut(Com_GUISurface* surface) {
 	//SceneManager::Instance().ChangeScene("Main Menu");
 }
 
+void errormessage2(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	std::cout << "entered row" << std::endl;
+	SceneManager::Instance().RestartScene();
+}
+
+
 
 void ChangeTestSceneLevelEditor2(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
@@ -72,6 +79,7 @@ struct LevelEditor2 : public Scene {
 	Factory::SpriteData data6{ "transparent" };
 	Factory::SpriteData dataskeleton{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.15f };
 	//Sys_Pathfinding_v2 _pathfinding;
+	bool frameskipped = false;
 
 
 	eid tilemap = -1;
@@ -106,9 +114,9 @@ struct LevelEditor2 : public Scene {
 		SystemDatabase::Instance().GetSystem<Sys_TilePosition>()->_grid = &pf2._grid;
 		//**** needed 
 		//	AEToogleFullScreen(true);
-
+		
 		/*eid tile = Factory::Instance().FF_CreateGUIChildClickableTileMap(main, { "transparent" }, 0.5f, 0.15f, 0.8f, 0.2f, nocolbut, mapname, "tilemap");*/
-
+		
 
 		Vec2i passin4[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
 		Factory::SpriteData button{ "background2.png", 2.0f, 1.0f, 2, 1, 2, 0.05f, 0, passin4 };
@@ -142,6 +150,7 @@ struct LevelEditor2 : public Scene {
 	void Update(const float& dt) override {
 		UNREFERENCED_PARAMETER(dt);
 		GUISettingsUpdate();
+
 		//one more frame
 		if (SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp == 6 && SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->savedmap == true){
 			//reset 
@@ -149,9 +158,24 @@ struct LevelEditor2 : public Scene {
 			SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->savedmap = false;
 			SceneManager::Instance().ChangeScene("Main Menu");
 		}
-		if (AEInputCheckTriggered('R')) {
-			SceneManager::Instance().RestartScene();
+		//error 
+		if (SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp == 6 && SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->savedmap == false) {
+			//skip one frame 
+			if (frameskipped && SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->error == true) {
+
+				eid main2 = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.5f, 0.5f, 1.0f, 1.0f, 100);
+				Vec2i passin4[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
+				Factory::SpriteData button2{ "background2.png", 2.0f, 1.0f, 2, 1, 2, 0.05f, 0, passin4 };
+				Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main2, button2, 0.5f, 0.5f, 0.75f, 0.2f, errormessage2, "You did not placed the player!", "courier");
+				SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp = 0;
+				SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->error = false;
+				frameskipped = false;
+			}
+			frameskipped = true;
 		}
+		//if (AEInputCheckTriggered('R')) {
+		//	SceneManager::Instance().RestartScene();
+		//}
 	}
 	void Exit() override {
 

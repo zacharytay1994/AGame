@@ -2420,6 +2420,7 @@ struct Sys_GUIMapClick : public System {
 	int Leveledittyp = 0;
 	std::string nameofmap;
 	bool savedmap = false;
+	bool error = false;
 	void UpdateComponent() override {
 		//Com_TilePosition& tilepos = get<Com_TilePosition>();
 		Com_Tilemap& tilemap = get<Com_Tilemap>();
@@ -2478,7 +2479,7 @@ struct Sys_GUIMapClick : public System {
 						tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = 0;
 						guimap.bounding[a].tileintialised = true;
 					}
-					//player spawn 
+					//player spawn needs 1 
 					if (Leveledittyp == 2 && guimap.playercount != 1) {
 						Vec2i passin[5] = { {0,3},{4,7},{8,11},{0,0},{0,0} };
 						Factory::SpriteData man{ "hero.png", 100.0f, 160.0f, 3, 3, 8, 0.1f, 0, passin };
@@ -2516,6 +2517,13 @@ struct Sys_GUIMapClick : public System {
 				}
 			}
 			if (Leveledittyp == 6) {
+				//player not placed 
+				if (guimap.playercount == 0) {
+					error = true;
+					std::cout << "player not placed" << std::endl;
+					return; 
+				}
+
 				/*Vec2i passin2[5] = { {0,1},{2,3},{4,5},{6,7},{0,0} };
 				Factory::SpriteData arrows{ "arrows.png", 50.0f, 50.0f, 3, 3, 8, 0.1f, -900, passin2 };
 				Factory::Instance().FF_SpriteTile(arrows, _tilemap, spawnspritex, spawnspritey);*/
