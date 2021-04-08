@@ -299,6 +299,8 @@ struct TestScenePF : public Scene
 		SystemDatabase::Instance().GetSystem<Sys_AABB>()->_grid = &pf2._grid;
 		SystemDatabase::Instance().GetSystem<Sys_ArrowKeysTilemap>()->_grid = &pf2._grid;
 		SystemDatabase::Instance().GetSystem<Sys_AABB>()->_spawner = &Factory::Instance()[spawner].Get<Com_EnemySpawn>();
+		SystemDatabase::Instance().GetSystem<Sys_AABB>()->Boss = &Factory::Instance()[spawner].Get<Com_Boss>();
+		SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->boss = &Factory::Instance()[spawner].Get<Com_Boss>();
 
 		//testting for level editor 
 		for (int y = 0; y < com_tilemap._height; ++y) {
@@ -450,6 +452,9 @@ struct TestScenePF : public Scene
 		std::stringstream ss1;
 		ss1 << Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves;
 		Factory::Instance()[waves].Get<Com_Text>()._data._text = ss1.str();
+		Com_Boss& bs = Factory::Instance()[spawner].Get<Com_Boss>();
+		Com_Wave& com_wave = Factory::Instance()[spawner].Get<Com_Wave>();
+		Com_EnemySpawn& em = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
 
 		if (AEInputCheckCurr('L')) {
 			ResourceManager::Instance()._screen_shake = 1.0f;
@@ -484,6 +489,9 @@ struct TestScenePF : public Scene
 		}*/
 //#endif
 		if (AEInputCheckTriggered('R')) {
+			bs.disable = 0;
+			bs.bossdefeat = false;
+			bs.BossHealth = 20;
 			SceneManager::Instance().RestartScene();
 		}
 		/*if (AEInputCheckTriggered(AEVK_G)) {
@@ -547,9 +555,6 @@ struct TestScenePF : public Scene
 			arrow_sprite->_visible = false;
 		}
 
-		Com_Wave& com_wave = Factory::Instance()[spawner].Get<Com_Wave>();
-		Com_EnemySpawn& em = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
-		Com_Boss& bs = Factory::Instance()[spawner].Get<Com_Boss>();
 
 		if (Factory::Instance()[player].Get<Com_Health>().health <= 0)
 		{

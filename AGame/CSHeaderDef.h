@@ -423,15 +423,10 @@ ________________________________________________________________________________
 //for Boss type enemy
 -------------------------------------------*/
 struct Com_Boss {
-	int LeftHealth = 10;
-	int HeadHealth = 10;
-	int RightHealth = 10;
-	int TotalHealth = LeftHealth + HeadHealth + RightHealth;
+	int BossHealth = 20;
 
-	bool disableLeftTrue = false;
-	bool disableHeadTrue = false;
-	bool disableRightTrue = false;
-
+	int disable = 0;
+	bool enable = false;
 	bool bossdefeat = false;
 	Com_Health* playerHealth;
 };
@@ -655,24 +650,94 @@ struct Sys_EnemyStateOne : public System {
 struct Sys_EnemyStateBoss : public System {
 	eid player{ -1 };
 	eid _tilemap{ -1 };
+	bool stopshot = false, phrase1 = false, phrase2 = false;
 	void UpdateComponent() override {
 		Com_TilePosition& posBoss = get<Com_TilePosition>();
+		Com_Boss& boss = get<Com_Boss>();
 		Factory::SpriteData ProjEnemy{ "EnemyBall.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };
-		/*float time;
-		time += _dt;*/
+		static int Pattern = 0;
+		static float time = 0;
+		time += _dt;
+		static int count = 0;
+		if (time > 1.0f) 
+		{
+			count++;
+			time = 0;
+		}
+
+		switch (Pattern) 
+		{
+			case 0:
+			{
+				if (stopshot == true && count > 4)
+				{
+					std::cout << count << std::endl;
+					stopshot = false;
+					count = 0;
+				}
+
+				else if (stopshot == false) 
+				{
+					Pattern1(ProjEnemy, posBoss);
+					
+					if (count > 1) 
+					{
+						stopshot = true;
+						count = 0;
+					}
+				}
+			}
+			break;
+
+			case 1:
+			{
+				if (stopshot == true && count > 3)
+				{
+					std::cout << count << std::endl;
+					stopshot = false;
+					count = 0;
+				}
+
+				else if (stopshot == false)
+				{
+					std::cout << "Pattern 1" << std::endl;
+					stopshot = true;
+				}
+			}
+			break;
+		
+			case 2:
+			{
+				if (stopshot == true && count > 3)
+				{
+					std::cout << count << std::endl;
+					stopshot = false;
+					count = 0;
+				}
+
+				else if (stopshot == false)
+				{
+					std::cout << "Pattern 2" << std::endl;
+					stopshot = true;
+				}
+			}
+			break;
+		}
+
 	}
 	void Pattern1(const Factory::SpriteData& data , Com_TilePosition& pos)
 	{
-		if (pos._grid_x > Factory::Instance()[player].Get<Com_TilePosition>()._grid_x)
-		{
-			eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y , -1, 0, _tilemap);
-			Factory::Instance()[j].AddComponent<Com_YLayering>();
-		}
-		else if (pos._grid_x < Factory::Instance()[player].Get<Com_TilePosition>()._grid_x)
-		{
-			eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y, 1, 0, _tilemap);
-			Factory::Instance()[j].AddComponent<Com_YLayering>();
-		}
+		
+			if (pos._grid_x > Factory::Instance()[player].Get<Com_TilePosition>()._grid_x)
+			{
+				eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y , -1, 0, _tilemap);
+				Factory::Instance()[j].AddComponent<Com_YLayering>();
+			}
+			else if (pos._grid_x < Factory::Instance()[player].Get<Com_TilePosition>()._grid_x)
+			{
+				eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y, 1, 0, _tilemap);
+				Factory::Instance()[j].AddComponent<Com_YLayering>();
+			}
 	}
 
 };
@@ -1161,6 +1226,7 @@ struct Sys_AABB : public System {
 	//Com_Health* _PLayerHealth{ nullptr };
 	Grid* _grid{ nullptr };
 	Com_EnemySpawn* _spawner{ nullptr };
+	Com_Boss* Boss{ nullptr };
 	std::vector<Com_CollisionData> AABBColData; //to store all collision data of player
 	std::vector<std::vector<Com_CollisionData>::iterator> Gridcoliterator;
 	//std::vector<Com_CollisionData> AABBTestEnemy; //to store all collision data of player
@@ -1209,7 +1275,7 @@ struct Sys_AABB : public System {
 
 				//	break;
 				//}
-				if ((type->type == type->enemy) && (AABBColData[i].type->type == type->bullet)) {
+				if ((type->type == type->enemy || type->type == type->enemyrange) && (AABBColData[i].type->type == type->bullet)) {
 					std::cout << "collidied" << std::endl;
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					--_spawner->CurrNoOfEnemies;
@@ -1217,17 +1283,41 @@ struct Sys_AABB : public System {
 					Gridcoliterator.push_back(iteratorcomgrid);
 					erase = true;
 					ResourceManager::Instance().EnemyDeathSound();
+					if (_spawner->CurrNoOfEnemies <= 0) 
+					{
+						Boss->enable = true;
+					}
+					
 					break;
 				}
 				
-				if ((type->type == type->enemyrange) && (AABBColData[i].type->type == type->bullet)) {
-					std::cout << "collidied" << std::endl;
+				//if ((type->type == type->enemyrange) && (AABBColData[i].type->type == type->bullet)) {
+				//	std::cout << "collidied" << std::endl;
+				//	_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
+				//	--_spawner->CurrNoOfEnemies;
+				//	RemoveEntity();
+				//	Gridcoliterator.push_back(iteratorcomgrid);
+				//	erase = true;
+				//	ResourceManager::Instance().EnemyDeathSound();
+				//	break;
+				//}
+
+				if ((type->type == type->Boss) && (AABBColData[i].type->type == type->bullet)) {
+					std::cout << "collidied Boss" << std::endl;
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
-					--_spawner->CurrNoOfEnemies;
-					RemoveEntity();
-					Gridcoliterator.push_back(iteratorcomgrid);
-					erase = true;
-					ResourceManager::Instance().EnemyDeathSound();
+					--Boss->BossHealth;
+					std::cout << "Hi " << Boss->BossHealth << std::endl;
+					if (Boss->BossHealth <= 0) 
+					{
+						--_spawner->CurrNoOfEnemies;
+						Boss->disable++;
+						if (Boss->disable >= 2) 
+						{
+							Boss->bossdefeat = true;
+						}
+						RemoveEntity();
+						Boss->BossHealth = 10;
+					}
 					break;
 				}
 
@@ -1242,6 +1332,15 @@ struct Sys_AABB : public System {
 				
 				if (type->type == type->bullet && (AABBColData[i].type->type == type->enemy)) {
 					std::cout << "collidied" << std::endl;
+					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
+					RemoveEntity();
+					//Gridcoliterator.push_back(iteratorcomgrid);
+					//erase = true;
+					break;
+				}
+
+				if (type->type == type->bullet && (AABBColData[i].type->type == type->Boss)) {
+					std::cout << "collidied Bossa" << std::endl;
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					RemoveEntity();
 					//Gridcoliterator.push_back(iteratorcomgrid);
@@ -1587,7 +1686,8 @@ struct Sys_EnemySpawning : public System {
 	float timer{ 0.0f };
 	Grid* _grid{ nullptr };
 	int _max{ 4 };
-	bool spawnBoss = false; 
+	bool spawnBoss = false;
+	Com_Boss* boss{ nullptr };
 	//eid _spawner_id{ -1 };
 	void OncePerFrame() override
 	{
@@ -1636,7 +1736,7 @@ struct Sys_EnemySpawning : public System {
 				}
 			}
 		}
-		else if (wave.numberofwaves <= 0 && spawnBoss == true)
+		else if (wave.numberofwaves <= 0 && spawnBoss == true && boss->disable == 0)
 		{
 			Vec2i ran = { 0 + (rand() % 2 * 9),rand() % 3 };
 			while (_grid->Get(ran)._obstacle || _grid->Get(ran)._player || (ran.x == 0  && ran.y == 0)) {
@@ -1660,8 +1760,8 @@ struct Sys_EnemySpawning : public System {
 			}
 			else
 			{
-				Factory::SpriteData Left{ "Right.png", 50.0f, 50.0f, 4, 15, 60, 0.1f, 0, passin2 };
-				Factory::SpriteData Right{ "Right.png", 50.0f, 50.0f, 4, 15, 60, 0.1f, 0, passin };
+				Factory::SpriteData Left{ "Right.png", 50.0f, 35.0f, 4, 15, 60, 0.1f, 0, passin2 };
+				Factory::SpriteData Right{ "Right.png", 50.0f, 35.0f, 4, 15, 60, 0.1f, 0, passin };
 
 				eid enemy = Factory::Instance().FF_CreateBoss(Left, _tilemap, ran.x, ran.y, 7); // boss
 				Factory::Instance()[enemy].Get<Com_Boss>().playerHealth = &Factory::Instance()[playerpos].Get<Com_Health>();
@@ -1682,10 +1782,11 @@ struct Sys_EnemySpawning : public System {
 			timer -= _dt;
 		}
 
-		if (_spawner.CurrNoOfEnemies <= 0 && wave.numberofwaves <= 0) 
+		if (_spawner.CurrNoOfEnemies <= 0 && wave.numberofwaves <= 0 && boss->enable == true)
 		{
 			spawnBoss = true;
-			std::cout << "Boss appear" << std::endl;
+			boss->enable = false;
+			//std::cout << "Boss appear" << std::endl;
 		}
 	}
 
