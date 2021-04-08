@@ -2571,15 +2571,18 @@ struct Com_TextMovingGUI {
 };
 
 struct Sys_TextMovingGUI : public System {
+	//const float scrollingspeed = 0.0009f;
+	const float scrollingspeed = 0.002f;
+	const float buffer = -0.03f;
 	void UpdateComponent() override {
 		Com_TextMovingGUI& textmoving = get<Com_TextMovingGUI>();
 		Com_GUISurface& surface = get<Com_GUISurface>();
 		//constant moving 
 		if (textmoving.active == true) {
-			surface._position.y -= 0.0006f;
+			surface._position.y -= scrollingspeed;
 		}
 		//if out of bounds 
-		if (surface._position.y < 0.0f) {
+		if (surface._position.y < buffer) {
 			RemoveEntity();
 		}
 	}

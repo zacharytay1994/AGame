@@ -24,6 +24,7 @@ struct Scene_Credits : public Scene {
 	Factory::SpriteData data4{ "button2" };
 	Factory::SpriteData data5{ "button3" };
 	Factory::SpriteData data6{ "transparent" };
+	Factory::SpriteData data7{ "gamelogo" };
 	Factory::SpriteData buttonbg{ "buttonsbg.png", 1.0f, 1.0f, 1, 1, 1, 1.0f, 0 };
 	Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
 	Factory::SpriteData button{ "buttonsprite.png", 1.0f, 1.0f, 3, 3, 8, 0.1f, 0, passin };
@@ -50,11 +51,22 @@ struct Scene_Credits : public Scene {
 		//eid buttons = Factory::Instance().FF_CreateGUIChildSurface(main, { "background1" }, 0.5f, 0.4f, 0.3f, 0.4f);												// non clickable child surface
 
 		//text 
-		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "transparent" }, 0.5f, 0.25f, 0.04f, 0.04f, "Tech Director", "courier");
-		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "transparent" }, 0.5f, 0.28f, 0.04f, 0.04f, "Zachary Tay", "courier");
-		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "transparent" }, 0.5f, 0.12f, 0.04f, 0.04f, "Lead Designer", "courier");
-		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "transparent" }, 0.5f, 1.2f, 0.04f, 0.04f, "Noel Ho", "courier");
-
+		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "gamelogo" }, 0.5f, 0.25f, 0.4f, 0.4f, "", "courier");
+		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "teamlogo" }, 0.5f, 0.4f, 0.3f, 0.3f, "", "courier");
+		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "zachary" }, 0.35f, 0.65f, 0.25f, 0.25f, "", "courier");
+		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "noel" }, 0.65f, 0.65f, 0.25f, 0.25f, "", "courier");
+		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "austen" }, 0.35f, 0.85f, 0.25f, 0.25f, "", "courier");
+		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "wilfred" }, 0.65f, 0.85f, 0.25f, 0.25f, "", "courier");
+		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "faculty" }, 0.5f, 1.1f, 0.35f, 0.35f, "", "courier");
+		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "instructorthomas" }, 0.5f, 1.25f, 0.25f, 0.25f, "", "courier");
+		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "instructordx" }, 0.5f, 1.33f, 0.25f, 0.25f, "", "courier");
+		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "digipensingapore" }, 0.5f, 1.55f, 0.35f, 0.35f, "", "courier");
+		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "president" }, 0.5f, 1.85f, 0.35f, 0.35f, "", "courier");
+		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "executives1" }, 0.5f, 2.05f, 0.48f, 0.48f, "", "courier");
+		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "executives2" }, 0.5f, 2.12f, 0.48f, 0.48f, "", "courier");
+		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "executives3" }, 0.5f, 2.17f, 0.48f, 0.48f, "", "courier");
+		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "ending" }, 0.5f, 2.5f, 0.3f, 0.3f, "", "courier");
+		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "endingfmod" }, 0.5f, 2.6f, 0.3f, 0.3f, "", "courier");
 		// initialize gui settings
 		GUISettingsInitialize();
 	}

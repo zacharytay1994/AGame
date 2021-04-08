@@ -473,6 +473,22 @@ void ResourceManager::Initialize()
 	LoadTexture("settings", "settingsbutton.png");
 	LoadTexture("cross", "crossbutton.png");
 	LoadTexture("background1", "background1.png");
+	LoadTexture("gamelogo", "AGameLogo.png");
+	LoadTexture("teamlogo", "TeamLogo.png");
+	LoadTexture("zachary", "Zachary.png");
+	LoadTexture("noel", "Noel.png");
+	LoadTexture("austen", "Austen.png");
+	LoadTexture("wilfred", "Wilfred.png");
+	LoadTexture("faculty", "faculty.png");
+	LoadTexture("instructorthomas", "instructor1.png");
+	LoadTexture("instructordx", "instructor2.png");
+	LoadTexture("digipensingapore", "digipensingapore.png");
+	LoadTexture("president", "president.png");
+	LoadTexture("executives1", "executives1.png");
+	LoadTexture("executives2", "executives2.png");
+	LoadTexture("executives3", "executives3.png");
+	LoadTexture("ending", "ending.png");
+	LoadTexture("endingfmod", "endingfmod.png");
 	// load all fonts
 	LoadFont("courier", "COURIER.TTF", 20);
 }
