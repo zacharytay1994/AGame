@@ -1806,14 +1806,16 @@ struct Sys_ParticleEmitter : public System {
 
 	void emitparticle() {
 		//create particle sprite 
-		float min{-50.0f };
-		float max{ 50.0f };
+		float minvel{-50.0f };
+		float maxvel{ 50.0f };
+		float minsize{ 0.0f };
+		float maxsize{ 20.0f };
 		//create random sprite data 
-		float rand_sizex = min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - ((min)))));
-		float rand_sizey = min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - ((min)))));
-		float rand_velocityx = min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - ((min)))));
-		float rand_velocityy = min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - ((min)))));
-		Factory::SpriteData data{ "test", rand_sizex, rand_sizey, 2, 3, 8, 0.15f };
+		float rand_sizex = minsize + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (maxsize - ((minsize)))));
+		float rand_sizey = minsize + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (maxsize - ((minsize)))));
+		float rand_velocityx = minvel + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (maxvel - ((minvel)))));
+		float rand_velocityy = minvel + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (maxvel - ((minvel)))));
+		Factory::SpriteData data{ "bombparticles", rand_sizex, rand_sizey, 2, 3, 8, 0.15f };
 		//Factory::SpriteData data = { "test3", 1,8, 8, 0.1f, rand_sizex, rand_sizey };
 		//create particle 
 		Factory::Instance().FF_CreateParticle(data, static_cast<int>(get<Com_Position>().x), static_cast<int>(get<Com_Position>().y), rand_velocityx ,rand_velocityy);

@@ -489,6 +489,7 @@ void ResourceManager::Initialize()
 	LoadTexture("executives3", "executives3.png");
 	LoadTexture("ending", "ending.png");
 	LoadTexture("endingfmod", "endingfmod.png");
+	LoadTexture("bombparticles", "bombparticles.png");
 	// load all fonts
 	LoadFont("courier", "COURIER.TTF", 20);
 }
