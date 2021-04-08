@@ -456,78 +456,14 @@ struct TestScenePF : public Scene
 		if (AEInputCheckCurr('L')) {
 			ResourceManager::Instance()._screen_shake = 1.0f;
 		}
-
-		/*if (AEInputCheckTriggered(AEVK_1)) {
-			playerInv.Inventory_SetWeaponUnlocked("Pistol");
-			playerInv.Inventory_EquipWeapon("Pistol");
-			std::cout << "EQUIPPED PISTOL" << std::endl;
-		}
-
-		if (AEInputCheckTriggered(AEVK_2)) {
-			playerInv.Inventory_SetWeaponUnlocked("TrickPistol");
-			playerInv.Inventory_EquipWeapon("TrickPistol");
-			std::cout << "EQUIPPED TRICKPISTOL" << std::endl;
-		}
-
-		if (AEInputCheckTriggered(AEVK_3)) {
-			playerInv.Inventory_SetWeaponUnlocked("DualPistol");
-			playerInv.Inventory_EquipWeapon("DualPistol");
-			std::cout << "EQUIPPED DUALPISTOL" << std::endl;
-		}
-
-		if (AEInputCheckTriggered(AEVK_4)) {
-			playerInv.Inventory_SetWeaponUnlocked("DualDiagPistol");
-			playerInv.Inventory_EquipWeapon("DualDiagPistol");
-			std::cout << "EQUIPPED DUALDIAGPISTOL" << std::endl;
-		}
-
-		if (AEInputCheckTriggered(AEVK_SPACE)) {
-			playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
-		}*/
 //#endif
 		if (AEInputCheckTriggered('R')) {
 			SceneManager::Instance().RestartScene();
 		}
-		/*if (AEInputCheckTriggered(AEVK_G)) {
-			_playerInv.Inventory_PrintCurrentWeapon();
-		}
-
-		(if (AEInputCheckTriggered(AEVK_F)) {
-			_playerInv.Inventory_SetWeaponUnlocked("Pistol");
-			_playerInv.Inventory_EquipWeapon("Pistol");
-			std::cout << "EQUIPPED PISTOL" << std::endl;
-		}
-
-		if (AEInputCheckTriggered(AEVK_H)) {
-			_playerInv.Inventory_SetWeaponUnlocked("TrickPistol");
-			_playerInv.Inventory_EquipWeapon("TrickPistol");
-			std::cout << "EQUIPPED TRICKPISTOL" << std::endl;
-		}
-
-		if (AEInputCheckTriggered(AEVK_S)) {
-			_playerInv.Inventory_SetWeaponUnlocked("DualPistol");
-			_playerInv.Inventory_EquipWeapon("DualPistol");
-			std::cout << "EQUIPPED DUALPISTOL" << std::endl;
-		}
-
-		if (AEInputCheckTriggered(AEVK_A)) {
-			_playerInv.Inventory_SetWeaponUnlocked("DualDiagPistol");
-			_playerInv.Inventory_EquipWeapon("DualDiagPistol");
-			std::cout << "EQUIPPED DUALDIAGPISTOL" << std::endl;
-		}
-
-		if (AEInputCheckTriggered(AEVK_B)) {
-			_playerInv.Inventory_SetWeaponUnlocked("Dagger");
-			_playerInv.Inventory_EquipWeapon("Dagger");
-			std::cout << "EQUIPPED DAGGER" << std::endl;
-		}*/
 
 		if (AEInputCheckTriggered(AEVK_SPACE)) {
-			//_playerInv.Inventory_SetWeaponUnlocked("Pistol");
-			//_playerInv.Inventory_EquipWeapon("Pistol");
-			//std::cout << "EQUIPPED PISTOL" << std::endl;
 			_playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
-			ResourceManager::Instance().ShootingSound();
+			//ResourceManager::Instance().ShootingSound();
 		}
 		if (AEInputCheckCurr(AEVK_LEFT) || AEInputCheckCurr(AEVK_A)) {
 			arrow_sprite->_visible = true;

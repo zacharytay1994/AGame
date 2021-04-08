@@ -79,6 +79,7 @@ void Weapon::Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid
 			Factory::Instance()[j].AddComponent<Com_YLayering>();
 		}
 	}
+	ResourceManager::Instance().ShootingSound();
 }
 
 void Weapon::Weapon_Reload()
@@ -231,6 +232,7 @@ void TrickPistol::Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction
 		Factory::Instance().FF_Createproj2(data, spawn.x + weapon_Pattern[0].y, spawn.y + weapon_Pattern[0].x, 0, -1, tilemap);
 		Factory::Instance().FF_Createproj2(data, spawn.x + weapon_Pattern[1].y, spawn.y + weapon_Pattern[1].x, 0, 1, tilemap);
 	}
+	ResourceManager::Instance().ShootingSound();
 }
 
 DualPistol::DualPistol() : Weapon(3)
@@ -284,6 +286,7 @@ void DualDiagPistol::Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direct
 		Factory::Instance().FF_Createproj2(data, spawn.x + weapon_Pattern[0].y, spawn.y + weapon_Pattern[0].x, 1, -1, tilemap);
 		Factory::Instance().FF_Createproj2(data, spawn.x + weapon_Pattern[1].y, spawn.y + weapon_Pattern[1].x, -1, -1, tilemap);
 	}
+	ResourceManager::Instance().ShootingSound();
 }
 
 Dagger::Dagger()
@@ -329,4 +332,5 @@ void Dagger::Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid
 		Factory::Instance().FF_Createproj2(data, spawn.x + weapon_Pattern[1].y, spawn.y + weapon_Pattern[1].x, 1, -1, tilemap, 1);
 		Factory::Instance().FF_Createproj2(data, spawn.x + weapon_Pattern[2].y, spawn.y + weapon_Pattern[2].x, 1, -1, tilemap, 1);
 	}
+	ResourceManager::Instance().StabbingSound();
 }
