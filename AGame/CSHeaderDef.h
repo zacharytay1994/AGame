@@ -2565,3 +2565,22 @@ struct Sys_InstructionsGUI : public System {
 		msg.skiponeframe = true;
 	}
 };
+
+struct Com_TextMovingGUI {
+	bool active = true;
+};
+
+struct Sys_TextMovingGUI : public System {
+	void UpdateComponent() override {
+		Com_TextMovingGUI& textmoving = get<Com_TextMovingGUI>();
+		Com_GUISurface& surface = get<Com_GUISurface>();
+		//constant moving 
+		if (textmoving.active == true) {
+			surface._position.y -= 0.0006f;
+		}
+		//if out of bounds 
+		if (surface._position.y < 0.0f) {
+			RemoveEntity();
+		}
+	}
+};

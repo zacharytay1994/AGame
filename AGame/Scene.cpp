@@ -109,8 +109,8 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUItextboxinput>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Writetofile>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUItextboxinputwords>();
-	ComponentDescription_DB::Instance().RegisterComponent <Com_errormessageGUI>();
-
+	ComponentDescription_DB::Instance().RegisterComponent<Com_errormessageGUI>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_TextMovingGUI>();
 	// enemy states
 	ComponentDescription_DB::Instance().RegisterComponent<Com_EnemyStateOne>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_TileMoveSpriteState>();
@@ -159,6 +159,7 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_GUIMapClick, Com_GUIMap, Com_Tilemap, Com_BoundingBoxGUI>();
 	SystemDatabase::Instance().RegisterSystem<Sys_errormessageGUI, Com_errormessageGUI>();
 	SystemDatabase::Instance().RegisterSystem<Sys_InstructionsGUI, Com_instructionsGUI>();
+	SystemDatabase::Instance().RegisterSystem<Sys_TextMovingGUI, Com_TextMovingGUI, Com_GUISurface>();
 
 	// pathfinding
 	SystemDatabase::Instance().RegisterSystem<Sys_PathFinding, Com_type, Com_FindPath>();

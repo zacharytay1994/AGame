@@ -50,14 +50,13 @@ struct Scene_Credits : public Scene {
 		//eid buttons = Factory::Instance().FF_CreateGUIChildSurface(main, { "background1" }, 0.5f, 0.4f, 0.3f, 0.4f);												// non clickable child surface
 
 		//text 
-		Factory::Instance().FF_CreateGUIChildSurfaceText(main, { "transparent" }, 0.36f, 0.26f, 0.04f, 0.04f, "Column", "courier");
-		Factory::Instance().FF_CreateGUIChildSurfaceText(main, { "transparent" }, 0.36f, 0.41f, 0.04f, 0.04f, "Row", "courier");
-		Factory::Instance().FF_CreateGUIChildSurfaceText(main, { "transparent" }, 0.23f, 0.12f, 0.04f, 0.04f, "Map Name", "courier");
-		Factory::Instance().FF_CreateGUIChildSurfaceText(main, { "transparent" }, 0.5f, 0.8f, 0.04f, 0.04f, "Load", "courier");
+		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "transparent" }, 0.5f, 0.25f, 0.04f, 0.04f, "Tech Director", "courier");
+		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "transparent" }, 0.5f, 0.28f, 0.04f, 0.04f, "Zachary Tay", "courier");
+		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "transparent" }, 0.5f, 0.12f, 0.04f, 0.04f, "Lead Designer", "courier");
+		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "transparent" }, 0.5f, 1.2f, 0.04f, 0.04f, "Noel Ho", "courier");
 
 		// initialize gui settings
 		GUISettingsInitialize();
-
 	}
 	void Update(const float& dt) override {
 		UNREFERENCED_PARAMETER(dt);
