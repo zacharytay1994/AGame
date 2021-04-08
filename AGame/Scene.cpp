@@ -183,10 +183,10 @@ void SceneManager::Initialize() {
 	AddScene<ShootingRange>("ShootingRange");
 	AddScene<LevelEditor>("Leveleditor");
 	AddScene<LevelEditor2>("Leveleditor2");
-	AddScene<LevelEditor>("Credits");
 	AddScene<InventoryMenu>("InventoryMenu");
 	AddScene<LevelSelect>("LevelSelect");
-	AddScene< Scene_Instructions>("Instructions");
+	AddScene<Scene_Instructions>("Instructions");
+	AddScene<Scene_Credits>("Credits");
 }
 
 void SceneManager::Free()

@@ -85,9 +85,14 @@ void OpenSurvey(Com_GUISurface* surface) {
 	#endif
 }
 
-void ChangeLevelEditor(Com_GUISurface* surface) {
+void Credits(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	SceneManager::Instance().ChangeScene("Credits");
+}
+
+void ChangeLevelEditor(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	SceneManager::Instance().ChangeScene("Leveleditor");
 }
 
 void GUISettingsInitialize() {

@@ -31,12 +31,6 @@
     <ClCompile Include="zSystem.cpp">
       <Filter>Source Files\ecs</Filter>
     </ClCompile>
-    <ClCompile Include="Scene_Credits.h">
-      <Filter>Header Files\Scenes</Filter>
-    </ClCompile>
-    <ClCompile Include="Scene_Instruction.cpp">
-      <Filter>Header Files\Scenes</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="zArchetype.h">
@@ -112,6 +106,9 @@
       <Filter>Header Files\Scenes</Filter>
     </ClInclude>
     <ClInclude Include="Scene_Instruction.h">
+      <Filter>Header Files\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene_Credits.h">
       <Filter>Header Files\Scenes</Filter>
     </ClInclude>
   </ItemGroup>
