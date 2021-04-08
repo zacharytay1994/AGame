@@ -246,6 +246,7 @@ struct TestScenePF : public Scene
 	eid waves{ -1 };
 	eid spawner{ -1 };
 	eid menu{ -1 };
+	eid _WinOrLose{ -1 };
 	eid wall{ -1 };
 	eid bomb{ -1 };
 	Inventory playerInv;
@@ -261,6 +262,7 @@ struct TestScenePF : public Scene
 	Factory::SpriteData clock{ "clock.png", 80.0f, 200.0f, 3, 2, 5, 0.20f };
 	Vec2i passin2[5] = { {0,1},{2,3},{4,5},{6,7},{0,0} };
 	Factory::SpriteData arrows{ "arrows.png", 50.0f, 50.0f, 3, 3, 8, 0.1f, -900, passin2 };
+	Factory::SpriteData title{ "title.png", 1.0f, 1.0f, 2, 2, 4, 0.2f, 0 };
 	eid arrow = -1;
 	Com_Sprite* arrow_sprite{ nullptr };
 	//Factory::SpriteData data{ 0,"test2", 1, 8, 8, 0.1f, 100.0f, 200.0f };
@@ -284,7 +286,7 @@ struct TestScenePF : public Scene
 		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
 		SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->_tilemap = tilemap;
 		SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_tilemap = tilemap;
-
+		SystemDatabase::Instance().GetSystem<Sys_EnemyStateBoss>()->_tilemap = tilemap;
 
 
 		spawner = Factory::Instance().FF_CreateSpawner();
@@ -313,6 +315,7 @@ struct TestScenePF : public Scene
 					SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->tile = tilemap;
 					SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
 					SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
+					SystemDatabase::Instance().GetSystem<Sys_EnemyStateBoss>()->player = player;
 
 					SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
 
@@ -353,6 +356,7 @@ struct TestScenePF : public Scene
 				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 5) {
 					bomb = Factory::Instance().FF_SpriteTile(boom, tilemap, x, y);
 					Factory::Instance()[bomb].AddComponent<Com_YLayering, Com_type, Com_Health, Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_ParticleEmitter, Com_GameTimer>();
+					SystemDatabase::Instance().GetSystem<Sys_ParticleEmitter>()->tilemap = tilemap;
 					SystemDatabase::Instance().GetSystem<Sys_Obstacle>()->_grid = &pf2._grid; 
 					Entity& e = Factory::Instance()[bomb];
 					e.Get<Com_Health>().health = 1;
@@ -403,12 +407,15 @@ struct TestScenePF : public Scene
 		waves = Factory::Instance().FF_CreateGUIChildSurfaceText(waves, { "transparent" }, 0.5f, 0.5f, 0.8f, 0.4f, ss1.str().c_str(), "courier");
 
 		menu = Factory::Instance().FF_CreateGUISurface(buttonsurface, 0.5f, 0.5f, 0.9f, 0.6f, 120);
+		_WinOrLose = Factory::Instance().FF_CreateGUISurface(title, 0.5f, 0.2f, 0.8f, 0.3f, 140);
 		eid start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(menu, button, 0.5f, 0.35f, 0.4f, 0.2f, ChangeTestScenePF, "Restart", "courier");
 		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
 		start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(menu, button, 0.5f, 0.60f, 0.4f, 0.2f, ChangeMainMenu, "Main Menu", "courier");
 		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
 		Factory::Instance()[menu].Get<Com_GUISurface>()._active = false;
+		Factory::Instance()[_WinOrLose].Get<Com_GUISurface>()._active = false;
 
+		
 
 
 		//Factory::Instance().FF_CreateGUISurface(clock, 0.5f, 0.05f, 0.1f, 0.1f, 100);
@@ -520,6 +527,7 @@ struct TestScenePF : public Scene
 			//_playerInv.Inventory_EquipWeapon("Pistol");
 			//std::cout << "EQUIPPED PISTOL" << std::endl;
 			_playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
+			ResourceManager::Instance().ShootingSound();
 		}
 		if (AEInputCheckCurr(AEVK_LEFT) || AEInputCheckCurr(AEVK_A)) {
 			arrow_sprite->_visible = true;
@@ -542,9 +550,22 @@ struct TestScenePF : public Scene
 		}
 
 		Com_Wave& com_wave = Factory::Instance()[spawner].Get<Com_Wave>();
+		Com_EnemySpawn& em = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
+		Com_Boss& bs = Factory::Instance()[spawner].Get<Com_Boss>();
+
+		if (Factory::Instance()[player].Get<Com_Health>().health <= 0)
+		{
+			Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose :(", "courier");
+		}
+		else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0)
+		{
+			Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Win :D", "courier");
+		}
+
 		//Com_EnemySpawn& com_spawner = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
-		if (Factory::Instance()[player].Get<Com_Health>().health <= 0 || com_wave.numberofwaves <= 0) {
+		if (Factory::Instance()[player].Get<Com_Health>().health <= 0 || (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <=0 && bs.bossdefeat == true)) {
 			Factory::Instance()[menu].Get<Com_GUISurface>()._active = true;
+			Factory::Instance()[_WinOrLose].Get<Com_GUISurface>()._active = true;
 		}
 
 		GUISettingsUpdate();

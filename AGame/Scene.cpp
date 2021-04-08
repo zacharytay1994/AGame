@@ -76,6 +76,7 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Boundary>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Wave>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_EnemySpawn>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_Boss>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_TypeEnemy>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Projectile>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GameTimer>();
@@ -131,7 +132,7 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_YLayering, Com_Sprite, Com_Position, Com_YLayering>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Boundary, Com_Position, Com_Boundary>();
 	SystemDatabase::Instance().RegisterSystem<Sys_ParticleSys,Com_Particle, Com_GameTimer >();
-	SystemDatabase::Instance().RegisterSystem<Sys_ParticleEmitter, Com_ParticleEmitter, Com_GameTimer>();
+	SystemDatabase::Instance().RegisterSystem<Sys_ParticleEmitter, Com_ParticleEmitter, Com_GameTimer, Com_TilePosition>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Obstacle, Com_type,Com_Health,Com_TilePosition, Com_ParticleEmitter>();
 	//SystemDatabase::Instance().RegisterSystem<Sys_RegisteringEntity, Com_objecttype>();
 	//test 
@@ -163,7 +164,8 @@ void SceneManager::Initialize() {
 
 	// enemy states, spawn, attack
 	SystemDatabase::Instance().RegisterSystem<Sys_EnemyStateOne, Com_EnemyStateOne, Com_FindPath, Com_TilePosition, Com_Sprite, Com_type>();
-	SystemDatabase::Instance().RegisterSystem<Sys_EnemySpawning, Com_EnemySpawn, Com_Wave>();
+	SystemDatabase::Instance().RegisterSystem<Sys_EnemyStateBoss,Com_TilePosition, Com_Sprite, Com_type, Com_Boss>();
+	SystemDatabase::Instance().RegisterSystem<Sys_EnemySpawning, Com_EnemySpawn, Com_Wave, Com_Boss>();
 	//SystemDatabase::Instance().RegisterSystem<Sys_EnemyAttack, Com_Direction, Com_type, Com_TilePosition, Com_Tilemap, Com_EnemyStateOne>();
 	
 	//Health test
