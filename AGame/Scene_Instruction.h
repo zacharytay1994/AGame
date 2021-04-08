@@ -75,7 +75,7 @@ struct Scene_Instructions : public Scene
 
 		//init tilemap 
 		tilemap = Factory::Instance().FF_Tilemap("tilemap", "c_INSTRUCTION.txt", "t_INSTRUCTION.txt");
-		Factory::Instance()[tilemap].Get<Com_Position>().x = -5;
+		Factory::Instance()[tilemap].Get<Com_Position>().x = -3;
 		Factory::Instance()[tilemap].Get<Com_Position>().y = 2;
 		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
 		SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->_tilemap = tilemap;

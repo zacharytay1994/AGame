@@ -1051,6 +1051,7 @@ struct Sys_Boundingbox : public System {
 	------------------------------------------*/
 	void calculateAABB(Com_BoundingBox& boundingbox, Com_Position& position, Com_Sprite& sprite)
 	{
+		UNREFERENCED_PARAMETER(sprite);
 		//calculate min max
 		//boundingbox.maxx = 0.5f * sprite._x_scale + position.x;
 		//boundingbox.minx = -0.5f * sprite._x_scale + position.x;
