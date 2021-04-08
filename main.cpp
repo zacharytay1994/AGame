@@ -5,6 +5,7 @@
 #include "AGame/zSystem.h"
 #include "AGame/Scene.h"
 #include "AGame/CSHeaderDef.h"
+#include "AGame/Inventory.h"
 
 #include <iostream>
 #include <string>
@@ -118,5 +119,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	ResourceManager::Instance().FreeMusic();
 	SceneManager::Instance().Free();
 	SceneManager::Instance().Unload();
+	//Inventory::Inventory_Free();
 	// free chunk data resources
 }

@@ -182,6 +182,9 @@ void SceneManager::Initialize() {
 
 void SceneManager::Free()
 {
+	if (_current_scene) {
+		_current_scene->Exit();
+	}
 	ResourceManager::Instance().ResetRenderQueue();
 	ResourceManager::Instance().ResetTextStack();
 	ResourceManager::Instance().FreeResources();
@@ -314,6 +317,9 @@ void SceneManager::Draw(const float& dt)
 
 void SceneManager::Unload()
 {
+	if (_current_scene) {
+		_current_scene->Unload();
+	}
 	ArchetypeDatabase::Instance().FlushEntities();
 	ResourceManager::Instance().ResetRenderQueue();
 }

@@ -555,7 +555,7 @@ struct Sys_EnemyStateOne : public System {
 				if (ct.type == ct.enemyrange) 
 				{
 					Factory::SpriteData Enemydata{ "EnemyBall.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };
-
+					// FLAG1
 					// to create balls base on direction
 					if (direct.currdir == direct.right) 
 					{

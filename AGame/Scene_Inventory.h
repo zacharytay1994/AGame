@@ -1,6 +1,7 @@
 #pragma once
 #include "SceneDeclarations.h"
 
+
 struct InventoryMenu : public Scene {
 	eid i{ -1 };
 	eid main{ -1 };
@@ -16,6 +17,7 @@ struct InventoryMenu : public Scene {
 	Factory::SpriteData data6{ "transparent" };
 	Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
 	Factory::SpriteData button{ "buttonsprite.png", 1.0f, 1.0f, 3, 3, 8, 0.1f, 0, passin };
+	Factory::SpriteData button_dark{ "buttonsprite_dark.png", 1.0f, 1.0f, 3, 3, 8, 0.1f, 0, passin };
 	Factory::SpriteData buttonbg{ "buttonsbg.png", 1.0f, 1.0f, 1, 1, 1, 1.0f, 0 };
 	Factory::SpriteData title{ "title.png", 1.0f, 1.0f, 2, 2, 4, 0.2f, 0 };
 	Sys_PathFinding _pathfinding;
@@ -26,6 +28,12 @@ struct InventoryMenu : public Scene {
 	float original_dim_y = 0.3f;
 	//Sys_PathFinding _pathfinding;
 	eid current_weapon{ -1 };
+	eid pistol_weapon{ -1 };
+	eid trickpistol_weapon{ -1 };
+	eid dualpistol_weapon{ -1 };
+	eid dualdiagpistol_weapon{ -1 };
+	eid dagger_weapon{ -1 };
+	std::string current_coins{};
 
 	bool _gui_change_scene{ false };
 	void Initialize() override {
@@ -36,9 +44,11 @@ struct InventoryMenu : public Scene {
 		//Factory::Instance().FF_CreateGUIChildSurfaceText(main, { "transparent" }, 0.5f, 0.2f, 0.04f, 0.04f, "Inventory", "courier");
 		_title = Factory::Instance().FF_CreateGUISurface(title, 0.5f, 0.2f, original_dim_x, original_dim_y, 140);
 		Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.35f, 0.5f, 0.8f, 0.4f, "Inventory", "courier");
-		std::stringstream current_coins;
-		current_coins << "[Your Coins: " << _playerInv.coins << ']';
-		Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.65f, 0.5f, 0.8f, 0.4f, current_coins.str().c_str(), "courier");
+		current_coins = "[Coins: ";
+		current_coins += std::to_string(_playerInv.coins);
+		current_coins += "]";
+		
+		Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.65f, 0.5f, 0.8f, 0.4f, current_coins.c_str(), "courier");
 		std::string current_weapon_text = _playerInv.Inventory_GetCurrentWeapon().GetWeapon_Name();
 		current_weapon = Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.5f, 0.6f, 0.8f, 0.4f, current_weapon_text, "courier");
 		
@@ -46,16 +56,16 @@ struct InventoryMenu : public Scene {
 		eid start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.5f, 0.35f, 0.4f, 0.2f, ChangeTestScenePF, "Start", "courier");
 		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
 
-		start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.30f, 0.5f, 0.5f, 0.2f, EquipPistol, "Pistol", "courier");
-		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
-		start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.70f, 0.5f, 0.5f, 0.2f, EquipTrickPistol, "Trick Pistol", "courier");
-		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
-		start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.30f, 0.65f, 0.5f, 0.2f, EquipDualPistol, "Dual Pistol", "courier");
-		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
-		start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.70f, 0.65f, 0.5f, 0.2f, EquipDualDiagPistol, "DD Pistol", "courier");
-		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
-		start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.30f, 0.8f, 0.5f, 0.2f, EquipDagger, "Dagger", "courier");
-		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
+		pistol_weapon = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.30f, 0.5f, 0.5f, 0.2f, EquipPistol, "Pistol", "courier");
+		Factory::Instance()[pistol_weapon].AddComponent<Com_GUISurfaceHoverShadow>();
+		trickpistol_weapon = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.70f, 0.5f, 0.5f, 0.2f, EquipTrickPistol, "Trick Pistol", "courier");
+		Factory::Instance()[trickpistol_weapon].AddComponent<Com_GUISurfaceHoverShadow>();
+		dualpistol_weapon = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.30f, 0.65f, 0.5f, 0.2f, EquipDualPistol, "Dual Pistol", "courier");
+		Factory::Instance()[dualpistol_weapon].AddComponent<Com_GUISurfaceHoverShadow>();
+		dualdiagpistol_weapon = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.70f, 0.65f, 0.5f, 0.2f, EquipDualDiagPistol, "DD Pistol", "courier");
+		Factory::Instance()[dualdiagpistol_weapon].AddComponent<Com_GUISurfaceHoverShadow>();
+		dagger_weapon = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.30f, 0.8f, 0.5f, 0.2f, EquipDagger, "Dagger", "courier");
+		Factory::Instance()[dagger_weapon].AddComponent<Com_GUISurfaceHoverShadow>();
 
 		// initialize gui settings
 		GUISettingsInitialize();
@@ -68,5 +78,9 @@ struct InventoryMenu : public Scene {
 		offset_y = sin(offset_rad);
 		Factory::Instance()[_buttons_surface].Get<Com_GUISurface>()._position.y = original_y + offset_y * 0.03f;
 		Factory::Instance()[_title].Get<Com_GUISurface>()._dimensions = { original_dim_x + (offset_y + 1.0f) * 0.03f, original_dim_y + (offset_y + 1.0f) * 0.03f };
+	}
+	void Exit() 
+	{
+		std::cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 	}
 };

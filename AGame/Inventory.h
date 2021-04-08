@@ -2,11 +2,9 @@
 #include "Weapon.h"
 #include <map>
 #include <string>
-
-#if defined(DEBUG) | defined(_DEBUG)
 #include <iostream>
 #include <iomanip>
-#endif
+#include <cstdio>
 
 class Inventory
 {

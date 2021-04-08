@@ -1,6 +1,6 @@
 #include "Inventory.h"
 
-Inventory::Inventory() : equipped_weapon{ nullptr }, coins{ 100 }
+Inventory::Inventory() : equipped_weapon{ nullptr }
 {
 	inventory_weapon.insert(std::make_pair("NoWeapon", new NoWeapon()));
 	inventory_weapon.insert(std::make_pair("Pistol", new Pistol()));
@@ -10,6 +10,7 @@ Inventory::Inventory() : equipped_weapon{ nullptr }, coins{ 100 }
 	inventory_weapon.insert(std::make_pair("Dagger", new Dagger()));
 
 	Inventory_EquipWeapon("NoWeapon");
+	coins = 100; // cannot be more than 1000000, will cause memory leaks0
 }
 
 Inventory::~Inventory()

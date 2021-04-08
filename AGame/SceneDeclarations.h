@@ -83,6 +83,8 @@ void OpenSurvey(Com_GUISurface* surface) {
 	#elif __linux__ 
 		system("xdg-open https://forms.gle/KPbjkFks2SYmj9af8");
 	#endif
+		_playerInv.coins += 300;
+		if (_playerInv.coins >= 1000000) _playerInv.coins = 999999;
 }
 
 void ChangeLevelEditor(Com_GUISurface* surface) {
