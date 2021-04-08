@@ -650,19 +650,26 @@ struct Sys_EnemyStateOne : public System {
 struct Sys_EnemyStateBoss : public System {
 	eid player{ -1 };
 	eid _tilemap{ -1 };
-	bool stopshot = false, phrase1 = false, phrase2 = false;
+	int Pattern = 0;
+	bool stopshot = false;
+	Com_Boss* boss{ nullptr };
 	void UpdateComponent() override {
 		Com_TilePosition& posBoss = get<Com_TilePosition>();
-		Com_Boss& boss = get<Com_Boss>();
+		//Com_Boss& boss = get<Com_Boss>();
 		Factory::SpriteData ProjEnemy{ "EnemyBall.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };
-		static int Pattern = 0;
 		static float time = 0;
 		time += _dt;
 		static int count = 0;
-		if (time > 1.0f) 
+		if (time > 1.5f) 
 		{
 			count++;
 			time = 0;
+		}
+
+		if (boss->BossHealth <= 10) 
+		{
+			//std::cout << "Changing pattern" << std::endl;
+			Pattern = 1;
 		}
 
 		switch (Pattern) 
@@ -671,7 +678,7 @@ struct Sys_EnemyStateBoss : public System {
 			{
 				if (stopshot == true && count > 4)
 				{
-					std::cout << count << std::endl;
+					//std::cout << count << std::endl;
 					stopshot = false;
 					count = 0;
 				}
@@ -691,17 +698,22 @@ struct Sys_EnemyStateBoss : public System {
 
 			case 1:
 			{
-				if (stopshot == true && count > 3)
+				if (stopshot == true && count > 10)
 				{
-					std::cout << count << std::endl;
+					//std::cout << count << std::endl;
 					stopshot = false;
 					count = 0;
 				}
 
 				else if (stopshot == false)
 				{
-					std::cout << "Pattern 1" << std::endl;
-					stopshot = true;
+					Pattern2(ProjEnemy, posBoss);
+
+					if (count > 5)
+					{
+						stopshot = true;
+						count = 0;
+					}
 				}
 			}
 			break;
@@ -717,7 +729,7 @@ struct Sys_EnemyStateBoss : public System {
 
 				else if (stopshot == false)
 				{
-					std::cout << "Pattern 2" << std::endl;
+					std::cout << "Pattern 3" << std::endl;
 					stopshot = true;
 				}
 			}
@@ -738,6 +750,67 @@ struct Sys_EnemyStateBoss : public System {
 				eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y, 1, 0, _tilemap);
 				Factory::Instance()[j].AddComponent<Com_YLayering>();
 			}
+	}
+	void Pattern2(const Factory::SpriteData& data, Com_TilePosition& pos)
+	{
+
+		static int bulletcount = 0;
+		static bool turn = true;
+		if (turn == true) 
+		{
+			std::cout << "Heloo" << std::endl;
+				if (pos._grid_x > Factory::Instance()[player].Get<Com_TilePosition>()._grid_x &&
+					(pos._grid_x > 0 || pos._grid_x < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width))
+				{
+
+					eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x - 1, 0, -1, 0, _tilemap);
+					eid h = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x - 1, 1, -1, 0, _tilemap);
+					Factory::Instance()[j].AddComponent<Com_YLayering>();
+					Factory::Instance()[h].AddComponent<Com_YLayering>();
+				}
+
+				else if (pos._grid_x < Factory::Instance()[player].Get<Com_TilePosition>()._grid_x &&
+					(pos._grid_x > 0 || pos._grid_x < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width))
+				{
+					
+					eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x + 1, 0, 1, 0, _tilemap);
+					eid h = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x + 1, 1, 1, 0, _tilemap);
+					Factory::Instance()[j].AddComponent<Com_YLayering>();
+					Factory::Instance()[h].AddComponent<Com_YLayering>();
+				}
+				bulletcount++;
+		}
+		else 
+		{
+			std::cout << "Its me" << std::endl;
+			if (pos._grid_x > Factory::Instance()[player].Get<Com_TilePosition>()._grid_x &&
+				(pos._grid_x > 0 || pos._grid_x < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width))
+			{
+				eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x - 1, Factory::Instance()[_tilemap].Get<Com_Tilemap>()._height - 2, -1, 0, _tilemap);
+				eid h = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x - 1, Factory::Instance()[_tilemap].Get<Com_Tilemap>()._height - 1, -1, 0, _tilemap);
+				Factory::Instance()[j].AddComponent<Com_YLayering>();
+				Factory::Instance()[h].AddComponent<Com_YLayering>();
+			}
+			else if (pos._grid_x < Factory::Instance()[player].Get<Com_TilePosition>()._grid_x &&
+				(pos._grid_x > 0 || pos._grid_x < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width))
+			{
+
+				eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x + 1, Factory::Instance()[_tilemap].Get<Com_Tilemap>()._height - 2, 1, 0, _tilemap);
+				eid h = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x + 1, Factory::Instance()[_tilemap].Get<Com_Tilemap>()._height - 1, 1, 0, _tilemap);
+				Factory::Instance()[j].AddComponent<Com_YLayering>();
+				Factory::Instance()[h].AddComponent<Com_YLayering>();
+			}
+			bulletcount++;
+		}
+		if (bulletcount == 3) 
+		{
+			turn = false;
+		}
+		else if(bulletcount == 6)
+		{
+			turn = true;
+			bulletcount = 0;
+		}
 	}
 
 };
