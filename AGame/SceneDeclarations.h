@@ -246,7 +246,11 @@ struct TestScenePF : public Scene
 	eid waves{ -1 };
 	eid spawner{ -1 };
 	eid menu{ -1 };
+	eid wall{ -1 };
+	eid bomb{ -1 };
 	Inventory playerInv;
+	Factory::SpriteData box{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
+	Factory::SpriteData boom{ "kaboom", 40.0f, 40.0f, 1, 1, 1, 0.15f };
 	Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
 	Factory::SpriteData man{ "hero.png", 100.0f, 160.0f, 3, 3, 8, 0.1f, 0, passin };
 	Factory::SpriteData data{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.15f };
@@ -271,6 +275,8 @@ struct TestScenePF : public Scene
 		std::cout << test << " this is a test scene" << std::endl;
 		std::cout << sizeof(Com_Tilemap) << std::endl;
 
+
+		//init tilemap 
 		tilemap = Factory::Instance().FF_Tilemap("tilemap", ResourceManager::Instance()._tilemap_names[ResourceManager::Instance()._tilemap_id]._binary + ".txt",
 															ResourceManager::Instance()._tilemap_names[ResourceManager::Instance()._tilemap_id]._map + ".txt");
 		Factory::Instance()[tilemap].Get<Com_Position>().x = -5;
@@ -278,6 +284,8 @@ struct TestScenePF : public Scene
 		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
 		SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->_tilemap = tilemap;
 		SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_tilemap = tilemap;
+
+
 
 		spawner = Factory::Instance().FF_CreateSpawner();
 
@@ -288,20 +296,91 @@ struct TestScenePF : public Scene
 		SystemDatabase::Instance().GetSystem<Sys_TilePosition>()->_grid = &pf2._grid;
 		SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_grid = &pf2._grid;
 		SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->_grid = &pf2._grid;
-		SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->_grid = &pf2._grid;
-		SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->_spawner = &Factory::Instance()[spawner].Get<Com_EnemySpawn>();
+		SystemDatabase::Instance().GetSystem<Sys_AABB>()->_grid = &pf2._grid;
+		SystemDatabase::Instance().GetSystem<Sys_ArrowKeysTilemap>()->_grid = &pf2._grid;
+		SystemDatabase::Instance().GetSystem<Sys_AABB>()->_spawner = &Factory::Instance()[spawner].Get<Com_EnemySpawn>();
 
+		//testting for level editor 
+		for (int y = 0; y < com_tilemap._height; ++y) {
+			for (int x = 0; x < com_tilemap._width; ++x) {
+				//if it's a player spawn location 
+				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 2) {
+					player = Factory::Instance().FF_SpriteTile(man, tilemap, x, y);
+					Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne, Com_TileMoveSpriteState, Com_type>();
+					Factory::Instance()[player].Get<Com_TilePosition>()._is_player = true;
+					Factory::Instance()[player].Get<Com_type>().type = 0; // set player type
+					//SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->player_id = player;
+					SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->tile = tilemap;
+					SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
+					SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
 
-		player = Factory::Instance().FF_SpriteTile(man, tilemap, 0, 0);
-		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne, Com_TileMoveSpriteState, Com_type, Com_GridColData>();
-		Factory::Instance()[player].Get<Com_TilePosition>()._is_player = true;
-		Factory::Instance()[player].Get<Com_type>().type = 0; // set player type
-		SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->player_id = player;
-		SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->tile = tilemap;
-		SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
-		SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
+					SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
 
-		SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
+				}
+				//if it's a enemy spawn location 
+				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 3) {
+					//enemytest = Factory::Instance().FF_SpriteTile(data, tilemap, x, y);
+					////Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_type, Com_GridColData,Com_EnemySpawn,Com_Wave>();
+					////Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
+					////Factory::Instance()[enemytest].Get<Com_EnemyStateOne>().playerHealth = &Factory::Instance()[player].Get<Com_Health>();
+					//////passing
+					////SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
+					////++Factory::Instance()[enemytest].Get<Com_EnemySpawn>().CurrNoOfEnemies;
+					////Entity& e = Factory::Instance()[enemytest];
+					////e.Get<Com_type>().type = 1;
+					//Factory::Instance().FF_CreateSpawner();
+					//SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
+					////++Factory::Instance()[enemytest].Get<Com_EnemySpawn>().CurrNoOfEnemies;
+					////Entity& e = Factory::Instance()[enemytest];
+					////e.Get<Com_type>().type = 1;
+				}
+				//if its' a destructible wall 
+				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 4) {
+					wall = Factory::Instance().FF_SpriteTile(box, tilemap, x, y);
+					Factory::Instance()[wall].AddComponent<Com_YLayering,Com_Health,Com_type, Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_ParticleEmitter>();
+					SystemDatabase::Instance().GetSystem<Sys_Obstacle>()->_grid = &pf2._grid;
+					Entity& e = Factory::Instance()[wall];
+					e.Get<Com_Health>().health = 3;
+					e.Get<Com_type>().type = 3;
+
+					//mis = Factory::Instance().FF_SpriteTile(boom, tilemap, x, y);
+					//Factory::Instance()[mis].AddComponent<Com_YLayering, Com_type, Com_GridColData>();
+					//Entity& e = Factory::Instance()[mis];
+					//e.Get<Com_type>().type = 1;
+					continue;
+				}
+				//if it's a explosive barrel 
+				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 5) {
+					bomb = Factory::Instance().FF_SpriteTile(boom, tilemap, x, y);
+					Factory::Instance()[bomb].AddComponent<Com_YLayering, Com_type, Com_Health, Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_ParticleEmitter, Com_GameTimer>();
+					SystemDatabase::Instance().GetSystem<Sys_Obstacle>()->_grid = &pf2._grid; 
+					Entity& e = Factory::Instance()[bomb];
+					e.Get<Com_Health>().health = 1;
+					e.Get<Com_type>().type = 4;
+					continue;
+				}
+			}
+		}
+
+		// player = Factory::Instance().FF_SpriteTile(man, tilemap, 0, 0);
+		// Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne, Com_TileMoveSpriteState, Com_type>();
+		// Factory::Instance()[player].Get<Com_TilePosition>()._is_player = true;
+		// Factory::Instance()[player].Get<Com_type>().type = 0; // set player type
+		// //SystemDatabase::Instance().GetSystem<Sys_AABB>()->_PLayerHealth = &Factory::Instance()[player].Get<Com_Health>();
+		// SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->tile = tilemap;
+		// SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
+		// SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
+
+		//player = Factory::Instance().FF_SpriteTile(man, tilemap, 0, 0);
+		//Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne, Com_TileMoveSpriteState, Com_type>();
+		//Factory::Instance()[player].Get<Com_TilePosition>()._is_player = true;
+		//Factory::Instance()[player].Get<Com_type>().type = 0; // set player type
+		//SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->player_id = player;
+		//SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->tile = tilemap;
+		//SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
+		//SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
+
+		//SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
 
 
 
@@ -330,6 +409,8 @@ struct TestScenePF : public Scene
 		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
 		Factory::Instance()[menu].Get<Com_GUISurface>()._active = false;
 
+
+
 		//Factory::Instance().FF_CreateGUISurface(clock, 0.5f, 0.05f, 0.1f, 0.1f, 100);
 
 		GUISettingsInitialize();
@@ -342,6 +423,19 @@ struct TestScenePF : public Scene
 	________________________________*/
 	void Update(const float& dt) override {
 		UNREFERENCED_PARAMETER(dt);
+
+
+
+
+		//s32 cursorpox;
+		//s32 cursorposy;
+		//AEInputGetCursorPosition(&cursorpox, &cursorposy);
+		////of set cursor 
+		//cursorpox -= AEGetWindowWidth() / 2;
+		//cursorposy -= AEGetWindowHeight() / 2;
+		//cursorposy = -cursorposy;
+		//std::cout << cursorpox << std::endl;
+
 		//Entity& testing = Factory::Instance()[tilemap];
 		//if (AEInputCheckTriggered('E')) {
 		//}
@@ -356,33 +450,33 @@ struct TestScenePF : public Scene
 			ResourceManager::Instance()._screen_shake = 1.0f;
 		}
 
-		if (AEInputCheckTriggered(AEVK_H)) {
+		/*if (AEInputCheckTriggered(AEVK_1)) {
 			playerInv.Inventory_SetWeaponUnlocked("Pistol");
 			playerInv.Inventory_EquipWeapon("Pistol");
 			std::cout << "EQUIPPED PISTOL" << std::endl;
 		}
 
-		if (AEInputCheckTriggered(AEVK_F)) {
+		if (AEInputCheckTriggered(AEVK_2)) {
 			playerInv.Inventory_SetWeaponUnlocked("TrickPistol");
 			playerInv.Inventory_EquipWeapon("TrickPistol");
 			std::cout << "EQUIPPED TRICKPISTOL" << std::endl;
 		}
 
-		if (AEInputCheckTriggered(AEVK_S)) {
+		if (AEInputCheckTriggered(AEVK_3)) {
 			playerInv.Inventory_SetWeaponUnlocked("DualPistol");
 			playerInv.Inventory_EquipWeapon("DualPistol");
 			std::cout << "EQUIPPED DUALPISTOL" << std::endl;
 		}
 
-		if (AEInputCheckTriggered(AEVK_A)) {
+		if (AEInputCheckTriggered(AEVK_4)) {
 			playerInv.Inventory_SetWeaponUnlocked("DualDiagPistol");
 			playerInv.Inventory_EquipWeapon("DualDiagPistol");
 			std::cout << "EQUIPPED DUALDIAGPISTOL" << std::endl;
 		}
 
-		if (AEInputCheckTriggered(AEVK_D)) {
+		if (AEInputCheckTriggered(AEVK_SPACE)) {
 			playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
-		}
+		}*/
 //#endif
 		if (AEInputCheckTriggered('R')) {
 			SceneManager::Instance().RestartScene();
@@ -421,25 +515,25 @@ struct TestScenePF : public Scene
 			std::cout << "EQUIPPED DAGGER" << std::endl;
 		}*/
 
-		if (AEInputCheckTriggered(AEVK_D)) {
+		if (AEInputCheckTriggered(AEVK_SPACE)) {
 			//_playerInv.Inventory_SetWeaponUnlocked("Pistol");
 			//_playerInv.Inventory_EquipWeapon("Pistol");
 			//std::cout << "EQUIPPED PISTOL" << std::endl;
 			_playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
 		}
-		if (AEInputCheckCurr(AEVK_LEFT)) {
+		if (AEInputCheckCurr(AEVK_LEFT) || AEInputCheckCurr(AEVK_A)) {
 			arrow_sprite->_visible = true;
 			arrow_sprite->_current_frame_segment = 0;
 		}
-		else if (AEInputCheckCurr(AEVK_UP)) {
+		else if (AEInputCheckCurr(AEVK_UP) || AEInputCheckCurr(AEVK_W)) {
 			arrow_sprite->_visible = true;
 			arrow_sprite->_current_frame_segment = 1;
 		}
-		else if (AEInputCheckCurr(AEVK_RIGHT)) {
+		else if (AEInputCheckCurr(AEVK_RIGHT) || AEInputCheckCurr(AEVK_D)) {
 			arrow_sprite->_visible = true;
 			arrow_sprite->_current_frame_segment = 2;
 		}
-		else if (AEInputCheckCurr(AEVK_DOWN)) {
+		else if (AEInputCheckCurr(AEVK_DOWN) || AEInputCheckCurr(AEVK_S)) {
 			arrow_sprite->_visible = true;
 			arrow_sprite->_current_frame_segment = 3;
 		}
