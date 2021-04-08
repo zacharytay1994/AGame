@@ -432,7 +432,7 @@ void ResourceManager::UpdateAndPlayMusic()
 		if (!playing)
 		{
 			result = sound_system->playSound(sound1, 0, false, &channel);
-			std::cout << "sound pressed";
+			//std::cout << "sound pressed";
 			//ERRCHECK(result);
 		}
 

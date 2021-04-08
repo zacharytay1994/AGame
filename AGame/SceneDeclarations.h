@@ -284,7 +284,7 @@ struct TestScenePF : public Scene
 		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
 		SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->_tilemap = tilemap;
 		SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_tilemap = tilemap;
-
+		SystemDatabase::Instance().GetSystem<Sys_EnemyStateBoss>()->_tilemap = tilemap;
 
 
 		spawner = Factory::Instance().FF_CreateSpawner();
@@ -313,6 +313,7 @@ struct TestScenePF : public Scene
 					SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->tile = tilemap;
 					SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
 					SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
+					SystemDatabase::Instance().GetSystem<Sys_EnemyStateBoss>()->player = player;
 
 					SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
 
@@ -412,6 +413,7 @@ struct TestScenePF : public Scene
 		Factory::Instance()[menu].Get<Com_GUISurface>()._active = false;
 		Factory::Instance()[_WinOrLose].Get<Com_GUISurface>()._active = false;
 
+		
 
 
 		//Factory::Instance().FF_CreateGUISurface(clock, 0.5f, 0.05f, 0.1f, 0.1f, 100);
@@ -547,6 +549,7 @@ struct TestScenePF : public Scene
 
 		Com_Wave& com_wave = Factory::Instance()[spawner].Get<Com_Wave>();
 		Com_EnemySpawn& em = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
+		Com_Boss& bs = Factory::Instance()[spawner].Get<Com_Boss>();
 
 		if (Factory::Instance()[player].Get<Com_Health>().health <= 0)
 		{
@@ -558,7 +561,7 @@ struct TestScenePF : public Scene
 		}
 
 		//Com_EnemySpawn& com_spawner = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
-		if (Factory::Instance()[player].Get<Com_Health>().health <= 0 || (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <=0)) {
+		if (Factory::Instance()[player].Get<Com_Health>().health <= 0 || (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <=0 && bs.bossdefeat == true)) {
 			Factory::Instance()[menu].Get<Com_GUISurface>()._active = true;
 			Factory::Instance()[_WinOrLose].Get<Com_GUISurface>()._active = true;
 		}
