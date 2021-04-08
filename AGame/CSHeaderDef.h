@@ -2568,12 +2568,14 @@ struct Sys_InstructionsGUI : public System {
 
 struct Com_TextMovingGUI {
 	bool active = true;
+	bool lastmessage = false;
 };
 
 struct Sys_TextMovingGUI : public System {
 	//const float scrollingspeed = 0.0009f;
 	const float scrollingspeed = 0.002f;
 	const float buffer = -0.03f;
+	bool* last;
 	void UpdateComponent() override {
 		Com_TextMovingGUI& textmoving = get<Com_TextMovingGUI>();
 		Com_GUISurface& surface = get<Com_GUISurface>();
@@ -2583,6 +2585,9 @@ struct Sys_TextMovingGUI : public System {
 		}
 		//if out of bounds 
 		if (surface._position.y < buffer) {
+			if (textmoving.lastmessage == true) {
+				*last = true;
+			}
 			RemoveEntity();
 		}
 	}

@@ -30,26 +30,18 @@ struct Scene_Credits : public Scene {
 	Factory::SpriteData button{ "buttonsprite.png", 1.0f, 1.0f, 3, 3, 8, 0.1f, 0, passin };
 	Vec2i passin4[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
 	Factory::SpriteData buttonload{ "background2.png", 2.0f, 1.0f, 2, 1, 2, 0.05f, 0, passin4 };
-	//Sys_Pathfinding_v2 _pathfinding;
-
-	//test
-	bool inputting{ false };
-	std::vector<char> result;
-	std::string input;
-	std::string mapdata;
-	std::string bcdata;
-	eid tilemap = -1;
-	eid mapname = -1;
-	eid col = -1;
-	eid row = -1;
+	bool last = false;
+	
 
 	bool _gui_change_scene{ false };
 	void Initialize() override {
+		//reset 
+		last = false;
 		std::cout << "SYSTEM MESSAGE: You're now entering the level editor." << std::endl;
 		// main background
 		main = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.5f, 0.5f, 1.0f, 1.0f, 100);																	// surface
 		//eid buttons = Factory::Instance().FF_CreateGUIChildSurface(main, { "background1" }, 0.5f, 0.4f, 0.3f, 0.4f);												// non clickable child surface
-
+		SystemDatabase::Instance().GetSystem<Sys_TextMovingGUI>()->last = &last;
 		//text 
 		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "gamelogo" }, 0.5f, 0.25f, 0.4f, 0.4f, "", "courier");
 		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "teamlogo" }, 0.5f, 0.4f, 0.3f, 0.3f, "", "courier");
@@ -66,12 +58,17 @@ struct Scene_Credits : public Scene {
 		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "executives2" }, 0.5f, 2.12f, 0.48f, 0.48f, "", "courier");
 		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "executives3" }, 0.5f, 2.17f, 0.48f, 0.48f, "", "courier");
 		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "ending" }, 0.5f, 2.5f, 0.3f, 0.3f, "", "courier");
-		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "endingfmod" }, 0.5f, 2.6f, 0.3f, 0.3f, "", "courier");
+		eid last = Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "endingfmod" }, 0.5f, 2.6f, 0.3f, 0.3f, "", "courier");
+		Factory::Instance()[last].Get<Com_TextMovingGUI>().lastmessage = true;
 		// initialize gui settings
 		GUISettingsInitialize();
 	}
 	void Update(const float& dt) override {
 		UNREFERENCED_PARAMETER(dt);
 		GUISettingsUpdate();
+
+		if (last == true || AEInputCheckTriggered(AEVK_SPACE)) {
+			SceneManager::Instance().ChangeScene("Main Menu");
+		}
 	}
 };
