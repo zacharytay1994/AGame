@@ -90,6 +90,12 @@ void Credits(Com_GUISurface* surface) {
 	SceneManager::Instance().ChangeScene("Credits");
 }
 
+void Instructions(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	SceneManager::Instance().ChangeScene("Instructions");
+}
+
+
 void ChangeLevelEditor(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	SceneManager::Instance().ChangeScene("Leveleditor");
