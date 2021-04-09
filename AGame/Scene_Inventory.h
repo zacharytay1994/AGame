@@ -122,7 +122,6 @@ struct InventoryMenu : public Scene {
 
 		Factory::Instance()[coins_text].Get<Com_Text>()._data._text = current_coins.c_str();
 
-
 		offset_rad = offset_rad + dt > 2.0f * PI ? 0.0f : offset_rad + dt;
 		offset_y = sin(offset_rad);
 		Factory::Instance()[_buttons_surface].Get<Com_GUISurface>()._position.y = original_y + offset_y * 0.03f;

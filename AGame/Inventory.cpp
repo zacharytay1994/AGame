@@ -9,7 +9,7 @@ Inventory::Inventory() : equipped_weapon{ nullptr }
 	inventory_weapon.insert(std::make_pair("DualDiagPistol", new DualDiagPistol()));
 	inventory_weapon.insert(std::make_pair("Dagger", new Dagger()));
 
-	Inventory_EquipWeapon("NoWeapon");
+	Inventory_EquipWeapon("Dagger");
 	coins = 100; // cannot be more than 1000000, will cause memory leaks0
 }
 
@@ -40,20 +40,21 @@ const Weapon& Inventory::Inventory_GetCurrentWeapon() const
 
 bool Inventory::Inventory_SetWeaponUnlocked(std::string const& name)
 {
-	if (coins < 50)
-	{
-		return false;
-	}
-	else
-	{
-		Inventory_AddCoins(-50);
-	}
-
 	std::map<std::string, Weapon*>::iterator it = inventory_weapon.find(name);
 	if (it != inventory_weapon.end())
 	{
-		it->second->Weapon_Unlock();
-		return true;
+		if (it->second->GetWeapon_Unlocked())
+		{
+			return true;
+		}
+
+		unsigned int weapon_cost = it->second->GetWeapon_Cost();
+		if (coins >= weapon_cost)
+		{
+			Inventory_AddCoins(-static_cast<int>(weapon_cost));
+			it->second->Weapon_Unlock();
+			return true;
+		}
 	}
 	return false;
 }

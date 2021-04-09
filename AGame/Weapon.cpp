@@ -9,7 +9,7 @@ Weapon::Weapon()
 	weapon_curr_ReloadTimer(0),
 	weapon_curr_Capacity(0),
 	weapon_unlocked(false),
-	weapon_Cost(0)
+	weapon_Cost(50)
 {
 
 }
@@ -22,7 +22,7 @@ Weapon::Weapon(Weapon const& rhs)
 	weapon_curr_ReloadTimer(0),
 	weapon_curr_Capacity(rhs.weapon_curr_Capacity),
 	weapon_unlocked(false),
-	weapon_Cost(0)
+	weapon_Cost(50)
 {
 	for (unsigned int i = 0; i < rhs.weapon_Pattern.size(); i++)
 	{
@@ -122,6 +122,11 @@ const bool Weapon::GetWeapon_Unlocked() const
 	return weapon_unlocked;
 }
 
+const unsigned int Weapon::GetWeapon_Cost() const
+{
+	return weapon_Cost;
+}
+
 const std::vector<BulletSpawn>& Weapon::GetWeapon_Pattern() const
 {
 	return weapon_Pattern;
@@ -176,6 +181,11 @@ void Weapon::SetWeapon_Pattern(std::vector<BulletSpawn> const& rhs)
 	}
 }
 
+void Weapon::SetWeapon_Cost(unsigned int new_Cost)
+{
+	weapon_Cost = new_Cost;
+}
+
 NoWeapon::NoWeapon() : Weapon(0)
 {
 	SetWeapon_Name("NoWeapon");
@@ -192,6 +202,7 @@ Pistol::Pistol() : Weapon(1)
 	std::vector<BulletSpawn> temp_Pattern;
 	temp_Pattern.push_back({ 1, 0 });
 	SetWeapon_Pattern(temp_Pattern);
+	SetWeapon_Cost(50);
 }
 
 TrickPistol::TrickPistol() : Weapon(2)
@@ -205,6 +216,7 @@ TrickPistol::TrickPistol() : Weapon(2)
 	temp_Pattern.push_back({ 1, 0 });
 	temp_Pattern.push_back({ -1, 0 });
 	SetWeapon_Pattern(temp_Pattern);
+	SetWeapon_Cost(50);
 }
 
 void TrickPistol::Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap) const
@@ -246,6 +258,7 @@ DualPistol::DualPistol() : Weapon(3)
 	temp_Pattern.push_back({ 1, 1 });
 	temp_Pattern.push_back({ 1, -1 });
 	SetWeapon_Pattern(temp_Pattern);
+	SetWeapon_Cost(50);
 }
 
 DualDiagPistol::DualDiagPistol() : Weapon(4)
@@ -259,6 +272,7 @@ DualDiagPistol::DualDiagPistol() : Weapon(4)
 	temp_Pattern.push_back({ 1, 1 });
 	temp_Pattern.push_back({ 1, -1 });
 	SetWeapon_Pattern(temp_Pattern);
+	SetWeapon_Cost(50);
 }
 
 void DualDiagPistol::Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap) const
@@ -301,6 +315,7 @@ Dagger::Dagger()
 	temp_Pattern.push_back({ 1, 0 });
 	temp_Pattern.push_back({ 1, -1 });
 	SetWeapon_Pattern(temp_Pattern);
+	Weapon_Unlock();
 }
 
 void Dagger::Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap) const
