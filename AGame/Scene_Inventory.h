@@ -29,9 +29,13 @@ struct InventoryMenu : public Scene {
 	//Sys_PathFinding _pathfinding;
 	eid current_weapon{ -1 };
 	eid pistol_weapon{ -1 };
+	bool pistol_weapon_unlocked{ false };
 	eid trickpistol_weapon{ -1 };
+	bool trickpistol_weapon_unlocked{ false };
 	eid dualpistol_weapon{ -1 };
+	bool dualpistol_weapon_unlocked{ false };
 	eid dualdiagpistol_weapon{ -1 };
+	bool dualdiagpistol_weapon_unlocked{ false };
 	eid dagger_weapon{ -1 };
 	std::string current_coins{};
 
@@ -73,7 +77,15 @@ struct InventoryMenu : public Scene {
 	void Update(const float& dt) override {
 		UNREFERENCED_PARAMETER(dt);
 		GUISettingsUpdate();
-		Factory::Instance()[current_weapon].Get<Com_Text>()._data._text = _playerInv.Inventory_GetCurrentWeapon().GetWeapon_Name();
+
+		Factory::Instance()[current_weapon].Get<Com_Text>()._data._text = _playerInv.Inventory_GetCurrentWeapon().GetWeapon_Name();	
+
+		if (!pistol_weapon_unlocked && _playerInv.Inventory_CheckWeaponUnlocked("Pistol"))
+		{
+			pistol_weapon_unlocked = true;/*
+			Factory::Instance()[pistol_weapon].Get<Com_Sprite>()._render_pack._texture = button;*/
+		}
+
 		offset_rad = offset_rad + dt > 2.0f * PI ? 0.0f : offset_rad + dt;
 		offset_y = sin(offset_rad);
 		Factory::Instance()[_buttons_surface].Get<Com_GUISurface>()._position.y = original_y + offset_y * 0.03f;
@@ -81,6 +93,6 @@ struct InventoryMenu : public Scene {
 	}
 	void Exit() 
 	{
-		std::cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+
 	}
 };

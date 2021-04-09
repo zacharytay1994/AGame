@@ -247,7 +247,8 @@ void SceneManager::Update(const float& dt)
 		//if (AEInputCheckTriggered('H')) {
 		//	SceneManager::Instance().ChangeScene("Main Menu");
 		//}
-		SystemDatabase::Instance().SystemDatabaseUpdate((float)AEFrameRateControllerGetFrameTime());
+		float dt = _pause ? 0.0f : static_cast<float>(AEFrameRateControllerGetFrameTime());
+		SystemDatabase::Instance().SystemDatabaseUpdate(dt);
 		ResourceManager::Instance().FlushDraw();
 		ResourceManager::Instance().FlushDrawText();
 		ResourceManager::Instance().Update(dt);

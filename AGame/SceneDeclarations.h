@@ -433,7 +433,9 @@ struct TestScenePF : public Scene
 
 
 
-
+		if (AEInputCheckTriggered(AEVK_P)) {
+			SceneManager::Instance()._pause = !SceneManager::Instance()._pause;
+		}
 		//s32 cursorpox;
 		//s32 cursorposy;
 		//AEInputGetCursorPosition(&cursorpox, &cursorposy);
