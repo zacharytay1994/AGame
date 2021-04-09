@@ -1766,7 +1766,7 @@ struct Sys_ParticleEmitter : public System {
 				}
 				//create dmg all around 
 				//LoadTexture("transparent", "transparent.png");
-				Factory::SpriteData data{ "transparent.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };
+				Factory::SpriteData data{ "transparent.png", 50.0f, 100.0f, 1, 1, 1, 0.15f };
 				//Factory::SpriteData data{ "bullet.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };
 				for (size_t i{ 0 }; i < 8; ++i) {
 					switch (i)
@@ -1810,13 +1810,13 @@ struct Sys_ParticleEmitter : public System {
 		float minvel{-50.0f };
 		float maxvel{ 50.0f };
 		float minsize{ 0.0f };
-		float maxsize{ 20.0f };
+		float maxsize{ 10.0f };
 		//create random sprite data 
 		float rand_sizex = minsize + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (maxsize - ((minsize)))));
 		float rand_sizey = minsize + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (maxsize - ((minsize)))));
 		float rand_velocityx = minvel + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (maxvel - ((minvel)))));
 		float rand_velocityy = minvel + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (maxvel - ((minvel)))));
-		Factory::SpriteData data{ "bombparticles", rand_sizex, rand_sizey, 2, 3, 8, 0.15f };
+		Factory::SpriteData data{ "bombparticles", rand_sizex, rand_sizey, 1, 1, 1, 0.15f };
 		//Factory::SpriteData data = { "test3", 1,8, 8, 0.1f, rand_sizex, rand_sizey };
 		//create particle 
 		Factory::Instance().FF_CreateParticle(data, static_cast<int>(get<Com_Position>().x), static_cast<int>(get<Com_Position>().y), rand_velocityx ,rand_velocityy);
@@ -2423,7 +2423,7 @@ struct Sys_GUIMapClick : public System {
 		Com_Tilemap& tilemap = get<Com_Tilemap>();
 		Com_GUIMap& guimap = get<Com_GUIMap>();
 		AEInputGetCursorPosition(&guimap.cursorposx,&guimap.cursorposy);
-		//of set cursor 
+		//off set cursor 
 		guimap.cursorposx -= AEGetWindowWidth() / 2;
 		guimap.cursorposy -= AEGetWindowHeight() / 2;
 		guimap.cursorposy = -guimap.cursorposy;
@@ -2593,5 +2593,28 @@ struct Sys_TextMovingGUI : public System {
 			}
 			RemoveEntity();
 		}
+	}
+};
+
+struct Com_Cursor {
+	//char _filler = 0;
+	s32 cursorposx;
+	s32 cursorposy;
+};
+
+struct Sys_Cursor : public System {
+	void UpdateComponent() override {
+		Com_Position& pos = get<Com_Position>();
+		Com_Cursor& cursor = get<Com_Cursor>();
+		AEInputGetCursorPosition(&cursor.cursorposx, &cursor.cursorposy);
+		//off set cursor 
+		cursor.cursorposx -= AEGetWindowWidth() / 2;
+		cursor.cursorposy -= AEGetWindowHeight() / 2;
+		cursor.cursorposy = -cursor.cursorposy;
+
+		pos.x = cursor.cursorposx;
+		pos.y = cursor.cursorposy;
+
+		std::cout << pos.x << std::endl;
 	}
 };
