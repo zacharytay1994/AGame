@@ -119,9 +119,9 @@ struct LevelEditor2 : public Scene {
 		Factory::SpriteData button{ "background2.png", 2.0f, 1.0f, 2, 1, 2, 0.05f, 0, passin4 };
 
 
-		main = Factory::Instance().FF_CreateGUISurface({ "menubackground" }, 0.85f, 0.5f, 0.27f, 1.0f, 100);																	// surface
+		main = Factory::Instance().FF_CreateGUISurface({ "transparent" }, 0.85f, 0.5f, 0.27f, 1.0f, 100);																	// surface
 		//non collidable - unlimited 
-		eid noncol = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, button, 0.5f, 0.1f, 0.8f, 0.1f, nocolbut, "Non-Collidable", "courier");
+		eid noncol = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, button, 0.5f, 0.1f, 0.8f, 0.1f, nocolbut, "Blank Space", "courier");
 		UNREFERENCED_PARAMETER(noncol);
 		//player spawn location - limit 1 
 		eid playerspawn = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, button, 0.5f, 0.22f, 0.8f, 0.1f, playerspawnbut, "Player Spawn", "courier");
