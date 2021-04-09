@@ -2531,7 +2531,7 @@ struct Sys_GUIMapClick : public System {
 					if (Leveledittyp == 1) {
 						//Vec2i passin[5] = { {0,3},{4,7},{8,11},{0,0},{0,0} };
 						//Factory::SpriteData dog{ "dog.png", 100.0f, 160.0f, 4, 3, 12, 0.1f, 0, passin };
-						Factory::SpriteData boom{ "kaboom", 40.0f, 40.0f, 1, 1, 1, 0.15f };
+						Factory::SpriteData boom{ "blank", 40.0f, 40.0f, 1, 1, 1, 0.15f };
 						Factory::Instance().FF_SpriteTile(boom, _tilemap, spawnspritex, spawnspritey);
 						tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = 0;
 						guimap.bounding[a].tileintialised = true;
@@ -2672,8 +2672,8 @@ struct Sys_Cursor : public System {
 		cursor.cursorposy -= AEGetWindowHeight() / 2;
 		cursor.cursorposy = -cursor.cursorposy;
 
-		pos.x = cursor.cursorposx;
-		pos.y = cursor.cursorposy;
+		pos.x =(float)cursor.cursorposx;
+		pos.y = (float)cursor.cursorposy;
 
 		std::cout << pos.x << std::endl;
 	}
