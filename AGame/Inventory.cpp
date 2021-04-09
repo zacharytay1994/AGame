@@ -1,6 +1,6 @@
 #include "Inventory.h"
 
-Inventory::Inventory() : equipped_weapon{ nullptr }, coins{ 100 }
+Inventory::Inventory() : equipped_weapon{ nullptr }
 {
 	inventory_weapon.insert(std::make_pair("NoWeapon", new NoWeapon()));
 	inventory_weapon.insert(std::make_pair("Pistol", new Pistol()));
@@ -10,6 +10,7 @@ Inventory::Inventory() : equipped_weapon{ nullptr }, coins{ 100 }
 	inventory_weapon.insert(std::make_pair("Dagger", new Dagger()));
 
 	Inventory_EquipWeapon("NoWeapon");
+	coins = 100; // cannot be more than 1000000, will cause memory leaks0
 }
 
 Inventory::~Inventory()
@@ -58,10 +59,9 @@ bool Inventory::Inventory_CheckWeaponUnlocked(std::string const& name) const
 	return false;
 }
 
-//#if defined(DEBUG) | defined(_DEBUG)
 void Inventory::Inventory_PrintCurrentWeapon() const
 {
-	/*if (equipped_weapon != nullptr)
+	if (equipped_weapon != nullptr)
 	{
 		std::cout << "**** PRINT WEAPON ****" << std::endl;
 		std::cout << "* ID: "	<< std::setw(14) << std::left << equipped_weapon->GetWeapon_ID()		<< " *" << std::endl;
@@ -135,8 +135,7 @@ void Inventory::Inventory_PrintCurrentWeapon() const
 	else
 	{
 		std::cout << "**** NO WEPAON ****" << std::endl;
-	}*/
-
+	}
 }
 
 size_t Inventory::Inventory_GetSize() const

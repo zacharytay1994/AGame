@@ -42,6 +42,7 @@ public:
 	static SceneManager& Instance();
 	void ChangeScene(const std::string& name);
 	void Free();
+	bool _pause{ false };
 	void CheckGame(int& gamerunning) {
 		gamerunning = _gamerunning;
 	}

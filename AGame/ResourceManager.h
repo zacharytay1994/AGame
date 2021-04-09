@@ -24,7 +24,6 @@ struct RenderPack {
 	float				r{ 1.f };
 	float				g{ 1.f };
 	float				b{ 1.f };
-	std::vector<Com_TilePosition> highlightpos;
 };
 
 struct TextPack {
@@ -97,12 +96,14 @@ private:
 	FMOD::Sound* sound1; // BGM
 	FMOD::Sound* soundWalk;
 	FMOD::Sound* soundShoot;
+	FMOD::Sound* soundStab;
 	FMOD::Sound* soundEnemyDeath;
 	
 	// Channels required for sound
 	FMOD::Channel* channel = 0;  // BGM
 	FMOD::Channel* channelWalkingPlayer = 0;
 	FMOD::Channel* channelGunEffect = 0;
+	FMOD::Channel* channelMeleeEffect = 0;
 	FMOD::Channel* channelEnemyDeath = 0;
 	
 	FMOD_RESULT       result;
@@ -150,7 +151,8 @@ public:
 	void CreateMusic();
 	void UpdateAndPlayMusic();
 	void WalkingSound();
-	void ShootingSound();
+	void ShootingSound(float pitch = 1.f);
+	void StabbingSound();
 	void EnemyDeathSound();
 	void FreeMusic();
 

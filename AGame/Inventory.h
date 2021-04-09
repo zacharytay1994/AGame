@@ -2,11 +2,9 @@
 #include "Weapon.h"
 #include <map>
 #include <string>
-
-#if defined(DEBUG) | defined(_DEBUG)
 #include <iostream>
 #include <iomanip>
-#endif
+#include <cstdio>
 
 class Inventory
 {
@@ -20,9 +18,7 @@ class Inventory
 		bool Inventory_SetWeaponUnlocked(std::string const& name);
 		bool Inventory_CheckWeaponUnlocked(std::string const& name) const;
 
-		//#if defined(DEBUG) | defined(_DEBUG)
-			void Inventory_PrintCurrentWeapon() const;
-		//#endif
+		void Inventory_PrintCurrentWeapon() const;
 
 		int coins;
 		size_t Inventory_GetSize() const;
@@ -30,4 +26,5 @@ class Inventory
 	private:
 		std::map<std::string, Weapon*> inventory_weapon;
 		Weapon* equipped_weapon;
+		Weapon* equipped_secondary_weapon;
 };

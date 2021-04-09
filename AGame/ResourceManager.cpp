@@ -391,6 +391,7 @@ void ResourceManager::CreateMusic()
 
 	result = sound_system->createSound("../bin/Assets/Sound/WalkingPlayer1.wav", FMOD_DEFAULT, 0, &soundWalk);
 	result = sound_system->createSound("../bin/Assets/Sound/Gun.wav", FMOD_DEFAULT, 0, &soundShoot);
+	result = sound_system->createSound("../bin/Assets/Sound/Knife.wav", FMOD_DEFAULT, 0, &soundStab);
 	result = sound_system->createSound("../bin/Assets/Sound/Death.wav", FMOD_DEFAULT, 0, &soundEnemyDeath);
 	result = soundWalk->setMode(FMOD_LOOP_OFF);
 
@@ -404,9 +405,15 @@ void ResourceManager::WalkingSound()
 	result = sound_system->playSound(soundWalk, 0, false, &channelWalkingPlayer);
 }
 
-void ResourceManager::ShootingSound()
+void ResourceManager::ShootingSound(float pitch)
 {
 	result = sound_system->playSound(soundShoot, 0, false, &channelGunEffect);
+	channelGunEffect->setPitch(pitch);
+}
+
+void ResourceManager::StabbingSound()
+{
+	result = sound_system->playSound(soundStab, 0, false, &channelMeleeEffect);
 }
 
 void ResourceManager::EnemyDeathSound()
@@ -494,6 +501,23 @@ void ResourceManager::Initialize()
 	LoadTexture("settings", "settingsbutton.png");
 	LoadTexture("cross", "crossbutton.png");
 	LoadTexture("background1", "background1.png");
+	LoadTexture("gamelogo", "AGameLogo.png");
+	LoadTexture("teamlogo", "TeamLogo.png");
+	LoadTexture("zachary", "Zachary.png");
+	LoadTexture("noel", "Noel.png");
+	LoadTexture("austen", "Austen.png");
+	LoadTexture("wilfred", "Wilfred.png");
+	LoadTexture("faculty", "faculty.png");
+	LoadTexture("instructorthomas", "instructor1.png");
+	LoadTexture("instructordx", "instructor2.png");
+	LoadTexture("digipensingapore", "digipensingapore.png");
+	LoadTexture("president", "president.png");
+	LoadTexture("executives1", "executives1.png");
+	LoadTexture("executives2", "executives2.png");
+	LoadTexture("executives3", "executives3.png");
+	LoadTexture("ending", "ending.png");
+	LoadTexture("endingfmod", "endingfmod.png");
+	LoadTexture("bombparticles", "bombparticles.png");
 	// load all fonts
 	LoadFont("courier", "COURIER.TTF", 20);
 }

@@ -411,3 +411,52 @@ eid Factory::FF_BombProjectile(const SpriteData& data, const int& x, const int& 
     proj.lifetime = lifetime;
     return id;
 }
+
+eid Factory::FF_CreateGUIChildClickableSurfaceTextBoxwithinstructions(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string& text, const std::string& font)
+{
+    eid id = FF_CreateGUIChildClickableTextboxSurface(parent, data, x, y, width, height, onclick);
+    Entity& e = Factory::Instance()[id].AddComponent<Com_Text, Com_instructionsGUI>();
+    Com_Text& com_text = e.Get<Com_Text>();
+    com_text._data._text = text;
+    com_text._data._font = ResourceManager::Instance().GetFont(font);
+    com_text._data._layer = Factory::Instance()[parent].Get<Com_GUISurface>()._layer + 2;
+    return id;
+}
+ 
+eid Factory::FF_CreateGUIChildSurfaceTextMoving(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, const std::string& text, const std::string& font)
+{
+    eid id = FF_CreateGUIChildSurfaceTextMovingWithin(parent, data, x, y, width, height);
+    Entity& e = Factory::Instance()[id].AddComponent<Com_Text>();
+    Com_Text& com_text = e.Get<Com_Text>();
+    com_text._data._text = text;
+    com_text._data._font = ResourceManager::Instance().GetFont(font);
+    com_text._data._layer = Factory::Instance()[parent].Get<Com_GUISurface>()._layer + 2;
+    return id;
+}
+
+eid Factory::FF_CreateGUIChildSurfaceTextMovingWithin(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height)
+{
+    Com_GUISurface& parent_surface = Factory::Instance()[parent].Get<Com_GUISurface>();
+    eid id = FF_CreateGUISurfaceTextMoving(data, x, y, parent_surface._dimensions.x * width, parent_surface._dimensions.y * height, parent_surface._layer + 1);
+    // set parent surface
+    Factory::Instance()[id].Get<Com_GUISurface>()._parent_surface = &parent_surface;
+    Factory::Instance()[id].Get<Com_GUISurface>()._parent_position = &Factory::Instance()[parent].Get<Com_Position>();
+    Factory::Instance()[id].Get<Com_Sprite>()._render_pack._layer = Factory::Instance()[parent].Get<Com_Sprite>()._render_pack._layer + 1;
+    return id;
+}
+
+eid Factory::FF_CreateGUISurfaceTextMoving(const SpriteData& data, const float& x, const float& y, const float& width, const float& height, int layer)
+{
+    eid id = FF_Sprite(data, 0.0f, 0.0f);
+    Entity& e = Factory::Instance()[id].AddComponent<Com_GUISurface,Com_TextMovingGUI>();
+    Com_GUISurface& surface = e.Get<Com_GUISurface>();;
+    Com_Sprite& sprite = e.Get<Com_Sprite>();
+    surface._position = { x,y };
+    surface._dimensions = { width, height };
+    surface._ph_dimensions = { width * (float)AEGetWindowWidth() / 2.0f, height * (float)AEGetWindowHeight() / 2.0f };
+    surface._layer = layer;
+    sprite._x_scale = AEGetWindowWidth() * width;
+    sprite._y_scale = AEGetWindowHeight() * height;
+    sprite._render_pack._layer = layer;
+    return id;
+}
