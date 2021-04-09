@@ -2008,6 +2008,39 @@ struct Sys_GUISurfaceHoverShadow : public System {
 	}
 };
 
+struct Com_GUISurfaceHoverShadow_Inventory {
+	bool weapon_unlocked = false;
+};
+struct Sys_GUISurfaceHoverShadow_Inventory : public System {
+	void UpdateComponent() override {
+		Com_Sprite& sprite = get<Com_Sprite>();
+		Com_GUIMouseCheck& mouse = get<Com_GUIMouseCheck>();
+		Com_GUISurface& surface = get<Com_GUISurface>();
+		Com_GUISurfaceHoverShadow_Inventory& unlocked_status = get<Com_GUISurfaceHoverShadow_Inventory>();
+		if (!surface._active) { return; }
+		if (mouse._over) {
+			if (unlocked_status.weapon_unlocked == true)
+			{
+				sprite._current_frame_segment = 1;
+			}
+			else
+			{
+				sprite._current_frame_segment = 3;
+			}
+		}
+		else {
+			if (unlocked_status.weapon_unlocked == true)
+			{
+				sprite._current_frame_segment = 0;
+			}
+			else
+			{
+				sprite._current_frame_segment = 2;
+			}
+		}
+	}
+};
+
 struct Sys_GUITextRender : public System {
 	char str_buffer[100];
 	void UpdateComponent() override {

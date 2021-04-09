@@ -21,6 +21,8 @@ class Inventory
 		void Inventory_PrintCurrentWeapon() const;
 
 		int coins;
+		int Inventory_AddCoins(int newcoins);
+
 		size_t Inventory_GetSize() const;
 
 	private:

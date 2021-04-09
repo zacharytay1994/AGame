@@ -40,6 +40,15 @@ const Weapon& Inventory::Inventory_GetCurrentWeapon() const
 
 bool Inventory::Inventory_SetWeaponUnlocked(std::string const& name)
 {
+	if (coins < 50)
+	{
+		return false;
+	}
+	else
+	{
+		Inventory_AddCoins(-50);
+	}
+
 	std::map<std::string, Weapon*>::iterator it = inventory_weapon.find(name);
 	if (it != inventory_weapon.end())
 	{
@@ -136,6 +145,14 @@ void Inventory::Inventory_PrintCurrentWeapon() const
 	{
 		std::cout << "**** NO WEPAON ****" << std::endl;
 	}
+}
+
+int Inventory::Inventory_AddCoins(int newcoins)
+{
+	coins += newcoins;
+	if (coins >= 1000000) coins = 999999;
+	if (coins < 0) coins = 0;
+	return coins;
 }
 
 size_t Inventory::Inventory_GetSize() const

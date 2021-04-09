@@ -107,6 +107,7 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Text>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUIDrag>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUISurfaceHoverShadow>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_GUISurfaceHoverShadow_Inventory>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUItextboxinput>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Writetofile>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUItextboxinputwords>();
@@ -154,6 +155,7 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_GUIDrag, Com_GUIMouseCheck, Com_GUIDrag, Com_GUISurface>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUITextRender, Com_Position, Com_GUISurface, Com_Text>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceHoverShadow, Com_GUISurfaceHoverShadow>();
+	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceHoverShadow_Inventory, Com_GUISurfaceHoverShadow_Inventory>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUItextboxinput, Com_GUItextboxinput, Com_Text>();
 	SystemDatabase::Instance().RegisterSystem<Sys_writetofile, Com_Tilemap, Com_Writetofile, Com_GUIMouseCheck>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUItextboxinputwords, Com_GUItextboxinputwords, Com_Text>();

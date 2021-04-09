@@ -83,12 +83,12 @@ void OpenSurvey(Com_GUISurface* surface) {
 	#elif __linux__ 
 		system("xdg-open https://forms.gle/KPbjkFks2SYmj9af8");
 	#endif
-		_playerInv.coins += 300;
-		if (_playerInv.coins >= 1000000) _playerInv.coins = 999999;
+		_playerInv.Inventory_AddCoins(300);
 }
 
 void Credits(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_playerInv.Inventory_AddCoins(300);
 	SceneManager::Instance().ChangeScene("Credits");
 }
 
