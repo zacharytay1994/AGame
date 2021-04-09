@@ -30,19 +30,16 @@ void enemyspawnbut(Com_GUISurface* surface) {
 }
 void wallbut(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
-	std::cout << "Save map" << std::endl;
 	SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp = 4;
 	//SceneManager::Instance().ChangeScene("Main Menu");
 }
 void bombbut(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
-	std::cout << "Save map" << std::endl;
 	SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp = 5;
 	//SceneManager::Instance().ChangeScene("Main Menu");
 }
 void resetbut(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
-	std::cout << "Save map" << std::endl;
 	SceneManager::Instance().RestartScene();
 	//SceneManager::Instance().ChangeScene("Main Menu");
 }

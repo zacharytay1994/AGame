@@ -2573,28 +2573,30 @@ struct Sys_GUIMapClick : public System {
 					//Factory::Instance().FF_SpriteTile(dog, _tilemap, 11,11);
 				}
 			}
-			if (Leveledittyp == 6) {
-				//player not placed 
-				if (guimap.playercount == 0) {
-					error = true;
-					std::cout << "player not placed" << std::endl;
-					return; 
-				}
-
-				/*Vec2i passin2[5] = { {0,1},{2,3},{4,5},{6,7},{0,0} };
-				Factory::SpriteData arrows{ "arrows.png", 50.0f, 50.0f, 3, 3, 8, 0.1f, -900, passin2 };
-				Factory::Instance().FF_SpriteTile(arrows, _tilemap, spawnspritex, spawnspritey);*/
-				//write to file 
-				savedmap = true;
-				std::string S1 = "c_" + nameofmap;
-				std::string S2 = "t_" + nameofmap;
-				ResourceManager::Instance().WriteTilemapTxt(S1, tilemap);
-				ResourceManager::Instance().WriteTilemapTxt(S2, tilemap);
-				//reset 
-				//savedmap = false;
-				//Leveledittyp = 0;
-				//guimap.uninitialised = true;
+			//if (Leveledittyp == 6) {
+			//	//player not placed 
+			//	if (guimap.playercount == 0) {
+			//		error = true;
+			//		return; 
+			//	}
+			//	savedmap = true;
+			//	std::string S1 = "c_" + nameofmap;
+			//	std::string S2 = "t_" + nameofmap;
+			//	ResourceManager::Instance().WriteTilemapTxt(S1, tilemap);
+			//	ResourceManager::Instance().WriteTilemapTxt(S2, tilemap);
+			//}
+		}
+		if (Leveledittyp == 6) {
+			//player not placed 
+			if (guimap.playercount == 0) {
+				error = true;
+				return;
 			}
+			savedmap = true;
+			std::string S1 = "c_" + nameofmap;
+			std::string S2 = "t_" + nameofmap;
+			ResourceManager::Instance().WriteTilemapTxt(S1, tilemap);
+			ResourceManager::Instance().WriteTilemapTxt(S2, tilemap);
 		}
 	}
 };
