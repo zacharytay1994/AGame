@@ -2528,8 +2528,6 @@ struct Sys_GUIMapClick : public System {
 					}
 					//non collidable 
 					if (Leveledittyp == 1) {
-						//Vec2i passin[5] = { {0,3},{4,7},{8,11},{0,0},{0,0} };
-						//Factory::SpriteData dog{ "dog.png", 100.0f, 160.0f, 4, 3, 12, 0.1f, 0, passin };
 						Factory::SpriteData boom{ "blank", 40.0f, 40.0f, 1, 1, 1, 0.15f };
 						Factory::Instance().FF_SpriteTile(boom, _tilemap, spawnspritex, spawnspritey);
 						tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = 0;

@@ -293,7 +293,7 @@ struct TestScenePF : public Scene
 		tilemap = Factory::Instance().FF_Tilemap("tilemap", ResourceManager::Instance()._tilemap_names[ResourceManager::Instance()._tilemap_id]._binary + ".txt",
 															ResourceManager::Instance()._tilemap_names[ResourceManager::Instance()._tilemap_id]._map + ".txt");
 		Factory::Instance()[tilemap].Get<Com_Position>().x = -5;
-		Factory::Instance()[tilemap].Get<Com_Position>().y = 2;
+		Factory::Instance()[tilemap].Get<Com_Position>().y = 3;
 		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
 		SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->_tilemap = tilemap;
 		SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_tilemap = tilemap;

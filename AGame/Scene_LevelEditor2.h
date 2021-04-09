@@ -40,6 +40,7 @@ void bombbut(Com_GUISurface* surface) {
 }
 void resetbut(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp = 0;
 	SceneManager::Instance().RestartScene();
 	//SceneManager::Instance().ChangeScene("Main Menu");
 }
@@ -75,6 +76,7 @@ struct LevelEditor2 : public Scene {
 	Factory::SpriteData data5{ "button3" };
 	Factory::SpriteData data6{ "transparent" };
 	Factory::SpriteData dataskeleton{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.15f };
+	Factory::SpriteData underline{ "underline.png", 80.0f, 200.0f, 4, 1, 4, 0.25f };
 	//Sys_Pathfinding_v2 _pathfinding;
 	bool frameskipped = false;
 
@@ -88,6 +90,11 @@ struct LevelEditor2 : public Scene {
 	eid playerspawn = -1;
 	eid enemyspawn = -1;
 	eid obstacles = -1;
+	eid resetmap{ -1 };
+	eid selected{ -1 };
+	eid wall{ -1 };
+	eid bomb{ -1 };
+	eid savemap{ -1 };
 
 	bool _gui_change_scene{ false };
 	void Initialize() override {
@@ -120,33 +127,69 @@ struct LevelEditor2 : public Scene {
 
 
 		main = Factory::Instance().FF_CreateGUISurface({ "transparent" }, 0.85f, 0.5f, 0.27f, 1.0f, 100);																	// surface
+
+
+
 		//non collidable - unlimited 
-		eid noncol = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, button, 0.5f, 0.1f, 0.8f, 0.1f, nocolbut, "Blank Space", "courier");
+		noncol = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, button, 0.5f, 0.12f, 0.8f, 0.1f, nocolbut, "Blank Space", "courier");
 		UNREFERENCED_PARAMETER(noncol);
 		//player spawn location - limit 1 
-		eid playerspawn = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, button, 0.5f, 0.22f, 0.8f, 0.1f, playerspawnbut, "Player Spawn", "courier");
+		playerspawn = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, button, 0.5f, 0.24f, 0.8f, 0.1f, playerspawnbut, "Player Spawn", "courier");
 		UNREFERENCED_PARAMETER(playerspawn);
 		//enemy spawn location - limit 2 
-		eid enemyspawn = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, button, 0.5f, 0.34f, 0.8f, 0.1f, enemyspawnbut, "Enemy Spawn ", "courier");
+		enemyspawn = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, button, 0.5f, 0.36f, 0.8f, 0.1f, enemyspawnbut, "Enemy Spawn ", "courier");
 		UNREFERENCED_PARAMETER(enemyspawn);
 		//wall - unlimited 
-		eid wall = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, button, 0.5f, 0.46f, 0.8f, 0.1f, wallbut, "Wall", "courier");
+		wall = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, button, 0.5f, 0.48f, 0.8f, 0.1f, wallbut, "Wall", "courier");
 		UNREFERENCED_PARAMETER(wall);
 		//bomb - unlimited 
-		eid bomb = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, button, 0.5f, 0.58f, 0.8f, 0.1f, bombbut, "Bomb", "courier");
+		bomb = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, button, 0.5f, 0.6f, 0.8f, 0.1f, bombbut, "Bomb", "courier");
 		UNREFERENCED_PARAMETER(bomb);
 		//resetmap - 1
-		eid resetmap = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, button, 0.5f, 0.7f, 0.8f, 0.1f, resetbut, "Reset Map", "courier");
+		resetmap = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, button, 0.5f, 0.72f, 0.8f, 0.1f, resetbut, "Reset Map", "courier");
 		UNREFERENCED_PARAMETER(resetmap);
 		//savemap - 1
-		eid savemap = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, button, 0.5f, 0.82f, 0.8f, 0.1f, savemapbut, "Save Map", "courier");
+		savemap = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, button, 0.5f, 0.84f, 0.8f, 0.1f, savemapbut, "Save Map", "courier");
 		UNREFERENCED_PARAMETER(savemap);
+
+
+		selected = Factory::Instance().FF_CreateGUISurface(underline, 0.5f, 0.05f, 0.4f, 0.1f, 100);
+		Factory::Instance().FF_CreateGUIChildSurfaceText(selected, { "transparent" }, 0.3f, 0.4f, 0.4f, 0.4f, "Selected : ", "courier");
+		std::stringstream ss;
+		ss << Factory::Instance()[resetmap].Get<Com_Text>()._data._text;
+		selected = Factory::Instance().FF_CreateGUIChildSurfaceText(selected, { "transparent" }, 0.8f, 0.35f, 0.8f, 0.4f, ss.str().c_str(), "courier");
 
 		GUISettingsInitialize();
 	}
 	void Update(const float& dt) override {
 		UNREFERENCED_PARAMETER(dt);
 		GUISettingsUpdate();
+
+		std::stringstream ss;
+		if (SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp == 0) {
+			ss << "Nothing";
+			Factory::Instance()[selected].Get<Com_Text>()._data._text = ss.str();
+		}
+		if (SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp == 1) {
+			ss << Factory::Instance()[noncol].Get<Com_Text>()._data._text;
+			Factory::Instance()[selected].Get<Com_Text>()._data._text = ss.str();
+		}
+		if (SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp == 2) {
+			ss << Factory::Instance()[playerspawn].Get<Com_Text>()._data._text;
+			Factory::Instance()[selected].Get<Com_Text>()._data._text = ss.str();
+		}
+		if (SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp == 3) {
+			ss << Factory::Instance()[enemyspawn].Get<Com_Text>()._data._text;
+			Factory::Instance()[selected].Get<Com_Text>()._data._text = ss.str();
+		}
+		if (SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp == 4) {
+			ss << Factory::Instance()[wall].Get<Com_Text>()._data._text;
+			Factory::Instance()[selected].Get<Com_Text>()._data._text = ss.str();
+		}
+		if (SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp == 5) {
+			ss << Factory::Instance()[bomb].Get<Com_Text>()._data._text;
+			Factory::Instance()[selected].Get<Com_Text>()._data._text = ss.str();
+		}
 
 		//one more frame
 		if (SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp == 6 && SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->savedmap == true){
