@@ -650,147 +650,154 @@ struct Sys_EnemyStateOne : public System {
 struct Sys_EnemyStateBoss : public System {
 	eid player{ -1 };
 	eid _tilemap{ -1 };
+	float timer{ 15.0f };
 	int Pattern = 0;
-	bool stopshot = false;
 	Com_Boss* boss{ nullptr };
 	void UpdateComponent() override {
 		Com_TilePosition& posBoss = get<Com_TilePosition>();
 		//Com_Boss& boss = get<Com_Boss>();
-		Factory::SpriteData ProjEnemy{ "EnemyBall.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };
-		static float time = 0;
-		time += _dt;
-		static int count = 0;
-		if (time > 2.0f) 
-		{
-			count++;
-			time = 0;
-		}
+		Factory::SpriteData ProjEnemy{ "EnemyBall.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };	
 
 		if (boss->BossHealth <= 10) 
 		{
 			//std::cout << "Changing pattern" << std::endl;
 			Pattern = 1;
 		}
-
+		
 		switch (Pattern) 
 		{
 			case 0:
 			{
-				if (stopshot == true && count > 2)
+
+				if (timer <= 15 && timer >= 7) 
 				{
-					//std::cout << count << std::endl;
-					stopshot = false;
-					count = 0;
+					Pattern1(ProjEnemy, posBoss, timer);
 				}
 
-				else if (stopshot == false) 
-				{
-					Pattern1(ProjEnemy, posBoss);
-					
-					if (count > 1) 
-					{
-						stopshot = true;
-						count = 0;
-					}
-				}
+				
 			}
 			break;
 
 			case 1:
 			{
-				if (stopshot == true && count > 10)
+				if (timer <= 15 && timer >= 7)
 				{
-					//std::cout << count << std::endl;
-					stopshot = false;
-					count = 0;
-				}
+					Pattern2Ver1(ProjEnemy, posBoss, timer);
 
-				else if (stopshot == false)
+				}
+				else if (timer <7) 
 				{
-					Pattern2(ProjEnemy, posBoss, time);
-
-					if (count > 5)
-					{
-						stopshot = true;
-						count = 0;
-					}
+					Pattern2Ver2(ProjEnemy, posBoss, timer);
 				}
+				
 			}
 			break;
 		}
-
+		if (timer <= 0) 
+		{
+			timer = 10.0f;
+		}
+		else 
+		{
+			timer -= _dt;
+		}
 	}
-	void Pattern1(const Factory::SpriteData& data , Com_TilePosition& pos)
+	void Pattern1(const Factory::SpriteData& data , Com_TilePosition& pos, float& time)
 	{
-		
+		if ((static_cast<int>(time) % 4) == 0) 
+		{
 			if (pos._grid_x > Factory::Instance()[player].Get<Com_TilePosition>()._grid_x)
 			{
 				eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y , -1, 0, _tilemap);
 				Factory::Instance()[j].AddComponent<Com_YLayering>();
+				
 			}
 			else if (pos._grid_x < Factory::Instance()[player].Get<Com_TilePosition>()._grid_x)
 			{
 				eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y, 1, 0, _tilemap);
 				Factory::Instance()[j].AddComponent<Com_YLayering>();
 			}
-	}
-	void Pattern2(const Factory::SpriteData& data, Com_TilePosition& pos, float const& timer)
-	{
-
-		static bool turn = true;
-		if (turn == true) 
-		{
-			std::cout << "Heloo" << std::endl;
-				if (pos._grid_x > Factory::Instance()[player].Get<Com_TilePosition>()._grid_x &&
-					(pos._grid_x > 0 || pos._grid_x < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width))
+			else if (pos._grid_x == Factory::Instance()[player].Get<Com_TilePosition>()._grid_x) 
+			{
+				if (pos._grid_y < Factory::Instance()[player].Get<Com_TilePosition>()._grid_y) 
 				{
-
-					eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x - 1, 0, -1, 0, _tilemap);
-					eid h = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x - 1, 1, -1, 0, _tilemap);
+					eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y, 0, -1, _tilemap);
 					Factory::Instance()[j].AddComponent<Com_YLayering>();
-					Factory::Instance()[h].AddComponent<Com_YLayering>();
 				}
-
-				else if (pos._grid_x < Factory::Instance()[player].Get<Com_TilePosition>()._grid_x &&
-					(pos._grid_x > 0 || pos._grid_x < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width))
+				else if (pos._grid_y > Factory::Instance()[player].Get<Com_TilePosition>()._grid_y) 
 				{
-					
-					eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x + 1, 0, 1, 0, _tilemap);
-					eid h = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x + 1, 1, 1, 0, _tilemap);
+					eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y, 0, 1, _tilemap);
 					Factory::Instance()[j].AddComponent<Com_YLayering>();
-					Factory::Instance()[h].AddComponent<Com_YLayering>();
 				}
+			}
 		}
-		else 
+	}
+
+	void Pattern2Ver1(const Factory::SpriteData& data, Com_TilePosition& pos, float& time)
+	{
+		std::cout << "Heloo" << std::endl;
+		if ((static_cast<int>(time) % 4) == 0)
 		{
-			std::cout << "Its me" << std::endl;
 			if (pos._grid_x > Factory::Instance()[player].Get<Com_TilePosition>()._grid_x &&
 				(pos._grid_x > 0 || pos._grid_x < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width))
 			{
-				eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x - 1, Factory::Instance()[_tilemap].Get<Com_Tilemap>()._height - 2, -1, 0, _tilemap);
-				eid h = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x - 1, Factory::Instance()[_tilemap].Get<Com_Tilemap>()._height - 1, -1, 0, _tilemap);
-				Factory::Instance()[j].AddComponent<Com_YLayering>();
-				Factory::Instance()[h].AddComponent<Com_YLayering>();
+
+				for (int i = Factory::Instance()[_tilemap].Get<Com_Tilemap>()._height - 1; i > 2; --i)
+				{
+					eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, i, -1, 0, _tilemap);
+					Factory::Instance()[j].AddComponent<Com_YLayering>();
+				}
 			}
+
 			else if (pos._grid_x < Factory::Instance()[player].Get<Com_TilePosition>()._grid_x &&
 				(pos._grid_x > 0 || pos._grid_x < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width))
 			{
 
-				eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x + 1, Factory::Instance()[_tilemap].Get<Com_Tilemap>()._height - 2, 1, 0, _tilemap);
-				eid h = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x + 1, Factory::Instance()[_tilemap].Get<Com_Tilemap>()._height - 1, 1, 0, _tilemap);
+				for (int i = Factory::Instance()[_tilemap].Get<Com_Tilemap>()._height - 1; i > 2; --i)
+				{
+					eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x , i, 1, 0, _tilemap);
+					Factory::Instance()[j].AddComponent<Com_YLayering>();
+				}
+			}
+			else if (pos._grid_x == Factory::Instance()[player].Get<Com_TilePosition>()._grid_x)
+			{
+				eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y, 0, -1, _tilemap);
 				Factory::Instance()[j].AddComponent<Com_YLayering>();
-				Factory::Instance()[h].AddComponent<Com_YLayering>();
 			}
 		}
-		if (timer < 5) 
+	}
+
+	void Pattern2Ver2(const Factory::SpriteData& data, Com_TilePosition& pos, float& time)
+	{
+		std::cout << "Its me" << std::endl;
+		if ((static_cast<int>(time) % 4) == 0)
 		{
-			turn = false;
+			if (pos._grid_x > Factory::Instance()[player].Get<Com_TilePosition>()._grid_x &&
+				(pos._grid_x > 0 || pos._grid_x < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width))
+			{
+				for (int i = 0; i < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._height - 3; i++)
+				{
+					eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, i, -1, 0, _tilemap);
+					Factory::Instance()[j].AddComponent<Com_YLayering>();
+				}
+			}
+			else if (pos._grid_x < Factory::Instance()[player].Get<Com_TilePosition>()._grid_x &&
+				(pos._grid_x > 0 || pos._grid_x < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width))
+			{
+				for (int i = 0; i < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._height - 3; i++)
+				{
+					eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, i, 1, 0, _tilemap);
+					Factory::Instance()[j].AddComponent<Com_YLayering>();
+				}
+				//eid h = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x + 1, Factory::Instance()[_tilemap].Get<Com_Tilemap>()._height - 1, 1, 0, _tilemap);
+				//Factory::Instance()[h].AddComponent<Com_YLayering>();
+			}
+			else if (pos._grid_x == Factory::Instance()[player].Get<Com_TilePosition>()._grid_x)
+			{
+				eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y, 0, 1, _tilemap);
+				Factory::Instance()[j].AddComponent<Com_YLayering>();
+			}
 		}
-		else
-		{
-			turn = true;
-		}
-		
 	}
 
 };
@@ -1737,6 +1744,7 @@ struct Sys_EnemySpawning : public System {
 	eid _tilemap = { -1 };
 	eid playerpos = -1;
 	float timer{ 0.0f };
+	//
 	Grid* _grid{ nullptr };
 	int _max{ 4 };
 	bool spawnBoss = false;
