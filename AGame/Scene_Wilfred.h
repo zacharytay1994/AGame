@@ -56,9 +56,15 @@ ________________________________*/
 		pf2._initialized = true;
 		SystemDatabase::Instance().GetSystem<Sys_TilePosition>()->_grid = &pf2._grid;
 
+		player = Factory::Instance().FF_SpriteTile(data1, tilemap, 0, 0);
+		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne, Com_TileMoveSpriteState, Com_type>();
+		Factory::Instance()[player].Get<Com_TilePosition>()._is_player = true;
+		Factory::Instance()[player].Get<Com_type>().type = 0; // set player type
+		//SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->player_id = player;
+		SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->tile = tilemap;
 		//player
-		player = Factory::Instance().FF_SpriteTile(data2, tilemap, 0, 0);
-		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Projectile, Com_WeaponAttack, Com_Camera, Com_type, Com_Health, Com_BoundingBox, Com_Velocity, Com_CollisionData>();
+		// player = Factory::Instance().FF_SpriteTile(data2, tilemap, 0, 0);
+		// Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Projectile, Com_WeaponAttack, Com_Camera, Com_type, Com_Health, Com_BoundingBox, Com_Velocity, Com_CollisionData>();
 		SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
 		SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
 		//more

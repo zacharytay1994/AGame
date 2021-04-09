@@ -305,9 +305,9 @@ struct TestScenePF : public Scene
 		SystemDatabase::Instance().GetSystem<Sys_TilePosition>()->_grid = &pf2._grid;
 		SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_grid = &pf2._grid;
 		SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->_grid = &pf2._grid;
-		SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->_grid = &pf2._grid;
+		SystemDatabase::Instance().GetSystem<Sys_AABB>()->_grid = &pf2._grid;
 		SystemDatabase::Instance().GetSystem<Sys_ArrowKeysTilemap>()->_grid = &pf2._grid;
-		SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->_spawner = &Factory::Instance()[spawner].Get<Com_EnemySpawn>();
+		SystemDatabase::Instance().GetSystem<Sys_AABB>()->_spawner = &Factory::Instance()[spawner].Get<Com_EnemySpawn>();
 
 		//testting for level editor 
 		for (int y = 0; y < com_tilemap._height; ++y) {
@@ -318,7 +318,7 @@ struct TestScenePF : public Scene
 					Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne, Com_TileMoveSpriteState, Com_type>();
 					Factory::Instance()[player].Get<Com_TilePosition>()._is_player = true;
 					Factory::Instance()[player].Get<Com_type>().type = 0; // set player type
-					SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->player_id = player;
+					//SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->player_id = player;
 					SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->tile = tilemap;
 					SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
 					SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
@@ -372,6 +372,14 @@ struct TestScenePF : public Scene
 			}
 		}
 
+		// player = Factory::Instance().FF_SpriteTile(man, tilemap, 0, 0);
+		// Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne, Com_TileMoveSpriteState, Com_type>();
+		// Factory::Instance()[player].Get<Com_TilePosition>()._is_player = true;
+		// Factory::Instance()[player].Get<Com_type>().type = 0; // set player type
+		// //SystemDatabase::Instance().GetSystem<Sys_AABB>()->_PLayerHealth = &Factory::Instance()[player].Get<Com_Health>();
+		// SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->tile = tilemap;
+		// SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
+		// SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
 
 		//player = Factory::Instance().FF_SpriteTile(man, tilemap, 0, 0);
 		//Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne, Com_TileMoveSpriteState, Com_type>();

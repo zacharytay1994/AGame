@@ -404,6 +404,7 @@ void ResourceManager::UpdateAndPlayMusic()
 	//mute
 	if (AEInputCheckTriggered(AEVK_M)) {
 		mute = !mute;
+		playing = true;
 		//channel->getMute(&mute);
 		//channel->setMute(&mute);
 	}
@@ -413,7 +414,7 @@ void ResourceManager::UpdateAndPlayMusic()
 		if (!playing)
 		{
 			result = sound_system->playSound(sound1, 0, false, &channel);
-			std::cout << "sound played";
+			std::cout << "sound pressed";
 			//ERRCHECK(result);
 		}
 
