@@ -143,35 +143,30 @@ void EquipPistol(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	_playerInv.Inventory_SetWeaponUnlocked("Pistol");
 	_playerInv.Inventory_EquipWeapon("Pistol");
-	std::cout << "EQUIPPED PISTOL" << std::endl;
 }
 
 void EquipTrickPistol(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	_playerInv.Inventory_SetWeaponUnlocked("TrickPistol");
 	_playerInv.Inventory_EquipWeapon("TrickPistol");
-	std::cout << "EQUIPPED TRICKPISTOL" << std::endl;
 }
 
 void EquipDualPistol(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	_playerInv.Inventory_SetWeaponUnlocked("DualPistol");
 	_playerInv.Inventory_EquipWeapon("DualPistol");
-	std::cout << "EQUIPPED DUALPISTOL" << std::endl;
 }
 
 void EquipDualDiagPistol(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	_playerInv.Inventory_SetWeaponUnlocked("DualDiagPistol");
 	_playerInv.Inventory_EquipWeapon("DualDiagPistol");
-	std::cout << "EQUIPPED DUALDIAGPISTOL" << std::endl;
 }
 
 void EquipDagger(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	_playerInv.Inventory_SetWeaponUnlocked("Dagger");
 	_playerInv.Inventory_EquipWeapon("Dagger");
-	std::cout << "EQUIPPED DAGGER" << std::endl;
 }
 
 /*!___________________________________________________________________
