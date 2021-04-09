@@ -61,6 +61,7 @@ struct Scene_Instructions : public Scene
 	bool down{ false };
 	bool left{ false };
 	bool right{ false };
+	bool last{ false };
 	size_t spacetriggered{ 0 };
 	Factory::SpriteData buttonsurface{ "title.png", 1.0f, 1.0f, 2, 2, 4, 0.2f, 0 };
 	Vec2i passin3[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
@@ -72,7 +73,8 @@ struct Scene_Instructions : public Scene
 		std::cout << test << " this is a test scene" << std::endl;
 		std::cout << sizeof(Com_Tilemap) << std::endl;
 
-
+		//reset 
+		last = false;
 		//init tilemap 
 		tilemap = Factory::Instance().FF_Tilemap("tilemap", "c_INSTRUCTION.txt", "t_INSTRUCTION.txt");
 		Factory::Instance()[tilemap].Get<Com_Position>().x = -3;
@@ -169,28 +171,16 @@ struct Scene_Instructions : public Scene
 						SystemDatabase::Instance().GetSystem<Sys_AABB>()->_grid = &pf2._grid;
 						SystemDatabase::Instance().GetSystem<Sys_ArrowKeysTilemap>()->_grid = &pf2._grid;
 						SystemDatabase::Instance().GetSystem<Sys_AABB>()->_spawner = &Factory::Instance()[spawner].Get<Com_EnemySpawn>();
-
-						waves = Factory::Instance().FF_CreateGUISurface(underline, 0.8f, 0.1f, 0.4f, 0.1f, 100);
-						Factory::Instance().FF_CreateGUIChildSurfaceText(waves, { "transparent" }, 0.3f, 0.5f, 0.4f, 0.4f, "Waves: ", "courier");
-						std::stringstream ss1;
-						ss1 << Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves;
-						waves = Factory::Instance().FF_CreateGUIChildSurfaceText(waves, { "transparent" }, 0.5f, 0.5f, 0.8f, 0.4f, ss1.str().c_str(), "courier");
 					}
 				}
 			}
 		}
 
 		arrow = Factory::Instance().FF_Sprite(arrows, 0.0f, 0.0f);
-		Entity& a = Factory::Instance()[arrow];s
+		Entity& a = Factory::Instance()[arrow];
 		a.AddComponent<Com_ParentPosition>();
 		a.Get<Com_ParentPosition>()._parent_id = player;
 		arrow_sprite = &a.Get<Com_Sprite>();
-
-		lives = Factory::Instance().FF_CreateGUISurface(underline, 0.2f, 0.1f, 0.4f, 0.1f, 100);
-		Factory::Instance().FF_CreateGUIChildSurfaceText(lives, { "transparent" }, 0.3f, 0.5f, 0.4f, 0.4f, "", "courier");
-		std::stringstream ss;
-		ss << Factory::Instance()[player].Get<Com_Health>().health;
-		lives = Factory::Instance().FF_CreateGUIChildSurfaceText(lives, { "transparent" }, 0.5f, 0.5f, 0.8f, 0.4f, ss.str().c_str(), "courier");
 
 		menu = Factory::Instance().FF_CreateGUISurface(buttonsurface, 0.5f, 0.5f, 0.9f, 0.6f, 120);
 		eid start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(menu, button, 0.5f, 0.35f, 0.4f, 0.2f, ChangeTestScenePF, "Restart", "courier");
@@ -208,9 +198,6 @@ struct Scene_Instructions : public Scene
 	void Update(const float& dt) override {
 		UNREFERENCED_PARAMETER(dt);
 
-		std::stringstream ss;
-		ss << Factory::Instance()[player].Get<Com_Health>().health;
-		Factory::Instance()[lives].Get<Com_Text>()._data._text = ss.str();
 		std::stringstream ss1;
 
 		if (AEInputCheckCurr('L')) {
@@ -272,7 +259,7 @@ struct Scene_Instructions : public Scene
 			eid main2 = Factory::Instance().FF_CreateGUISurface({ "transparent" }, 0.5f, 0.5f, 1.0f, 1.0f, 100);
 			Vec2i passin4[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
 			Factory::SpriteData button2{ "background2.png", 2.0f, 1.0f, 2, 1, 2, 0.05f, 0, passin4 };
-			Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main2, button2, 0.5f, 0.1f, 0.75f, 0.2f, instructions, "Press Space to Shoot!! Try Shooting 5 times!", "courier");
+			Factory::Instance().FF_CreateGUIChildSurfaceText(main2, button2, 0.5f, 0.1f, 0.75f, 0.2f, "Press Space to Shoot!! Try Shooting 5 times!", "courier");
 			SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->error = false;
 			messageseen = true;
 		}
@@ -293,20 +280,45 @@ struct Scene_Instructions : public Scene
 			eid main2 = Factory::Instance().FF_CreateGUISurface({ "transparent" }, 0.5f, 0.5f, 1.0f, 1.0f, 100);
 			Vec2i passin4[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
 			Factory::SpriteData button2{ "background2.png", 2.0f, 1.0f, 2, 1, 2, 0.05f, 0, passin4 };
-			Factory::Instance().FF_CreateGUIChildSurfaceText(main2, button2, 0.5f, 0.1f, 0.75f, 0.2f, "Now Kill all  the Monsters!", "courier");
-			ss1 << Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves;
-			Factory::Instance()[waves].Get<Com_Text>()._data._text = ss1.str();
+			Factory::Instance().FF_CreateGUIChildSurfaceText(main2, button2, 0.5f, 0.1f, 0.75f, 0.2f, "Now Kill all the Monsters!", "courier");
+			//ss1 << Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves;
+			//Factory::Instance()[waves].Get<Com_Text>()._data._text = ss1.str();
 			Com_Wave& com_wave = Factory::Instance()[spawner].Get<Com_Wave>();
 			Com_EnemySpawn& enemy_spawn = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
 			Com_Boss& bs = Factory::Instance()[spawner].Get<Com_Boss>();
 			messageseen = true;
+
 		}
 		if (currentinstructions == 2 && messageseen == true) {
-			ss1 << Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves;
-			Factory::Instance()[waves].Get<Com_Text>()._data._text = ss1.str();
+			//ss1 << Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves;
+			//Factory::Instance()[waves].Get<Com_Text>()._data._text = ss1.str();
 			Com_Wave& com_wave = Factory::Instance()[spawner].Get<Com_Wave>();
 			Com_EnemySpawn& enemy_spawn = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
 			Com_Boss& bs = Factory::Instance()[spawner].Get<Com_Boss>();
+			currentinstructions = 3;
+			messageseen = false;
+			last = true;
+			spacetriggered = 0;
+			up = false;
+			down = false;
+			left = false;
+			right = false;
+			SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->spawnBoss = false;
+			//if (SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->spawnBoss == true) {
+			//	currentinstructions = 0;
+			//	messageseen = false;
+			//	SceneManager::Instance().ChangeScene("Main Menu");
+			//}
+		}
+		if (last == true) {
+			Com_Wave& com_wave = Factory::Instance()[spawner].Get<Com_Wave>();
+			Com_EnemySpawn& enemy_spawn = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
+			Com_Boss& bs = Factory::Instance()[spawner].Get<Com_Boss>();
+			if (SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->spawnBoss == true) {
+				currentinstructions = 0;
+				messageseen = false;
+				SceneManager::Instance().ChangeScene("Main Menu");
+			}
 		}
 
 		//if all monster die change scene 
