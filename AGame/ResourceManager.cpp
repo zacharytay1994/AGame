@@ -405,9 +405,10 @@ void ResourceManager::WalkingSound()
 	result = sound_system->playSound(soundWalk, 0, false, &channelWalkingPlayer);
 }
 
-void ResourceManager::ShootingSound()
+void ResourceManager::ShootingSound(float pitch)
 {
 	result = sound_system->playSound(soundShoot, 0, false, &channelGunEffect);
+	channelGunEffect->setPitch(pitch);
 }
 
 void ResourceManager::StabbingSound()

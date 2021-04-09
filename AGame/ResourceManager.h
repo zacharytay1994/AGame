@@ -152,7 +152,7 @@ public:
 	void CreateMusic();
 	void UpdateAndPlayMusic();
 	void WalkingSound();
-	void ShootingSound();
+	void ShootingSound(float pitch = 1.f);
 	void StabbingSound();
 	void EnemyDeathSound();
 	void FreeMusic();
