@@ -291,7 +291,8 @@ struct Scene_Instructions : public Scene
 			ss1 << Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves;
 			Factory::Instance()[waves].Get<Com_Text>()._data._text = ss1.str();
 			Com_Wave& com_wave = Factory::Instance()[spawner].Get<Com_Wave>();
-			if (Factory::Instance()[player].Get<Com_Health>().health <= 0 || com_wave.numberofwaves <= 0) {
+			Com_EnemySpawn& enemy_spawn = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
+			if (Factory::Instance()[player].Get<Com_Health>().health <= 0 || (com_wave.numberofwaves <= 0 && enemy_spawn.CurrNoOfEnemies <= 0)) {
 				Factory::Instance()[menu].Get<Com_GUISurface>()._active = true;
 			}
 		}
