@@ -103,6 +103,10 @@ public:
 	eid FF_CreateGUIChildClickableSurfaceTextLevelEditor(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string& text, const std::string& font);
 	eid FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string& text, const std::string& font);
 	eid FF_BombProjectile(const SpriteData& data, const int& x, const int& y, eid const& tilemap, int lifetime);
+	eid FF_CreateGUIChildClickableSurfaceTextBoxwithinstructions(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string& text, const std::string& font);
+	eid FF_CreateGUIChildSurfaceTextMoving(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, const std::string& text, const std::string& font);
+	eid FF_CreateGUIChildSurfaceTextMovingWithin(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height);
+	eid FF_CreateGUISurfaceTextMoving(const SpriteData& data, const float& x, const float& y, const float& width, const float& height, int layer);
 	//eid FF_CreateEnemy(const SpriteData& data, const eid& tilemap, const int& x, const int& y);
 
 	eid FF_CreateSpawner();

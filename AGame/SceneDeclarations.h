@@ -66,7 +66,7 @@ void ChangeShootingRangeScene(Com_GUISurface* surface) {
 
 void ChangeWilf(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
-	SceneManager::Instance().ChangeScene("TestScenewilfred");
+	SceneManager::Instance().ChangeScene("Instructions");
 }
 
 void ChangeMainMenu(Com_GUISurface* surface) {
@@ -87,9 +87,20 @@ void OpenSurvey(Com_GUISurface* surface) {
 		if (_playerInv.coins >= 1000000) _playerInv.coins = 999999;
 }
 
-void ChangeLevelEditor(Com_GUISurface* surface) {
+void Credits(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	SceneManager::Instance().ChangeScene("Credits");
+}
+
+void Instructions(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	SceneManager::Instance().ChangeScene("Instructions");
+}
+
+
+void ChangeLevelEditor(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	SceneManager::Instance().ChangeScene("Leveleditor");
 }
 
 void GUISettingsInitialize() {
@@ -115,7 +126,7 @@ void GUISettingsInitialize() {
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
 	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.5f, 0.9f, 0.08f, ChangeShootingRangeScene, "Noel", "courier");	// clickable child surface text
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
-	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.65f, 0.9f, 0.08f, ChangeWilf, "Play Custom", "courier");	// clickable child surface text
+	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.65f, 0.9f, 0.08f, ChangeWilf, "Wilfred", "courier");	// clickable child surface text
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
 	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.8f, 0.9f, 0.08f, ChangeTestScene, "Zac", "courier");	// clickable child surface text
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();

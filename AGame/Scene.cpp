@@ -12,6 +12,7 @@
 #include "Scene_Credits.h"
 #include "Scene_Inventory.h"
 #include "Scene_LevelSelect.h"
+#include "Scene_Instruction.h"
 
 #include <iostream>
 
@@ -93,6 +94,7 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Health>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUIMap>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_BoundingBoxGUI>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_instructionsGUI>();
 
 
 	// Pathfinding
@@ -108,8 +110,8 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUItextboxinput>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Writetofile>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUItextboxinputwords>();
-	ComponentDescription_DB::Instance().RegisterComponent <Com_errormessageGUI>();
-
+	ComponentDescription_DB::Instance().RegisterComponent<Com_errormessageGUI>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_TextMovingGUI>();
 	// enemy states
 	ComponentDescription_DB::Instance().RegisterComponent<Com_EnemyStateOne>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_TileMoveSpriteState>();
@@ -157,6 +159,8 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_GUItextboxinputwords, Com_GUItextboxinputwords, Com_Text>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUIMapClick, Com_GUIMap, Com_Tilemap, Com_BoundingBoxGUI>();
 	SystemDatabase::Instance().RegisterSystem<Sys_errormessageGUI, Com_errormessageGUI>();
+	SystemDatabase::Instance().RegisterSystem<Sys_InstructionsGUI, Com_instructionsGUI>();
+	SystemDatabase::Instance().RegisterSystem<Sys_TextMovingGUI, Com_TextMovingGUI, Com_GUISurface>();
 
 	// pathfinding
 	SystemDatabase::Instance().RegisterSystem<Sys_PathFinding, Com_type, Com_FindPath>();
@@ -182,9 +186,10 @@ void SceneManager::Initialize() {
 	AddScene<ShootingRange>("ShootingRange");
 	AddScene<LevelEditor>("Leveleditor");
 	AddScene<LevelEditor2>("Leveleditor2");
-	AddScene<LevelEditor>("Credits");
 	AddScene<InventoryMenu>("InventoryMenu");
 	AddScene<LevelSelect>("LevelSelect");
+	AddScene<Scene_Instructions>("Instructions");
+	AddScene<Scene_Credits>("Credits");
 }
 
 void SceneManager::Free()

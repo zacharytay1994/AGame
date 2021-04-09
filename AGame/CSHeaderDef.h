@@ -32,6 +32,7 @@ struct Com_ArrowKeysTilemap;
 struct Com_Tilemap;
 struct Com_TilemapRef;
 struct Com_TilePosition;
+
 // collision
 struct Com_BoundingBox;
 struct Com_CollisionData;
@@ -158,58 +159,6 @@ struct Com_BoundingBox
 };
 
 
-// testing for wilfred ////////////////////////////
-//struct Com_objecttype {
-//	enum type
-//	{
-//		playert,
-//		enemyt,
-//		bullett,
-//		obstaclest
-//	};
-//	eid objtype{ playert };
-//	bool updated{ false };
-//	//to store id of all player 
-//	//static std::vector<eid> player;
-//	//static std::vector<eid> enemy;
-//	//static std::vector<eid> bullet;
-//	//static std::vector<eid> obstacle;
-//};
-
-//global 
-//static std::vector<eid> player;
-//static std::vector<eid> enemy;
-//static std::vector<eid> bullet;
-//static std::vector<eid> obstacle;
-//
-//struct Sys_RegisteringEntity :public System{
-//	void UpdateComponent() override {
-//		Com_objecttype& obtype = get<Com_objecttype>();
-//		if (obtype.updated == false) {
-//			//if it's a player 
-//			if (obtype.objtype == obtype.playert) {
-//				player.emplace_back(player.size()+1);
-//				std::cout << "assigning player" << std::endl;
-//			}
-//			//if it's a enemy 
-//			if (obtype.objtype == obtype.enemyt) {
-//				enemy.emplace_back(enemy.size() + 1);
-//				std::cout << "assigning enemy" << std::endl;
-//			}
-//			//if it's a bullet
-//			if (obtype.objtype == obtype.bullett) {
-//				bullet.emplace_back(bullet.size() + 1);
-//				std::cout << "assigning bullet" << std::endl;
-//			}
-//			//if it's a obstacle
-//			if (obtype.objtype == obtype.obstaclest) {
-//				obstacle.emplace_back(obstacle.size() + 1);
-//				std::cout << "assigning obstacle" << std::endl;
-//			}
-//			obtype.updated = true;
-//		}
-//	}
-//};
 
 
 // testing for wilfred ////////////////////////////
@@ -988,6 +937,7 @@ struct Sys_ArrowKeysTilemap : public System {
 ____________________________________________________________________________________________________*/
 
 struct Sys_Tilemap : public System {
+	std::vector<Com_TilePosition> highlight;
 	void UpdateComponent() override {
 		Com_Tilemap& tilemap = get<Com_Tilemap>();
 		if (tilemap._initialized) {
@@ -999,7 +949,6 @@ struct Sys_Tilemap : public System {
 		AEMtx33Scale(&scale, tilemap._scale_x, tilemap._scale_y);
 		AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
 		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
-
 		AEMtx33 shake = ResourceManager::Instance().ScreenShake();
 		for (size_t y = 0; y < (size_t)tilemap._height; ++y) {
 			for (size_t x = 0; x < (size_t)tilemap._width; ++x) {
@@ -1015,11 +964,12 @@ struct Sys_Tilemap : public System {
 					AEMtx33Concat(&tilemap._render_pack._transform, &shake, &tilemap._render_pack._transform);
 					AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
 					//for highlighting of tile 
-					for (size_t i{ 0 }; i < tilemap._render_pack.highlightpos.size(); ++i) {
-						if ((x * (size_t)tilemap._height + y) == (tilemap._render_pack.highlightpos[i]._grid_x * (size_t)tilemap._height + tilemap._render_pack.highlightpos[i]._grid_y)) {
+					for (size_t i{ 0 }; i < highlight.size(); ++i) {
+						if ((x * (size_t)tilemap._height + y) == (highlight[i]._grid_x * (size_t)tilemap._height + highlight[i]._grid_y)) {
 							AEGfxSetTintColor(0.0f, 0.0f, 0.0f, 1.0f);
 						}
 					}
+					
 					AEGfxSetTransform(tilemap._render_pack._transform.m);
 					AEGfxTextureSet(tilemap._render_pack._texture, tilemap._render_pack._offset_x, tilemap._render_pack._offset_y);
 					AEGfxMeshDraw(tilemap._render_pack._mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
@@ -1027,7 +977,7 @@ struct Sys_Tilemap : public System {
 			}
 		}
 		//clear the vector for the highlighting 
-		tilemap._render_pack.highlightpos.clear();
+		highlight.clear();
 	}
 };
 
@@ -1141,6 +1091,7 @@ struct Sys_Boundingbox : public System {
 	------------------------------------------*/
 	void calculateAABB(Com_BoundingBox& boundingbox, Com_Position& position, Com_Sprite& sprite)
 	{
+		UNREFERENCED_PARAMETER(sprite);
 		//calculate min max
 		//boundingbox.maxx = 0.5f * sprite._x_scale + position.x;
 		//boundingbox.minx = -0.5f * sprite._x_scale + position.x;
@@ -1537,31 +1488,24 @@ struct Sys_Projectile2 : public System {
 				}
 			}
 			
-			tilemap->_render_pack.highlightpos.push_back({ tileposition._grid_x,tileposition._grid_y });
+			//highlighting of tile 
+			SystemDatabase::Instance().GetSystem<Sys_Tilemap>()->highlight.push_back({ tileposition._grid_x,tileposition._grid_y });
 			
 			if (proj.grid_vel_x > 0)
 			{
 				tileposition._grid_x++;
-				//passing the current tile to highlight
-				//tilemap->_render_pack.highlightpos.push_back({ tileposition._grid_x,tileposition._grid_y });
 			}
 			else if (proj.grid_vel_x < 0)
 			{
 				tileposition._grid_x--;
-				//passing the current tile to highlight
-				//tilemap->_render_pack.highlightpos.push_back({ tileposition._grid_x,tileposition._grid_y });
 			}
 			if (proj.grid_vel_y > 0)
 			{
 				tileposition._grid_y--;
-				//passing the current tile to highlight
-				//tilemap->_render_pack.highlightpos.push_back({ tileposition._grid_x,tileposition._grid_y });
 			}
 			else if (proj.grid_vel_y < 0)
 			{
 				tileposition._grid_y++;
-				//passing the current tile to highlight
-				//tilemap->_render_pack.highlightpos.push_back({ tileposition._grid_x,tileposition._grid_y });
 			}
 
 			if (tilemap) {
@@ -1909,7 +1853,9 @@ struct Sys_ParticleEmitter : public System {
 					emitparticle();
 				}
 				//create dmg all around 
-				Factory::SpriteData data{ "bullet.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };
+				//LoadTexture("transparent", "transparent.png");
+				Factory::SpriteData data{ "transparent.png", 50.0f, 100.0f, 1, 1, 1, 0.15f };
+				//Factory::SpriteData data{ "bullet.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };
 				for (size_t i{ 0 }; i < 8; ++i) {
 					switch (i)
 					{
@@ -1949,14 +1895,16 @@ struct Sys_ParticleEmitter : public System {
 
 	void emitparticle() {
 		//create particle sprite 
-		float min{-50.0f };
-		float max{ 50.0f };
+		float minvel{-50.0f };
+		float maxvel{ 50.0f };
+		float minsize{ 0.0f };
+		float maxsize{ 10.0f };
 		//create random sprite data 
-		float rand_sizex = min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - ((min)))));
-		float rand_sizey = min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - ((min)))));
-		float rand_velocityx = min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - ((min)))));
-		float rand_velocityy = min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - ((min)))));
-		Factory::SpriteData data{ "test", rand_sizex, rand_sizey, 2, 3, 8, 0.15f };
+		float rand_sizex = minsize + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (maxsize - ((minsize)))));
+		float rand_sizey = minsize + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (maxsize - ((minsize)))));
+		float rand_velocityx = minvel + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (maxvel - ((minvel)))));
+		float rand_velocityy = minvel + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (maxvel - ((minvel)))));
+		Factory::SpriteData data{ "bombparticles", rand_sizex, rand_sizey, 1, 1, 1, 0.15f };
 		//Factory::SpriteData data = { "test3", 1,8, 8, 0.1f, rand_sizex, rand_sizey };
 		//create particle 
 		Factory::Instance().FF_CreateParticle(data, static_cast<int>(get<Com_Position>().x), static_cast<int>(get<Com_Position>().y), rand_velocityx ,rand_velocityy);
@@ -2535,7 +2483,7 @@ struct Sys_GUIMapClick : public System {
 		Com_Tilemap& tilemap = get<Com_Tilemap>();
 		Com_GUIMap& guimap = get<Com_GUIMap>();
 		AEInputGetCursorPosition(&guimap.cursorposx,&guimap.cursorposy);
-		//of set cursor 
+		//off set cursor 
 		guimap.cursorposx -= AEGetWindowWidth() / 2;
 		guimap.cursorposy -= AEGetWindowHeight() / 2;
 		guimap.cursorposy = -guimap.cursorposy;
@@ -2653,16 +2601,80 @@ struct Sys_GUIMapClick : public System {
 
 
 struct Com_errormessageGUI {
-	char _filler = 0;
 	bool skiponeframe = false;
 };
 
 struct Sys_errormessageGUI : public System {
 	void UpdateComponent() override {
 		Com_errormessageGUI& errmsg = get<Com_errormessageGUI>();
-;		if (AEInputCheckTriggered(AEVK_LBUTTON) && errmsg.skiponeframe == true || AEInputCheckTriggered(AEVK_SPACE) && errmsg.skiponeframe == true) {
+;		if (AEInputCheckTriggered(AEVK_LBUTTON) && errmsg.skiponeframe == true || AEInputCheckTriggered(AEVK_SPACE) && errmsg.skiponeframe == true ) {
 			RemoveEntity();
 		}
 		errmsg.skiponeframe = true;
+	}
+};
+
+struct Com_instructionsGUI {
+	bool skiponeframe = false;
+};
+struct Sys_InstructionsGUI : public System {
+	void UpdateComponent() override {
+		Com_instructionsGUI& msg = get<Com_instructionsGUI>();
+		if (AEInputCheckTriggered(AEVK_LBUTTON) && msg.skiponeframe == true || AEInputCheckTriggered(AEVK_UP) && msg.skiponeframe == true || AEInputCheckTriggered(AEVK_DOWN) && msg.skiponeframe == true || AEInputCheckTriggered(AEVK_LEFT) && msg.skiponeframe == true
+			|| AEInputCheckTriggered(AEVK_RIGHT) && msg.skiponeframe == true || AEInputCheckTriggered(AEVK_W) && msg.skiponeframe == true || AEInputCheckTriggered(AEVK_A) && msg.skiponeframe == true || AEInputCheckTriggered(AEVK_S) && msg.skiponeframe == true
+			|| AEInputCheckTriggered(AEVK_D) && msg.skiponeframe == true) {
+			RemoveEntity();
+		}
+		msg.skiponeframe = true;
+	}
+};
+
+struct Com_TextMovingGUI {
+	bool active = true;
+	bool lastmessage = false;
+};
+
+struct Sys_TextMovingGUI : public System {
+	//const float scrollingspeed = 0.0009f;
+	const float scrollingspeed = 0.002f;
+	const float buffer = -0.03f;
+	bool* last;
+	void UpdateComponent() override {
+		Com_TextMovingGUI& textmoving = get<Com_TextMovingGUI>();
+		Com_GUISurface& surface = get<Com_GUISurface>();
+		//constant moving 
+		if (textmoving.active == true) {
+			surface._position.y -= scrollingspeed;
+		}
+		//if out of bounds 
+		if (surface._position.y < buffer) {
+			if (textmoving.lastmessage == true) {
+				*last = true;
+			}
+			RemoveEntity();
+		}
+	}
+};
+
+struct Com_Cursor {
+	//char _filler = 0;
+	s32 cursorposx;
+	s32 cursorposy;
+};
+
+struct Sys_Cursor : public System {
+	void UpdateComponent() override {
+		Com_Position& pos = get<Com_Position>();
+		Com_Cursor& cursor = get<Com_Cursor>();
+		AEInputGetCursorPosition(&cursor.cursorposx, &cursor.cursorposy);
+		//off set cursor 
+		cursor.cursorposx -= AEGetWindowWidth() / 2;
+		cursor.cursorposy -= AEGetWindowHeight() / 2;
+		cursor.cursorposy = -cursor.cursorposy;
+
+		pos.x = cursor.cursorposx;
+		pos.y = cursor.cursorposy;
+
+		std::cout << pos.x << std::endl;
 	}
 };
