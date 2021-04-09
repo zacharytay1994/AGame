@@ -1118,7 +1118,6 @@ struct Sys_AABB : public System {
 	//std::vector<Com_CollisionData> AABBTestBullet; //to store all collision data of player
 	void UpdateComponent() override {
 		if (!_grid || !_spawner) {
-			std::cout << "sys_AABB requires grid!" << std::endl;
 			return;
 		}
 		Com_TilePosition* tilepos = &get<Com_TilePosition>();
