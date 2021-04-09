@@ -660,7 +660,7 @@ struct Sys_EnemyStateBoss : public System {
 		static float time = 0;
 		time += _dt;
 		static int count = 0;
-		if (time > 1.5f) 
+		if (time > 2.0f) 
 		{
 			count++;
 			time = 0;
@@ -676,7 +676,7 @@ struct Sys_EnemyStateBoss : public System {
 		{
 			case 0:
 			{
-				if (stopshot == true && count > 4)
+				if (stopshot == true && count > 2)
 				{
 					//std::cout << count << std::endl;
 					stopshot = false;
@@ -707,30 +707,13 @@ struct Sys_EnemyStateBoss : public System {
 
 				else if (stopshot == false)
 				{
-					Pattern2(ProjEnemy, posBoss);
+					Pattern2(ProjEnemy, posBoss, time);
 
 					if (count > 5)
 					{
 						stopshot = true;
 						count = 0;
 					}
-				}
-			}
-			break;
-		
-			case 2:
-			{
-				if (stopshot == true && count > 3)
-				{
-					std::cout << count << std::endl;
-					stopshot = false;
-					count = 0;
-				}
-
-				else if (stopshot == false)
-				{
-					std::cout << "Pattern 3" << std::endl;
-					stopshot = true;
 				}
 			}
 			break;
@@ -751,10 +734,9 @@ struct Sys_EnemyStateBoss : public System {
 				Factory::Instance()[j].AddComponent<Com_YLayering>();
 			}
 	}
-	void Pattern2(const Factory::SpriteData& data, Com_TilePosition& pos)
+	void Pattern2(const Factory::SpriteData& data, Com_TilePosition& pos, float const& timer)
 	{
 
-		static int bulletcount = 0;
 		static bool turn = true;
 		if (turn == true) 
 		{
@@ -778,7 +760,6 @@ struct Sys_EnemyStateBoss : public System {
 					Factory::Instance()[j].AddComponent<Com_YLayering>();
 					Factory::Instance()[h].AddComponent<Com_YLayering>();
 				}
-				bulletcount++;
 		}
 		else 
 		{
@@ -800,17 +781,16 @@ struct Sys_EnemyStateBoss : public System {
 				Factory::Instance()[j].AddComponent<Com_YLayering>();
 				Factory::Instance()[h].AddComponent<Com_YLayering>();
 			}
-			bulletcount++;
 		}
-		if (bulletcount == 3) 
+		if (timer < 5) 
 		{
 			turn = false;
 		}
-		else if(bulletcount == 6)
+		else
 		{
 			turn = true;
-			bulletcount = 0;
 		}
+		
 	}
 
 };
