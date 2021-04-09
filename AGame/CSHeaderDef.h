@@ -606,6 +606,8 @@ struct Sys_EnemyStateBoss : public System {
 		Com_TilePosition& posBoss = get<Com_TilePosition>();
 		//Com_Boss& boss = get<Com_Boss>();
 		Factory::SpriteData ProjEnemy{ "EnemyBall.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };	
+		Com_GameTimer& gametimer = get<Com_GameTimer>();
+
 
 		if (boss->BossHealth <= 10) 
 		{
@@ -618,9 +620,14 @@ struct Sys_EnemyStateBoss : public System {
 			case 0:
 			{
 
-				if (timer <= 15 && timer >= 7) 
-				{
-					Pattern1(ProjEnemy, posBoss, timer);
+				//if (timer <= 15 && timer >= 7) 
+				//{
+				//	Pattern1(ProjEnemy, posBoss, timer);
+				//}
+
+				if (gametimer.timerinseconds >= 3.0f) {
+					Pattern1editted(ProjEnemy, posBoss);
+					gametimer.timerinseconds = 0; //reset 
 				}
 
 				
@@ -680,6 +687,34 @@ struct Sys_EnemyStateBoss : public System {
 				}
 			}
 		}
+	}
+
+	void Pattern1editted(const Factory::SpriteData& data, Com_TilePosition& pos)
+	{
+			if (pos._grid_x > Factory::Instance()[player].Get<Com_TilePosition>()._grid_x)
+			{
+				eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y, -1, 0, _tilemap);
+				Factory::Instance()[j].AddComponent<Com_YLayering>();
+
+			}
+			else if (pos._grid_x < Factory::Instance()[player].Get<Com_TilePosition>()._grid_x)
+			{
+				eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y, 1, 0, _tilemap);
+				Factory::Instance()[j].AddComponent<Com_YLayering>();
+			}
+			else if (pos._grid_x == Factory::Instance()[player].Get<Com_TilePosition>()._grid_x)
+			{
+				if (pos._grid_y < Factory::Instance()[player].Get<Com_TilePosition>()._grid_y)
+				{
+					eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y, 0, -1, _tilemap);
+					Factory::Instance()[j].AddComponent<Com_YLayering>();
+				}
+				else if (pos._grid_y > Factory::Instance()[player].Get<Com_TilePosition>()._grid_y)
+				{
+					eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y, 0, 1, _tilemap);
+					Factory::Instance()[j].AddComponent<Com_YLayering>();
+				}
+			}
 	}
 
 	void Pattern2Ver1(const Factory::SpriteData& data, Com_TilePosition& pos, float& time)

@@ -245,7 +245,7 @@ eid Factory::FF_CreateEnemy(const SpriteData& data, const eid& tilemap ,const in
 
 eid Factory::FF_CreateBoss(const SpriteData& data, const eid& tilemap ,const int& x, const int& y, const int& type) {
     eid id = FF_Sprite(data, 0.0f, 0.0f);
-    Factory::Instance()[id].AddComponent<Com_TilePosition, Com_TilemapRef, Com_Direction, Com_YLayering, Com_type, Com_TileMoveSpriteState ,Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_Health, Com_Boss>();
+    Factory::Instance()[id].AddComponent<Com_TilePosition, Com_TilemapRef, Com_Direction, Com_YLayering, Com_type, Com_TileMoveSpriteState ,Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_Health, Com_Boss, Com_GameTimer>();
     Entity& e = Factory::Instance()[id];
     e.Get<Com_type>().type = type;
     e.Get<Com_TilePosition>() = { x,y,x,y };

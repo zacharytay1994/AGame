@@ -168,7 +168,7 @@ void SceneManager::Initialize() {
 
 	// enemy states, spawn, attack
 	SystemDatabase::Instance().RegisterSystem<Sys_EnemyStateOne, Com_EnemyStateOne, Com_FindPath, Com_TilePosition, Com_Sprite, Com_type>();
-	SystemDatabase::Instance().RegisterSystem<Sys_EnemyStateBoss,Com_TilePosition, Com_Sprite, Com_type, Com_Boss>();
+	SystemDatabase::Instance().RegisterSystem<Sys_EnemyStateBoss,Com_TilePosition, Com_Sprite, Com_type, Com_Boss,Com_GameTimer>();
 	SystemDatabase::Instance().RegisterSystem<Sys_EnemySpawning, Com_EnemySpawn, Com_Wave, Com_Boss>();
 	//SystemDatabase::Instance().RegisterSystem<Sys_EnemyAttack, Com_Direction, Com_type, Com_TilePosition, Com_Tilemap, Com_EnemyStateOne>();
 	
