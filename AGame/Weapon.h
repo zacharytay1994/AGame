@@ -29,6 +29,7 @@ class Weapon
 		const unsigned int	GetWeapon_ReloadTime() const;
 		const unsigned int	GetWeapon_Capacity() const;
 		const bool			GetWeapon_Unlocked() const;
+		const unsigned int	GetWeapon_Cost() const;
 
 		const std::vector<BulletSpawn>& GetWeapon_Pattern() const;
 
@@ -44,6 +45,7 @@ class Weapon
 		void SetWeapon_ReloadTime(unsigned int new_ReloadTime);
 		void SetWeapon_Capacity(unsigned int new_Capacity);
 		void SetWeapon_Pattern(std::vector<BulletSpawn> const& rhs);
+		void SetWeapon_Cost(unsigned int new_Cost);
 
 		std::vector<BulletSpawn> weapon_Pattern;
 

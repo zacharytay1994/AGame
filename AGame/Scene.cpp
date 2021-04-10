@@ -108,6 +108,7 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Text>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUIDrag>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUISurfaceHoverShadow>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_GUISurfaceHoverShadow_Inventory>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUItextboxinput>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Writetofile>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUItextboxinputwords>();
@@ -117,6 +118,9 @@ void SceneManager::Initialize() {
 	// enemy states
 	ComponentDescription_DB::Instance().RegisterComponent<Com_EnemyStateOne>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_TileMoveSpriteState>();
+
+	// particle
+	ComponentDescription_DB::Instance().RegisterComponent<Com_ParticleFriction>();
 
 	
 	// 3. Registering all systems for the game
@@ -141,7 +145,7 @@ void SceneManager::Initialize() {
 	//SystemDatabase::Instance().RegisterSystem<Sys_RegisteringEntity, Com_objecttype>();
 	//test 
 	SystemDatabase::Instance().RegisterSystem <Sys_Boundingbox, Com_BoundingBox, Com_Position,Com_Sprite>();
-	SystemDatabase::Instance().RegisterSystem <Sys_AABB, Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_type,Com_Health>();
+	SystemDatabase::Instance().RegisterSystem <Sys_AABB, Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_type,Com_Health, Com_Position>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Projectile2, Com_TilePosition, Com_Projectile>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Camera, Com_Position, Com_Camera>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GridCollision, Com_type, Com_TilePosition, Com_GridColData>();
@@ -156,6 +160,7 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_GUIDrag, Com_GUIMouseCheck, Com_GUIDrag, Com_GUISurface>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUITextRender, Com_Position, Com_GUISurface, Com_Text>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceHoverShadow, Com_GUISurfaceHoverShadow>();
+	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceHoverShadow_Inventory, Com_GUISurfaceHoverShadow_Inventory>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUItextboxinput, Com_GUItextboxinput, Com_Text>();
 	SystemDatabase::Instance().RegisterSystem<Sys_writetofile, Com_Tilemap, Com_Writetofile, Com_GUIMouseCheck>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GUItextboxinputwords, Com_GUItextboxinputwords, Com_Text>();
@@ -177,6 +182,9 @@ void SceneManager::Initialize() {
 	
 	//Health test
 	SystemDatabase::Instance().RegisterSystem<Sys_HealthUpdate, Com_Health>();
+
+	// particle
+	SystemDatabase::Instance().RegisterSystem<Sys_ParticleFriction, Com_Position, Com_ParticleFriction>();
 
 
 	// 4. Registering scenes
@@ -219,6 +227,8 @@ void SceneManager::Free()
 *			  assigned at SceneManager::AddScene()
 ________________________________________________________*/
 void SceneManager::ChangeScene(const std::string& name) {
+	_pause = false;
+	_settings_toggle = false;
 	assert(_scenes.find(name) != _scenes.end());
 	if (_current_scene) {
 		// calls exit and unload
