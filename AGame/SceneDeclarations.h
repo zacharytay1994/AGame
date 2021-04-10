@@ -263,8 +263,8 @@ struct TestScenePF : public Scene
 	Inventory playerInv;
 	Factory::SpriteData box{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
 	Factory::SpriteData boom{ "kaboom", 40.0f, 40.0f, 1, 1, 1, 0.15f };
-	Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
-	Factory::SpriteData man{ "hero.png", 100.0f, 160.0f, 3, 3, 8, 0.1f, 0, passin };
+	Vec2i passin[5] = { {-1,3},{3,7},{8,11},{0,0},{0,0} };
+	Factory::SpriteData man{ "hero.png", 200.0f, 320.0f, 4, 3, 12, 0.1f, 0, passin };
 	Factory::SpriteData data{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.15f };
 	Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
 	Factory::SpriteData data2{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.15f };
@@ -486,11 +486,17 @@ struct TestScenePF : public Scene
 			SceneManager::Instance().RestartScene();
 		}
 
+		Com_Sprite& sprite = Factory::Instance()[player].Get<Com_Sprite>();
 		if (AEInputCheckTriggered(AEVK_SPACE)) {
 			_playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
 			//ResourceManager::Instance().ShootingSound();
+			sprite._lock = true;
+			sprite._current_frame = 0;
+			sprite._frame_interval_counter = 0.0f;
+			sprite._current_frame_segment = 2;
 		}
 		if (AEInputCheckCurr(AEVK_LEFT) || AEInputCheckCurr(AEVK_A)) {
+			sprite._flip = true;
 			arrow_sprite->_visible = true;
 			arrow_sprite->_current_frame_segment = 0;
 		}
@@ -499,6 +505,7 @@ struct TestScenePF : public Scene
 			arrow_sprite->_current_frame_segment = 1;
 		}
 		else if (AEInputCheckCurr(AEVK_RIGHT) || AEInputCheckCurr(AEVK_D)) {
+			sprite._flip = false;
 			arrow_sprite->_visible = true;
 			arrow_sprite->_current_frame_segment = 2;
 		}
