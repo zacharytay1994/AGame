@@ -1824,7 +1824,7 @@ struct Sys_EnemySpawning : public System {
 	float timer{ 0.0f };
 	//
 	Grid* _grid{ nullptr };
-	int _max{ 4 };
+	int _max{ 6 };
 	bool spawnBoss = false;
 	Com_Boss* boss{ nullptr };
 	//eid _spawner_id{ -1 };
@@ -1893,8 +1893,13 @@ struct Sys_EnemySpawning : public System {
 				eid enemy = Factory::Instance().FF_CreateBoss(Left, _tilemap, ran.x, ran.y, 7); // boss
 				Factory::Instance()[enemy].Get<Com_Boss>().playerHealth = &Factory::Instance()[playerpos].Get<Com_Health>();
 
+				Vec2i ran2 = { 0 + (rand() % 2 * Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width - 1),rand() % 3 };
+				while (_grid->Get(ran2)._obstacle || _grid->Get(ran2)._player || (ran2.x == 0 && ran2.y == 0)
+					|| (ran2.x == ran.x && ran2.y == ran.y)) {
+					ran2 = { 0 + (rand() % 2 * Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width - 1), rand() % 3 };
+				}
 
-				eid enemy2 = Factory::Instance().FF_CreateBoss(Right, _tilemap, ran.x, ran.y + 2, 7); // boss
+				eid enemy2 = Factory::Instance().FF_CreateBoss(Right, _tilemap, ran2.x, ran2.y, 7); // boss
 				Factory::Instance()[enemy2].Get<Com_Boss>().playerHealth = &Factory::Instance()[playerpos].Get<Com_Health>();
 			}
 			else
@@ -1905,8 +1910,12 @@ struct Sys_EnemySpawning : public System {
 				eid enemy = Factory::Instance().FF_CreateBoss(Left, _tilemap, ran.x, ran.y, 7); // boss
 				Factory::Instance()[enemy].Get<Com_Boss>().playerHealth = &Factory::Instance()[playerpos].Get<Com_Health>();
 
+				Vec2i ran2 = { 0 + (rand() % 2 * Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width - 1),rand() % 3 };
+				while (_grid->Get(ran2)._obstacle || _grid->Get(ran2)._player || (ran2.x == 0 && ran2.y == 0) || (ran2.x == ran.x && ran2.y == ran.y)) {
+					ran2 = { 0 + (rand() % 2 * Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width - 1), rand() % 3 };
+				}
 
-				eid enemy2 = Factory::Instance().FF_CreateBoss(Right, _tilemap, ran.x, ran.y + 2, 7); // boss
+				eid enemy2 = Factory::Instance().FF_CreateBoss(Right, _tilemap, ran2.x, ran2.y, 7); // boss
 				Factory::Instance()[enemy2].Get<Com_Boss>().playerHealth = &Factory::Instance()[playerpos].Get<Com_Health>();
 
 			}
@@ -2947,6 +2956,27 @@ struct Sys_TextMovingGUI : public System {
 			if (textmoving.lastmessage == true) {
 				*last = true;
 			}
+			RemoveEntity();
+		}
+	}
+};
+
+struct Com_GUIDelay {
+	bool active = true;
+};
+
+struct Sys_GUIDelay : public System {
+	float buffer = 3.0f;
+	bool* last{nullptr};
+	void UpdateComponent() override {
+		Com_GUIDelay& delay = get<Com_GUIDelay>();
+		Com_GUISurface& surface = get<Com_GUISurface>();
+		if (delay.active == true) {
+			buffer -= _dt;
+		}
+		//if out of bounds 
+		if (buffer < 0) {
+			*last = true;
 			RemoveEntity();
 		}
 	}

@@ -15,8 +15,11 @@ struct Opening : public Scene {
 		std::cout << "SYSTEM MESSAGE: Now entering Opening Scene." << std::endl;
 		//opening
 
-		main = Factory::Instance().FF_CreateGUISurface(data1, 0.5f, 0.5f, 1.0f, 1.0f, 100);																	// surface
-		SystemDatabase::Instance().GetSystem<Sys_TextMovingGUI>()->last = &last;
+		main = Factory::Instance().FF_CreateGUISurface(data1, 0.5f, 0.5f, 1.0f, 1.0f, 100);															// surface
+		Factory::Instance()[main].AddComponent<Com_GUIDelay>();
+		SystemDatabase::Instance().GetSystem<Sys_GUIDelay>()->last = &last;
+		
+
 		// initialize gui settings
 		GUISettingsInitialize();
 		
