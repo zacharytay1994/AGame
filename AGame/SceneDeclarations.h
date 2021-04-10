@@ -338,20 +338,7 @@ struct TestScenePF : public Scene
 				}
 				//if it's a enemy spawn location 
 				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 3) {
-					//enemytest = Factory::Instance().FF_SpriteTile(data, tilemap, x, y);
-					////Factory::Instance()[enemytest].AddComponent<Com_YLayering, Com_EnemyStateOne, Com_FindPath, Com_type, Com_GridColData,Com_EnemySpawn,Com_Wave>();
-					////Factory::Instance()[enemytest].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[player].Get<Com_TilePosition>();
-					////Factory::Instance()[enemytest].Get<Com_EnemyStateOne>().playerHealth = &Factory::Instance()[player].Get<Com_Health>();
-					//////passing
-					////SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
-					////++Factory::Instance()[enemytest].Get<Com_EnemySpawn>().CurrNoOfEnemies;
-					////Entity& e = Factory::Instance()[enemytest];
-					////e.Get<Com_type>().type = 1;
-					//Factory::Instance().FF_CreateSpawner();
-					//SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
-					////++Factory::Instance()[enemytest].Get<Com_EnemySpawn>().CurrNoOfEnemies;
-					////Entity& e = Factory::Instance()[enemytest];
-					////e.Get<Com_type>().type = 1;
+
 				}
 				//if its' a destructible wall 
 				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 4) {

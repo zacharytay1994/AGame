@@ -1855,6 +1855,12 @@ struct Sys_EnemySpawning : public System {
 				int randomEnemyCreation =  1 +(rand() % 2 * 4);
 				if(randomEnemyCreation == 1) // melee
 				{
+					//check if it's gonna spawn on player 
+					if (Factory::Instance()[playerpos].Get<Com_TilePosition>()._grid_x == ran.x && Factory::Instance()[playerpos].Get<Com_TilePosition>()._grid_y == ran.y) {
+						//skip 
+						_grid->Get({ ran })._obstacle = false; // free tile 
+						continue;
+					}
 					Factory::SpriteData dog{ "dog.png", 100.0f, 160.0f, 4, 3, 12, 0.1f, 0, passin };
 					eid enemy = Factory::Instance().FF_CreateEnemy(dog, _tilemap, ran.x, ran.y, randomEnemyCreation);
 					_grid->Get({ ran })._obstacle = true;
@@ -1865,6 +1871,12 @@ struct Sys_EnemySpawning : public System {
 				}
 				else if (randomEnemyCreation == 5) //ranged 
 				{
+					//check if it's gonna spawn on player 
+					if (Factory::Instance()[playerpos].Get<Com_TilePosition>()._grid_x == ran.x && Factory::Instance()[playerpos].Get<Com_TilePosition>()._grid_y == ran.y) {
+						//skip 
+						_grid->Get({ ran })._obstacle = false; // free tile 
+						continue;
+					}
 					Factory::SpriteData dogRange{ "dogRange.png", 100.0f, 160.0f, 4, 3, 12, 0.1f, 0, passin };
 					eid enemy = Factory::Instance().FF_CreateEnemy(dogRange, _tilemap, ran.x, ran.y, randomEnemyCreation);
 					_grid->Get({ ran })._obstacle = true;
