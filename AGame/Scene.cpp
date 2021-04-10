@@ -9,6 +9,7 @@
 #include "Scene_Zac.h"
 #include "Scene_Wilfred.h"
 #include "Scene_Noel.h"
+#include "Scene_Opening.h"
 #include "Scene_Credits.h"
 #include "Scene_Inventory.h"
 #include "Scene_LevelSelect.h"
@@ -113,6 +114,7 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUItextboxinputwords>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_errormessageGUI>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_TextMovingGUI>();
+	ComponentDescription_DB::Instance().RegisterComponent<Com_GUIDelay>();
 	// enemy states
 	ComponentDescription_DB::Instance().RegisterComponent<Com_EnemyStateOne>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_TileMoveSpriteState>();
@@ -163,6 +165,7 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_errormessageGUI, Com_errormessageGUI>();
 	SystemDatabase::Instance().RegisterSystem<Sys_InstructionsGUI, Com_instructionsGUI>();
 	SystemDatabase::Instance().RegisterSystem<Sys_TextMovingGUI, Com_TextMovingGUI, Com_GUISurface>();
+	SystemDatabase::Instance().RegisterSystem<Sys_GUIDelay, Com_GUIDelay, Com_GUISurface>();
 
 	// pathfinding
 	SystemDatabase::Instance().RegisterSystem<Sys_PathFinding, Com_type, Com_FindPath>();
@@ -170,7 +173,7 @@ void SceneManager::Initialize() {
 
 	// enemy states, spawn, attack
 	SystemDatabase::Instance().RegisterSystem<Sys_EnemyStateOne, Com_EnemyStateOne, Com_FindPath, Com_TilePosition, Com_Sprite, Com_type>();
-	SystemDatabase::Instance().RegisterSystem<Sys_EnemyStateBoss,Com_TilePosition, Com_Sprite, Com_type, Com_Boss>();
+	SystemDatabase::Instance().RegisterSystem<Sys_EnemyStateBoss,Com_TilePosition, Com_Sprite, Com_type, Com_Boss,Com_GameTimer>();
 	SystemDatabase::Instance().RegisterSystem<Sys_EnemySpawning, Com_EnemySpawn, Com_Wave, Com_Boss>();
 	//SystemDatabase::Instance().RegisterSystem<Sys_EnemyAttack, Com_Direction, Com_type, Com_TilePosition, Com_Tilemap, Com_EnemyStateOne>();
 	
@@ -184,6 +187,7 @@ void SceneManager::Initialize() {
 	AddScene<TestScenePF>("Test PathFinding");
 	AddScene<ExampleScene>("ExampleScene");
 	AddScene<MainMenu>("Main Menu");
+	AddScene<Opening>("Opening");
 	AddScene<TestScenewilfred>("TestScenewilfred");
 	AddScene<ShootingRange>("ShootingRange");
 	AddScene<LevelEditor>("Leveleditor");
@@ -254,11 +258,11 @@ void SceneManager::Update(const float& dt)
 		//if (AEInputCheckTriggered('H')) {
 		//	SceneManager::Instance().ChangeScene("Main Menu");
 		//}
-		float dt = _pause ? 0.0f : static_cast<float>(AEFrameRateControllerGetFrameTime());
-		SystemDatabase::Instance().SystemDatabaseUpdate(dt);
+		float _dt = _pause ? 0.0f : static_cast<float>(AEFrameRateControllerGetFrameTime());
+		SystemDatabase::Instance().SystemDatabaseUpdate(_dt);
 		ResourceManager::Instance().FlushDraw();
 		ResourceManager::Instance().FlushDrawText();
-		ResourceManager::Instance().Update(dt);
+		ResourceManager::Instance().Update(_dt);
 		SystemDatabase::Instance().RemoveAllEntities();
 	}
 }

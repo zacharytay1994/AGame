@@ -518,6 +518,11 @@ void ResourceManager::Initialize()
 	LoadTexture("ending", "ending.png");
 	LoadTexture("endingfmod", "endingfmod.png");
 	LoadTexture("bombparticles", "bombparticles.png");
+	LoadTexture("blank", "blank.png");
+	
+	// Opening Scene
+	LoadTexture("logo", "Digipen_.png");
+	
 	// load all fonts
 	LoadFont("courier", "COURIER.TTF", 20);
 }

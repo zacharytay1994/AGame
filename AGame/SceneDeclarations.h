@@ -288,7 +288,7 @@ struct TestScenePF : public Scene
 		tilemap = Factory::Instance().FF_Tilemap("tilemap", ResourceManager::Instance()._tilemap_names[ResourceManager::Instance()._tilemap_id]._binary + ".txt",
 															ResourceManager::Instance()._tilemap_names[ResourceManager::Instance()._tilemap_id]._map + ".txt");
 		Factory::Instance()[tilemap].Get<Com_Position>().x = -5;
-		Factory::Instance()[tilemap].Get<Com_Position>().y = 2;
+		Factory::Instance()[tilemap].Get<Com_Position>().y = 3;
 		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
 		SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->_tilemap = tilemap;
 		SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_tilemap = tilemap;
@@ -307,6 +307,10 @@ struct TestScenePF : public Scene
 		SystemDatabase::Instance().GetSystem<Sys_AABB>()->_grid = &pf2._grid;
 		SystemDatabase::Instance().GetSystem<Sys_ArrowKeysTilemap>()->_grid = &pf2._grid;
 		SystemDatabase::Instance().GetSystem<Sys_AABB>()->_spawner = &Factory::Instance()[spawner].Get<Com_EnemySpawn>();
+		Factory::Instance()[spawner].Get<Com_Boss>().BossHealth = 20;
+		SystemDatabase::Instance().GetSystem<Sys_AABB>()->Boss = &Factory::Instance()[spawner].Get<Com_Boss>();
+		SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->boss = &Factory::Instance()[spawner].Get<Com_Boss>();
+		SystemDatabase::Instance().GetSystem<Sys_EnemyStateBoss>()->boss = &Factory::Instance()[spawner].Get<Com_Boss>(); 
 
 		//testting for level editor 
 		for (int y = 0; y < com_tilemap._height; ++y) {
@@ -314,7 +318,7 @@ struct TestScenePF : public Scene
 				//if it's a player spawn location 
 				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 2) {
 					player = Factory::Instance().FF_SpriteTile(man, tilemap, x, y);
-					Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne, Com_TileMoveSpriteState, Com_type>();
+					Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne, Com_TileMoveSpriteState, Com_type, Com_BoundingBox, Com_Velocity, Com_CollisionData>();
 					Factory::Instance()[player].Get<Com_TilePosition>()._is_player = true;
 					Factory::Instance()[player].Get<Com_type>().type = 0; // set player type
 					//SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->player_id = player;
@@ -323,6 +327,7 @@ struct TestScenePF : public Scene
 					SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
 					SystemDatabase::Instance().GetSystem<Sys_EnemyStateBoss>()->player = player;
 
+					SystemDatabase::Instance().GetSystem<Sys_AABB>()->_PLayerHealth = &Factory::Instance()[player].Get<Com_Health>();
 					SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
 
 				}
@@ -421,8 +426,6 @@ struct TestScenePF : public Scene
 		Factory::Instance()[menu].Get<Com_GUISurface>()._active = false;
 		Factory::Instance()[_WinOrLose].Get<Com_GUISurface>()._active = false;
 
-		
-
 
 		//Factory::Instance().FF_CreateGUISurface(clock, 0.5f, 0.05f, 0.1f, 0.1f, 100);
 
@@ -460,12 +463,18 @@ struct TestScenePF : public Scene
 		std::stringstream ss1;
 		ss1 << Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves;
 		Factory::Instance()[waves].Get<Com_Text>()._data._text = ss1.str();
+		Com_Boss& bs = Factory::Instance()[spawner].Get<Com_Boss>();
+		Com_Wave& com_wave = Factory::Instance()[spawner].Get<Com_Wave>();
+		Com_EnemySpawn& em = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
 
 		if (AEInputCheckCurr('L')) {
 			ResourceManager::Instance()._screen_shake = 1.0f;
 		}
 //#endif
 		if (AEInputCheckTriggered('R')) {
+			bs.disable = 0;
+			bs.bossdefeat = false;
+			bs.BossHealth = 20;
 			SceneManager::Instance().RestartScene();
 		}
 
@@ -493,15 +502,12 @@ struct TestScenePF : public Scene
 			arrow_sprite->_visible = false;
 		}
 
-		Com_Wave& com_wave = Factory::Instance()[spawner].Get<Com_Wave>();
-		Com_EnemySpawn& em = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
-		Com_Boss& bs = Factory::Instance()[spawner].Get<Com_Boss>();
 
 		if (Factory::Instance()[player].Get<Com_Health>().health <= 0)
 		{
 			Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose :(", "courier");
 		}
-		else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0)
+		else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && bs.bossdefeat == true)
 		{
 			Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Win :D", "courier");
 		}
