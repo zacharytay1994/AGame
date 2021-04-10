@@ -61,8 +61,8 @@ struct Com_GameTimer {
 };
 
 struct Com_Position {
-	float x{ 0.0f };
-	float y{ 0.0f };
+	float x{ -1000.0f };
+	float y{ -1000.0f };
 };
 
 struct Com_Velocity {
@@ -372,15 +372,10 @@ ________________________________________________________________________________
 //for Boss type enemy
 -------------------------------------------*/
 struct Com_Boss {
-	int LeftHealth = 10;
-	int HeadHealth = 10;
-	int RightHealth = 10;
-	int TotalHealth = LeftHealth + HeadHealth + RightHealth;
+	int BossHealth = 0;
 
-	bool disableLeftTrue = false;
-	bool disableHeadTrue = false;
-	bool disableRightTrue = false;
-
+	int disable = 0;
+	bool enable = false;
 	bool bossdefeat = false;
 	Com_Health* playerHealth;
 };
@@ -428,7 +423,7 @@ struct Sys_EnemyStateOne : public System {
 		// flip enemies based on player
 		Com_TilePosition& enemypos = get<Com_TilePosition>();
 		Com_Sprite& sprite = get<Com_Sprite>();
-		Com_type& ct = get<Com_type>();
+		//Com_type& ct = get<Com_type>();
 		if (enemypos._grid_x < state._player->_grid_x) {
 			sprite._flip = false;
 		}
@@ -604,26 +599,264 @@ struct Sys_EnemyStateOne : public System {
 struct Sys_EnemyStateBoss : public System {
 	eid player{ -1 };
 	eid _tilemap{ -1 };
+	float timer{ 15.0f };
+	int Pattern = 0;
+	Com_Boss* boss{ nullptr };
+	bool switcher = false;
 	void UpdateComponent() override {
 		Com_TilePosition& posBoss = get<Com_TilePosition>();
-		Factory::SpriteData ProjEnemy{ "EnemyBall.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };
-		/*float time;
-		time += _dt;*/
+		//Com_Boss& boss = get<Com_Boss>();
+		Factory::SpriteData ProjEnemy{ "EnemyBall.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };	
+		Com_GameTimer& gametimer = get<Com_GameTimer>();
+		Com_Sprite& sprite = get<Com_Sprite>();
+		if (posBoss._grid_x < Factory::Instance()[player].Get<Com_TilePosition>()._grid_x || posBoss._grid_x > Factory::Instance()[player].Get<Com_TilePosition>()._grid_x) {
+			sprite._flip = false;
+		}
+		else {
+			sprite._flip = true;
+		}
+
+		
+
+		if (boss->BossHealth <= 10 && boss->BossHealth >= 5) 
+		{
+			//std::cout << "Changing pattern" << std::endl;
+			Pattern = 1;
+		}
+		else if (boss->BossHealth <= 4) 
+		{
+			Pattern = 2;
+		}
+		else 
+		{
+			Pattern = 0;
+		}
+		//std::cout << boss->BossHealth << std::endl;
+		switch (Pattern) 
+		{
+			case 0:
+			{
+				if (posBoss._grid_x < Factory::Instance()[player].Get<Com_TilePosition>()._grid_x || posBoss._grid_x > Factory::Instance()[player].Get<Com_TilePosition>()._grid_x) {
+					sprite._flip = false;
+				}
+				else {
+					sprite._flip = true;
+				}
+
+				if (gametimer.timerinseconds >= 2.0f) 
+				{
+					sprite._current_frame_segment = 1;
+					if (gametimer.timerinseconds <= 1.0f)
+					{
+						sprite._current_frame_segment = 1;
+						Pattern1(ProjEnemy, posBoss);
+					}
+					Pattern1(ProjEnemy, posBoss);
+					gametimer.timerinseconds = 0; //reset 
+				}
+			}
+			break;
+
+			case 1:
+			{
+				if (posBoss._grid_x < Factory::Instance()[player].Get<Com_TilePosition>()._grid_x || posBoss._grid_x > Factory::Instance()[player].Get<Com_TilePosition>()._grid_x) {
+					sprite._flip = false;
+				}
+				else {
+					sprite._flip = true;
+				}
+
+				if (gametimer.timerinseconds >= 4.0f && gametimer.timerinseconds <= 7.0f && switcher == false) 
+				{
+					sprite._current_frame_segment = 1;
+					Pattern2Ver1(ProjEnemy, posBoss);
+					switcher = true;
+				}
+				else if (gametimer.timerinseconds >= 10.0f && gametimer.timerinseconds <= 13.0f && switcher == true)
+				{
+					sprite._current_frame_segment = 1;
+					Pattern2Ver2(ProjEnemy, posBoss);
+					switcher = false;
+					gametimer.timerinseconds = 0;
+				}
+				
+			}
+			break;
+
+			case 2: 
+			{
+				if (posBoss._grid_x < Factory::Instance()[player].Get<Com_TilePosition>()._grid_x || posBoss._grid_x > Factory::Instance()[player].Get<Com_TilePosition>()._grid_x) {
+					sprite._flip = false;
+				}
+				else {
+					sprite._flip = true;
+				}
+
+				if (gametimer.timerinseconds >= 3.0f) 
+				{
+					sprite._current_frame_segment = 1;
+					for (size_t i{ 0 }; i < 10; ++i) 
+					{
+						PatternDesperate(ProjEnemy, posBoss);
+					}
+					gametimer.timerinseconds = 0; //reset 
+				}
+			}
+			break;
+		}
+		if (timer <= 0) 
+		{
+			timer = 10.0f;
+		}
+		else 
+		{
+			timer -= _dt;
+		}
 	}
 	void Pattern1(const Factory::SpriteData& data , Com_TilePosition& pos)
 	{
 		if (pos._grid_x > Factory::Instance()[player].Get<Com_TilePosition>()._grid_x)
 		{
-			eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y , -1, 0, _tilemap);
+			eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y, -1, 0, _tilemap);
 			Factory::Instance()[j].AddComponent<Com_YLayering>();
+
 		}
 		else if (pos._grid_x < Factory::Instance()[player].Get<Com_TilePosition>()._grid_x)
 		{
 			eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y, 1, 0, _tilemap);
 			Factory::Instance()[j].AddComponent<Com_YLayering>();
 		}
+		else if (pos._grid_x == Factory::Instance()[player].Get<Com_TilePosition>()._grid_x)
+		{
+			if (pos._grid_y < Factory::Instance()[player].Get<Com_TilePosition>()._grid_y)
+			{
+				eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y, 0, -1, _tilemap);
+				Factory::Instance()[j].AddComponent<Com_YLayering>();
+			}
+			else if (pos._grid_y > Factory::Instance()[player].Get<Com_TilePosition>()._grid_y)
+			{
+				eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y, 0, 1, _tilemap);
+				Factory::Instance()[j].AddComponent<Com_YLayering>();
+			}
+		}
 	}
 
+
+	void Pattern2Ver1(const Factory::SpriteData& data, Com_TilePosition& pos)
+	{
+		std::cout << "Heloo" << std::endl;
+		if (pos._grid_x > Factory::Instance()[player].Get<Com_TilePosition>()._grid_x &&
+			(pos._grid_x > 0 || pos._grid_x < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width))
+		{
+
+			for (int i = Factory::Instance()[_tilemap].Get<Com_Tilemap>()._height - 1; i > 2; --i)
+			{
+				eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, i, -1, 0, _tilemap);
+				eid k = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x - 1, i, -1, 0, _tilemap);
+				eid l = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x - 2, i, -1, 0, _tilemap);
+				Factory::Instance()[j].AddComponent<Com_YLayering>();
+				Factory::Instance()[k].AddComponent<Com_YLayering>();
+				Factory::Instance()[l].AddComponent<Com_YLayering>();
+			}
+		}
+
+		else if (pos._grid_x < Factory::Instance()[player].Get<Com_TilePosition>()._grid_x &&
+			(pos._grid_x > 0 || pos._grid_x < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width))
+		{
+
+			for (int i = Factory::Instance()[_tilemap].Get<Com_Tilemap>()._height - 1; i > 2; --i)
+			{
+				eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, i, 1, 0, _tilemap);
+				eid k = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x + 1, i, 1, 0, _tilemap);
+				eid l = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x + 2, i, 1, 0, _tilemap);
+				Factory::Instance()[j].AddComponent<Com_YLayering>();
+				Factory::Instance()[k].AddComponent<Com_YLayering>();
+				Factory::Instance()[l].AddComponent<Com_YLayering>();
+			}
+		}
+		else if (pos._grid_x == Factory::Instance()[player].Get<Com_TilePosition>()._grid_x)
+		{
+			if (pos._grid_y < Factory::Instance()[player].Get<Com_TilePosition>()._grid_y)
+			{
+				eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y, 0, -1, _tilemap);
+				Factory::Instance()[j].AddComponent<Com_YLayering>();
+			}
+			else if (pos._grid_y > Factory::Instance()[player].Get<Com_TilePosition>()._grid_y)
+			{
+				eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y, 0, 1, _tilemap);
+				Factory::Instance()[j].AddComponent<Com_YLayering>();
+			}
+		}
+
+		
+	}
+
+	void Pattern2Ver2(const Factory::SpriteData& data, Com_TilePosition& pos)
+	{
+		std::cout << "Its me" << std::endl;
+			if (pos._grid_x > Factory::Instance()[player].Get<Com_TilePosition>()._grid_x &&
+				(pos._grid_x > 0 || pos._grid_x < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width))
+			{
+				for (int i = 0; i < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._height - 3; ++i)
+				{
+					eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, i, -1, 0, _tilemap);
+					eid k = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x - 1, i, -1, 0, _tilemap);
+					eid l = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x - 2, i, -1, 0, _tilemap);
+					Factory::Instance()[j].AddComponent<Com_YLayering>();
+					Factory::Instance()[k].AddComponent<Com_YLayering>();
+					Factory::Instance()[l].AddComponent<Com_YLayering>();
+				}
+			}
+			else if (pos._grid_x < Factory::Instance()[player].Get<Com_TilePosition>()._grid_x &&
+				(pos._grid_x > 0 || pos._grid_x < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width))
+			{
+				for (int i = 0; i < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._height - 3; ++i)
+				{
+					eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, i, 1, 0, _tilemap);
+					eid k = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x + 1, i, 1, 0, _tilemap);
+					eid l = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x + 2, i, 1, 0, _tilemap);
+					Factory::Instance()[j].AddComponent<Com_YLayering>();
+					Factory::Instance()[k].AddComponent<Com_YLayering>();
+					Factory::Instance()[l].AddComponent<Com_YLayering>();
+				}
+			}
+			else if (pos._grid_x == Factory::Instance()[player].Get<Com_TilePosition>()._grid_x)
+			{
+				if (pos._grid_y < Factory::Instance()[player].Get<Com_TilePosition>()._grid_y)
+				{
+					eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y, 0, -1, _tilemap);
+					Factory::Instance()[j].AddComponent<Com_YLayering>();
+				}
+				else if (pos._grid_y > Factory::Instance()[player].Get<Com_TilePosition>()._grid_y)
+				{
+					eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y, 0, 1, _tilemap);
+					Factory::Instance()[j].AddComponent<Com_YLayering>();
+				}
+			}
+		
+	}
+
+	void PatternDesperate(const Factory::SpriteData& data, Com_TilePosition& pos)
+	{
+		float minvel{ -100.0f };
+		float maxvel{ 100.0f };
+		float rand_velocityx = minvel + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (maxvel - ((minvel)))));
+		float rand_velocityy = minvel + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (maxvel - ((minvel)))));
+	
+		if (pos._grid_x < Factory::Instance()[player].Get<Com_TilePosition>()._grid_x &&
+			(pos._grid_x > 0 || pos._grid_x < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width))
+		{
+			eid j = Factory::Instance().FF_CreateprojBoss(data, pos._grid_x + 1, pos._grid_y, fabs(rand_velocityx), rand_velocityy, _tilemap);
+			Factory::Instance()[j].AddComponent<Com_YLayering>();
+		}
+		else if (pos._grid_x > Factory::Instance()[player].Get<Com_TilePosition>()._grid_x &&
+			(pos._grid_x > 0 || pos._grid_x < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width))
+		{
+			eid j = Factory::Instance().FF_CreateprojBoss(data, pos._grid_x - 1, pos._grid_y, -fabs(rand_velocityx), rand_velocityy, _tilemap);
+			Factory::Instance()[j].AddComponent<Com_YLayering>();
+		}
+
+	}
 };
 
 /*																				Component::GUI
@@ -1030,7 +1263,8 @@ struct Sys_TilePosition : public System {
 			if (true) {
 				t_position._direction = { dis_x,dis_y };
 			}
-			if (dis_x < 0.2f && dis_x > -0.2f && dis_y < 0.2f && dis_y > -0.2f) {
+			float threshold = 3.0f;
+			if (dis_x < threshold && dis_x > -threshold && dis_y < threshold && dis_y > -threshold) {
 				position.x = dst_x;
 				position.y = dst_y;
 				t_position._moving = false;
@@ -1053,10 +1287,12 @@ struct Sys_TileMoveSpriteState : public System {
 	void UpdateComponent() override {
 		Com_Sprite& sprite = get<Com_Sprite>();
 		Com_TilePosition& pos = get<Com_TilePosition>();
-		/*if (pos._moving) {
-			
-		}*/
-		//sprite._current_frame_segment = 1;
+		if (pos._moving) {
+			sprite._current_frame_segment = 1;
+		}
+		else if (sprite._current_frame_segment == 1) {
+			sprite._current_frame_segment = 0;
+		}
 		if (pos._direction.x < -0.01f) {
 			sprite._flip = true;
 		}
@@ -1109,9 +1345,10 @@ struct Sys_Boundingbox : public System {
 
 struct Sys_AABB : public System {
 	
-	//Com_Health* _PLayerHealth{ nullptr };
+	Com_Health* _PLayerHealth{ nullptr };
 	Grid* _grid{ nullptr };
 	Com_EnemySpawn* _spawner{ nullptr };
+	Com_Boss* Boss{ nullptr };
 	std::vector<Com_CollisionData> AABBColData; //to store all collision data of player
 	std::vector<std::vector<Com_CollisionData>::iterator> Gridcoliterator;
 	//std::vector<Com_CollisionData> AABBTestEnemy; //to store all collision data of player
@@ -1159,7 +1396,7 @@ struct Sys_AABB : public System {
 
 				//	break;
 				//}
-				if ((type->type == type->enemy) && (AABBColData[i].type->type == type->bullet)) {
+				if ((type->type == type->enemy || type->type == type->enemyrange) && (AABBColData[i].type->type == type->bullet)) {
 					std::cout << "collidied" << std::endl;
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					--_spawner->CurrNoOfEnemies;
@@ -1167,31 +1404,76 @@ struct Sys_AABB : public System {
 					Gridcoliterator.push_back(iteratorcomgrid);
 					erase = true;
 					ResourceManager::Instance().EnemyDeathSound();
+					if (_spawner->CurrNoOfEnemies <= 0) 
+					{
+						Boss->enable = true;
+					}
+					
 					break;
 				}
 				
-				if ((type->type == type->enemyrange) && (AABBColData[i].type->type == type->bullet)) {
-					std::cout << "collidied" << std::endl;
+				if ((type->type == type->player) && (AABBColData[i].type->type == type->EnemyBalls)) {
+					std::cout << "collidied human2213"  << std::endl;
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
-					--_spawner->CurrNoOfEnemies;
-					RemoveEntity();
+					--_PLayerHealth->health;
+					if (_PLayerHealth->health <= 0) 
+					{
+						std::cout << "U died" << std::endl;
+						RemoveEntity();
+					}
 					Gridcoliterator.push_back(iteratorcomgrid);
 					erase = true;
-					ResourceManager::Instance().EnemyDeathSound();
 					break;
 				}
 
-				if (type->type == type->bullet && (AABBColData[i].type->type == type->enemyrange)) {
-					std::cout << "collidied" << std::endl;
+				if ((type->type == type->Boss) && (AABBColData[i].type->type == type->bullet)) {
+					std::cout << "collidied Boss" << std::endl;
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
+					--Boss->BossHealth;
+					if (Boss->BossHealth <= 0) 
+					{
+						--_spawner->CurrNoOfEnemies;
+						Boss->disable++;
+						if (Boss->disable >= 2) 
+						{
+							Boss->bossdefeat = true;
+						}
+						RemoveEntity();
+						Boss->BossHealth = 10;
+					}
+					Gridcoliterator.push_back(iteratorcomgrid);
+					erase = true;
+					break;
+				}
+
+				if (type->type == type->bullet && (AABBColData[i].type->type == type->enemyrange || AABBColData[i].type->type == type->enemy || AABBColData[i].type->type == type->Boss)) {
+					std::cout << "collidied" << std::endl;
+					//_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					RemoveEntity();
 					//Gridcoliterator.push_back(iteratorcomgrid);
 					//erase = true;
 					break;
 				}
 				
+				if (type->type == type->EnemyBalls && (AABBColData[i].type->type == type->player)) {
+					std::cout << "collidied human" << std::endl;
+					RemoveEntity();
+					//Gridcoliterator.push_back(iteratorcomgrid);
+					//erase = true;
+					break;
+				}
+
 				if (type->type == type->bullet && (AABBColData[i].type->type == type->enemy)) {
 					std::cout << "collidied" << std::endl;
+					//_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
+					RemoveEntity();
+					//Gridcoliterator.push_back(iteratorcomgrid);
+					//erase = true;
+					break;
+				}
+
+				if (type->type == type->bullet && (AABBColData[i].type->type == type->Boss)) {
+					std::cout << "collidied Bossa" << std::endl;
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					RemoveEntity();
 					//Gridcoliterator.push_back(iteratorcomgrid);
@@ -1507,16 +1789,16 @@ struct Sys_Projectile2 : public System {
 				tileposition._grid_y++;
 			}
 
-			if (tilemap) {
-				// check if new tile position is within grid - would be checked with collision_mask after
-				if (tileposition._grid_x >= 0 && tileposition._grid_x < tilemap->_width && tileposition._grid_y >= 0 && tileposition._grid_y < tilemap->_height &&
-					tilemap->_floor_mask[(size_t)tileposition._grid_x * (size_t)tilemap->_height + (size_t)tileposition._grid_y] >= 0) {
-					// Do nothing
-				}
-				else {
-					RemoveEntity();
-				}
-			}
+			//if (tilemap) {
+			//	// check if new tile position is within grid - would be checked with collision_mask after
+			//	if (tileposition._grid_x >= 0 && tileposition._grid_x < tilemap->_width && tileposition._grid_y >= 0 && tileposition._grid_y < tilemap->_height &&
+			//		tilemap->_floor_mask[(size_t)tileposition._grid_x * (size_t)tilemap->_height + (size_t)tileposition._grid_y] >= 0) {
+			//		// Do nothing
+			//	}
+			//	else {
+			//		RemoveEntity();
+			//	}
+			//}
 		}
 	}
 };
@@ -1528,9 +1810,11 @@ struct Sys_EnemySpawning : public System {
 	eid _tilemap = { -1 };
 	eid playerpos = -1;
 	float timer{ 0.0f };
+	//
 	Grid* _grid{ nullptr };
 	int _max{ 4 };
-	bool spawnBoss = false; 
+	bool spawnBoss = false;
+	Com_Boss* boss{ nullptr };
 	//eid _spawner_id{ -1 };
 	void OncePerFrame() override
 	{
@@ -1579,14 +1863,14 @@ struct Sys_EnemySpawning : public System {
 				}
 			}
 		}
-		else if (wave.numberofwaves <= 0 && spawnBoss == true)
+		else if (wave.numberofwaves <= 0 && spawnBoss == true && boss->disable == 0)
 		{
-			Vec2i ran = { 0 + (rand() % 2 * 9),rand() % 3 };
+			Vec2i ran = { 0 + (rand() % 2 * Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width -1),rand() % 3 };
 			while (_grid->Get(ran)._obstacle || _grid->Get(ran)._player || (ran.x == 0  && ran.y == 0)) {
-				ran = { 0 + (rand() % 2 * 9), rand() % 3 };
+				ran = { 0 + (rand() % 2 * Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width -1), rand() % 3 };
 			}
-			Vec2i passin[5] = { {0,14},{0,14},{0,0},{0,0},{0,0} };
-			Vec2i passin2[5] = { {30,44},{30,44},{0,0},{0,0},{0,0} };
+			Vec2i passin[5] = { {0,15},{16,30},{0,0},{0,0},{0,0} };
+			Vec2i passin2[5] = { {31,45},{46,60},{0,0},{0,0},{0,0} };
 
 
 			if (Factory::Instance()[playerpos].Get<Com_TilePosition>()._grid_x < ran.x) 
@@ -1603,8 +1887,8 @@ struct Sys_EnemySpawning : public System {
 			}
 			else
 			{
-				Factory::SpriteData Left{ "Right.png", 50.0f, 50.0f, 4, 15, 60, 0.1f, 0, passin2 };
-				Factory::SpriteData Right{ "Right.png", 50.0f, 50.0f, 4, 15, 60, 0.1f, 0, passin };
+				Factory::SpriteData Left{ "Right.png", 50.0f, 35.0f, 4, 15, 60, 0.1f, 0, passin2 };
+				Factory::SpriteData Right{ "Right.png", 50.0f, 35.0f, 4, 15, 60, 0.1f, 0, passin };
 
 				eid enemy = Factory::Instance().FF_CreateBoss(Left, _tilemap, ran.x, ran.y, 7); // boss
 				Factory::Instance()[enemy].Get<Com_Boss>().playerHealth = &Factory::Instance()[playerpos].Get<Com_Health>();
@@ -1625,10 +1909,11 @@ struct Sys_EnemySpawning : public System {
 			timer -= _dt;
 		}
 
-		if (_spawner.CurrNoOfEnemies <= 0 && wave.numberofwaves <= 0) 
+		if (_spawner.CurrNoOfEnemies <= 0 && wave.numberofwaves <= 0 && boss->enable == true)
 		{
 			spawnBoss = true;
-			std::cout << "Boss appear" << std::endl;
+			boss->enable = false;
+			//std::cout << "Boss appear" << std::endl;
 		}
 	}
 
@@ -2177,7 +2462,7 @@ struct Sys_GridCollision : public System {
 		Com_type* type = &get<Com_type>();
 		Com_TilePosition* tilepos = &get<Com_TilePosition>();
 		Com_GridColData& gridcoldata = get<Com_GridColData>();
-		bool hit = false;
+		//bool hit = false;
 		//Com_EnemySpawn& gridspaen = get<Com_EnemySpawn>();
 		if (gridcoldata.emplacedvec == false) {
 			GridCol.emplace_back(Com_GridColData{ tilepos,type });
@@ -2671,7 +2956,7 @@ struct Sys_Cursor : public System {
 		cursor.cursorposy -= AEGetWindowHeight() / 2;
 		cursor.cursorposy = -cursor.cursorposy;
 
-		pos.x =(float)cursor.cursorposx;
+		pos.x = (float)cursor.cursorposx;
 		pos.y = (float)cursor.cursorposy;
 
 		std::cout << pos.x << std::endl;
