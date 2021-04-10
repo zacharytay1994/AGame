@@ -88,6 +88,8 @@ struct Com_Sprite {
 	bool				_visible{ true };
 	int					_current_frame_segment{ 0 };
 	Vec2i				_frame_segment[5]{ {0,0}, {0,0}, {0,0}, {0,0}, {0,0} };
+	bool				_lock{ false };
+	int					_next_current_frame_segment{ 0 };
 };
 
 struct Com_Direction {
@@ -991,6 +993,10 @@ struct Sys_DrawSprite : public System {
 				if (current_frame > sprite._frame_segment[sprite._current_frame_segment].y) {
 					if (sprite._repeat) {
 						sprite._current_frame = 0;
+						if (sprite._lock) {
+							sprite._lock = false;
+							sprite._current_frame_segment = sprite._next_current_frame_segment;
+						}
 					}
 					else {
 						--sprite._current_frame;
@@ -1289,10 +1295,20 @@ struct Sys_TileMoveSpriteState : public System {
 		Com_Sprite& sprite = get<Com_Sprite>();
 		Com_TilePosition& pos = get<Com_TilePosition>();
 		if (pos._moving) {
-			sprite._current_frame_segment = 1;
+			if (sprite._lock) {
+				sprite._next_current_frame_segment = 1;
+			}
+			else {
+				sprite._current_frame_segment = 1;
+			}
 		}
 		else if (sprite._current_frame_segment == 1) {
-			sprite._current_frame_segment = 0;
+			if (sprite._lock) {
+				sprite._next_current_frame_segment = 0;
+			}
+			else {
+				sprite._current_frame_segment = 0;
+			}
 		}
 		if (pos._direction.x < -0.01f) {
 			sprite._flip = true;
@@ -1876,7 +1892,7 @@ struct Sys_EnemySpawning : public System {
 				}
 				/*int randomx = rand() % 9;
 				int randomy = rand() % 5;*/
-				Vec2i passin[5] = { {0,3},{4,7},{8,11},{0,0},{0,0} };
+				Vec2i passin[5] = { {0,3},{4,7},{7,11},{0,0},{0,0} };
 				int randomEnemyCreation =  1 +(rand() % 2 * 4);
 				if(randomEnemyCreation == 1) // melee
 				{
@@ -2899,8 +2915,8 @@ struct Sys_GUIMapClick : public System {
 					}
 					//player spawn needs 1 
 					if (Leveledittyp == 2 && guimap.playercount != 1) {
-						Vec2i passin[5] = { {0,3},{4,7},{8,11},{0,0},{0,0} };
-						Factory::SpriteData man{ "hero.png", 100.0f, 160.0f, 3, 3, 8, 0.1f, 0, passin };
+						Vec2i passin[5] = { {0,3},{3,7},{7,11},{0,0},{0,0} };
+						Factory::SpriteData man{ "hero.png", 200.0f, 320.0f, 4, 3, 12, 0.1f, 0, passin };
 						Factory::Instance().FF_SpriteTile(man, _tilemap, spawnspritex, spawnspritey);
 						tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = 2;
 						++guimap.playercount;
