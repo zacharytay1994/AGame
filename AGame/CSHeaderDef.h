@@ -61,8 +61,8 @@ struct Com_GameTimer {
 };
 
 struct Com_Position {
-	float x{ 0.0f };
-	float y{ 0.0f };
+	float x{ -1000.0f };
+	float y{ -1000.0f };
 };
 
 struct Com_Velocity {
@@ -423,7 +423,7 @@ struct Sys_EnemyStateOne : public System {
 		// flip enemies based on player
 		Com_TilePosition& enemypos = get<Com_TilePosition>();
 		Com_Sprite& sprite = get<Com_Sprite>();
-		Com_type& ct = get<Com_type>();
+		//Com_type& ct = get<Com_type>();
 		if (enemypos._grid_x < state._player->_grid_x) {
 			sprite._flip = false;
 		}
@@ -1155,7 +1155,8 @@ struct Sys_TilePosition : public System {
 			if (true) {
 				t_position._direction = { dis_x,dis_y };
 			}
-			if (dis_x < 0.2f && dis_x > -0.2f && dis_y < 0.2f && dis_y > -0.2f) {
+			float threshold = 3.0f;
+			if (dis_x < threshold && dis_x > -threshold && dis_y < threshold && dis_y > -threshold) {
 				position.x = dst_x;
 				position.y = dst_y;
 				t_position._moving = false;
@@ -1178,10 +1179,12 @@ struct Sys_TileMoveSpriteState : public System {
 	void UpdateComponent() override {
 		Com_Sprite& sprite = get<Com_Sprite>();
 		Com_TilePosition& pos = get<Com_TilePosition>();
-		/*if (pos._moving) {
-			
-		}*/
-		//sprite._current_frame_segment = 1;
+		if (pos._moving) {
+			sprite._current_frame_segment = 1;
+		}
+		else if (sprite._current_frame_segment == 1) {
+			sprite._current_frame_segment = 0;
+		}
 		if (pos._direction.x < -0.01f) {
 			sprite._flip = true;
 		}
@@ -1334,7 +1337,7 @@ struct Sys_AABB : public System {
 
 				if (type->type == type->bullet && (AABBColData[i].type->type == type->enemyrange)) {
 					std::cout << "collidied" << std::endl;
-					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
+					//_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					RemoveEntity();
 					//Gridcoliterator.push_back(iteratorcomgrid);
 					//erase = true;
@@ -1343,7 +1346,7 @@ struct Sys_AABB : public System {
 				
 				if (type->type == type->bullet && (AABBColData[i].type->type == type->enemy)) {
 					std::cout << "collidied" << std::endl;
-					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
+					//_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					RemoveEntity();
 					//Gridcoliterator.push_back(iteratorcomgrid);
 					//erase = true;
@@ -1665,17 +1668,6 @@ struct Sys_Projectile2 : public System {
 			else if (proj.grid_vel_y < 0)
 			{
 				tileposition._grid_y++;
-			}
-
-			if (tilemap) {
-				// check if new tile position is within grid - would be checked with collision_mask after
-				if (tileposition._grid_x >= 0 && tileposition._grid_x < tilemap->_width && tileposition._grid_y >= 0 && tileposition._grid_y < tilemap->_height &&
-					tilemap->_floor_mask[(size_t)tileposition._grid_x * (size_t)tilemap->_height + (size_t)tileposition._grid_y] >= 0) {
-					// Do nothing
-				}
-				else {
-					RemoveEntity();
-				}
 			}
 		}
 	}
@@ -2340,7 +2332,7 @@ struct Sys_GridCollision : public System {
 		Com_type* type = &get<Com_type>();
 		Com_TilePosition* tilepos = &get<Com_TilePosition>();
 		Com_GridColData& gridcoldata = get<Com_GridColData>();
-		bool hit = false;
+		//bool hit = false;
 		//Com_EnemySpawn& gridspaen = get<Com_EnemySpawn>();
 		if (gridcoldata.emplacedvec == false) {
 			GridCol.emplace_back(Com_GridColData{ tilepos,type });
@@ -2834,8 +2826,8 @@ struct Sys_Cursor : public System {
 		cursor.cursorposy -= AEGetWindowHeight() / 2;
 		cursor.cursorposy = -cursor.cursorposy;
 
-		pos.x = cursor.cursorposx;
-		pos.y = cursor.cursorposy;
+		pos.x = (float)cursor.cursorposx;
+		pos.y = (float)cursor.cursorposy;
 
 		std::cout << pos.x << std::endl;
 	}
