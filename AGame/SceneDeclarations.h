@@ -312,9 +312,10 @@ struct TestScenePF : public Scene
 		SystemDatabase::Instance().GetSystem<Sys_AABB>()->_grid = &pf2._grid;
 		SystemDatabase::Instance().GetSystem<Sys_ArrowKeysTilemap>()->_grid = &pf2._grid;
 		SystemDatabase::Instance().GetSystem<Sys_AABB>()->_spawner = &Factory::Instance()[spawner].Get<Com_EnemySpawn>();
+		Factory::Instance()[spawner].Get<Com_Boss>().BossHealth = 20;
 		SystemDatabase::Instance().GetSystem<Sys_AABB>()->Boss = &Factory::Instance()[spawner].Get<Com_Boss>();
 		SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->boss = &Factory::Instance()[spawner].Get<Com_Boss>();
-		SystemDatabase::Instance().GetSystem<Sys_EnemyStateBoss>()->boss = &Factory::Instance()[spawner].Get<Com_Boss>();
+		SystemDatabase::Instance().GetSystem<Sys_EnemyStateBoss>()->boss = &Factory::Instance()[spawner].Get<Com_Boss>(); 
 
 		//testting for level editor 
 		for (int y = 0; y < com_tilemap._height; ++y) {
@@ -322,7 +323,7 @@ struct TestScenePF : public Scene
 				//if it's a player spawn location 
 				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 2) {
 					player = Factory::Instance().FF_SpriteTile(man, tilemap, x, y);
-					Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne, Com_TileMoveSpriteState, Com_type>();
+					Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne, Com_TileMoveSpriteState, Com_type, Com_BoundingBox, Com_Velocity, Com_CollisionData>();
 					Factory::Instance()[player].Get<Com_TilePosition>()._is_player = true;
 					Factory::Instance()[player].Get<Com_type>().type = 0; // set player type
 					//SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->player_id = player;
@@ -331,6 +332,7 @@ struct TestScenePF : public Scene
 					SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
 					SystemDatabase::Instance().GetSystem<Sys_EnemyStateBoss>()->player = player;
 
+					SystemDatabase::Instance().GetSystem<Sys_AABB>()->_PLayerHealth = &Factory::Instance()[player].Get<Com_Health>();
 					SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
 
 				}
@@ -428,8 +430,6 @@ struct TestScenePF : public Scene
 		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
 		Factory::Instance()[menu].Get<Com_GUISurface>()._active = false;
 		Factory::Instance()[_WinOrLose].Get<Com_GUISurface>()._active = false;
-
-		
 
 
 		//Factory::Instance().FF_CreateGUISurface(clock, 0.5f, 0.05f, 0.1f, 0.1f, 100);

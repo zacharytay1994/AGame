@@ -92,7 +92,7 @@ struct Entity {
 		_chunk = temp;
 		_id = temp_id;
 		((_chunk->GetComponent<T>(_id) = T()), ...);
-		std::cout << "Component Added!" << std::endl;
+		//std::cout << "Component Added!" << std::endl;
 		return *this;
 	}
 	void FreeData();
