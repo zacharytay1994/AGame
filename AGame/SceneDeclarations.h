@@ -50,6 +50,11 @@ void ChangeInventoryScene(Com_GUISurface* surface) {
 
 void ChangeLevelSelect(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	SceneManager::Instance().ChangeScene("LevelSelect");
+}
+
+void ChangeLevelSelectNormal(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
 	SceneManager::Instance().ChangeScene("LevelSelectNormal");
 }
 
