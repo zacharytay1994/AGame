@@ -361,7 +361,7 @@ struct Com_EnemySpawn {
 
 struct Com_Wave {
 	float timerforwave{ 3.0f }; //if timer hits 0 in secsm spawn new wave 
-	size_t numberofwaves{ 1 }; //if number of wave hit 0, level unlocked 
+	size_t numberofwaves{ 10 }; //if number of wave hit 0, level unlocked 
 };
 
 

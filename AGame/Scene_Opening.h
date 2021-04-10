@@ -4,20 +4,47 @@
 struct Opening : public Scene {
 	eid i{ -1 };
 	eid main{ -1 };
-	eid _settings{ -1 };
 	eid _change_scene{ -1 };
 	eid load{ -1 };
-	Factory::SpriteData data1{ "menubackground" };
-	Factory::SpriteData data2{ "buttonsurface" };
-	Factory::SpriteData data3{ "button1" };
-	Factory::SpriteData data4{ "button2" };
-	Factory::SpriteData data5{ "button3" };
-	Factory::SpriteData data6{ "transparent" };
-	Factory::SpriteData data7{ "gamelogo" };
-	Factory::SpriteData buttonbg{ "buttonsbg.png", 1.0f, 1.0f, 1, 1, 1, 1.0f, 0 };
-	Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
-	Factory::SpriteData button{ "buttonsprite.png", 1.0f, 1.0f, 3, 3, 8, 0.1f, 0, passin };
-	Vec2i passin4[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
-	Factory::SpriteData buttonload{ "background2.png", 2.0f, 1.0f, 2, 1, 2, 0.05f, 0, passin4 };
+	Factory::SpriteData data1{ "logo" };
 	bool last = false;
+	float fadetime = 2.0f;
+	float fading = 0.0f;
+
+
+	void Initialize() override {
+		last = false;
+		std::cout << "SYSTEM MESSAGE: Now entering Opening Scene." << std::endl;
+		//opening
+
+		main = Factory::Instance().FF_CreateGUISurface(data1, 0.5f, 0.5f, 1.0f, 1.0f, 100);																	// surface
+		SystemDatabase::Instance().GetSystem<Sys_TextMovingGUI>()->last = &last;
+		// initialize gui settings
+		GUISettingsInitialize();
+		
+
+	}
+	void Update(const float& dt) override {
+		//UNREFERENCED_PARAMETER(dt);
+		GUISettingsUpdate();
+
+		//AEGfxSetTransparency(fade);
+		if (fadetime <= 0) 
+		{
+			last = true;
+		}
+		else 
+		{
+			fadetime -= dt;
+		}
+
+		if (last == true || AEInputCheckTriggered(AEVK_SPACE) || AEInputCheckTriggered(AEVK_LBUTTON)) {
+			SceneManager::Instance().ChangeScene("Main Menu");
+		}
+	}
+	/*
+	Exit Override (optional)
+	________________________________*/
+	void Exit() override {
+	}
 };

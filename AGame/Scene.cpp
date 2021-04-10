@@ -9,6 +9,7 @@
 #include "Scene_Zac.h"
 #include "Scene_Wilfred.h"
 #include "Scene_Noel.h"
+#include "Scene_Opening.h"
 #include "Scene_Credits.h"
 #include "Scene_Inventory.h"
 #include "Scene_LevelSelect.h"
@@ -182,6 +183,7 @@ void SceneManager::Initialize() {
 	AddScene<TestScenePF>("Test PathFinding");
 	AddScene<ExampleScene>("ExampleScene");
 	AddScene<MainMenu>("Main Menu");
+	AddScene<Opening>("Opening");
 	AddScene<TestScenewilfred>("TestScenewilfred");
 	AddScene<ShootingRange>("ShootingRange");
 	AddScene<LevelEditor>("Leveleditor");

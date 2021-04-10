@@ -67,7 +67,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	// Using custom window procedure
 	AESysInit(hInstance, nCmdShow, 800, 600, 1, 60, true, NULL);
-	//AEToogleFullScreen(true);
+	AEToogleFullScreen(true);
 	// music
 	ResourceManager::Instance().CreateMusic();
 
@@ -78,7 +78,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	AESysReset();
 
 	SceneManager::Instance();
-	SceneManager::Instance().ChangeScene("Main Menu");
+	SceneManager::Instance().ChangeScene("Opening");
 	//SceneManager::Instance().ChangeScene("Test PathFinding");
 	AEGfxSetBackgroundColor(1.0f, 1.0f, 1.0f);
 
