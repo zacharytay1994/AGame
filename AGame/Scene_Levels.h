@@ -67,6 +67,7 @@ struct Level : public Scene
 
 		if (ResourceManager::Instance()._tilemap_names2[ResourceManager::Instance()._tilemap_id2]._binary + ".txt" == "c_level1.txt") {
 			levels = 1;
+			SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->yammonsterenable = false;
 		}
 		if (ResourceManager::Instance()._tilemap_names2[ResourceManager::Instance()._tilemap_id2]._binary + ".txt" == "c_level2.txt") {
 			levels = 2;
