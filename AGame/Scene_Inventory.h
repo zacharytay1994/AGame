@@ -17,7 +17,8 @@ struct InventoryMenu : public Scene {
 	Factory::SpriteData data6{ "transparent" };
 	Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
 	Factory::SpriteData button{ "buttonsprite.png", 1.0f, 1.0f, 3, 3, 8, 0.1f, 0, passin };
-	Factory::SpriteData button_dark{ "buttonsprite_dark.png", 1.0f, 1.0f, 3, 3, 8, 0.1f, 0, passin };
+	Vec2i passin2[5] = { {0,3},{4,7},{9,12},{13,16},{0,0} };
+	Factory::SpriteData button_dark{ "buttonsprite_dark.png", 1.0f, 1.0f, 6, 3, 17, 0.1f, 0, passin2 };
 	Factory::SpriteData buttonbg{ "buttonsbg.png", 1.0f, 1.0f, 1, 1, 1, 1.0f, 0 };
 	Factory::SpriteData title{ "title.png", 1.0f, 1.0f, 2, 2, 4, 0.2f, 0 };
 	Sys_PathFinding _pathfinding;
@@ -27,6 +28,7 @@ struct InventoryMenu : public Scene {
 	float original_dim_x = 0.8f;
 	float original_dim_y = 0.3f;
 	//Sys_PathFinding _pathfinding;
+	eid coins_text{ -1 };
 	eid current_weapon{ -1 };
 	eid pistol_weapon{ -1 };
 	bool pistol_weapon_unlocked{ false };
@@ -52,7 +54,7 @@ struct InventoryMenu : public Scene {
 		current_coins += std::to_string(_playerInv.coins);
 		current_coins += "]";
 		
-		Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.65f, 0.5f, 0.8f, 0.4f, current_coins.c_str(), "courier");
+		coins_text = Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.65f, 0.5f, 0.8f, 0.4f, current_coins.c_str(), "courier");
 		std::string current_weapon_text = _playerInv.Inventory_GetCurrentWeapon().GetWeapon_Name();
 		current_weapon = Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.5f, 0.6f, 0.8f, 0.4f, current_weapon_text, "courier");
 		
@@ -60,16 +62,29 @@ struct InventoryMenu : public Scene {
 		eid start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.5f, 0.35f, 0.4f, 0.2f, ChangeTestScenePF, "Start", "courier");
 		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
 
-		pistol_weapon = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.30f, 0.5f, 0.5f, 0.2f, EquipPistol, "Pistol", "courier");
-		Factory::Instance()[pistol_weapon].AddComponent<Com_GUISurfaceHoverShadow>();
-		trickpistol_weapon = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.70f, 0.5f, 0.5f, 0.2f, EquipTrickPistol, "Trick Pistol", "courier");
-		Factory::Instance()[trickpistol_weapon].AddComponent<Com_GUISurfaceHoverShadow>();
-		dualpistol_weapon = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.30f, 0.65f, 0.5f, 0.2f, EquipDualPistol, "Dual Pistol", "courier");
-		Factory::Instance()[dualpistol_weapon].AddComponent<Com_GUISurfaceHoverShadow>();
-		dualdiagpistol_weapon = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.70f, 0.65f, 0.5f, 0.2f, EquipDualDiagPistol, "DD Pistol", "courier");
-		Factory::Instance()[dualdiagpistol_weapon].AddComponent<Com_GUISurfaceHoverShadow>();
+		pistol_weapon = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button_dark, 0.30f, 0.5f, 0.5f, 0.2f, EquipPistol, "Pistol", "courier");
+		Factory::Instance()[pistol_weapon].AddComponent<Com_GUISurfaceHoverShadow_Inventory>();
+		trickpistol_weapon = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button_dark, 0.70f, 0.5f, 0.5f, 0.2f, EquipTrickPistol, "Trick Pistol", "courier");
+		Factory::Instance()[trickpistol_weapon].AddComponent<Com_GUISurfaceHoverShadow_Inventory>();
+		dualpistol_weapon = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button_dark, 0.30f, 0.65f, 0.5f, 0.2f, EquipDualPistol, "Dual Pistol", "courier");
+		Factory::Instance()[dualpistol_weapon].AddComponent<Com_GUISurfaceHoverShadow_Inventory>();
+		dualdiagpistol_weapon = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button_dark, 0.70f, 0.65f, 0.5f, 0.2f, EquipDualDiagPistol, "DD Pistol", "courier");
+		Factory::Instance()[dualdiagpistol_weapon].AddComponent<Com_GUISurfaceHoverShadow_Inventory>();
 		dagger_weapon = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.30f, 0.8f, 0.5f, 0.2f, EquipDagger, "Dagger", "courier");
 		Factory::Instance()[dagger_weapon].AddComponent<Com_GUISurfaceHoverShadow>();
+
+		if (pistol_weapon_unlocked)
+			Factory::Instance()[pistol_weapon].Get<Com_GUISurfaceHoverShadow_Inventory>().weapon_unlocked = true;
+
+		if (trickpistol_weapon_unlocked)
+			Factory::Instance()[trickpistol_weapon].Get<Com_GUISurfaceHoverShadow_Inventory>().weapon_unlocked = true;
+
+		if (dualpistol_weapon_unlocked)
+			Factory::Instance()[dualpistol_weapon].Get<Com_GUISurfaceHoverShadow_Inventory>().weapon_unlocked = true;
+
+		if (dualdiagpistol_weapon_unlocked)
+			Factory::Instance()[dualdiagpistol_weapon].Get<Com_GUISurfaceHoverShadow_Inventory>().weapon_unlocked = true;
+
 
 		// initialize gui settings
 		GUISettingsInitialize();
@@ -82,9 +97,30 @@ struct InventoryMenu : public Scene {
 
 		if (!pistol_weapon_unlocked && _playerInv.Inventory_CheckWeaponUnlocked("Pistol"))
 		{
-			pistol_weapon_unlocked = true;/*
-			Factory::Instance()[pistol_weapon].Get<Com_Sprite>()._render_pack._texture = button;*/
+			pistol_weapon_unlocked = true;
+			Factory::Instance()[pistol_weapon].Get<Com_GUISurfaceHoverShadow_Inventory>().weapon_unlocked = true;
 		}
+		if (!trickpistol_weapon_unlocked && _playerInv.Inventory_CheckWeaponUnlocked("TrickPistol"))
+		{
+			trickpistol_weapon_unlocked = true;
+			Factory::Instance()[trickpistol_weapon].Get<Com_GUISurfaceHoverShadow_Inventory>().weapon_unlocked = true;
+		}
+		if (!dualpistol_weapon_unlocked && _playerInv.Inventory_CheckWeaponUnlocked("DualPistol"))
+		{
+			dualpistol_weapon_unlocked = true;
+			Factory::Instance()[dualpistol_weapon].Get<Com_GUISurfaceHoverShadow_Inventory>().weapon_unlocked = true;
+		}
+		if (!dualdiagpistol_weapon_unlocked && _playerInv.Inventory_CheckWeaponUnlocked("DualDiagPistol"))
+		{
+			dualdiagpistol_weapon_unlocked = true;
+			Factory::Instance()[dualdiagpistol_weapon].Get<Com_GUISurfaceHoverShadow_Inventory>().weapon_unlocked = true;
+		}
+
+		current_coins = "[Coins: ";
+		current_coins += std::to_string(_playerInv.coins);
+		current_coins += "]";
+
+		Factory::Instance()[coins_text].Get<Com_Text>()._data._text = current_coins.c_str();
 
 		offset_rad = offset_rad + dt > 2.0f * PI ? 0.0f : offset_rad + dt;
 		offset_y = sin(offset_rad);

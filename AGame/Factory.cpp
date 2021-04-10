@@ -200,7 +200,7 @@ eid Factory::FF_Createproj(const SpriteData& data, const int& x, const int& y, c
 eid Factory::FF_Createproj2(const SpriteData& data, const int& x, const int& y, const int& vel_x, const int& vel_y, eid const& tilemap, int lifetime)
 {
     eid id = FF_SpriteTile(data, tilemap, x, y);
-    //for the projectile not the entity calling it 
+    //for the projectile not the entity calling it
     Entity& e = Factory::Instance()[id].AddComponent<Com_Projectile, Com_type, Com_EnemySpawn, Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_Health>();
     Com_Projectile& proj = e.Get<Com_Projectile>();
     e.Get<Com_Velocity>().x = (float)vel_x;
@@ -293,6 +293,88 @@ eid Factory::FF_CreateBomb(const SpriteData& data, const int& x, const int& y)
     //Entity& e = Factory::Instance()[id];
     //setting of velocity which is not initialized 
     return id;
+}
+
+eid Factory::FF_CreateParticleFriction(const SpriteData& data, const Vec2f& position, const Vec2f& velocity, const float& friction)
+{
+    eid id = FF_Sprite(data, position.x, position.y);
+    Entity& e = Factory::Instance()[id].AddComponent<Com_ParticleFriction, Com_YLayering>();
+    Com_ParticleFriction& pf = e.Get<Com_ParticleFriction>();
+    pf._velocity = velocity;
+    pf._friction = friction;
+    return id;
+}
+
+eid Factory::FF_CreateParticleFrictionSpray(const SpriteData& data, const Vec2f& position, const Vec2f& direction, const float& friction, const float& sprayangle, const Vec2f& scale, const float& strength, const int& num)
+{
+    for (int i = 0; i < num; ++i) {
+        float rand = AERandFloat() - 0.5f;
+        float rand_str = AERandFloat() + 0.5f;
+        eid id = FF_CreateParticleFriction(data, position, direction.RotateAngle(rand * sprayangle) * (rand_str * strength), friction);
+        Com_Sprite& sprite = Factory::Instance()[id].Get<Com_Sprite>();
+        sprite._x_scale = scale.x + (scale.y - scale.x) * (1.5f - rand_str);
+        sprite._y_scale = scale.x + (scale.y - scale.x) * (1.5f - rand_str);
+        sprite._current_frame = (int)(AERandFloat() * 4.0f);
+        sprite._loop = false;
+
+        // calculate frame offsets
+        int current_frame = sprite._current_frame + sprite._frame_segment[sprite._current_frame_segment].x;
+        if (current_frame > sprite._frame_segment[sprite._current_frame_segment].y) {
+            if (sprite._repeat) {
+                sprite._current_frame = 0;
+            }
+            else {
+                --sprite._current_frame;
+            }
+            current_frame = sprite._frame_segment[sprite._current_frame_segment].x;
+        }
+        //sprite._current_frame = ++sprite._current_frame >= sprite._frames ? 0 : sprite._current_frame;
+        sprite._render_pack._offset_x = (current_frame % sprite._col) * 1.0f / (float)sprite._col;
+        sprite._render_pack._offset_y = (current_frame / sprite._col) * 1.0f / (float)sprite._row;
+    }
+    return -1;
+}
+
+eid Factory::FF_CreateParticleFrictionBlood(const SpriteData& data, const Vec2f& position, const Vec2f& velocity, const float& friction)
+{
+    eid id = FF_Sprite(data, position.x, position.y);
+    Entity& e = Factory::Instance()[id].AddComponent<Com_ParticleFriction>();
+    Com_ParticleFriction& pf = e.Get<Com_ParticleFriction>();
+    pf._velocity = velocity;
+    pf._friction = friction;
+    Com_Sprite& sprite = e.Get<Com_Sprite>();
+    sprite._render_pack._layer = -10000.0f;
+    return id;
+}
+
+eid Factory::FF_CreateParticleFrictionBloodSpray(const SpriteData& data, const Vec2f& position, const Vec2f& direction, const float& friction, const float& sprayangle, const Vec2f& scale, const float& strength, const int& num)
+{
+    for (int i = 0; i < num; ++i) {
+        float rand = AERandFloat() - 0.5f;
+        float rand_str = AERandFloat() + 0.5f;
+        eid id = FF_CreateParticleFrictionBlood(data, position, direction.RotateAngle(rand * sprayangle) * (rand_str * strength), friction);
+        Com_Sprite& sprite = Factory::Instance()[id].Get<Com_Sprite>();
+        sprite._x_scale = scale.x + (scale.y - scale.x) * (1.5f - rand_str);
+        sprite._y_scale = scale.x + (scale.y - scale.x) * (1.5f - rand_str);
+        sprite._current_frame = (int)(AERandFloat() * 4.0f);
+        sprite._loop = false;
+
+        // calculate frame offsets
+        int current_frame = sprite._current_frame + sprite._frame_segment[sprite._current_frame_segment].x;
+        if (current_frame > sprite._frame_segment[sprite._current_frame_segment].y) {
+            if (sprite._repeat) {
+                sprite._current_frame = 0;
+            }
+            else {
+                --sprite._current_frame;
+            }
+            current_frame = sprite._frame_segment[sprite._current_frame_segment].x;
+        }
+        //sprite._current_frame = ++sprite._current_frame >= sprite._frames ? 0 : sprite._current_frame;
+        sprite._render_pack._offset_x = (current_frame % sprite._col) * 1.0f / (float)sprite._col;
+        sprite._render_pack._offset_y = (current_frame / sprite._col) * 1.0f / (float)sprite._row;
+    }
+    return -1;
 }
 
 //edits 
