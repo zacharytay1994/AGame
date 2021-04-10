@@ -1396,6 +1396,7 @@ struct Sys_AABB : public System {
 
 				//	break;
 				//}
+				
 
 				if ((type->type == type->enemy || type->type == type->enemyrange) && (AABBColData[i].type->type == type->bullet)) {
 					std::cout << "collidied" << std::endl;
@@ -1415,7 +1416,7 @@ struct Sys_AABB : public System {
 				
 				if ((type->type == type->player) && (AABBColData[i].type->type == type->EnemyBalls)) {
 					std::cout << "collidied human2213"  << std::endl;
-					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
+					//_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					--_PLayerHealth->health;
 					if (_PLayerHealth->health <= 0) 
 					{
@@ -1429,7 +1430,7 @@ struct Sys_AABB : public System {
 
 				if ((type->type == type->Boss) && (AABBColData[i].type->type == type->bullet)) {
 					std::cout << "collidied Boss" << std::endl;
-					/*_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;*/
+					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					--Boss->BossHealth;
 					if (Boss->BossHealth <= 0) 
 					{
@@ -1449,26 +1450,30 @@ struct Sys_AABB : public System {
 
 				if (type->type == type->bullet && (AABBColData[i].type->type == type->enemyrange || AABBColData[i].type->type == type->enemy || AABBColData[i].type->type == type->Boss)) {
 					std::cout << "collidied" << std::endl;
-					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
-					RemoveEntity();
-					/*Gridcoliterator.push_back(iteratorcomgrid);
-					erase = true;*/
-					break;
-				}
-				
-				if (type->type == type->EnemyBalls && (AABBColData[i].type->type == type->player)) {
-					std::cout << "collidied human" << std::endl;
-					if (tilepos->_grid_x == 5 && tilepos->_grid_y == 3)
-					{
-						std::cout << "Hello" << std::endl;
-						_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
-					}
 					//_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					RemoveEntity();
 					/*Gridcoliterator.push_back(iteratorcomgrid);
 					erase = true;*/
 					break;
 				}
+				
+				
+				if (type->type == type->EnemyBalls && (AABBColData[i].type->type == type->player)) {
+					std::cout << "collidied human" << std::endl;
+					if (tilepos->_grid_x == 4 && tilepos->_grid_y == 3) 
+					{
+						_grid->Get({ 4, 3 })._obstacle = false;
+						Gridcoliterator.push_back(iteratorcomgrid);
+						erase = true;
+					}
+					else 
+					{
+						_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
+						RemoveEntity();
+					}
+					break;
+				}
+				
 
 				if (type->type == type->bullet && (AABBColData[i].type->type == type->enemy)) {
 					std::cout << "collidied" << std::endl;
