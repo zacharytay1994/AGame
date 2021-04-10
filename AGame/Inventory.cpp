@@ -10,7 +10,8 @@ Inventory::Inventory() : equipped_weapon{ nullptr }
 	inventory_weapon.insert(std::make_pair("Dagger", new Dagger()));
 
 	Inventory_EquipWeapon("Dagger");
-	coins = 100; // cannot be more than 1000000, will cause memory leaks0
+	Inventory_EquipSecondaryWeapon("Dagger");
+	coins = 100; // cannot be more than 1000000, will cause memory leaks
 }
 
 Inventory::~Inventory()
@@ -33,9 +34,25 @@ bool Inventory::Inventory_EquipWeapon(std::string const& name)
 	return false;
 }
 
+bool Inventory::Inventory_EquipSecondaryWeapon(std::string const& name)
+{
+	std::map<std::string, Weapon*>::iterator it = inventory_weapon.find(name);
+	if (it != inventory_weapon.end() && it->second->GetWeapon_Unlocked())
+	{
+		equipped_secondary_weapon = it->second;
+		return true;
+	}
+	return false;
+}
+
 const Weapon& Inventory::Inventory_GetCurrentWeapon() const
 {
 	return *equipped_weapon;
+}
+
+const Weapon& Inventory::Inventory_GetCurrentSecondaryWeapon() const
+{
+	return *equipped_secondary_weapon;
 }
 
 bool Inventory::Inventory_SetWeaponUnlocked(std::string const& name)
