@@ -1819,6 +1819,7 @@ struct Sys_Projectile2 : public System {
 //logic for spawning of enemies 
 struct Sys_EnemySpawning : public System {
 	// Initialization
+	bool yammonsterenable{ false };
 	eid _tilemap = { -1 };
 	eid playerpos = -1;
 	float timer{ 0.0f };
@@ -1853,7 +1854,7 @@ struct Sys_EnemySpawning : public System {
 				int randomy = rand() % 5;*/
 				Vec2i passin[5] = { {0,3},{4,7},{8,11},{0,0},{0,0} };
 				int randomEnemyCreation =  1 +(rand() % 2 * 4);
-				if(randomEnemyCreation == 1) // melee
+				if(randomEnemyCreation == 1 || (randomEnemyCreation == 5 && yammonsterenable == false)) // melee
 				{
 					//check if it's gonna spawn on player 
 					if (Factory::Instance()[playerpos].Get<Com_TilePosition>()._grid_x == ran.x && Factory::Instance()[playerpos].Get<Com_TilePosition>()._grid_y == ran.y) {
@@ -1869,7 +1870,7 @@ struct Sys_EnemySpawning : public System {
 					//Factory::Instance()[enemy].AddComponent<Com_BoundingBox>();
 					++_spawner.CurrNoOfEnemies;
 				}
-				else if (randomEnemyCreation == 5) //ranged 
+				else if (randomEnemyCreation == 5 && yammonsterenable == true) //ranged 
 				{
 					//check if it's gonna spawn on player 
 					if (Factory::Instance()[playerpos].Get<Com_TilePosition>()._grid_x == ran.x && Factory::Instance()[playerpos].Get<Com_TilePosition>()._grid_y == ran.y) {

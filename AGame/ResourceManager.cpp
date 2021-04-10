@@ -363,6 +363,41 @@ std::string ResourceManager::SwitchTilemap(const int& val)
 	return _tilemap_names[_tilemap_id]._name;
 }
 
+
+void ResourceManager::ReadTilemapNames2()
+{
+	// open file
+	std::ifstream file(asset_path + tilemap_path + _known_tilemaps2);
+	if (file) {
+		_tilemap_names2.clear();
+		_tilemap_images2.clear();
+		_tilemap_count2 = 0;
+		std::string line;
+		while (file >> line) {
+			_tilemap_names2.push_back({ line, "c_" + line,  "t_" + line });
+			LoadTexture(line, "tilemaps/" + line + ".png");
+			_tilemap_images2.push_back(GetTexture(line));
+			++_tilemap_count2;
+		}
+	}
+}
+
+std::string ResourceManager::SwitchTilemap2(const int& val)
+{
+	if (_tilemap_count2 <= 0) {
+		std::cout << "ResourceManager:: No Levels Found." << std::endl;
+		return "no level";
+	}
+	_tilemap_id2 += val;
+	if (_tilemap_id2 < 0) {
+		_tilemap_id2 += _tilemap_count2;
+	}
+	else {
+		_tilemap_id2 = _tilemap_id2 % _tilemap_count2;
+	}
+	return _tilemap_names2[_tilemap_id2]._name;
+}
+
 void ResourceManager::CreateMusic()
 {
 	//Create system object and initailize it
