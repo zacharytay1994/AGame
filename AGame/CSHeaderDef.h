@@ -1889,7 +1889,7 @@ struct Sys_EnemySpawning : public System {
 				}
 				/*int randomx = rand() % 9;
 				int randomy = rand() % 5;*/
-				Vec2i passin[5] = { {0,3},{3,7},{7,11},{0,0},{0,0} };
+				Vec2i passin[5] = { {0,3},{4,7},{7,11},{0,0},{0,0} };
 				int randomEnemyCreation =  1 +(rand() % 2 * 4);
 				if(randomEnemyCreation == 1) // melee
 				{
