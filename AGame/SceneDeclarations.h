@@ -292,7 +292,7 @@ struct TestScenePF : public Scene
 	Factory::SpriteData data2{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.15f };
 	Factory::SpriteData data22{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.25f };
 	Factory::SpriteData underline{ "underline.png", 80.0f, 200.0f, 4, 1, 4, 0.25f };
-	Factory::SpriteData meat{ "meat.png", 80.0f, 200.0f, 2, 2, 4, 1000.0f };
+	Factory::SpriteData clock{ "clock.png", 80.0f, 200.0f, 3, 2, 5, 0.20f };
 	Vec2i passin2[5] = { {0,1},{2,3},{4,5},{6,7},{0,0} };
 	Factory::SpriteData arrows{ "arrows.png", 50.0f, 50.0f, 3, 3, 8, 0.1f, -900, passin2 };
 	Factory::SpriteData title{ "title.png", 1.0f, 1.0f, 2, 2, 4, 0.2f, 0 };
@@ -468,11 +468,6 @@ struct TestScenePF : public Scene
 		UNREFERENCED_PARAMETER(dt);
 		GUISettingsUpdate();
 
-		if (AEInputCheckTriggered(AEVK_O)) {
-			//Factory::Instance().FF_CreateParticleFriction(clock, { 0.0f,0.0f }, { 1000.0f,1000.0f }, 0.9f);
-			Factory::Instance().FF_CreateParticleFrictionSpray(meat, { 0.0f,0.0f }, { 0.7f,0.7f }, 0.9f, 1.571f, { 20.0f,50.0f }, 1200.0f, 10);
-		}
-
 		if (AEInputCheckTriggered(AEVK_P)) {
 			SceneManager::Instance()._pause = !SceneManager::Instance()._pause;
 		}
@@ -543,7 +538,7 @@ struct TestScenePF : public Scene
 		if (Factory::Instance()[player].Get<Com_Health>().health <= 0)
 		{
 			Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose :(", "courier");
-		}
+		}	
 		else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && bs.bossdefeat == true)
 		{
 			Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Win :D", "courier");
