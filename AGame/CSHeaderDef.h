@@ -354,7 +354,7 @@ struct Com_type {
 -------------------------------------------*/
 
 struct Com_EnemySpawn {
-	int numberofenemies{ 2 }; //number of enemies to spawn
+	int numberofenemies{ 3 }; //number of enemies to spawn
 	int CurrNoOfEnemies{ 0 }; //keep track of enemies on map
 	int DEATHEnemiespawncounter{ 0 };
 };
