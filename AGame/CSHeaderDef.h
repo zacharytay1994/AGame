@@ -13,6 +13,7 @@
 
 #include "zMath.h"
 #include "music.h"
+#include "Scene.h"
 
 using namespace std;
 
@@ -1749,6 +1750,8 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 
 struct Sys_Projectile2 : public System {
 	void UpdateComponent() override {
+		if (SceneManager::Instance()._pause) return;
+
 		Com_Projectile& proj = get<Com_Projectile>();
 		if (AEGetTime(nullptr) - proj.time > AEFrameRateControllerGetFrameTime() * 10)
 		{
