@@ -225,6 +225,18 @@ eid Factory::FF_CreateprojEnemy(const SpriteData& data, const int& x, const int&
     return id;
 }
 
+eid Factory::FF_CreateBossManiacShoot(const SpriteData& data, const int& x, const int& y, const float& velx, const float& vely) {
+
+    eid id = FF_Sprite(data, (float)x, (float)y);
+    Factory::Instance()[id].AddComponent<Com_Velocity, Com_Particle, Com_GameTimer, Com_Boundary, Com_BoundingBox>();
+    Entity& e = Factory::Instance()[id];
+    e.Get<Com_Particle>().lifetime = 100;
+    e.Get<Com_Velocity>().x = velx;
+    e.Get<Com_Velocity>().y = vely;
+    return id;
+}
+
+
 eid Factory::FF_CreateSpawner()
 {
     eid id = CreateEntity<Com_EnemySpawn, Com_Wave,Com_type, Com_Boss>();
