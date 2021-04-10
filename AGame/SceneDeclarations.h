@@ -19,7 +19,7 @@ static Inventory _playerInv;
 //void TestFunction(Com_GUISurface* surface) {
 //	std::cout << "button1" << std::endl;
 //}
-
+static int levelselector{ 0 };
 static bool _change_scene_toggle{ false };
 void ToggleChangeSceneButton(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
@@ -52,18 +52,26 @@ void ChangeInventoryScene(Com_GUISurface* surface) {
 
 void ChangeLevelSelect(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	levelselector = 1;
 	SceneManager::Instance().ChangeScene("LevelSelect");
 }
 
 void ChangeLevelSelectNormal(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	levelselector = 2;
 	SceneManager::Instance().ChangeScene("LevelSelectNormal");
 }
 
 void ChangeTestScenePF(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	if (_playerInv.Inventory_GetCurrentWeapon().GetWeapon_Name() != "NoWeapon") {
-		SceneManager::Instance().ChangeScene("Level");
+		//if it's custom 
+		if (levelselector == 1) {
+			SceneManager::Instance().ChangeScene("Test PathFinding");
+		}
+		if (levelselector == 2) {
+			SceneManager::Instance().ChangeScene("Level");
+		}
 	}
 }
 
