@@ -1508,7 +1508,7 @@ struct Sys_Projectile2 : public System {
 				tileposition._grid_y++;
 			}
 
-			if (tilemap) {
+			/*if (tilemap) {
 				// check if new tile position is within grid - would be checked with collision_mask after
 				if (tileposition._grid_x >= 0 && tileposition._grid_x < tilemap->_width && tileposition._grid_y >= 0 && tileposition._grid_y < tilemap->_height &&
 					tilemap->_floor_mask[(size_t)tileposition._grid_x * (size_t)tilemap->_height + (size_t)tileposition._grid_y] >= 0) {
@@ -1517,7 +1517,7 @@ struct Sys_Projectile2 : public System {
 				else {
 					RemoveEntity();
 				}
-			}
+			}*/
 		}
 	}
 };
