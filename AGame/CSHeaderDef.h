@@ -361,7 +361,7 @@ struct Com_EnemySpawn {
 
 struct Com_Wave {
 	float timerforwave{ 3.0f }; //if timer hits 0 in secsm spawn new wave 
-	size_t numberofwaves{ 10 }; //if number of wave hit 0, level unlocked 
+	size_t numberofwaves{ 1 }; //if number of wave hit 0, level unlocked 
 };
 
 
@@ -1396,6 +1396,7 @@ struct Sys_AABB : public System {
 
 				//	break;
 				//}
+
 				if ((type->type == type->enemy || type->type == type->enemyrange) && (AABBColData[i].type->type == type->bullet)) {
 					std::cout << "collidied" << std::endl;
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
@@ -1428,7 +1429,7 @@ struct Sys_AABB : public System {
 
 				if ((type->type == type->Boss) && (AABBColData[i].type->type == type->bullet)) {
 					std::cout << "collidied Boss" << std::endl;
-					//_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
+					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					--Boss->BossHealth;
 					if (Boss->BossHealth <= 0) 
 					{
@@ -1448,27 +1449,33 @@ struct Sys_AABB : public System {
 
 				if (type->type == type->bullet && (AABBColData[i].type->type == type->enemyrange || AABBColData[i].type->type == type->enemy || AABBColData[i].type->type == type->Boss)) {
 					std::cout << "collidied" << std::endl;
-					//_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
+					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					RemoveEntity();
-					//Gridcoliterator.push_back(iteratorcomgrid);
-					//erase = true;
+					Gridcoliterator.push_back(iteratorcomgrid);
+					erase = true;
 					break;
 				}
 				
 				if (type->type == type->EnemyBalls && (AABBColData[i].type->type == type->player)) {
 					std::cout << "collidied human" << std::endl;
+					if (tilepos->_grid_x == 5 && tilepos->_grid_y == 3)
+					{
+						std::cout << "Hello" << std::endl;
+						_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
+					}
+					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					RemoveEntity();
-					//Gridcoliterator.push_back(iteratorcomgrid);
-					//erase = true;
+					Gridcoliterator.push_back(iteratorcomgrid);
+					erase = true;
 					break;
 				}
 
 				if (type->type == type->bullet && (AABBColData[i].type->type == type->enemy)) {
 					std::cout << "collidied" << std::endl;
-					//_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
+					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					RemoveEntity();
-					//Gridcoliterator.push_back(iteratorcomgrid);
-					//erase = true;
+					Gridcoliterator.push_back(iteratorcomgrid);
+					erase = true;
 					break;
 				}
 
@@ -1476,8 +1483,8 @@ struct Sys_AABB : public System {
 					std::cout << "collidied Bossa" << std::endl;
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					RemoveEntity();
-					//Gridcoliterator.push_back(iteratorcomgrid);
-					//erase = true;
+					Gridcoliterator.push_back(iteratorcomgrid);
+					erase = true;
 					break;
 				}
 
@@ -1833,9 +1840,9 @@ struct Sys_EnemySpawning : public System {
 			timer = wave.timerforwave;
 			--wave.numberofwaves;		//decrease the number of waves left 
 			for (int i = 0; i < 2; ++i) {
-				Vec2i ran = { rand() % 9,rand() % 5 };
+				Vec2i ran = { rand() % 9,rand() % 4 };
 				while (_grid->Get(ran)._obstacle || _grid->Get(ran)._player) {
-					ran = { rand() % 9,rand() % 5 };
+					ran = { rand() % 9,rand() % 4 };
 				}
 				/*int randomx = rand() % 9;
 				int randomy = rand() % 5;*/
