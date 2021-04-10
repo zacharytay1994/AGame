@@ -171,6 +171,11 @@ struct Scene_Instructions : public Scene
 						SystemDatabase::Instance().GetSystem<Sys_AABB>()->_grid = &pf2._grid;
 						SystemDatabase::Instance().GetSystem<Sys_ArrowKeysTilemap>()->_grid = &pf2._grid;
 						SystemDatabase::Instance().GetSystem<Sys_AABB>()->_spawner = &Factory::Instance()[spawner].Get<Com_EnemySpawn>();
+						Factory::Instance()[spawner].Get<Com_Boss>().BossHealth = 20;
+						SystemDatabase::Instance().GetSystem<Sys_AABB>()->Boss = &Factory::Instance()[spawner].Get<Com_Boss>();
+						SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->boss = &Factory::Instance()[spawner].Get<Com_Boss>();
+						SystemDatabase::Instance().GetSystem<Sys_EnemyStateBoss>()->boss = &Factory::Instance()[spawner].Get<Com_Boss>();
+						Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves = 2;
 					}
 				}
 			}
@@ -281,19 +286,9 @@ struct Scene_Instructions : public Scene
 			Vec2i passin4[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
 			Factory::SpriteData button2{ "background2.png", 2.0f, 1.0f, 2, 1, 2, 0.05f, 0, passin4 };
 			Factory::Instance().FF_CreateGUIChildSurfaceText(main2, button2, 0.5f, 0.1f, 0.75f, 0.2f, "Now Kill all the Monsters!", "courier");
-			//ss1 << Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves;
-			//Factory::Instance()[waves].Get<Com_Text>()._data._text = ss1.str();
-			//Com_Wave& com_wave = Factory::Instance()[spawner].Get<Com_Wave>();
-			//Com_EnemySpawn& enemy_spawn = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
-			//Com_Boss& bs = Factory::Instance()[spawner].Get<Com_Boss>();
-
 			messageseen = true;
-
 		}
 		if (currentinstructions == 2 && messageseen == true) {
-			//Com_Wave& com_wave = Factory::Instance()[spawner].Get<Com_Wave>();
-			//Com_EnemySpawn& enemy_spawn = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
-			//Com_Boss& bs = Factory::Instance()[spawner].Get<Com_Boss>();
 			currentinstructions = 3;
 			messageseen = false;
 			last = true;
@@ -305,9 +300,6 @@ struct Scene_Instructions : public Scene
 			SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->spawnBoss = false;
 		}
 		if (last == true) {
-			//Com_Wave& com_wave = Factory::Instance()[spawner].Get<Com_Wave>();
-			//Com_EnemySpawn& enemy_spawn = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
-			//Com_Boss& bs = Factory::Instance()[spawner].Get<Com_Boss>();
 			if (SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->spawnBoss == true) {
 				currentinstructions = 0;
 				messageseen = false;
