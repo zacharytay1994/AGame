@@ -97,6 +97,7 @@ private:
 	FMOD::Sound* soundWalk;
 	FMOD::Sound* soundShoot;
 	FMOD::Sound* soundStab;
+	FMOD::Sound* soundBoom;
 	FMOD::Sound* soundEnemyDeath;
 	
 	// Channels required for sound
@@ -104,6 +105,7 @@ private:
 	FMOD::Channel* channelWalkingPlayer = 0;
 	FMOD::Channel* channelGunEffect = 0;
 	FMOD::Channel* channelMeleeEffect = 0;
+	FMOD::Channel* channelBoomEffect = 0;
 	FMOD::Channel* channelEnemyDeath = 0;
 	
 	FMOD_RESULT       result;
@@ -154,6 +156,7 @@ public:
 	void WalkingSound();
 	void ShootingSound(float pitch = 1.f);
 	void StabbingSound();
+	void BoomSound();
 	void EnemyDeathSound();
 	void FreeMusic();
 

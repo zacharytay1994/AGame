@@ -392,6 +392,7 @@ void ResourceManager::CreateMusic()
 	result = sound_system->createSound("../bin/Assets/Sound/WalkingPlayer1.wav", FMOD_DEFAULT, 0, &soundWalk);
 	result = sound_system->createSound("../bin/Assets/Sound/Gun.wav", FMOD_DEFAULT, 0, &soundShoot);
 	result = sound_system->createSound("../bin/Assets/Sound/Knife.wav", FMOD_DEFAULT, 0, &soundStab);
+	result = sound_system->createSound("../bin/Assets/Sound/Boom.wav", FMOD_DEFAULT, 0, &soundBoom);
 	result = sound_system->createSound("../bin/Assets/Sound/Death.wav", FMOD_DEFAULT, 0, &soundEnemyDeath);
 	result = soundWalk->setMode(FMOD_LOOP_OFF);
 
@@ -414,6 +415,11 @@ void ResourceManager::ShootingSound(float pitch)
 void ResourceManager::StabbingSound()
 {
 	result = sound_system->playSound(soundStab, 0, false, &channelMeleeEffect);
+}
+
+void ResourceManager::BoomSound()
+{
+	result = sound_system->playSound(soundBoom, 0, false, &channelBoomEffect);
 }
 
 void ResourceManager::EnemyDeathSound()
