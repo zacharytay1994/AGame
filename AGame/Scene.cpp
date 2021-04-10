@@ -221,6 +221,8 @@ void SceneManager::Free()
 *			  assigned at SceneManager::AddScene()
 ________________________________________________________*/
 void SceneManager::ChangeScene(const std::string& name) {
+	_pause = false;
+	_settings_toggle = false;
 	assert(_scenes.find(name) != _scenes.end());
 	if (_current_scene) {
 		// calls exit and unload

@@ -75,6 +75,12 @@ void ChangeMainMenu(Com_GUISurface* surface) {
 	SceneManager::Instance().ChangeScene("Main Menu");
 }
 
+void ToggleFullScreen(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	SceneManager::Instance()._fullscreen = !SceneManager::Instance()._fullscreen;
+	AEToogleFullScreen(SceneManager::Instance()._fullscreen);
+}
+
 void OpenSurvey(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	#ifdef _WIN32 
@@ -114,7 +120,9 @@ void GUISettingsInitialize() {
 	Factory::Instance()[settings].AddComponent<Com_GUISurfaceHoverShadow>();
 	// settings menu
 	_settings = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.84f, 0.38f, 0.3f, 0.6f, 150);
-	eid i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, button, 0.5f, 0.2f, 0.9f, 0.08f, ToggleChangeSceneButton, "Change Scene", "courier");	// clickable child surface text
+	eid i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, button, 0.5f, 0.2f, 0.9f, 0.08f, ChangeMainMenu, "Main Menu", "courier");	// clickable child surface text
+	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
+	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, button, 0.5f, 0.4f, 0.9f, 0.08f, ToggleChangeSceneButton, "Settings", "courier");	// clickable child surface text
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
 
 	// change scene menu
@@ -131,10 +139,14 @@ void GUISettingsInitialize() {
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
 	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.8f, 0.9f, 0.08f, ChangeTestScene, "Zac", "courier");	// clickable child surface text
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
-	Factory::Instance().FF_CreateGUIChildClickableSurface(_change_scene, { "cross" }, 0.9f, 0.05f, 0.08f, 0.04f, ToggleChangeSceneButton);						// clickable child surface text
+	Factory::Instance().FF_CreateGUIChildClickableSurface(_change_scene, { "cross" }, 0.9f, 0.05f, 0.08f, 0.04f, ToggleChangeSceneButton);					// clickable child surface text
 }
 
 void GUISettingsUpdate() {
+	if (AEInputCheckTriggered(AEVK_ESCAPE)) {
+		SceneManager::Instance()._pause = !SceneManager::Instance()._pause;
+		_settings_toggle = SceneManager::Instance()._pause;
+	}
 	Factory::Instance()[_settings].Get<Com_GUISurface>()._active = _settings_toggle;
 	Factory::Instance()[_change_scene].Get<Com_GUISurface>()._active = _change_scene_toggle;
 }
@@ -440,8 +452,7 @@ struct TestScenePF : public Scene
 	________________________________*/
 	void Update(const float& dt) override {
 		UNREFERENCED_PARAMETER(dt);
-
-
+		GUISettingsUpdate();
 
 		if (AEInputCheckTriggered(AEVK_P)) {
 			SceneManager::Instance()._pause = !SceneManager::Instance()._pause;
@@ -479,6 +490,10 @@ struct TestScenePF : public Scene
 			SceneManager::Instance().RestartScene();
 		}
 
+		if (AEInputCheckTriggered(AEVK_ESCAPE)) {
+			SceneManager::Instance()._pause = !SceneManager::Instance()._pause;
+			_settings_toggle = SceneManager::Instance()._pause;
+		}
 		if (AEInputCheckTriggered(AEVK_SPACE) && !SceneManager::Instance()._pause) {
 			_playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
 		}

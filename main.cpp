@@ -73,7 +73,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	ResourceManager::Instance().CreateMusic();
 
 	// Changing the window title
-	AESysSetWindowTitle("A Beautiful Window!");
+	AESysSetWindowTitle("A Beautiful Game!");
 
 	// reset the system modules
 	AESysReset();
@@ -115,7 +115,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 		// check if forcing the application to quit
 		//s32 shor = AESysDoesWindowExist();
-		if (AEInputCheckTriggered(AEVK_ESCAPE) || !AESysDoesWindowExist())
+		if (!AESysDoesWindowExist())
 			gGameRunning = 0;
 	}
 	// free the system
