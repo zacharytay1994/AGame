@@ -161,8 +161,8 @@ struct Scene_Instructions : public Scene
 					if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 3) {
 						spawner = Factory::Instance().FF_CreateSpawner();
 
-						Com_Tilemap& com_tilemap = Factory::Instance()[tilemap].Get<Com_Tilemap>();
-						Sys_PathFinding& pf2 = *SystemDatabase::Instance().GetSystem<Sys_PathFinding>();
+						//Com_Tilemap& com_tilemap = Factory::Instance()[tilemap].Get<Com_Tilemap>();
+						//Sys_PathFinding& pf2 = *SystemDatabase::Instance().GetSystem<Sys_PathFinding>();
 						pf2._grid = Grid(com_tilemap._width, com_tilemap._height, com_tilemap._map);
 						pf2._initialized = true;
 						SystemDatabase::Instance().GetSystem<Sys_TilePosition>()->_grid = &pf2._grid;
@@ -283,18 +283,17 @@ struct Scene_Instructions : public Scene
 			Factory::Instance().FF_CreateGUIChildSurfaceText(main2, button2, 0.5f, 0.1f, 0.75f, 0.2f, "Now Kill all the Monsters!", "courier");
 			//ss1 << Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves;
 			//Factory::Instance()[waves].Get<Com_Text>()._data._text = ss1.str();
-			Com_Wave& com_wave = Factory::Instance()[spawner].Get<Com_Wave>();
-			Com_EnemySpawn& enemy_spawn = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
-			Com_Boss& bs = Factory::Instance()[spawner].Get<Com_Boss>();
+			//Com_Wave& com_wave = Factory::Instance()[spawner].Get<Com_Wave>();
+			//Com_EnemySpawn& enemy_spawn = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
+			//Com_Boss& bs = Factory::Instance()[spawner].Get<Com_Boss>();
+
 			messageseen = true;
 
 		}
 		if (currentinstructions == 2 && messageseen == true) {
-			//ss1 << Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves;
-			//Factory::Instance()[waves].Get<Com_Text>()._data._text = ss1.str();
-			Com_Wave& com_wave = Factory::Instance()[spawner].Get<Com_Wave>();
-			Com_EnemySpawn& enemy_spawn = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
-			Com_Boss& bs = Factory::Instance()[spawner].Get<Com_Boss>();
+			//Com_Wave& com_wave = Factory::Instance()[spawner].Get<Com_Wave>();
+			//Com_EnemySpawn& enemy_spawn = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
+			//Com_Boss& bs = Factory::Instance()[spawner].Get<Com_Boss>();
 			currentinstructions = 3;
 			messageseen = false;
 			last = true;
@@ -304,16 +303,11 @@ struct Scene_Instructions : public Scene
 			left = false;
 			right = false;
 			SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->spawnBoss = false;
-			//if (SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->spawnBoss == true) {
-			//	currentinstructions = 0;
-			//	messageseen = false;
-			//	SceneManager::Instance().ChangeScene("Main Menu");
-			//}
 		}
 		if (last == true) {
-			Com_Wave& com_wave = Factory::Instance()[spawner].Get<Com_Wave>();
-			Com_EnemySpawn& enemy_spawn = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
-			Com_Boss& bs = Factory::Instance()[spawner].Get<Com_Boss>();
+			//Com_Wave& com_wave = Factory::Instance()[spawner].Get<Com_Wave>();
+			//Com_EnemySpawn& enemy_spawn = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
+			//Com_Boss& bs = Factory::Instance()[spawner].Get<Com_Boss>();
 			if (SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->spawnBoss == true) {
 				currentinstructions = 0;
 				messageseen = false;
