@@ -361,7 +361,7 @@ struct Com_EnemySpawn {
 
 struct Com_Wave {
 	float timerforwave{ 3.0f }; //if timer hits 0 in secsm spawn new wave 
-	size_t numberofwaves{ 10 }; //if number of wave hit 0, level unlocked 
+	size_t numberofwaves{ 1 }; //if number of wave hit 0, level unlocked 
 };
 
 
@@ -1429,7 +1429,7 @@ struct Sys_AABB : public System {
 
 				if ((type->type == type->Boss) && (AABBColData[i].type->type == type->bullet)) {
 					std::cout << "collidied Boss" << std::endl;
-					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
+					/*_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;*/
 					--Boss->BossHealth;
 					if (Boss->BossHealth <= 0) 
 					{
@@ -1451,8 +1451,8 @@ struct Sys_AABB : public System {
 					std::cout << "collidied" << std::endl;
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					RemoveEntity();
-					Gridcoliterator.push_back(iteratorcomgrid);
-					erase = true;
+					/*Gridcoliterator.push_back(iteratorcomgrid);
+					erase = true;*/
 					break;
 				}
 				
@@ -1463,10 +1463,10 @@ struct Sys_AABB : public System {
 						std::cout << "Hello" << std::endl;
 						_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					}
-					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
+					//_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					RemoveEntity();
-					Gridcoliterator.push_back(iteratorcomgrid);
-					erase = true;
+					/*Gridcoliterator.push_back(iteratorcomgrid);
+					erase = true;*/
 					break;
 				}
 
@@ -1474,8 +1474,8 @@ struct Sys_AABB : public System {
 					std::cout << "collidied" << std::endl;
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					RemoveEntity();
-					Gridcoliterator.push_back(iteratorcomgrid);
-					erase = true;
+					//Gridcoliterator.push_back(iteratorcomgrid);
+					//erase = true;
 					break;
 				}
 
@@ -1483,8 +1483,8 @@ struct Sys_AABB : public System {
 					std::cout << "collidied Bossa" << std::endl;
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					RemoveEntity();
-					Gridcoliterator.push_back(iteratorcomgrid);
-					erase = true;
+					/*Gridcoliterator.push_back(iteratorcomgrid);
+					erase = true;*/
 					break;
 				}
 
