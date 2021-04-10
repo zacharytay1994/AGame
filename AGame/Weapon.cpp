@@ -320,7 +320,7 @@ Dagger::Dagger()
 
 void Dagger::Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap) const
 {
-	Factory::SpriteData data{ "bullet.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };
+	Factory::SpriteData data{ "slash.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };
 
 	// Spawn bullet at weapon_Pattern[i] relative to player
 	if (direction.currdir == direction.right)
