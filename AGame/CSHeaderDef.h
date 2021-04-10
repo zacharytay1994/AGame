@@ -1365,6 +1365,7 @@ struct Sys_AABB : public System {
 		Com_CollisionData& coldata = get<Com_CollisionData>();
 		Com_type* type = &get<Com_type>();
 		Com_Health& health = get<Com_Health>();
+		Com_Position& position = get<Com_Position>();
 		//Com_ParticleEmitter& particle = get<Com_ParticleEmitter>();
 
 		//emplace back all if not initialized
@@ -1450,14 +1451,25 @@ struct Sys_AABB : public System {
 					std::cout << "collidied" << std::endl;
 					//_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					RemoveEntity();
+					ResourceManager::Instance()._screen_shake = 5.0f;
+					ResourceManager::Instance().ScreenShake();
+					if (AABBColData[i].type->type == type->enemyrange || AABBColData[i].type->type == type->enemy) {
+						Vec2f direction_movement = { vel->x, vel->y };
+						direction_movement.NormalizeSelf();
+						Factory::Instance().FF_CreateParticleFrictionSpray({ "meat.png", 80.0f, 200.0f, 2, 2, 4, 1000.0f },
+							{ position.x,position.y }, direction_movement, 0.9f, 0.6f, { 30.0f,50.0f }, 1200.0f, 5);
+						Factory::Instance().FF_CreateParticleFrictionBloodSpray({ "blood.png", 80.0f, 200.0f, 2, 2, 4, 1000.0f },
+							{ position.x,position.y }, direction_movement, 0.9f, 0.6f, { 30.0f,50.0f }, 1200.0f, 20);
+					}
 					//Gridcoliterator.push_back(iteratorcomgrid);
 					//erase = true;
 					break;
 				}
-				
 				if (type->type == type->EnemyBalls && (AABBColData[i].type->type == type->player)) {
 					std::cout << "collidied human" << std::endl;
 					RemoveEntity();
+					ResourceManager::Instance()._screen_shake = 5.0f;
+					ResourceManager::Instance().ScreenShake();
 					//Gridcoliterator.push_back(iteratorcomgrid);
 					//erase = true;
 					break;
@@ -2960,5 +2972,26 @@ struct Sys_Cursor : public System {
 		pos.y = (float)cursor.cursorposy;
 
 		std::cout << pos.x << std::endl;
+	}
+};
+
+struct Com_ParticleFriction {
+	Vec2f _velocity{ 0.0f,0.0f };
+	float _friction{ 0.8f };
+};
+
+struct Sys_ParticleFriction : public System {
+	void UpdateComponent() override {
+		Com_ParticleFriction& pf = get<Com_ParticleFriction>();
+		Com_Position& pos = get<Com_Position>();
+		// if exist velocity, apply friction
+		if (pf._velocity.x > 0.1f || pf._velocity.y > 0.1f) {
+			pf._velocity = pf._velocity * (pf._friction);
+			pos.x += pf._velocity.x * _dt;
+			pos.y += pf._velocity.y * _dt;
+		}
+		else {
+			pf._velocity = { 0.0f,0.0f };
+		}
 	}
 };

@@ -116,6 +116,9 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_EnemyStateOne>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_TileMoveSpriteState>();
 
+	// particle
+	ComponentDescription_DB::Instance().RegisterComponent<Com_ParticleFriction>();
+
 	
 	// 3. Registering all systems for the game
 	//SystemDatabase::Instance().RegisterSystem<Example_UpdatePosition, Position, Example_Velocity>();
@@ -139,7 +142,7 @@ void SceneManager::Initialize() {
 	//SystemDatabase::Instance().RegisterSystem<Sys_RegisteringEntity, Com_objecttype>();
 	//test 
 	SystemDatabase::Instance().RegisterSystem <Sys_Boundingbox, Com_BoundingBox, Com_Position,Com_Sprite>();
-	SystemDatabase::Instance().RegisterSystem <Sys_AABB, Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_type,Com_Health>();
+	SystemDatabase::Instance().RegisterSystem <Sys_AABB, Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_type,Com_Health, Com_Position>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Projectile2, Com_TilePosition, Com_Projectile>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Camera, Com_Position, Com_Camera>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GridCollision, Com_type, Com_TilePosition, Com_GridColData>();
@@ -174,6 +177,9 @@ void SceneManager::Initialize() {
 	
 	//Health test
 	SystemDatabase::Instance().RegisterSystem<Sys_HealthUpdate, Com_Health>();
+
+	// particle
+	SystemDatabase::Instance().RegisterSystem<Sys_ParticleFriction, Com_Position, Com_ParticleFriction>();
 
 
 	// 4. Registering scenes

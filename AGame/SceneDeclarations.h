@@ -270,7 +270,7 @@ struct TestScenePF : public Scene
 	Factory::SpriteData data2{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.15f };
 	Factory::SpriteData data22{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.25f };
 	Factory::SpriteData underline{ "underline.png", 80.0f, 200.0f, 4, 1, 4, 0.25f };
-	Factory::SpriteData clock{ "clock.png", 80.0f, 200.0f, 3, 2, 5, 0.20f };
+	Factory::SpriteData meat{ "meat.png", 80.0f, 200.0f, 2, 2, 4, 1000.0f };
 	Vec2i passin2[5] = { {0,1},{2,3},{4,5},{6,7},{0,0} };
 	Factory::SpriteData arrows{ "arrows.png", 50.0f, 50.0f, 3, 3, 8, 0.1f, -900, passin2 };
 	Factory::SpriteData title{ "title.png", 1.0f, 1.0f, 2, 2, 4, 0.2f, 0 };
@@ -445,7 +445,10 @@ struct TestScenePF : public Scene
 	void Update(const float& dt) override {
 		UNREFERENCED_PARAMETER(dt);
 
-
+		if (AEInputCheckTriggered(AEVK_O)) {
+			//Factory::Instance().FF_CreateParticleFriction(clock, { 0.0f,0.0f }, { 1000.0f,1000.0f }, 0.9f);
+			Factory::Instance().FF_CreateParticleFrictionSpray(meat, { 0.0f,0.0f }, { 0.7f,0.7f }, 0.9f, 1.571f, { 20.0f,50.0f }, 1200.0f, 10);
+		}
 
 		if (AEInputCheckTriggered(AEVK_P)) {
 			SceneManager::Instance()._pause = !SceneManager::Instance()._pause;
