@@ -110,7 +110,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 		// check if forcing the application to quit
 		//s32 shor = AESysDoesWindowExist();
-		if (AEInputCheckTriggered(AEVK_ESCAPE) || !AESysDoesWindowExist())
+		if (!AESysDoesWindowExist())
 			gGameRunning = 0;
 	}
 	// free the system
