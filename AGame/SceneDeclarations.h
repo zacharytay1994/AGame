@@ -52,13 +52,14 @@ void ChangeInventoryScene(Com_GUISurface* surface) {
 
 void ChangeLevelSelect(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
-	SceneManager::Instance().ChangeScene("LevelSelect");
+	SceneManager::Instance().ChangeScene("LevelSelectNormal");
 }
 
 void ChangeTestScenePF(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
-	if(_playerInv.Inventory_GetCurrentWeapon().GetWeapon_Name() != "NoWeapon")
-		SceneManager::Instance().ChangeScene("Test PathFinding");
+	if (_playerInv.Inventory_GetCurrentWeapon().GetWeapon_Name() != "NoWeapon") {
+		SceneManager::Instance().ChangeScene("Level");
+	}
 }
 
 void ChangeShootingRangeScene(Com_GUISurface* surface) {
