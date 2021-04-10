@@ -252,11 +252,11 @@ void SceneManager::Update(const float& dt)
 		//if (AEInputCheckTriggered('H')) {
 		//	SceneManager::Instance().ChangeScene("Main Menu");
 		//}
-		float dt = _pause ? 0.0f : static_cast<float>(AEFrameRateControllerGetFrameTime());
-		SystemDatabase::Instance().SystemDatabaseUpdate(dt);
+		float _dt = _pause ? 0.0f : static_cast<float>(AEFrameRateControllerGetFrameTime());
+		SystemDatabase::Instance().SystemDatabaseUpdate(_dt);
 		ResourceManager::Instance().FlushDraw();
 		ResourceManager::Instance().FlushDrawText();
-		ResourceManager::Instance().Update(dt);
+		ResourceManager::Instance().Update(_dt);
 		SystemDatabase::Instance().RemoveAllEntities();
 	}
 }
