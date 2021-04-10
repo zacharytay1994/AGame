@@ -1426,7 +1426,7 @@ struct Sys_AABB : public System {
 
 				if ((type->type == type->Boss) && (AABBColData[i].type->type == type->bullet)) {
 					std::cout << "collidied Boss" << std::endl;
-					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
+					//_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					--Boss->BossHealth;
 					if (Boss->BossHealth <= 0) 
 					{
