@@ -13,6 +13,7 @@
 
 #include "zMath.h"
 #include "music.h"
+#include "Scene.h"
 
 using namespace std;
 
@@ -1787,6 +1788,8 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 
 struct Sys_Projectile2 : public System {
 	void UpdateComponent() override {
+		if (SceneManager::Instance()._pause) return;
+
 		Com_Projectile& proj = get<Com_Projectile>();
 		if (AEGetTime(nullptr) - proj.time > AEFrameRateControllerGetFrameTime() * 10)
 		{
@@ -2347,6 +2350,39 @@ struct Sys_GUISurfaceHoverShadow : public System {
 		}
 		else {
 			sprite._current_frame_segment = 0;
+		}
+	}
+};
+
+struct Com_GUISurfaceHoverShadow_Inventory {
+	bool weapon_unlocked = false;
+};
+struct Sys_GUISurfaceHoverShadow_Inventory : public System {
+	void UpdateComponent() override {
+		Com_Sprite& sprite = get<Com_Sprite>();
+		Com_GUIMouseCheck& mouse = get<Com_GUIMouseCheck>();
+		Com_GUISurface& surface = get<Com_GUISurface>();
+		Com_GUISurfaceHoverShadow_Inventory& unlocked_status = get<Com_GUISurfaceHoverShadow_Inventory>();
+		if (!surface._active) { return; }
+		if (mouse._over) {
+			if (unlocked_status.weapon_unlocked == true)
+			{
+				sprite._current_frame_segment = 1;
+			}
+			else
+			{
+				sprite._current_frame_segment = 3;
+			}
+		}
+		else {
+			if (unlocked_status.weapon_unlocked == true)
+			{
+				sprite._current_frame_segment = 0;
+			}
+			else
+			{
+				sprite._current_frame_segment = 2;
+			}
 		}
 	}
 };
