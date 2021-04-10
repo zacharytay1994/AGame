@@ -13,6 +13,7 @@
 
 #include "zMath.h"
 #include "music.h"
+#include "Scene.h"
 
 using namespace std;
 
@@ -87,6 +88,8 @@ struct Com_Sprite {
 	bool				_visible{ true };
 	int					_current_frame_segment{ 0 };
 	Vec2i				_frame_segment[5]{ {0,0}, {0,0}, {0,0}, {0,0}, {0,0} };
+	bool				_lock{ false };
+	int					_next_current_frame_segment{ 0 };
 };
 
 struct Com_Direction {
@@ -990,6 +993,10 @@ struct Sys_DrawSprite : public System {
 				if (current_frame > sprite._frame_segment[sprite._current_frame_segment].y) {
 					if (sprite._repeat) {
 						sprite._current_frame = 0;
+						if (sprite._lock) {
+							sprite._lock = false;
+							sprite._current_frame_segment = sprite._next_current_frame_segment;
+						}
 					}
 					else {
 						--sprite._current_frame;
@@ -1288,10 +1295,20 @@ struct Sys_TileMoveSpriteState : public System {
 		Com_Sprite& sprite = get<Com_Sprite>();
 		Com_TilePosition& pos = get<Com_TilePosition>();
 		if (pos._moving) {
-			sprite._current_frame_segment = 1;
+			if (sprite._lock) {
+				sprite._next_current_frame_segment = 1;
+			}
+			else {
+				sprite._current_frame_segment = 1;
+			}
 		}
 		else if (sprite._current_frame_segment == 1) {
-			sprite._current_frame_segment = 0;
+			if (sprite._lock) {
+				sprite._next_current_frame_segment = 0;
+			}
+			else {
+				sprite._current_frame_segment = 0;
+			}
 		}
 		if (pos._direction.x < -0.01f) {
 			sprite._flip = true;
@@ -1365,6 +1382,7 @@ struct Sys_AABB : public System {
 		Com_CollisionData& coldata = get<Com_CollisionData>();
 		Com_type* type = &get<Com_type>();
 		Com_Health& health = get<Com_Health>();
+		Com_Position& position = get<Com_Position>();
 		//Com_ParticleEmitter& particle = get<Com_ParticleEmitter>();
 
 		//emplace back all if not initialized
@@ -1452,10 +1470,31 @@ struct Sys_AABB : public System {
 					std::cout << "collidied" << std::endl;
 					//_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					RemoveEntity();
-					/*Gridcoliterator.push_back(iteratorcomgrid);
-					erase = true;*/
+					ResourceManager::Instance()._screen_shake = 5.0f;
+					ResourceManager::Instance().ScreenShake();
+					if (AABBColData[i].type->type == type->enemyrange || AABBColData[i].type->type == type->enemy) {
+						Vec2f direction_movement = { vel->x, vel->y };
+						direction_movement.NormalizeSelf();
+						Factory::Instance().FF_CreateParticleFrictionSpray({ "meat.png", 80.0f, 200.0f, 2, 2, 4, 1000.0f },
+							{ position.x,position.y }, direction_movement, 0.9f, 0.6f, { 30.0f,50.0f }, 1200.0f, 5);
+						Factory::Instance().FF_CreateParticleFrictionBloodSpray({ "blood.png", 80.0f, 200.0f, 2, 2, 4, 1000.0f },
+							{ position.x,position.y }, direction_movement, 0.9f, 0.6f, { 30.0f,50.0f }, 1200.0f, 20);
+					}
+					//Gridcoliterator.push_back(iteratorcomgrid);
+					//erase = true;
 					break;
 				}
+				// if (type->type == type->EnemyBalls && (AABBColData[i].type->type == type->player)) {
+				// 	std::cout << "collidied human" << std::endl;
+				// 	RemoveEntity();
+				// 	ResourceManager::Instance()._screen_shake = 5.0f;
+				// 	ResourceManager::Instance().ScreenShake();
+				// 	//Gridcoliterator.push_back(iteratorcomgrid);
+				// 	//erase = true;
+				// 	/*Gridcoliterator.push_back(iteratorcomgrid);
+				// 	erase = true;*/
+				// 	break;
+				// }
 				
 				
 				if (type->type == type->EnemyBalls && (AABBColData[i].type->type == type->player)) {
@@ -1749,6 +1788,8 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 
 struct Sys_Projectile2 : public System {
 	void UpdateComponent() override {
+		if (SceneManager::Instance()._pause) return;
+
 		Com_Projectile& proj = get<Com_Projectile>();
 		if (AEGetTime(nullptr) - proj.time > AEFrameRateControllerGetFrameTime() * 10)
 		{
@@ -1852,7 +1893,7 @@ struct Sys_EnemySpawning : public System {
 				}
 				/*int randomx = rand() % 9;
 				int randomy = rand() % 5;*/
-				Vec2i passin[5] = { {0,3},{4,7},{8,11},{0,0},{0,0} };
+				Vec2i passin[5] = { {0,3},{4,7},{7,11},{0,0},{0,0} };
 				int randomEnemyCreation =  1 +(rand() % 2 * 4);
 				if(randomEnemyCreation == 1 || (randomEnemyCreation == 5 && yammonsterenable == false)) // melee
 				{
@@ -2322,6 +2363,39 @@ struct Sys_GUISurfaceHoverShadow : public System {
 		}
 		else {
 			sprite._current_frame_segment = 0;
+		}
+	}
+};
+
+struct Com_GUISurfaceHoverShadow_Inventory {
+	bool weapon_unlocked = false;
+};
+struct Sys_GUISurfaceHoverShadow_Inventory : public System {
+	void UpdateComponent() override {
+		Com_Sprite& sprite = get<Com_Sprite>();
+		Com_GUIMouseCheck& mouse = get<Com_GUIMouseCheck>();
+		Com_GUISurface& surface = get<Com_GUISurface>();
+		Com_GUISurfaceHoverShadow_Inventory& unlocked_status = get<Com_GUISurfaceHoverShadow_Inventory>();
+		if (!surface._active) { return; }
+		if (mouse._over) {
+			if (unlocked_status.weapon_unlocked == true)
+			{
+				sprite._current_frame_segment = 1;
+			}
+			else
+			{
+				sprite._current_frame_segment = 3;
+			}
+		}
+		else {
+			if (unlocked_status.weapon_unlocked == true)
+			{
+				sprite._current_frame_segment = 0;
+			}
+			else
+			{
+				sprite._current_frame_segment = 2;
+			}
 		}
 	}
 };
@@ -2854,8 +2928,8 @@ struct Sys_GUIMapClick : public System {
 					}
 					//player spawn needs 1 
 					if (Leveledittyp == 2 && guimap.playercount != 1) {
-						Vec2i passin[5] = { {0,3},{4,7},{8,11},{0,0},{0,0} };
-						Factory::SpriteData man{ "hero.png", 100.0f, 160.0f, 3, 3, 8, 0.1f, 0, passin };
+						Vec2i passin[5] = { {0,3},{3,7},{7,11},{0,0},{0,0} };
+						Factory::SpriteData man{ "hero.png", 200.0f, 320.0f, 4, 3, 12, 0.1f, 0, passin };
 						Factory::Instance().FF_SpriteTile(man, _tilemap, spawnspritex, spawnspritey);
 						tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = 2;
 						++guimap.playercount;
@@ -3015,5 +3089,26 @@ struct Sys_Cursor : public System {
 		pos.y = (float)cursor.cursorposy;
 
 		std::cout << pos.x << std::endl;
+	}
+};
+
+struct Com_ParticleFriction {
+	Vec2f _velocity{ 0.0f,0.0f };
+	float _friction{ 0.8f };
+};
+
+struct Sys_ParticleFriction : public System {
+	void UpdateComponent() override {
+		Com_ParticleFriction& pf = get<Com_ParticleFriction>();
+		Com_Position& pos = get<Com_Position>();
+		// if exist velocity, apply friction
+		if (pf._velocity.x > 0.1f || pf._velocity.y > 0.1f) {
+			pf._velocity = pf._velocity * (pf._friction);
+			pos.x += pf._velocity.x * _dt;
+			pos.y += pf._velocity.y * _dt;
+		}
+		else {
+			pf._velocity = { 0.0f,0.0f };
+		}
 	}
 };

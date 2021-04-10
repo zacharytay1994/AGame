@@ -28,23 +28,31 @@ struct Vec2 {
 	T operator*(const Vec2<T>& rhs) {
 		return x * rhs.x + y * rhs.y;
 	}
+	// scale
+	Vec2<T> operator*(const float& scale) const {
+		return { x * scale, y * scale };
+	}
 	// conversion constructor
 	Vec2<T>(const AEVec2& rhs) : x{rhs.x}, y{rhs.y} {}
 	// conversion operator
 	operator AEVec2() const { return { x,y }; }
 	// vector functions
-	double Length() {
+	double Length() const {
 		return sqrt(x * x + y * y);
 	}
 	Vec2<T>& NormalizeSelf() {
 		double length = Length();
-		x /= length;
-		y /= length;
+		x /= (T)length;
+		y /= (T)length;
 		return *this;
 	}
-	Vec2<T> Normalize() {
-		double length = length();
-		return { x / length,y / length };
+	Vec2<T> Normalize() const {
+		double length = Length();
+		return { x / (T)length,y / (T)length };
+	}
+	Vec2<T> RotateAngle(const float& rad) const {
+		return { x * cos(rad) + y * sin(rad),
+				x * -sin(rad) + y * cos(rad) };
 	}
 	void Print() {
 		std::cout << "(" << x << ", " << y << ")" << std::endl;

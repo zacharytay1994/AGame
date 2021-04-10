@@ -115,4 +115,12 @@ public:
 	eid FF_CreateBoss(const SpriteData& data, const eid& tilemap, const int& x, const int& y, const int& type); // create boss
 	eid FF_CreateParticle(const SpriteData& data, const int& x, const int& y, const float& velx, const float& vely); // create particle
 	eid FF_CreateBomb(const SpriteData& data, const int& x, const int& y);//create bomb
+
+	// particle
+	eid FF_CreateParticleFriction(const SpriteData& data, const Vec2f& position, const Vec2f& velocity, const float& friction);
+	eid FF_CreateParticleFrictionSpray(const SpriteData& data, const Vec2f& position, const Vec2f& direction, const float& friction,
+		const float& sprayangle, const Vec2f& scale, const float& strength, const int& num);
+	eid FF_CreateParticleFrictionBlood(const SpriteData& data, const Vec2f& position, const Vec2f& velocity, const float& friction);
+	eid FF_CreateParticleFrictionBloodSpray(const SpriteData& data, const Vec2f& position, const Vec2f& direction, const float& friction,
+		const float& sprayangle, const Vec2f& scale, const float& strength, const int& num);
 };

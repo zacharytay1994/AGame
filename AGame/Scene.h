@@ -43,6 +43,7 @@ public:
 	void ChangeScene(const std::string& name);
 	void Free();
 	bool _pause{ false };
+	bool _fullscreen{ true };
 	void CheckGame(int& gamerunning) {
 		gamerunning = _gamerunning;
 	}
