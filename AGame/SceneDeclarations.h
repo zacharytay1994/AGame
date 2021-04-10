@@ -260,6 +260,7 @@ struct TestScenePF : public Scene
 	eid _WinOrLose{ -1 };
 	eid wall{ -1 };
 	eid bomb{ -1 };
+	bool once = false;
 	Inventory playerInv;
 	Factory::SpriteData box{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
 	Factory::SpriteData boom{ "kaboom", 40.0f, 40.0f, 1, 1, 1, 0.15f };
@@ -287,7 +288,7 @@ struct TestScenePF : public Scene
 	void Initialize() override {
 		std::cout << test << " this is a test scene" << std::endl;
 		std::cout << sizeof(Com_Tilemap) << std::endl;
-
+		once = false;
 
 		//init tilemap 
 		tilemap = Factory::Instance().FF_Tilemap("tilemap", ResourceManager::Instance()._tilemap_names[ResourceManager::Instance()._tilemap_id]._binary + ".txt",
@@ -508,13 +509,15 @@ struct TestScenePF : public Scene
 		}
 
 
-		if (Factory::Instance()[player].Get<Com_Health>().health <= 0)
+		if (Factory::Instance()[player].Get<Com_Health>().health <= 0 && once == false)
 		{
 			Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose :(", "courier");
+			once = true;
 		}
-		else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && bs.bossdefeat == true)
+		else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && bs.bossdefeat == true && once == false)
 		{
 			Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Win :D", "courier");
+			once = true;
 		}
 
 		//Com_EnemySpawn& com_spawner = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
