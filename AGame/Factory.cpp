@@ -225,15 +225,19 @@ eid Factory::FF_CreateprojEnemy(const SpriteData& data, const int& x, const int&
     return id;
 }
 
-eid Factory::FF_CreateBossManiacShoot(const SpriteData& data, const int& x, const int& y, const float& velx, const float& vely) {
-
-    eid id = FF_Sprite(data, (float)x, (float)y);
-    Factory::Instance()[id].AddComponent<Com_Velocity, Com_Particle, Com_GameTimer, Com_Boundary, Com_BoundingBox, Com_CollisionData,Com_type, Com_TilePosition, Com_TilemapRef, Com_Direction, Com_Projectile>();
-    Entity& e = Factory::Instance()[id];
+eid Factory::FF_CreateprojBoss(const SpriteData& data, const int& x, const int& y, const int& vel_x, const int& vel_y, eid const& tilemap, int lifetime)
+{
+    eid id = FF_SpriteTile(data, tilemap, x, y);
+    //for the projectile not the entity calling it 
+    Entity& e = Factory::Instance()[id].AddComponent<Com_Projectile, Com_Particle,Com_type, Com_EnemySpawn, Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_Health>();
+    Com_Projectile& proj = e.Get<Com_Projectile>();
     e.Get<Com_type>().type = 6;
     e.Get<Com_Particle>().lifetime = 100;
-    e.Get<Com_Velocity>().x = velx;
-    e.Get<Com_Velocity>().y = vely;
+    e.Get<Com_Velocity>().x = vel_x;
+    e.Get<Com_Velocity>().y = vel_y;
+    proj.grid_vel_x = vel_x;
+    proj.grid_vel_y = vel_y;
+    proj.lifetime = lifetime;
     return id;
 }
 
