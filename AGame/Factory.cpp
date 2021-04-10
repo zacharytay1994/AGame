@@ -67,7 +67,7 @@ eid Factory::FF_Tilemap(const std::string& texture, const std::string& bottom, c
 
 eid Factory::FF_SpriteTile(const SpriteData& data, const eid& tilemap, const int& x, const int& y)
 {
-    eid id = FF_Sprite(data, 0.0f, 0.0f);
+    eid id = FF_Sprite(data, -1000.0f, -1000.0f);
     Factory::Instance()[id].AddComponent<Com_TilePosition, Com_TilemapRef, Com_Direction>();
     Entity& e = Factory::Instance()[id];
     e.Get<Com_TilePosition>() = { x,y,x,y };

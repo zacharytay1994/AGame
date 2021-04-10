@@ -67,7 +67,7 @@ struct Scene_Credits : public Scene {
 		UNREFERENCED_PARAMETER(dt);
 		GUISettingsUpdate();
 
-		if (last == true || AEInputCheckTriggered(AEVK_SPACE)) {
+		if (last == true || AEInputCheckTriggered(AEVK_SPACE) || AEInputCheckTriggered(AEVK_LBUTTON)) {
 			SceneManager::Instance().ChangeScene("Main Menu");
 		}
 	}
