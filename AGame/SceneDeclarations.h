@@ -30,6 +30,7 @@ static bool _settings_toggle{ false };
 void SettingsButton(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	_settings_toggle = !_settings_toggle;
+	SceneManager::Instance()._pause = _settings_toggle;
 }
 
 void QuitGame(Com_GUISurface* surface) {
@@ -478,9 +479,8 @@ struct TestScenePF : public Scene
 			SceneManager::Instance().RestartScene();
 		}
 
-		if (AEInputCheckTriggered(AEVK_SPACE)) {
+		if (AEInputCheckTriggered(AEVK_SPACE) && !SceneManager::Instance()._pause) {
 			_playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
-			//ResourceManager::Instance().ShootingSound();
 		}
 		if (AEInputCheckCurr(AEVK_LEFT) || AEInputCheckCurr(AEVK_A)) {
 			arrow_sprite->_visible = true;
