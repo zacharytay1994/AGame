@@ -36,6 +36,7 @@
     <ClInclude Include="Scene_LevelSelect.h" />
     <ClInclude Include="Scene_MainMenu.h" />
     <ClInclude Include="Scene_Noel.h" />
+    <ClInclude Include="Scene_Opening.h" />
     <ClInclude Include="Scene_Wilfred.h" />
     <ClInclude Include="Scene_Zac.h" />
     <ClInclude Include="zMath.h" />

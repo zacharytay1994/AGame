@@ -354,14 +354,14 @@ struct Com_type {
 -------------------------------------------*/
 
 struct Com_EnemySpawn {
-	int numberofenemies{ 2 }; //number of enemies to spawn
+	int numberofenemies{ 3 }; //number of enemies to spawn
 	int CurrNoOfEnemies{ 0 }; //keep track of enemies on map
 	int DEATHEnemiespawncounter{ 0 };
 };
 
 struct Com_Wave {
 	float timerforwave{ 3.0f }; //if timer hits 0 in secsm spawn new wave 
-	size_t numberofwaves{ 1 }; //if number of wave hit 0, level unlocked 
+	size_t numberofwaves{ 10 }; //if number of wave hit 0, level unlocked 
 };
 
 
@@ -1397,6 +1397,8 @@ struct Sys_AABB : public System {
 
 				//	break;
 				//}
+				
+
 				if ((type->type == type->enemy || type->type == type->enemyrange) && (AABBColData[i].type->type == type->bullet)) {
 					std::cout << "collidied" << std::endl;
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
@@ -1415,7 +1417,7 @@ struct Sys_AABB : public System {
 				
 				if ((type->type == type->player) && (AABBColData[i].type->type == type->EnemyBalls)) {
 					std::cout << "collidied human2213"  << std::endl;
-					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
+					//_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					--_PLayerHealth->health;
 					if (_PLayerHealth->health <= 0) 
 					{
@@ -1465,19 +1467,39 @@ struct Sys_AABB : public System {
 					//erase = true;
 					break;
 				}
+				// if (type->type == type->EnemyBalls && (AABBColData[i].type->type == type->player)) {
+				// 	std::cout << "collidied human" << std::endl;
+				// 	RemoveEntity();
+				// 	ResourceManager::Instance()._screen_shake = 5.0f;
+				// 	ResourceManager::Instance().ScreenShake();
+				// 	//Gridcoliterator.push_back(iteratorcomgrid);
+				// 	//erase = true;
+				// 	/*Gridcoliterator.push_back(iteratorcomgrid);
+				// 	erase = true;*/
+				// 	break;
+				// }
+				
+				
 				if (type->type == type->EnemyBalls && (AABBColData[i].type->type == type->player)) {
 					std::cout << "collidied human" << std::endl;
-					RemoveEntity();
-					ResourceManager::Instance()._screen_shake = 5.0f;
-					ResourceManager::Instance().ScreenShake();
-					//Gridcoliterator.push_back(iteratorcomgrid);
-					//erase = true;
+					if (tilepos->_grid_x == 4 && tilepos->_grid_y == 3) 
+					{
+						_grid->Get({ 4, 3 })._obstacle = false;
+						Gridcoliterator.push_back(iteratorcomgrid);
+						erase = true;
+					}
+					else 
+					{
+						_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
+						RemoveEntity();
+					}
 					break;
 				}
+				
 
 				if (type->type == type->bullet && (AABBColData[i].type->type == type->enemy)) {
 					std::cout << "collidied" << std::endl;
-					//_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
+					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					RemoveEntity();
 					//Gridcoliterator.push_back(iteratorcomgrid);
 					//erase = true;
@@ -1488,8 +1510,8 @@ struct Sys_AABB : public System {
 					std::cout << "collidied Bossa" << std::endl;
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					RemoveEntity();
-					//Gridcoliterator.push_back(iteratorcomgrid);
-					//erase = true;
+					/*Gridcoliterator.push_back(iteratorcomgrid);
+					erase = true;*/
 					break;
 				}
 
@@ -1824,7 +1846,7 @@ struct Sys_EnemySpawning : public System {
 	float timer{ 0.0f };
 	//
 	Grid* _grid{ nullptr };
-	int _max{ 4 };
+	int _max{ 6 };
 	bool spawnBoss = false;
 	Com_Boss* boss{ nullptr };
 	//eid _spawner_id{ -1 };
@@ -1845,9 +1867,9 @@ struct Sys_EnemySpawning : public System {
 			timer = wave.timerforwave;
 			--wave.numberofwaves;		//decrease the number of waves left 
 			for (int i = 0; i < 2; ++i) {
-				Vec2i ran = { rand() % 9,rand() % 5 };
+				Vec2i ran = { rand() % 9,rand() % 4 };
 				while (_grid->Get(ran)._obstacle || _grid->Get(ran)._player) {
-					ran = { rand() % 9,rand() % 5 };
+					ran = { rand() % 9,rand() % 4 };
 				}
 				/*int randomx = rand() % 9;
 				int randomy = rand() % 5;*/
@@ -1893,8 +1915,13 @@ struct Sys_EnemySpawning : public System {
 				eid enemy = Factory::Instance().FF_CreateBoss(Left, _tilemap, ran.x, ran.y, 7); // boss
 				Factory::Instance()[enemy].Get<Com_Boss>().playerHealth = &Factory::Instance()[playerpos].Get<Com_Health>();
 
+				Vec2i ran2 = { 0 + (rand() % 2 * Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width - 1),rand() % 3 };
+				while (_grid->Get(ran2)._obstacle || _grid->Get(ran2)._player || (ran2.x == 0 && ran2.y == 0)
+					|| (ran2.x == ran.x && ran2.y == ran.y)) {
+					ran2 = { 0 + (rand() % 2 * Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width - 1), rand() % 3 };
+				}
 
-				eid enemy2 = Factory::Instance().FF_CreateBoss(Right, _tilemap, ran.x, ran.y + 2, 7); // boss
+				eid enemy2 = Factory::Instance().FF_CreateBoss(Right, _tilemap, ran2.x, ran2.y, 7); // boss
 				Factory::Instance()[enemy2].Get<Com_Boss>().playerHealth = &Factory::Instance()[playerpos].Get<Com_Health>();
 			}
 			else
@@ -1905,8 +1932,12 @@ struct Sys_EnemySpawning : public System {
 				eid enemy = Factory::Instance().FF_CreateBoss(Left, _tilemap, ran.x, ran.y, 7); // boss
 				Factory::Instance()[enemy].Get<Com_Boss>().playerHealth = &Factory::Instance()[playerpos].Get<Com_Health>();
 
+				Vec2i ran2 = { 0 + (rand() % 2 * Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width - 1),rand() % 3 };
+				while (_grid->Get(ran2)._obstacle || _grid->Get(ran2)._player || (ran2.x == 0 && ran2.y == 0) || (ran2.x == ran.x && ran2.y == ran.y)) {
+					ran2 = { 0 + (rand() % 2 * Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width - 1), rand() % 3 };
+				}
 
-				eid enemy2 = Factory::Instance().FF_CreateBoss(Right, _tilemap, ran.x, ran.y + 2, 7); // boss
+				eid enemy2 = Factory::Instance().FF_CreateBoss(Right, _tilemap, ran2.x, ran2.y, 7); // boss
 				Factory::Instance()[enemy2].Get<Com_Boss>().playerHealth = &Factory::Instance()[playerpos].Get<Com_Health>();
 
 			}
@@ -2947,6 +2978,27 @@ struct Sys_TextMovingGUI : public System {
 			if (textmoving.lastmessage == true) {
 				*last = true;
 			}
+			RemoveEntity();
+		}
+	}
+};
+
+struct Com_GUIDelay {
+	bool active = true;
+};
+
+struct Sys_GUIDelay : public System {
+	float buffer = 3.0f;
+	bool* last{nullptr};
+	void UpdateComponent() override {
+		Com_GUIDelay& delay = get<Com_GUIDelay>();
+		Com_GUISurface& surface = get<Com_GUISurface>();
+		if (delay.active == true) {
+			buffer -= _dt;
+		}
+		//if out of bounds 
+		if (buffer < 0) {
+			*last = true;
 			RemoveEntity();
 		}
 	}

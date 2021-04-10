@@ -533,6 +533,7 @@ eid Factory::FF_CreateGUIChildSurfaceTextMoving(eid parent, const SpriteData& da
     return id;
 }
 
+
 eid Factory::FF_CreateGUIChildSurfaceTextMovingWithin(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height)
 {
     Com_GUISurface& parent_surface = Factory::Instance()[parent].Get<Com_GUISurface>();
