@@ -109,7 +109,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		}
 
 		g_dt = (float)AEFrameRateControllerGetFrameTime();
-		if (SceneManager::Instance()._pause) { g_dt = 0.f; }
+		if (SceneManager::Instance()._pause) 
+		{ 
+			ResourceManager::Instance().ToggleMuteMusic(0);
+			g_dt = 0.f; 
+		}
 
 		SceneManager::Instance().Update(g_dt);
 		ResourceManager::Instance().UpdateAndPlayMusic();
