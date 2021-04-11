@@ -324,10 +324,6 @@ struct Level : public Scene
 				Factory::Instance()[menu].Get<Com_GUISurface>()._active = true;
 				Factory::Instance()[_WinOrLose].Get<Com_GUISurface>()._active = true;
 			}
-			//if (SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->spawnBoss == true) {
-			//	//levels incre
-			//	//SceneManager::Instance().ChangeScene("Main Menu");
-			//}
 		}
 
 		if (levels == 2) {
@@ -349,9 +345,6 @@ struct Level : public Scene
 				Factory::Instance()[menu].Get<Com_GUISurface>()._active = true;
 				Factory::Instance()[_WinOrLose].Get<Com_GUISurface>()._active = true;
 			}
-			//if (SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->spawnBoss == true) {
-			//	SceneManager::Instance().ChangeScene("Main Menu");
-			//}
 		}
 
 		if (levels == 3) {
@@ -370,25 +363,6 @@ struct Level : public Scene
 				Factory::Instance()[_WinOrLose].Get<Com_GUISurface>()._active = true;
 			}
 		}
-
-		//if (Factory::Instance()[player].Get<Com_Health>().health <= 0)
-		//{
-		//	Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose :(", "courier");
-		//}
-		//else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && bs.bossdefeat == true)
-		//{
-		//	Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Win :D", "courier");
-		//}
-
-		////Com_EnemySpawn& com_spawner = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
-		//if (Factory::Instance()[player].Get<Com_Health>().health <= 0 || (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && bs.bossdefeat == true)) {
-		//	Factory::Instance()[menu].Get<Com_GUISurface>()._active = true;
-		//	Factory::Instance()[_WinOrLose].Get<Com_GUISurface>()._active = true;
-		//}
-		//end of stage for level 1 
-		//if (SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->spawnBoss == true && levels == 1 || SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->spawnBoss == true && levels == 2) {
-		//	SceneManager::Instance().ChangeScene("Main Menu");
-		//}
 
 		GUISettingsUpdate();
 	}
