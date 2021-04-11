@@ -320,6 +320,7 @@ struct Level : public Scene
 			{
 				std::cout << "YOU LOSE" << std::endl;
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose :(", "courier");
+				_playerInv.Inventory_AddCoins(25);
 				once = true;
 			}
 			else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && once == false)
@@ -328,6 +329,7 @@ struct Level : public Scene
 				//++levels;
 				levelsunlocked = 2;
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Won! Level 2 Unlocked!", "courier");
+				_playerInv.Inventory_AddCoins(50);
 				once = true;
 			}
 
@@ -343,6 +345,7 @@ struct Level : public Scene
 			if (Factory::Instance()[player].Get<Com_Health>().health <= 0 && once == false)
 			{
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose :(", "courier");
+				_playerInv.Inventory_AddCoins(25);
 				once = true;
 			}
 			else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && once == false)
@@ -351,6 +354,7 @@ struct Level : public Scene
 				//++levels;
 				levelsunlocked = 3;
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Won! Level 3 Unlocked!", "courier");
+				_playerInv.Inventory_AddCoins(50);
 				once = true;
 			}
 
@@ -365,11 +369,13 @@ struct Level : public Scene
 			if (Factory::Instance()[player].Get<Com_Health>().health <= 0 && once == false)
 			{
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose :(", "courier");
+				_playerInv.Inventory_AddCoins(25);
 				once = true;
 			}
 			else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && bs.bossdefeat == true && once == false)
 			{
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Win :D", "courier");
+				_playerInv.Inventory_AddCoins(50);
 				once = true;
 			}
 

@@ -584,11 +584,13 @@ struct TestScenePF : public Scene
 		if (Factory::Instance()[player].Get<Com_Health>().health <= 0 && once == false)
 		{
 			Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose :(", "courier");
+			_playerInv.Inventory_AddCoins(25);
 			once = true;
 		}
 		else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && bs.bossdefeat == true && once == false)
 		{
 			Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Win :D", "courier");
+			_playerInv.Inventory_AddCoins(50);
 			once = true;
 		}
 
