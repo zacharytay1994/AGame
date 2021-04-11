@@ -72,10 +72,12 @@ void ResourceManager::FlushDraw()
 			i = r->_layer;
 			FlushDrawTextLayer(i);
 		}
+		AEGfxSetTintColor(r->r, r->g, r->b, r->a);
 		AEMtx33Concat(&r->_transform, &shake, &r->_transform);
 		AEGfxSetTransform(r->_transform.m);
 		AEGfxTextureSet(r->_texture, r->_offset_x, r->_offset_y);
 		AEGfxMeshDraw(r->_mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
+		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 	FlushDrawText();
 	_render_queue_vector.resize(0);

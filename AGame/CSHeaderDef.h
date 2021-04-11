@@ -1475,10 +1475,10 @@ struct Sys_AABB : public System {
 					if (AABBColData[i].type->type == type->enemyrange || AABBColData[i].type->type == type->enemy) {
 						Vec2f direction_movement = { vel->x, vel->y };
 						direction_movement.NormalizeSelf();
-						Factory::Instance().FF_CreateParticleFrictionSpray({ "meat.png", 80.0f, 200.0f, 2, 2, 4, 1000.0f },
-							{ position.x,position.y }, direction_movement, 0.9f, 0.6f, { 30.0f,50.0f }, 1200.0f, 5);
+						Factory::Instance().FF_CreateParticleFrictionSpray({ "flowers.png", 80.0f, 200.0f, 2, 2, 4, 1000.0f },
+							{ position.x,position.y }, direction_movement, 0.9f, 0.9f, { 10.0f,30.0f }, 1200.0f, 10);
 						Factory::Instance().FF_CreateParticleFrictionBloodSpray({ "blood.png", 80.0f, 200.0f, 2, 2, 4, 1000.0f },
-							{ position.x,position.y }, direction_movement, 0.9f, 0.6f, { 30.0f,50.0f }, 1200.0f, 20);
+							{ position.x,position.y }, direction_movement, 0.9f, 1.2f, { 30.0f,50.0f }, 1200.0f, 30);
 					}
 					//Gridcoliterator.push_back(iteratorcomgrid);
 					//erase = true;
@@ -3095,12 +3095,14 @@ struct Sys_Cursor : public System {
 struct Com_ParticleFriction {
 	Vec2f _velocity{ 0.0f,0.0f };
 	float _friction{ 0.8f };
+	float _fade{ 0.5f };
 };
 
 struct Sys_ParticleFriction : public System {
 	void UpdateComponent() override {
 		Com_ParticleFriction& pf = get<Com_ParticleFriction>();
 		Com_Position& pos = get<Com_Position>();
+		Com_Sprite& sprite = get<Com_Sprite>();
 		// if exist velocity, apply friction
 		if (pf._velocity.x > 0.1f || pf._velocity.y > 0.1f) {
 			pf._velocity = pf._velocity * (pf._friction);
@@ -3109,6 +3111,13 @@ struct Sys_ParticleFriction : public System {
 		}
 		else {
 			pf._velocity = { 0.0f,0.0f };
+		}
+		// fade particles
+		if (sprite._render_pack.a > 0.0f) {
+			sprite._render_pack.a -= pf._fade * _dt;
+		}
+		else {
+			RemoveEntity();
 		}
 	}
 };

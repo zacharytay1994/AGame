@@ -358,6 +358,9 @@ eid Factory::FF_CreateParticleFrictionBloodSpray(const SpriteData& data, const V
         sprite._y_scale = scale.x + (scale.y - scale.x) * (1.5f - rand_str);
         sprite._current_frame = (int)(AERandFloat() * 4.0f);
         sprite._loop = false;
+        sprite._render_pack.r = AERandFloat() + 0.2f;
+        sprite._render_pack.g = AERandFloat() + 0.2f;
+        sprite._render_pack.b = AERandFloat() + 0.2f;
 
         // calculate frame offsets
         int current_frame = sprite._current_frame + sprite._frame_segment[sprite._current_frame_segment].x;
