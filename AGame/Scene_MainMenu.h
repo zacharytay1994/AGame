@@ -39,7 +39,7 @@ struct MainMenu : public Scene {
 		Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.5f, 0.6f, 0.8f, 0.4f, "by HCMR", "courier");
 		_buttons_surface = Factory::Instance().FF_CreateGUISurface(buttonbg, 0.5f, original_y, 0.9f, 0.6f, 120);
 		//eid start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.30f, 0.35f, 0.4f, 0.2f, ChangeTestScenePF, "Start", "courier");
-		eid start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.30f, 0.35f, 0.45f, 0.2f, ChangeLevelSelect, "Start", "courier");
+		eid start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.30f, 0.35f, 0.45f, 0.2f, ChangeLevelSelect, "Custom Maps", "courier");
 		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
 		start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.70f, 0.35f, 0.45f, 0.2f, Credits, "Credits", "courier");
 		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
@@ -48,6 +48,8 @@ struct MainMenu : public Scene {
 		start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.50f, 0.85f, 0.45f, 0.2f, QuitGame, "Exit", "courier");
 		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
 		start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.70f, 0.65f, 0.45f, 0.2f, Instructions, "How to Play", "courier");
+		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
+		start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.50f, 0.5f, 0.45f, 0.2f, ChangeLevelSelectNormal, "Start", "courier");
 		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
 
 		// initialize gui settings

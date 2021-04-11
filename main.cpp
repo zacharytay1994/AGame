@@ -56,6 +56,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	// Variable declaration
 
 	int gGameRunning = 1;
+	float g_dt = 0.f;
 	
 	/*Vec2f a{ 1.0f, 1.0f };
 	Vec2f b{ 2.0f,2.0f };*/
@@ -67,12 +68,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	// Using custom window procedure
 	AESysInit(hInstance, nCmdShow, 800, 600, 1, 60, true, NULL);
-	AEToogleFullScreen(true);
+	//AEToogleFullScreen(true);
 	// music
 	ResourceManager::Instance().CreateMusic();
 
 	// Changing the window title
-	AESysSetWindowTitle("A Beautiful Window!");
+	AESysSetWindowTitle("A Beautiful Game!");
 
 	// reset the system modules
 	AESysReset();
@@ -94,7 +95,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		///////////////////
 		// Game loop update
 		SceneManager::Instance().CheckGame(gGameRunning);
-		SceneManager::Instance().Update((float)AEFrameRateControllerGetFrameTime());
+
+		g_dt = (float)AEFrameRateControllerGetFrameTime();
+		if (SceneManager::Instance()._pause)	g_dt = 0.f;
+
+		SceneManager::Instance().Update(g_dt);
 		ResourceManager::Instance().UpdateAndPlayMusic();
 		// Game loop update end
 		///////////////////////

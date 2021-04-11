@@ -9,8 +9,9 @@ Inventory::Inventory() : equipped_weapon{ nullptr }
 	inventory_weapon.insert(std::make_pair("DualDiagPistol", new DualDiagPistol()));
 	inventory_weapon.insert(std::make_pair("Dagger", new Dagger()));
 
-	Inventory_EquipWeapon("NoWeapon");
-	coins = 100; // cannot be more than 1000000, will cause memory leaks0
+	Inventory_EquipWeapon("Dagger");
+	Inventory_EquipSecondaryWeapon("Dagger");
+	coins = 100; // cannot be more than 1000000, will cause memory leaks
 }
 
 Inventory::~Inventory()
@@ -33,9 +34,25 @@ bool Inventory::Inventory_EquipWeapon(std::string const& name)
 	return false;
 }
 
+bool Inventory::Inventory_EquipSecondaryWeapon(std::string const& name)
+{
+	std::map<std::string, Weapon*>::iterator it = inventory_weapon.find(name);
+	if (it != inventory_weapon.end() && it->second->GetWeapon_Unlocked())
+	{
+		equipped_secondary_weapon = it->second;
+		return true;
+	}
+	return false;
+}
+
 const Weapon& Inventory::Inventory_GetCurrentWeapon() const
 {
 	return *equipped_weapon;
+}
+
+const Weapon& Inventory::Inventory_GetCurrentSecondaryWeapon() const
+{
+	return *equipped_secondary_weapon;
 }
 
 bool Inventory::Inventory_SetWeaponUnlocked(std::string const& name)
@@ -43,8 +60,18 @@ bool Inventory::Inventory_SetWeaponUnlocked(std::string const& name)
 	std::map<std::string, Weapon*>::iterator it = inventory_weapon.find(name);
 	if (it != inventory_weapon.end())
 	{
-		it->second->Weapon_Unlock();
-		return true;
+		if (it->second->GetWeapon_Unlocked())
+		{
+			return true;
+		}
+
+		unsigned int weapon_cost = it->second->GetWeapon_Cost();
+		if (coins >= weapon_cost)
+		{
+			Inventory_AddCoins(-static_cast<int>(weapon_cost));
+			it->second->Weapon_Unlock();
+			return true;
+		}
 	}
 	return false;
 }
@@ -136,6 +163,14 @@ void Inventory::Inventory_PrintCurrentWeapon() const
 	{
 		std::cout << "**** NO WEPAON ****" << std::endl;
 	}
+}
+
+int Inventory::Inventory_AddCoins(int newcoins)
+{
+	coins += newcoins;
+	if (coins >= 1000000) coins = 999999;
+	if (coins < 0) coins = 0;
+	return coins;
 }
 
 size_t Inventory::Inventory_GetSize() const
