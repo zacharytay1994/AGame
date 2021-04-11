@@ -117,6 +117,7 @@ private:
 	FMOD::Sound* soundShoot;
 	FMOD::Sound* soundStab;
 	FMOD::Sound* soundEnemyDeath;
+	FMOD::Sound* soundLaserBomb;
 	
 	// Channels required for sound
 	FMOD::Channel* channel = 0;  // BGM
@@ -124,6 +125,7 @@ private:
 	FMOD::Channel* channelGunEffect = 0;
 	FMOD::Channel* channelMeleeEffect = 0;
 	FMOD::Channel* channelEnemyDeath = 0;
+	FMOD::Channel* channelLaserBomb = 0;
 	
 	FMOD_RESULT       result;
 	unsigned int      version;
@@ -176,6 +178,7 @@ public:
 	void ShootingSound(float pitch = 1.f);
 	void StabbingSound();
 	void EnemyDeathSound();
+	void BombSound();
 	void FreeMusic();
 
 	AEMtx33 ScreenShake();
