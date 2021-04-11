@@ -186,7 +186,7 @@ void GUISettingsInitialize() {
 
 	Factory::SpriteData title{ "title.png", 1.0f, 1.0f, 2, 2, 4, 0.2f, 0 };
 	_quit_confirmation_window = Factory::Instance().FF_CreateGUISurface(title, 0.5f, 0.2f, 0.8f, 0.3f, 990);
-	Factory::Instance().FF_CreateGUIChildSurfaceText(_quit_confirmation_window, { "transparent" }, 0.5f, 0.5f, 0.9f, 0.05f, "Click QUIT again to confirm", "courier");
+	Factory::Instance().FF_CreateGUIChildSurfaceText(_quit_confirmation_window, { "transparent" }, 0.5f, 0.5f, 0.9f, 0.05f, "Confirm QUIT?", "courier");
 	Factory::Instance()[_quit_confirmation_window].Get<Com_GUISurface>()._active = false;
 }
 

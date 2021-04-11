@@ -1,5 +1,24 @@
+/******************************************************************************/
+/*!
+\file		Inventory.cpp
+\author 	Noel Ho Sing Nam
+\par    	email: s.ho\@digipen.edu
+\date   	April 12, 2021
+\brief		Functions for inventory
+
+Copyright (C) 2021 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior
+written consent of DigiPen Institute of Technology is prohibited.
+ */
+ /******************************************************************************/
 #include "Inventory.h"
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Default constructor
+	*/
+	/**************************************************************************/
 Inventory::Inventory() : equipped_weapon{ nullptr }
 {
 	inventory_weapon.insert(std::make_pair("NoWeapon", new NoWeapon()));
