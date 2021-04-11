@@ -186,7 +186,7 @@ public:
 	// music and sound effect
 	void CreateMusic();
 	void UpdateAndPlayMusic();
-	void ToggleMuteMusic();
+	void ToggleMuteMusic(int setting = -1);
 	void WalkingSound();
 	void ShootingSound(float pitch = 1.f);
 	void StabbingSound();

@@ -97,8 +97,19 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		// Game loop update
 		SceneManager::Instance().CheckGame(gGameRunning);
 
+		if (GetFocus() != AESysGetWindowHandle())
+		{
+			SceneManager::Instance()._pause = true;
+			ResourceManager::Instance().ToggleMuteMusic(0);
+		}
+		else
+		{
+			if(!SceneManager::Instance()._settings_toggle) { SceneManager::Instance()._pause = false; }
+			ResourceManager::Instance().ToggleMuteMusic(1);
+		}
+
 		g_dt = (float)AEFrameRateControllerGetFrameTime();
-		if (SceneManager::Instance()._pause)	g_dt = 0.f;
+		if (SceneManager::Instance()._pause) { g_dt = 0.f; }
 
 		SceneManager::Instance().Update(g_dt);
 		ResourceManager::Instance().UpdateAndPlayMusic();
@@ -107,7 +118,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 		//////////////////
 		// Game loop draw
-
+		
 		// Game loop draw end
 		/////////////////////
 

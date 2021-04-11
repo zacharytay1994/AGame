@@ -27,12 +27,12 @@ void ToggleChangeSceneButton(Com_GUISurface* surface) {
 	_change_scene_toggle = !_change_scene_toggle;
 }
 
-static bool _settings_toggle{ false };
+//static bool _settings_toggle{ false };
 void SettingsButton(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	_change_scene_toggle = false;
-	_settings_toggle = !_settings_toggle;
-	SceneManager::Instance()._pause = _settings_toggle;
+	SceneManager::Instance()._settings_toggle = !SceneManager::Instance()._settings_toggle;
+	SceneManager::Instance()._pause = SceneManager::Instance()._settings_toggle;
 }
 
 void QuitGame(Com_GUISurface* surface) {
@@ -134,7 +134,7 @@ void ChangeLevelEditor(Com_GUISurface* surface) {
 void GUISettingsInitialize() {
 	Vec2i passin4[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
 	Factory::SpriteData button{ "background2.png", 2.0f, 1.0f, 2, 1, 2, 0.05f, 0, passin4 };
-	_settings_toggle = false;
+	SceneManager::Instance()._settings_toggle = false;
 	_change_scene_toggle = false;
 	Vec2i passin[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
 	eid settings = Factory::Instance().FF_CreateGUIClickableSurface({ "settingsbutton.png", 1.0f, 1.0f, 2, 1, 2, 0.1f, 0, passin }, 0.96f, 0.04f, 0.04f, 0.04f, SettingsButton, 150);
@@ -173,10 +173,10 @@ void GUISettingsInitialize() {
 void GUISettingsUpdate() {
 	if (AEInputCheckTriggered(AEVK_ESCAPE)) {
 		SceneManager::Instance()._pause = !SceneManager::Instance()._pause;
-		_settings_toggle = SceneManager::Instance()._pause;
+		SceneManager::Instance()._settings_toggle = SceneManager::Instance()._pause;
 		_change_scene_toggle = false;
 	}
-	Factory::Instance()[_settings].Get<Com_GUISurface>()._active = _settings_toggle;
+	Factory::Instance()[_settings].Get<Com_GUISurface>()._active = SceneManager::Instance()._settings_toggle;
 	Factory::Instance()[_change_scene].Get<Com_GUISurface>()._active = _change_scene_toggle;
 }
 
@@ -545,7 +545,7 @@ struct TestScenePF : public Scene
 		// 	sprite._current_frame_segment = 2;
 		if (AEInputCheckTriggered(AEVK_ESCAPE)) {
 			SceneManager::Instance()._pause = !SceneManager::Instance()._pause;
-			_settings_toggle = SceneManager::Instance()._pause;
+			SceneManager::Instance()._settings_toggle = SceneManager::Instance()._pause;
 		}
 		if (AEInputCheckTriggered(AEVK_SPACE) && !SceneManager::Instance()._pause) {
 			_playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);

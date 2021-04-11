@@ -44,6 +44,7 @@ public:
 	void Free();
 	bool _pause{ false };
 	bool _fullscreen{ true };
+	bool _settings_toggle{ false };
 	void CheckGame(int& gamerunning) {
 		gamerunning = _gamerunning;
 	}

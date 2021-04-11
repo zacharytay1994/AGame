@@ -579,12 +579,26 @@ void ResourceManager::UpdateAndPlayMusic()
 	}
 }
 
-void ResourceManager::ToggleMuteMusic()
+void ResourceManager::ToggleMuteMusic(int setting)
 {
 	bool paused;
 	result = channel->getPaused(&paused);
-	paused = !paused;
-	result = channel->setPaused(paused);
+
+	switch (setting)
+	{
+		case -1:
+			paused = !paused;
+			result = channel->setPaused(paused);
+			break;
+		case 0:
+			if(paused != true)
+				result = channel->setPaused(true);
+			break;
+		case 1:
+			if(paused != false)
+				result = channel->setPaused(false);
+			break;
+	}
 }
 
 void ResourceManager::FreeMusic() 
