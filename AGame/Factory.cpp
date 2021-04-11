@@ -197,6 +197,36 @@ eid Factory::FF_Createproj(const SpriteData& data, const int& x, const int& y, c
     return id;
 }
 
+/**************************************************************************/
+    /*!
+      \brief
+        Creates a projectile with details given
+
+      \param data
+        The sprite image
+
+      \param x
+        The x position on the grid
+
+      \param y
+        The y position on the grid
+
+      \param vel_x
+        The x velocity
+
+      \param vel_y
+        The y velocity
+
+      \param tilemap
+        The tilemap to spawn the projectile on
+
+      \param lifetime
+        How long the projectile will remain on the grid, -1 if infinite
+
+      \return
+        The entity ID of the projectile
+    */
+/**************************************************************************/
 eid Factory::FF_Createproj2(const SpriteData& data, const int& x, const int& y, const int& vel_x, const int& vel_y, eid const& tilemap, int lifetime)
 {
     eid id = FF_SpriteTile(data, tilemap, x, y);
