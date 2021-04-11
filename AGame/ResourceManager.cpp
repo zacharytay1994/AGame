@@ -331,6 +331,70 @@ AEMtx33 ResourceManager::ScreenShake()
 	return trans;
 }
 
+void ResourceManager::DrawCursor()
+{
+	if (_cursor_mesh) {
+		AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
+		AEMtx33 trans{ 0 }, scale{ 0 };
+		int x, y;
+		AEGfxTextureSet(GetTexture("cursor"), 0.0f,0.0f);
+		AEInputGetCursorPosition(&x, &y);
+		x -= (float)AEGetWindowWidth() / 2.0f;
+		y -= (float)AEGetWindowHeight() / 2.0f;
+		y *= -1;
+		AEMtx33Trans(&trans, x, y);
+		AEMtx33Scale(&scale, 100.0f, 100.0f);
+		AEMtx33Concat(&trans, &trans, &scale);
+		AEGfxSetTransform(trans.m);
+		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
+		AEGfxMeshDraw(_cursor_mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
+	}
+}
+
+void ResourceManager::CursorParticlesUpdate(const float& dt)
+{
+	int x, y;
+	AEInputGetCursorPosition(&x, &y);
+	x -= (float)AEGetWindowWidth() / 2.0f;
+	y -= (float)AEGetWindowHeight() / 2.0f;
+	y *= -1;
+	if (_cursor_particle_count > 0) {
+		AddCursorParticle();
+		_cursor_particles.back()._position.x = x;
+		_cursor_particles.back()._position.y = y;
+		--_cursor_particle_count;
+	}
+	AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
+	AEGfxTextureSet(GetTexture("inkblob"), 0.0f, 0.0f);
+	for (auto& p : _cursor_particles) {
+		if (p._a <= 0.0f) {
+			p._position.x = x;
+			p._position.y = y;
+			p._dimension = (0.5f + AERandFloat()) * cursor_particle_scale;
+			p._scale = 1.0f;
+			p._a = 1.0f;
+		}
+		else {
+			p._position.y -= 5.0f * dt;
+			p._scale -= 0.5f * dt;
+			p._a -= 0.15f * dt;
+		}
+		// draw particle
+		AEMtx33 trans{ 0 }, scale{ 0 };
+		AEMtx33Trans(&trans, p._position.x, p._position.y);
+		AEMtx33Scale(&scale, p._dimension * p._scale, p._dimension * p._scale);
+		AEMtx33Concat(&trans, &trans, &scale);
+		AEGfxSetTransform(trans.m);
+		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, p._a);
+		AEGfxMeshDraw(_cursor_mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
+	}
+}
+
+void ResourceManager::AddCursorParticle()
+{
+	_cursor_particles.emplace_back();
+}
+
 void ResourceManager::ReadTilemapNames()
 {
 	// open file
@@ -543,6 +607,10 @@ ResourceManager::ResourceManager()
 
 void ResourceManager::Initialize()
 {
+	// mouse cursor
+	LoadTexture("cursor", "cursor.png");
+	LoadTexture("inkblob", "inkblob.png");
+	_cursor_mesh = CreateMesh(1, 1);
 	// load all textures
 	LoadTexture("noimage", "noimage.png");
 	LoadTexture("test3", "TestAlien.png");

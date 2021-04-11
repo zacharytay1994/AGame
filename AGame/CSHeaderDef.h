@@ -543,6 +543,9 @@ struct Sys_EnemyStateOne : public System {
 						ResourceManager::Instance().PlayerDamageSound();
 						std::cout << "hit" << std::endl;
 						--(state.playerHealth->health);
+						ResourceManager::Instance()._screen_shake = 10.0f;
+						ResourceManager::Instance().ScreenShake();
+						Factory::Instance().FF_CreateBorder({ "redborder.png" });
 						if (state.playerHealth->health <= 0)
 						{
 							/*std::cout << "お前もう死んで " << std::endl;
@@ -559,6 +562,9 @@ struct Sys_EnemyStateOne : public System {
 						ResourceManager::Instance().PlayerDamageSound();
 						std::cout << "hit white" << std::endl;
 						--(state.playerHealth->health);
+						ResourceManager::Instance()._screen_shake = 10.0f;
+						ResourceManager::Instance().ScreenShake();
+						Factory::Instance().FF_CreateBorder({ "redborder.png" });
 						if (state.playerHealth->health <= 0)
 						{
 							/*std::cout << "お前もう死んで " << std::endl;
@@ -575,8 +581,6 @@ struct Sys_EnemyStateOne : public System {
 			fp._start = Vec2i(pos._grid_x, pos._grid_y);
 			fp._end = Vec2i(state._player->_grid_x, state._player->_grid_y);
 			fp._find = true;
-
-
 		}
 	}
 	void ATTACK_EXIT() {
@@ -1152,6 +1156,7 @@ struct Sys_ArrowKeysTilemap : public System {
 					_grid->Get({ pos._grid_x, pos._grid_y })._obstacle = 0;
 					pos._grid_x -= 1;
 				}
+				Factory::Instance().FF_CreateBorder({ "greenborder.png" });
 				ResourceManager::Instance().WalkingSound();
 			}
 		}
@@ -1162,6 +1167,7 @@ struct Sys_ArrowKeysTilemap : public System {
 					_grid->Get({ pos._grid_x, pos._grid_y })._obstacle = 0;
 					pos._grid_x += 1;
 				}
+				Factory::Instance().FF_CreateBorder({ "greenborder.png" });
 				ResourceManager::Instance().WalkingSound();
 			}
 		}
@@ -1172,6 +1178,7 @@ struct Sys_ArrowKeysTilemap : public System {
 					_grid->Get({ pos._grid_x, pos._grid_y })._obstacle = 0;
 					pos._grid_y -= 1;
 				}
+				Factory::Instance().FF_CreateBorder({ "greenborder.png" });
 				ResourceManager::Instance().WalkingSound();
 			}
 		}
@@ -1182,6 +1189,7 @@ struct Sys_ArrowKeysTilemap : public System {
 					_grid->Get({ pos._grid_x, pos._grid_y })._obstacle = 0;
 					pos._grid_y += 1;
 				}
+				Factory::Instance().FF_CreateBorder({ "greenborder.png" });
 				ResourceManager::Instance().WalkingSound();
 			}
 		}
@@ -1452,6 +1460,9 @@ struct Sys_AABB : public System {
 					//_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					ResourceManager::Instance().PlayerDamageSound();
 					--_PLayerHealth->health;
+					ResourceManager::Instance()._screen_shake = 10.0f;
+					ResourceManager::Instance().ScreenShake();
+					Factory::Instance().FF_CreateBorder({ "redborder.png" });
 					if (_PLayerHealth->health <= 0) 
 					{
 						std::cout << "U died" << std::endl;
@@ -1466,6 +1477,7 @@ struct Sys_AABB : public System {
 					std::cout << "collidied Boss" << std::endl;
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					--Boss->BossHealth;
+					Factory::Instance().FF_CreateBorder({ "greenborder.png" });
 					if (Boss->BossHealth <= 0) 
 					{
 						--_spawner->CurrNoOfEnemies;
@@ -3145,6 +3157,24 @@ struct Sys_ParticleFriction : public System {
 		// fade particles
 		if (sprite._render_pack.a > 0.0f) {
 			sprite._render_pack.a -= pf._fade * _dt;
+		}
+		else {
+			RemoveEntity();
+		}
+	}
+};
+
+struct Com_FadeOut {
+	float _fade{ 2.0f };
+};
+
+struct Sys_FadeOut : public System {
+	void UpdateComponent() override {
+		Com_FadeOut& fo = get<Com_FadeOut>();
+		Com_Sprite& sprite = get<Com_Sprite>();
+		// fade particles
+		if (sprite._render_pack.a > 0.0f) {
+			sprite._render_pack.a -= fo._fade * _dt;
 		}
 		else {
 			RemoveEntity();

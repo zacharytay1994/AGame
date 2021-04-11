@@ -36,11 +36,10 @@ struct LevelSelectNormal : public Scene {
 	Com_Text* _name_text{ nullptr };
 	Com_Sprite* _lvl_display{ nullptr };
 	bool skip = false;
-
+	bool first = true;
 
 	void Initialize() override {
 		std::cout << "SYSTEM MESSAGE: Now entering main menu." << std::endl;
-
 
 		//unlock level 2 
 		if (levelsunlocked == 2) {
@@ -106,6 +105,15 @@ struct LevelSelectNormal : public Scene {
 
 		_lvl_display = &Factory::Instance()[_background].Get<Com_Sprite>();
 		_name_text = &Factory::Instance()[_name].Get<Com_Text>();
+
+		if (first == true) {
+			current_tilemap2 = ResourceManager::Instance().SwitchTilemap2(-1);
+			_current_texture2 = ResourceManager::Instance()._tilemap_images2[ResourceManager::Instance()._tilemap_id2];
+			if (!_current_texture2) {
+				_current_texture2 = ResourceManager::Instance().GetTexture("noimage");
+			}
+			first = false;
+		}
 
 		// initialize gui settings
 		GUISettingsInitialize();

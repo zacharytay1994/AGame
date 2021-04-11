@@ -380,6 +380,16 @@ eid Factory::FF_CreateParticleFrictionBloodSpray(const SpriteData& data, const V
     return -1;
 }
 
+eid Factory::FF_CreateBorder(const SpriteData& data)
+{
+    eid id = FF_Sprite(data, 0.0f,0.0f);
+    Entity& e = Factory::Instance()[id].AddComponent<Com_FadeOut>();
+    Com_Sprite& sprite = e.Get<Com_Sprite>();
+    sprite._x_scale = (float)AEGetWindowWidth();
+    sprite._y_scale = (float)AEGetWindowHeight();
+    return eid();
+}
+
 //edits 
 eid Factory::FF_CreateGUIChildClickableTextboxSurface(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*))
 {
