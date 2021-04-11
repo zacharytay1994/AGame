@@ -202,4 +202,4 @@ public:
 	void CursorParticlesUpdate(const float& dt);
 	void AddCursorParticle();
 	void DrawScenePanels(const float& dt);
-}; 
+};
