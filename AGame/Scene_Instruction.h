@@ -240,7 +240,6 @@ struct Scene_Instructions : public Scene
 		UNREFERENCED_PARAMETER(dt);
 
 		std::stringstream ss1;
-		std::cout << currentinstructions << std::endl;
 
 		if (AEInputCheckCurr('L')) {
 			ResourceManager::Instance()._screen_shake = 1.0f;
