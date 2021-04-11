@@ -340,12 +340,12 @@ struct Level : public Scene
 			{
 				SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->spawnBoss = false;
 				//++levels;
-				levelsunlocked = 2;
+				levelsunlocked = 3;
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Won! Level 3 Unlocked!", "courier");
 			}
 
 			//Com_EnemySpawn& com_spawner = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
-			if (Factory::Instance()[player].Get<Com_Health>().health <= 0 || (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0) {
+			if (Factory::Instance()[player].Get<Com_Health>().health <= 0 || (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0)) {
 				Factory::Instance()[menu].Get<Com_GUISurface>()._active = true;
 				Factory::Instance()[_WinOrLose].Get<Com_GUISurface>()._active = true;
 			}
