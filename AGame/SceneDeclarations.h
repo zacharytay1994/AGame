@@ -260,6 +260,7 @@ struct TestScenePF : public Scene
 	eid _WinOrLose{ -1 };
 	eid wall{ -1 };
 	eid bomb{ -1 };
+	eid bossHealth{ -1 };
 	bool once = false;
 	Inventory playerInv;
 	Factory::SpriteData box{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
@@ -417,11 +418,19 @@ struct TestScenePF : public Scene
 		ss << Factory::Instance()[player].Get<Com_Health>().health;
 		lives = Factory::Instance().FF_CreateGUIChildSurfaceText(lives, { "transparent" }, 0.5f, 0.5f, 0.8f, 0.4f, ss.str().c_str(), "courier");
 
+	
 		waves = Factory::Instance().FF_CreateGUISurface(underline, 0.8f, 0.1f, 0.4f, 0.1f, 100);
 		Factory::Instance().FF_CreateGUIChildSurfaceText(waves, { "transparent" }, 0.3f, 0.5f, 0.4f, 0.4f, "Waves: ", "courier");
 		std::stringstream ss1;
 		ss1 << Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves;
 		waves = Factory::Instance().FF_CreateGUIChildSurfaceText(waves, { "transparent" }, 0.5f, 0.5f, 0.8f, 0.4f, ss1.str().c_str(), "courier");
+			
+		bossHealth = Factory::Instance().FF_CreateGUISurface(underline, 0.8f, 0.1f, 0.4f, 0.1f, 100);
+		Factory::Instance().FF_CreateGUIChildSurfaceText(waves, { "transparent" }, 0.3f, 0.5f, 0.4f, 0.4f, "Waves: ", "courier");
+		std::stringstream ssBH;
+		ssBH << Factory::Instance()[spawner].Get<Com_Boss>().BossHealth;
+		bossHealth = Factory::Instance().FF_CreateGUIChildSurfaceText(bossHealth, { "transparent" }, 0.5f, 0.5f, 0.8f, 0.4f, ssBH.str().c_str(), "courier");
+		
 
 		menu = Factory::Instance().FF_CreateGUISurface(buttonsurface, 0.5f, 0.5f, 0.9f, 0.6f, 120);
 		_WinOrLose = Factory::Instance().FF_CreateGUISurface(title, 0.5f, 0.2f, 0.8f, 0.3f, 140);
@@ -432,6 +441,7 @@ struct TestScenePF : public Scene
 		Factory::Instance()[menu].Get<Com_GUISurface>()._active = false;
 		Factory::Instance()[_WinOrLose].Get<Com_GUISurface>()._active = false;
 
+		//bossHealth = Factory::Instance().FF_CreateGUISurface();
 
 		//Factory::Instance().FF_CreateGUISurface(clock, 0.5f, 0.05f, 0.1f, 0.1f, 100);
 
@@ -463,15 +473,25 @@ struct TestScenePF : public Scene
 		//Entity& testing = Factory::Instance()[tilemap];
 		//if (AEInputCheckTriggered('E')) {
 		//}
-		std::stringstream ss;
-		ss << Factory::Instance()[player].Get<Com_Health>().health;
-		Factory::Instance()[lives].Get<Com_Text>()._data._text = ss.str();
-		std::stringstream ss1;
-		ss1 << Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves;
-		Factory::Instance()[waves].Get<Com_Text>()._data._text = ss1.str();
 		Com_Boss& bs = Factory::Instance()[spawner].Get<Com_Boss>();
 		Com_Wave& com_wave = Factory::Instance()[spawner].Get<Com_Wave>();
 		Com_EnemySpawn& em = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
+		std::stringstream ss;
+		ss << Factory::Instance()[player].Get<Com_Health>().health;
+		Factory::Instance()[lives].Get<Com_Text>()._data._text = ss.str();
+		
+		if (com_wave.numberofwaves > 0 && em.CurrNoOfEnemies > 0) 
+		{
+			std::stringstream ss1;
+			ss1 << Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves;
+			Factory::Instance()[waves].Get<Com_Text>()._data._text = ss1.str();
+		}
+		else 
+		{
+			std::stringstream ssBH;
+			ssBH << Factory::Instance()[spawner].Get<Com_Boss>().BossHealth;
+			Factory::Instance()[bossHealth].Get<Com_Text>()._data._text = ssBH.str();
+		}
 
 		if (AEInputCheckCurr('L')) {
 			ResourceManager::Instance()._screen_shake = 1.0f;
