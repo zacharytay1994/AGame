@@ -10,6 +10,8 @@
 #include <string>
 #include "music.h"
 
+static constexpr int cursor_particle_scale = 5.0f;
+
 // forward deckaratuibs
 struct Com_Tilemap;
 struct Com_TilePosition;
@@ -52,6 +54,12 @@ struct RM_Compare {
 	bool operator()(RenderPack* lhs, RenderPack* rhs) const { return lhs->_layer > rhs->_layer; }
 };
 
+struct CursorParticle {
+	Vec2f	_position{ -1000.0f,-1000.0f };
+	float	_scale{ 1.0f };
+	float	_dimension{ cursor_particle_scale };
+	float	_a{ 1.0f };
+};
 
 struct ResourceManager {
 	static ResourceManager& Instance();
@@ -59,6 +67,7 @@ struct ResourceManager {
 	void FreeResources();
 	float _screen_shake{ 0.0f };
 	float _dampening{ 10.0f };
+	AEGfxVertexList* _cursor_mesh{ nullptr };
 
 	//<-- Level Select
 	struct tilemap_identifier {
@@ -83,6 +92,8 @@ struct ResourceManager {
 	std::vector<AEGfxTexture*> _tilemap_images2;
 	//-->
 
+	int _cursor_particle_count = 200;
+	std::vector<CursorParticle> _cursor_particles;
 private:
 	ResourceManager();
 	void Initialize();
@@ -182,4 +193,7 @@ public:
 	void FreeMusic();
 
 	AEMtx33 ScreenShake();
+	void DrawCursor();
+	void CursorParticlesUpdate(const float& dt);
+	void AddCursorParticle();
 }; 
