@@ -313,6 +313,7 @@ struct Level : public Scene
 
 			if (Factory::Instance()[player].Get<Com_Health>().health <= 0 && once == false)
 			{
+				std::cout << "YOU LOSE" << std::endl;
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose :(", "courier");
 				once = true;
 			}

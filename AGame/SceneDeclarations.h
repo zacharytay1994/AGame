@@ -27,12 +27,12 @@ void ToggleChangeSceneButton(Com_GUISurface* surface) {
 	_change_scene_toggle = !_change_scene_toggle;
 }
 
-static bool _settings_toggle{ false };
+//static bool _settings_toggle{ false };
 void SettingsButton(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	_change_scene_toggle = false;
-	_settings_toggle = !_settings_toggle;
-	SceneManager::Instance()._pause = _settings_toggle;
+	SceneManager::Instance()._settings_toggle = !SceneManager::Instance()._settings_toggle;
+	SceneManager::Instance()._pause = SceneManager::Instance()._settings_toggle;
 }
 
 void QuitGame(Com_GUISurface* surface) {
@@ -134,7 +134,7 @@ void ChangeLevelEditor(Com_GUISurface* surface) {
 void GUISettingsInitialize() {
 	Vec2i passin4[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
 	Factory::SpriteData button{ "background2.png", 2.0f, 1.0f, 2, 1, 2, 0.05f, 0, passin4 };
-	_settings_toggle = false;
+	SceneManager::Instance()._settings_toggle = false;
 	_change_scene_toggle = false;
 	Vec2i passin[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
 	eid settings = Factory::Instance().FF_CreateGUIClickableSurface({ "settingsbutton.png", 1.0f, 1.0f, 2, 1, 2, 0.1f, 0, passin }, 0.96f, 0.04f, 0.04f, 0.04f, SettingsButton, 150);
@@ -173,10 +173,10 @@ void GUISettingsInitialize() {
 void GUISettingsUpdate() {
 	if (AEInputCheckTriggered(AEVK_ESCAPE)) {
 		SceneManager::Instance()._pause = !SceneManager::Instance()._pause;
-		_settings_toggle = SceneManager::Instance()._pause;
+		SceneManager::Instance()._settings_toggle = SceneManager::Instance()._pause;
 		_change_scene_toggle = false;
 	}
-	Factory::Instance()[_settings].Get<Com_GUISurface>()._active = _settings_toggle;
+	Factory::Instance()[_settings].Get<Com_GUISurface>()._active = SceneManager::Instance()._settings_toggle;
 	Factory::Instance()[_change_scene].Get<Com_GUISurface>()._active = _change_scene_toggle;
 }
 
@@ -309,6 +309,7 @@ struct TestScenePF : public Scene
 	Factory::SpriteData data2{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.15f };
 	Factory::SpriteData data22{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.25f };
 	Factory::SpriteData underline{ "underline.png", 80.0f, 200.0f, 4, 1, 4, 0.25f };
+	Factory::SpriteData clock{ "clock.png", 80.0f, 200.0f, 3, 2, 5, 0.20f };
 	Factory::SpriteData meat{ "flowers.png", 80.0f, 200.0f, 2, 2, 4, 1000.0f };
 	Vec2i passin2[5] = { {0,1},{2,3},{4,5},{6,7},{0,0} };
 	Factory::SpriteData arrows{ "arrows.png", 50.0f, 50.0f, 3, 3, 8, 0.1f, -900, passin2 };
@@ -479,11 +480,6 @@ struct TestScenePF : public Scene
 		UNREFERENCED_PARAMETER(dt);
 		GUISettingsUpdate();
 
-		if (AEInputCheckTriggered(AEVK_O)) {
-			//Factory::Instance().FF_CreateParticleFriction(clock, { 0.0f,0.0f }, { 1000.0f,1000.0f }, 0.9f);
-			Factory::Instance().FF_CreateParticleFrictionSpray(meat, { 0.0f,0.0f }, { 0.7f,0.7f }, 0.9f, 1.571f, { 20.0f,50.0f }, 1200.0f, 10);
-		}
-
 		if (AEInputCheckTriggered(AEVK_P)) {
 			SceneManager::Instance()._pause = !SceneManager::Instance()._pause;
 		}
@@ -549,7 +545,7 @@ struct TestScenePF : public Scene
 		// 	sprite._current_frame_segment = 2;
 		if (AEInputCheckTriggered(AEVK_ESCAPE)) {
 			SceneManager::Instance()._pause = !SceneManager::Instance()._pause;
-			_settings_toggle = SceneManager::Instance()._pause;
+			SceneManager::Instance()._settings_toggle = SceneManager::Instance()._pause;
 		}
 		if (AEInputCheckTriggered(AEVK_SPACE) && !SceneManager::Instance()._pause) {
 			_playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);

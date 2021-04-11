@@ -31,6 +31,7 @@ struct Opening : public Scene {
 
 
 		if (last == true || AEInputCheckTriggered(AEVK_SPACE) || AEInputCheckTriggered(AEVK_LBUTTON)) {
+			last = false;
 			SceneManager::Instance().ChangeScene("Main Menu");
 		}
 	}
