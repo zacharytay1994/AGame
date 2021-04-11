@@ -284,8 +284,9 @@ struct Level : public Scene
 
 		Com_Sprite& sprite = Factory::Instance()[player].Get<Com_Sprite>();
 		if (AEInputCheckTriggered(AEVK_SPACE) && !SceneManager::Instance()._pause) {
+			// Shotos the primary weapon if not paused
 			_playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
-			//ResourceManager::Instance().ShootingSound();
+
 			sprite._lock = true;
 			sprite._current_frame = 0;
 			sprite._frame_interval_counter = 0.0f;
@@ -308,6 +309,7 @@ struct Level : public Scene
 			arrow_sprite->_current_frame_segment = 3;
 		}
 		else if (AEInputCheckTriggered(AEVK_Z) && !SceneManager::Instance()._pause) {
+			// Shoots the secondary weapon if not moving or paused
 			_playerInv.Inventory_GetCurrentSecondaryWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
 		}
 		else {

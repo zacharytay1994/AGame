@@ -97,22 +97,23 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		// Game loop update
 		SceneManager::Instance().CheckGame(gGameRunning);
 
-		if (GetFocus() != AESysGetWindowHandle())
+		if (GetFocus() != AESysGetWindowHandle())	// If the game is not in focus
 		{
-			SceneManager::Instance()._pause = true;
-			ResourceManager::Instance().ToggleMuteMusic(0);
+			SceneManager::Instance()._pause = true;	// Pause the game
+			ResourceManager::Instance().ToggleMuteMusic(0);	// Mute the music
 		}
 		else
 		{
+			// If the game is not paused by player, unpause it
 			if(!SceneManager::Instance()._settings_toggle) { SceneManager::Instance()._pause = false; }
-			ResourceManager::Instance().ToggleMuteMusic(1);
+			ResourceManager::Instance().ToggleMuteMusic(1);	// Unmute the music
 		}
 
-		g_dt = (float)AEFrameRateControllerGetFrameTime();
-		if (SceneManager::Instance()._pause) 
+		g_dt = (float)AEFrameRateControllerGetFrameTime();	// Get framerate
+		if (SceneManager::Instance()._pause) // If the game is paused
 		{ 
-			ResourceManager::Instance().ToggleMuteMusic(0);
-			g_dt = 0.f; 
+			ResourceManager::Instance().ToggleMuteMusic(0);	// Mute the music
+			g_dt = 0.f; // Set the dt to 0, disables most of the systems
 		}
 
 		SceneManager::Instance().Update(g_dt);
@@ -140,6 +141,5 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	ResourceManager::Instance().FreeMusic();
 	SceneManager::Instance().Free();
 	SceneManager::Instance().Unload();
-	//Inventory::Inventory_Free();
 	// free chunk data resources
 }

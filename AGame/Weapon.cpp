@@ -121,7 +121,7 @@ void Weapon::Weapon_Shoot()
 	  \param direction
 	    The direction the bullets are facing
 
-	  \tilemap
+	  \param tilemap
 	    The tilemap to spawn on
 	*/
 /**************************************************************************/
@@ -445,7 +445,7 @@ TrickPistol::TrickPistol() : Weapon(2)
 	  \param direction
 		The direction the bullets are facing
 
-	  \tilemap
+	  \param tilemap
 		The tilemap to spawn on
 	*/
 /**************************************************************************/
@@ -535,7 +535,7 @@ DualDiagPistol::DualDiagPistol() : Weapon(4)
 	  \param direction
 		The direction the bullets are facing
 
-	  \tilemap
+	  \param tilemap
 		The tilemap to spawn on
 	*/
 /**************************************************************************/
@@ -607,7 +607,7 @@ Dagger::Dagger()
 	  \param direction
 		The direction the bullets are facing
 
-	  \tilemap
+	  \param tilemap
 		The tilemap to spawn on
 	*/
 /**************************************************************************/
