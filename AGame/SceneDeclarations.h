@@ -45,8 +45,13 @@ void ToggleChangeSceneButton(Com_GUISurface* surface) {
 void SettingsButton(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	_change_scene_toggle = false;
-	SceneManager::Instance()._settings_toggle = !SceneManager::Instance()._settings_toggle;
-	SceneManager::Instance()._pause = SceneManager::Instance()._settings_toggle;
+	// Pauses or unpauses the game
+	SceneManager::Instance()._pause = !SceneManager::Instance()._pause;
+
+	// Toggles the settings menu depending on the pause state
+	SceneManager::Instance()._settings_toggle = SceneManager::Instance()._pause;
+	_change_scene_toggle = false;
+	_quit_confirmation = false;
 }
 
 /**************************************************************************/
@@ -279,13 +284,15 @@ void GUISettingsInitialize() {
 
 	// settings menu
 	_settings = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.84f, 0.38f, 0.3f, 0.6f, 150);
-	eid i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, button, 0.5f, 0.2f, 0.9f, 0.08f, ChangeMainMenu, "Main Menu", "courier");	// clickable child surface text
+	eid i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, button, 0.5f, 0.1f, 0.9f, 0.08f, SettingsButton, "Resume", "courier");	// clickable child surface text
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
-	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, button, 0.5f, 0.4f, 0.9f, 0.08f, ToggleChangeSceneButton, "Settings", "courier");	// clickable child surface text
+	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, button, 0.5f, 0.3f, 0.9f, 0.08f, ChangeMainMenu, "Main Menu", "courier");	// clickable child surface text
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
-	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, button, 0.5f, 0.6f, 0.9f, 0.08f, OpenSurvey, "Survey", "courier");	// clickable child surface text
+	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, button, 0.5f, 0.5f, 0.9f, 0.08f, ToggleChangeSceneButton, "Settings", "courier");	// clickable child surface text
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
-	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, button, 0.5f, 0.8f, 0.9f, 0.08f, QuitConfirmation, "Quit", "courier");	// clickable child surface text
+	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, button, 0.5f, 0.7f, 0.9f, 0.08f, OpenSurvey, "Survey", "courier");	// clickable child surface text
+	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
+	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, button, 0.5f, 0.9f, 0.9f, 0.08f, QuitConfirmation, "Quit", "courier");	// clickable child surface text
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
 
 	// change scene menu
