@@ -66,6 +66,7 @@ struct Scene_Instructions : public Scene
 	bool last{ false };
 	size_t spacetriggered{ 0 };
 	size_t daggertriggered{ 0 };
+	bool once = false;
 	Factory::SpriteData buttonsurface{ "title.png", 1.0f, 1.0f, 2, 2, 4, 0.2f, 0 };
 	Vec2i passin3[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
 	Factory::SpriteData button{ "buttonsprite.png", 1.0f, 1.0f, 3, 3, 8, 0.1f, 0, passin3 };
@@ -75,6 +76,7 @@ struct Scene_Instructions : public Scene
 	void Initialize() override {
 		std::cout << test << " this is a test scene" << std::endl;
 		std::cout << sizeof(Com_Tilemap) << std::endl;
+		once = false;
 
 		//reset 
 		last = false;
@@ -82,6 +84,7 @@ struct Scene_Instructions : public Scene
 			//reset
 			currentinstructions = 0;
 		}
+		messageseen = false;
 		//init tilemap 
 		tilemap = Factory::Instance().FF_Tilemap("tilemap", "c_INSTRUCTION.txt", "t_INSTRUCTION.txt");
 		Factory::Instance()[tilemap].Get<Com_Position>().x = -3;
@@ -366,14 +369,16 @@ struct Scene_Instructions : public Scene
 		if (last == true) {
 			Com_Wave& com_wave = Factory::Instance()[spawner].Get<Com_Wave>();
 			Com_EnemySpawn& em = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
-			if (Factory::Instance()[player].Get<Com_Health>().health <= 0)
+			if (Factory::Instance()[player].Get<Com_Health>().health <= 0 && once == false)
 			{
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose :(", "courier");
+				once = true;
 			}
-			else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0)
+			else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && once == false)
 			{
 				SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->spawnBoss = false;
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "Now go conquer the world!", "courier");
+				once = true;
 			}
 
 			if (Factory::Instance()[player].Get<Com_Health>().health <= 0 || (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0)) {
@@ -393,7 +398,6 @@ struct Scene_Instructions : public Scene
 	________________________________*/
 	void Exit() override {
 		std::cout << "woo switching to scene 2!" << std::endl;
-
 
 	}
 };
