@@ -540,6 +540,7 @@ struct Sys_EnemyStateOne : public System {
 				{
 					if (state.playerHealth != nullptr/* && _grid->Get(fp._end)._player*/)
 					{
+						ResourceManager::Instance().PlayerDamageSound();
 						std::cout << "hit" << std::endl;
 						--(state.playerHealth->health);
 						if (state.playerHealth->health <= 0)
@@ -555,6 +556,7 @@ struct Sys_EnemyStateOne : public System {
 					// to decrease health - temporary check (theres a bug, cant die if walking out of map)
 					if (state.playerHealth != nullptr/* && _grid->Get(fp._end)._player*/)
 					{
+						ResourceManager::Instance().PlayerDamageSound();
 						std::cout << "hit white" << std::endl;
 						--(state.playerHealth->health);
 						if (state.playerHealth->health <= 0)
@@ -1448,6 +1450,7 @@ struct Sys_AABB : public System {
 				if ((type->type == type->player) && (AABBColData[i].type->type == type->EnemyBalls)) {
 					std::cout << "collidied human2213"  << std::endl;
 					//_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
+					ResourceManager::Instance().PlayerDamageSound();
 					--_PLayerHealth->health;
 					if (_PLayerHealth->health <= 0) 
 					{
@@ -1515,6 +1518,12 @@ struct Sys_AABB : public System {
 					if (tilepos->_grid_x == 4 && tilepos->_grid_y == 3) 
 					{
 						_grid->Get({ 4, 3 })._obstacle = false;
+						Gridcoliterator.push_back(iteratorcomgrid);
+						erase = true;
+					}
+					else if (tilepos->_is_player) 
+					{
+						_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 						Gridcoliterator.push_back(iteratorcomgrid);
 						erase = true;
 					}

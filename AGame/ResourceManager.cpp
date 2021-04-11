@@ -431,11 +431,13 @@ void ResourceManager::CreateMusic()
 	result = sound_system->createSound("../bin/Assets/Sound/Knife.wav", FMOD_DEFAULT, 0, &soundStab);
 	result = sound_system->createSound("../bin/Assets/Sound/Death.wav", FMOD_DEFAULT, 0, &soundEnemyDeath);
 	result = sound_system->createSound("../bin/Assets/Sound/LaserBomb.wav", FMOD_DEFAULT, 0, &soundLaserBomb);
+	result = sound_system->createSound("../bin/Assets/Sound/Grunt.wav", FMOD_DEFAULT, 0, &soundGrunt);
 	result = soundWalk->setMode(FMOD_LOOP_OFF);
 	result = soundShoot->setMode(FMOD_LOOP_OFF);
 	result = soundStab->setMode(FMOD_LOOP_OFF);
 	result = soundEnemyDeath->setMode(FMOD_LOOP_OFF);
 	result = soundLaserBomb->setMode(FMOD_LOOP_OFF);
+	result = soundGrunt->setMode(FMOD_LOOP_OFF);
 
 	//result = sound_system->createSound(Common_SoundPath("drumloop.wav"), FMOD_DEFAULT, 0, &sound1);
 	std::cout << "Sound load";
@@ -466,6 +468,11 @@ void ResourceManager::EnemyDeathSound()
 void ResourceManager::BombSound()
 {
 	result = sound_system->playSound(soundLaserBomb, 0, false, &channelLaserBomb);
+}
+
+void ResourceManager::PlayerDamageSound()
+{
+	result = sound_system->playSound(soundGrunt, 0, false, &channelGrunt);
 }
 
 void ResourceManager::UpdateAndPlayMusic() 
