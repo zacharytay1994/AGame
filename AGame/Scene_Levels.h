@@ -31,6 +31,7 @@ struct Level : public Scene
 	eid _WinOrLose{ -1 };
 	eid wall{ -1 };
 	eid bomb{ -1 };
+	bool skip = false;
 	Inventory playerInv;
 	Factory::SpriteData box{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
 	Factory::SpriteData boom{ "kaboom", 40.0f, 40.0f, 1, 1, 1, 0.15f };
@@ -60,6 +61,52 @@ struct Level : public Scene
 		std::cout << test << " this is a test scene" << std::endl;
 		std::cout << sizeof(Com_Tilemap) << std::endl;
 
+		//unlock level 2 
+		if (levels == 2) {
+			//double check if the file name already exist 
+			std::ifstream filecheck;
+			filecheck.open("../bin/Assets/Tilemaps/leveltilemaps.txt");
+			std::string tmp;
+			while (std::getline(filecheck, tmp)) {
+				//already exist! 
+				if (tmp == "level2") {
+					skip = true;
+				}
+			}
+
+			// open text file
+			if (skip == false) {
+				std::ofstream file;
+				assert(file);
+				file.open("../bin/Assets/Tilemaps/leveltilemaps.txt", std::ios_base::app); // append instead of overwrite
+				file << "\n" << "level2";
+				file.close();
+			}
+			skip = false;
+		}
+		//unlock level 3 
+		if (levels == 3) {
+			//double check if the file name already exist 
+			std::ifstream filecheck;
+			filecheck.open("../bin/Assets/Tilemaps/leveltilemaps.txt");
+			std::string tmp;
+			while (std::getline(filecheck, tmp)) {
+				//already exist! 
+				if (tmp == "level3") {
+					skip = true;
+				}
+			}
+
+			// open text file
+			if (skip == false) {
+				std::ofstream file;
+				assert(file);
+				file.open("../bin/Assets/Tilemaps/leveltilemaps.txt", std::ios_base::app); // append instead of overwrite
+				file << "\n" << "level3";
+				file.close();
+			}
+			skip = false;
+		}
 
 		//init tilemap 
 		tilemap = Factory::Instance().FF_Tilemap("tilemap", ResourceManager::Instance()._tilemap_names2[ResourceManager::Instance()._tilemap_id2]._binary + ".txt",
@@ -158,26 +205,6 @@ struct Level : public Scene
 			}
 		}
 
-		// player = Factory::Instance().FF_SpriteTile(man, tilemap, 0, 0);
-		// Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne, Com_TileMoveSpriteState, Com_type>();
-		// Factory::Instance()[player].Get<Com_TilePosition>()._is_player = true;
-		// Factory::Instance()[player].Get<Com_type>().type = 0; // set player type
-		// //SystemDatabase::Instance().GetSystem<Sys_AABB>()->_PLayerHealth = &Factory::Instance()[player].Get<Com_Health>();
-		// SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->tile = tilemap;
-		// SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
-		// SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
-
-		//player = Factory::Instance().FF_SpriteTile(man, tilemap, 0, 0);
-		//Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne, Com_TileMoveSpriteState, Com_type>();
-		//Factory::Instance()[player].Get<Com_TilePosition>()._is_player = true;
-		//Factory::Instance()[player].Get<Com_type>().type = 0; // set player type
-		//SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->player_id = player;
-		//SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->tile = tilemap;
-		//SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
-		//SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
-
-		//SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
-
 
 
 		arrow = Factory::Instance().FF_Sprite(arrows, 0.0f, 0.0f);
@@ -208,12 +235,7 @@ struct Level : public Scene
 		Factory::Instance()[_WinOrLose].Get<Com_GUISurface>()._active = false;
 
 
-		//Factory::Instance().FF_CreateGUISurface(clock, 0.5f, 0.05f, 0.1f, 0.1f, 100);
-
 		GUISettingsInitialize();
-		//_playerInv.Inventory_SetWeaponUnlocked("Pistol");
-		//_playerInv.Inventory_EquipWeapon("Pistol");
-		//std::cout << "EQUIPPED PISTOL" << std::endl;
 	}
 	/*
 	Update Override (optional)
