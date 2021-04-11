@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <fstream>
 #include <algorithm>
+#include <math.h>
 
 #define MY_PI 3.142f
 
@@ -395,6 +396,46 @@ void ResourceManager::AddCursorParticle()
 	_cursor_particles.emplace_back();
 }
 
+void ResourceManager::DrawScenePanels(const float& dt)
+{
+	if (_panel_timer > 0.0f) {
+		_panel_timer -= 3.0f * dt;
+	}
+	float height = (float)AEGetWindowHeight()/2.0f;
+	float width = (float)AEGetWindowWidth()/2.0f;
+	AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
+	AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
+	AEMtx33 trans{ 0 }, scale{ 0 };
+
+	AEGfxTextureSet(GetTexture("LeftPanel"), 0.0f, 0.0f);
+	AEMtx33Trans(&trans, _scene_transition[2].x + height * sin(_panel_timer), _scene_transition[2].y);
+	AEMtx33Scale(&scale, width * 2.0f, height * 2.0f);
+	AEMtx33Concat(&trans, &trans, &scale);
+	AEGfxSetTransform(trans.m);
+	AEGfxMeshDraw(_cursor_mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
+
+	AEGfxTextureSet(GetTexture("RightPanel"), 0.0f, 0.0f);
+	AEMtx33Trans(&trans, _scene_transition[3].x - height * sin(_panel_timer), _scene_transition[3].y);
+	AEMtx33Scale(&scale, width * 2.0f, height * 2.0f);
+	AEMtx33Concat(&trans, &trans, &scale);
+	AEGfxSetTransform(trans.m);
+	AEGfxMeshDraw(_cursor_mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
+
+	AEGfxTextureSet(GetTexture("TopPanel"), 0.0f, 0.0f);
+	AEMtx33Trans(&trans, _scene_transition[0].x, _scene_transition[0].y - height * sin(_panel_timer));
+	AEMtx33Scale(&scale, width * 2.0f, height * 2.0f);
+	AEMtx33Concat(&trans, &trans, &scale);
+	AEGfxSetTransform(trans.m);
+	AEGfxMeshDraw(_cursor_mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
+
+	AEGfxTextureSet(GetTexture("BottomPanel"), 0.0f, 0.0f);
+	AEMtx33Trans(&trans, _scene_transition[1].x, _scene_transition[1].y + height * sin(_panel_timer));
+	AEMtx33Scale(&scale, width * 2.0f, height * 2.0f);
+	AEMtx33Concat(&trans, &trans, &scale);
+	AEGfxSetTransform(trans.m);
+	AEGfxMeshDraw(_cursor_mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
+}
+
 void ResourceManager::ReadTilemapNames()
 {
 	// open file
@@ -624,6 +665,17 @@ void ResourceManager::Initialize()
 	LoadTexture("cursor", "cursor.png");
 	LoadTexture("inkblob", "inkblob.png");
 	_cursor_mesh = CreateMesh(1, 1);
+
+	// scene transition
+	LoadTexture("TopPanel", "TopPanel.png");
+	LoadTexture("BottomPanel", "BottomPanel.png");
+	LoadTexture("RightPanel", "RightPanel.png");
+	LoadTexture("LeftPanel", "LeftPanel.png");
+	_scene_transition.push_back({ 0.0f,(float)AEGetWindowHeight() });
+	_scene_transition.push_back({ 0.0f,-(float)AEGetWindowHeight() });
+	_scene_transition.push_back({ -(float)AEGetWindowWidth(),0.0f });
+	_scene_transition.push_back({ (float)AEGetWindowWidth(),0.0f });
+
 	// load all textures
 	LoadTexture("noimage", "noimage.png");
 	LoadTexture("test3", "TestAlien.png");

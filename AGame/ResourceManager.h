@@ -94,6 +94,8 @@ struct ResourceManager {
 
 	int _cursor_particle_count = 200;
 	std::vector<CursorParticle> _cursor_particles;
+	std::vector<Vec2f> _scene_transition;
+	float _panel_timer{ 3.14159f };
 private:
 	ResourceManager();
 	void Initialize();
@@ -199,4 +201,5 @@ public:
 	void DrawCursor();
 	void CursorParticlesUpdate(const float& dt);
 	void AddCursorParticle();
+	void DrawScenePanels(const float& dt);
 }; 
