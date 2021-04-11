@@ -1,8 +1,24 @@
 #pragma once
+/******************************************************************************/
+/*!
+\file		Scene_Inventory.h
+\author 	Noel Ho Sing Nam
+\par    	email: s.ho\@digipen.edu
+\date   	April 12, 2021
+\brief		The inventory scene
+
+Copyright (C) 2021 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior
+written consent of DigiPen Institute of Technology is prohibited.
+ */
+ /******************************************************************************/
 #include "SceneDeclarations.h"
 
-
 struct InventoryMenu : public Scene {
+
+	/*
+	Member Variables
+	________________________________*/
 	eid i{ -1 };
 	eid main{ -1 };
 	eid _settings{ -1 };
@@ -40,14 +56,16 @@ struct InventoryMenu : public Scene {
 	bool dualdiagpistol_weapon_unlocked{ false };
 	eid dagger_weapon{ -1 };
 	std::string current_coins{};
-
 	bool _gui_change_scene{ false };
+
+	/*
+	Initialize Override (optional)
+	________________________________*/
 	void Initialize() override {
 		std::cout << "SYSTEM MESSAGE: Now entering main menu." << std::endl;
 
 		// main background
 		main = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.5f, 0.5f, 1.0f, 1.0f, 100);
-		//Factory::Instance().FF_CreateGUIChildSurfaceText(main, { "transparent" }, 0.5f, 0.2f, 0.04f, 0.04f, "Inventory", "courier");
 		_title = Factory::Instance().FF_CreateGUISurface(title, 0.5f, 0.2f, original_dim_x, original_dim_y, 140);
 		Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.35f, 0.35f, 0.8f, 0.4f, "Inventory", "courier");
 		current_coins = "[Coins: ";
@@ -91,12 +109,18 @@ struct InventoryMenu : public Scene {
 		// initialize gui settings
 		GUISettingsInitialize();
 	}
+
+	/*
+	Update Override (optional)
+	________________________________*/
 	void Update(const float& dt) override {
 		UNREFERENCED_PARAMETER(dt);
 		GUISettingsUpdate();
 
+		// Display currently equipped weapon
 		Factory::Instance()[current_weapon].Get<Com_Text>()._data._text = _playerInv.Inventory_GetCurrentWeapon().GetWeapon_Name();	
 
+		// Turn grayed buttons white when unlocked
 		if (!pistol_weapon_unlocked && _playerInv.Inventory_CheckWeaponUnlocked("Pistol"))
 		{
 			pistol_weapon_unlocked = true;
@@ -118,19 +142,15 @@ struct InventoryMenu : public Scene {
 			Factory::Instance()[dualdiagpistol_weapon].Get<Com_GUISurfaceHoverShadow_Inventory>().weapon_unlocked = true;
 		}
 
+		// Player coins text
 		current_coins = "[Coins: ";
 		current_coins += std::to_string(_playerInv.coins);
 		current_coins += "]";
-
 		Factory::Instance()[coins_text].Get<Com_Text>()._data._text = current_coins.c_str();
 
 		offset_rad = offset_rad + dt > 2.0f * PI ? 0.0f : offset_rad + dt;
 		offset_y = sin(offset_rad);
 		Factory::Instance()[_buttons_surface].Get<Com_GUISurface>()._position.y = original_y + offset_y * 0.03f;
 		Factory::Instance()[_title].Get<Com_GUISurface>()._dimensions = { original_dim_x + (offset_y + 1.0f) * 0.03f, original_dim_y + (offset_y + 1.0f) * 0.03f };
-	}
-	void Exit() 
-	{
-
 	}
 };
