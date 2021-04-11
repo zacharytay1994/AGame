@@ -10,7 +10,7 @@
 #include <string>
 #include "music.h"
 
-static constexpr int cursor_particle_scale = 10.0f;
+static constexpr int cursor_particle_scale = 5.0f;
 
 // forward deckaratuibs
 struct Com_Tilemap;
