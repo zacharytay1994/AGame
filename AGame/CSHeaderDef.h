@@ -1115,7 +1115,12 @@ struct Sys_ArrowKeysTilemap : public System {
 	float _counter{ _speed };
 	bool _turn{ false };
 	Grid* _grid{ nullptr };
+	bool _once{ false };
 	void OncePerFrame() {
+		if (_once) {
+			return;
+		}
+		_once = true;
 		_counter -= _dt;
 		if (_counter <= 0.0f) {
 			_counter = _speed;
@@ -1127,6 +1132,7 @@ struct Sys_ArrowKeysTilemap : public System {
 		}
 	}
 	void UpdateComponent() override {
+		_once = false;
 		Com_TilePosition& pos = get<Com_TilePosition>();
 		Com_Direction& direction = get<Com_Direction>();
 
