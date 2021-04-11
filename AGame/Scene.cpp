@@ -185,7 +185,7 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_HealthUpdate, Com_Health>();
 
 	// particle
-	SystemDatabase::Instance().RegisterSystem<Sys_ParticleFriction, Com_Position, Com_ParticleFriction>();
+	SystemDatabase::Instance().RegisterSystem<Sys_ParticleFriction, Com_Position, Com_ParticleFriction, Com_Sprite>();
 
 
 	// 4. Registering scenes
