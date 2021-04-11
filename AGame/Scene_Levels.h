@@ -10,262 +10,10 @@
 #include <string>
 #include <sstream>
 
-// GUI CODE
-eid _settings, _change_scene;
-
-// INVENTORY CODE
-static Inventory _playerInv;
-
-//void TestFunction(Com_GUISurface* surface) {
-//	std::cout << "button1" << std::endl;
-//}
-
-static bool _change_scene_toggle{ false };
-void ToggleChangeSceneButton(Com_GUISurface* surface) {
-	UNREFERENCED_PARAMETER(surface);
-	_change_scene_toggle = !_change_scene_toggle;
-}
-
-static bool _settings_toggle{ false };
-void SettingsButton(Com_GUISurface* surface) {
-	UNREFERENCED_PARAMETER(surface);
-	_change_scene_toggle = false;
-	_settings_toggle = !_settings_toggle;
-	SceneManager::Instance()._pause = _settings_toggle;
-}
-
-void QuitGame(Com_GUISurface* surface) {
-	UNREFERENCED_PARAMETER(surface);
-	std::cout << "button3" << std::endl;
-	SceneManager::Instance().StopGame();
-}
-
-void ChangeTestScene(Com_GUISurface* surface) {
-	UNREFERENCED_PARAMETER(surface);
-	SceneManager::Instance().ChangeScene("Test Scene");
-}
-
-void ChangeInventoryScene(Com_GUISurface* surface) {
-	UNREFERENCED_PARAMETER(surface);
-	SceneManager::Instance().ChangeScene("InventoryMenu");
-}
-
-void ChangeLevelSelect(Com_GUISurface* surface) {
-	UNREFERENCED_PARAMETER(surface);
-	SceneManager::Instance().ChangeScene("LevelSelectNormal");
-}
-
-void ChangeTestScenePF(Com_GUISurface* surface) {
-	UNREFERENCED_PARAMETER(surface);
-	if (_playerInv.Inventory_GetCurrentWeapon().GetWeapon_Name() != "NoWeapon") {
-		SceneManager::Instance().ChangeScene("Level");
-	}
-}
-
-void ChangeShootingRangeScene(Com_GUISurface* surface) {
-	UNREFERENCED_PARAMETER(surface);
-	SceneManager::Instance().ChangeScene("ShootingRange");
-}
-
-void ChangeWilf(Com_GUISurface* surface) {
-	UNREFERENCED_PARAMETER(surface);
-	SceneManager::Instance().ChangeScene("Instructions");
-}
-
-void ChangeMainMenu(Com_GUISurface* surface) {
-	UNREFERENCED_PARAMETER(surface);
-	SceneManager::Instance().ChangeScene("Main Menu");
-}
-
-void ToggleFullScreen(Com_GUISurface* surface) {
-	UNREFERENCED_PARAMETER(surface);
-	SceneManager::Instance()._fullscreen = !SceneManager::Instance()._fullscreen;
-	AEToogleFullScreen(SceneManager::Instance()._fullscreen);
-}
-
-void ToggleMute(Com_GUISurface* surface) {
-	UNREFERENCED_PARAMETER(surface);
-	ResourceManager::Instance().ToggleMuteMusic();
-}
-
-void OpenSurvey(Com_GUISurface* surface) {
-	UNREFERENCED_PARAMETER(surface);
-	#ifdef _WIN32 
-		system("start https://forms.gle/KPbjkFks2SYmj9af8");
-	#elif __APPLE__ 
-		system("open https://forms.gle/KPbjkFks2SYmj9af8");
-	#elif __linux__ 
-		system("xdg-open https://forms.gle/KPbjkFks2SYmj9af8");
-	#endif
-		_playerInv.Inventory_AddCoins(300);
-}
-
-void Credits(Com_GUISurface* surface) {
-	UNREFERENCED_PARAMETER(surface);
-	_playerInv.Inventory_AddCoins(300);
-	SceneManager::Instance().ChangeScene("Credits");
-}
-
-void Instructions(Com_GUISurface* surface) {
-	UNREFERENCED_PARAMETER(surface);
-	SceneManager::Instance().ChangeScene("Instructions");
-}
-
-
-void ChangeLevelEditor(Com_GUISurface* surface) {
-	UNREFERENCED_PARAMETER(surface);
-	SceneManager::Instance().ChangeScene("Leveleditor");
-}
-
-void GUISettingsInitialize() {
-	Vec2i passin4[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
-	Factory::SpriteData button{ "background2.png", 2.0f, 1.0f, 2, 1, 2, 0.05f, 0, passin4 };
-	_settings_toggle = false;
-	_change_scene_toggle = false;
-	Vec2i passin[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
-	eid settings = Factory::Instance().FF_CreateGUIClickableSurface({ "settingsbutton.png", 1.0f, 1.0f, 2, 1, 2, 0.1f, 0, passin }, 0.96f, 0.04f, 0.04f, 0.04f, SettingsButton, 150);
-	Factory::Instance()[settings].AddComponent<Com_GUISurfaceHoverShadow>();
-	// settings menu
-	_settings = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.84f, 0.38f, 0.3f, 0.6f, 150);
-	eid i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, button, 0.5f, 0.2f, 0.9f, 0.08f, ChangeMainMenu, "Main Menu", "courier");	// clickable child surface text
-	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
-	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, button, 0.5f, 0.4f, 0.9f, 0.08f, ToggleChangeSceneButton, "Settings", "courier");	// clickable child surface text
-	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
-	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, button, 0.5f, 0.6f, 0.9f, 0.08f, OpenSurvey, "Survey", "courier");	// clickable child surface text
-	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
-
-	// change scene menu
-	_change_scene = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.16f, 0.38f, 0.3f, 0.6f, 200);
-	Factory::Instance()[_change_scene].AddComponent<Com_GUIDrag, Com_GUIMouseCheck>();
-	Factory::Instance().FF_CreateGUIChildSurfaceText(_change_scene, { "transparent" }, 0.5f, 0.08f, 0.9f, 0.05f, "Select Scene", "courier");		
-	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.2f, 0.9f, 0.08f, ToggleFullScreen, "Fullscreen", "courier");	// clickable child surface text
-	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();// clickable child surface text
-	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.35f, 0.9f, 0.08f, ToggleMute, "Mute Music", "courier");	// clickable child surface text
-	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
-	/*
-	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.2f, 0.9f, 0.08f, ChangeMainMenu, "Main", "courier");	// clickable child surface text
-	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
-	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.35f, 0.9f, 0.08f, ChangeTestScenePF, "Aus", "courier");	// clickable child surface text
-	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
-	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.5f, 0.9f, 0.08f, ChangeShootingRangeScene, "Noel", "courier");	// clickable child surface text
-	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
-	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.65f, 0.9f, 0.08f, ChangeWilf, "Wilfred", "courier");	// clickable child surface text
-	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
-	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.8f, 0.9f, 0.08f, ChangeTestScene, "Zac", "courier");	// clickable child surface text
-	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();*/
-	Factory::Instance().FF_CreateGUIChildClickableSurface(_change_scene, { "cross" }, 0.9f, 0.05f, 0.08f, 0.04f, ToggleChangeSceneButton);					// clickable child surface text
-}
-
-void GUISettingsUpdate() {
-	if (AEInputCheckTriggered(AEVK_ESCAPE)) {
-		SceneManager::Instance()._pause = !SceneManager::Instance()._pause;
-		_settings_toggle = SceneManager::Instance()._pause;
-		_change_scene_toggle = false;
-	}
-	Factory::Instance()[_settings].Get<Com_GUISurface>()._active = _settings_toggle;
-	Factory::Instance()[_change_scene].Get<Com_GUISurface>()._active = _change_scene_toggle;
-}
-
-// WEAPON STUFF
-void EquipPistol(Com_GUISurface* surface) {
-	UNREFERENCED_PARAMETER(surface);
-	_playerInv.Inventory_SetWeaponUnlocked("Pistol");
-	_playerInv.Inventory_EquipWeapon("Pistol");
-}
-
-void EquipTrickPistol(Com_GUISurface* surface) {
-	UNREFERENCED_PARAMETER(surface);
-	_playerInv.Inventory_SetWeaponUnlocked("TrickPistol");
-	_playerInv.Inventory_EquipWeapon("TrickPistol");
-}
-
-void EquipDualPistol(Com_GUISurface* surface) {
-	UNREFERENCED_PARAMETER(surface);
-	_playerInv.Inventory_SetWeaponUnlocked("DualPistol");
-	_playerInv.Inventory_EquipWeapon("DualPistol");
-}
-
-void EquipDualDiagPistol(Com_GUISurface* surface) {
-	UNREFERENCED_PARAMETER(surface);
-	_playerInv.Inventory_SetWeaponUnlocked("DualDiagPistol");
-	_playerInv.Inventory_EquipWeapon("DualDiagPistol");
-}
-
-void EquipDagger(Com_GUISurface* surface) {
-	UNREFERENCED_PARAMETER(surface);
-	_playerInv.Inventory_SetWeaponUnlocked("Dagger");
-	_playerInv.Inventory_EquipWeapon("Dagger");
-}
-
-/*!___________________________________________________________________
-	TEST SCENE - Created By : Zac
-_____________________________________________________________________*/
-
 /*___________________________________________________________________
-	TEST SCENE 2 - Created By : Zac
+	Level 
 _____________________________________________________________________*/
-struct TestScene2 : public Scene {
-	std::string test = "hi";
-	eid e;
-	void Initialize() override {
-		std::cout << test << " i came from test scene 1" << std::endl;
-		e = Factory::Instance().FF_Sprite({ "test2", 50.0f, 100.0f, 1, 8, 8 }, 0, 0);
-	}
-	void Update(const float& dt) override {
-		UNREFERENCED_PARAMETER(dt);
-		//std::cout << "hehe just keep printing" << std::endl;
-		if (AEInputCheckCurr('C')) {
-			SceneManager::Instance().ChangeScene("Test Scene");
-		}
-	}
-	// overriding initialize/update/exit is optional
-};
-
-// Example Code
-struct ExampleScene : public Scene {
-	AEGfxTexture* scene_texture{ nullptr };	// scene persistent resource
-	int* scene_variable;			// scene temporary resource
-	void Load() override {
-		scene_texture = AEGfxTextureLoad("Somerandomtexture.png");
-		std::cout << "Example Scene Loaded." << std::endl;
-	}
-	void Initialize() override {
-		// initializing
-		scene_variable = new int{ 10 };
-		std::cout << "Example Scene Initialized" << std::endl;
-	}
-	void Update(const float& dt) override {
-		UNREFERENCED_PARAMETER(dt);
-		++(*scene_variable);
-		if (AEInputCheckTriggered('R')) {
-			SceneManager::Instance().RestartScene();
-		}
-		if (AEInputCheckTriggered('C')) {
-			SceneManager::Instance().ChangeScene("Test Scene");
-		}
-	}
-	void Draw(const float& dt) override {
-		UNREFERENCED_PARAMETER(dt);
-		// draw smoething
-	}
-	void Exit() override {
-		// free scene resources
-		delete scene_variable;
-		std::cout << "Example Scene Freed." << std::endl;
-	}
-	void Unload() override {
-		//if (scene_texture) { AEGfxTextureUnload(scene_texture); }
-		std::cout << "Example Scene Unloaded." << std::endl;
-	}
-};
-
-//struct MainMenu;
-//struct TestScene;
-
-/*___________________________________________________________________
-	TEST FOR PATHFINDING - Created By : Aus
-_____________________________________________________________________*/
-struct TestScenePF : public Scene
+struct Level : public Scene
 {
 	/*
 	Member Variables
@@ -283,11 +31,10 @@ struct TestScenePF : public Scene
 	eid _WinOrLose{ -1 };
 	eid wall{ -1 };
 	eid bomb{ -1 };
-	bool once = false;
 	Inventory playerInv;
 	Factory::SpriteData box{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
 	Factory::SpriteData boom{ "kaboom", 40.0f, 40.0f, 1, 1, 1, 0.15f };
-	Vec2i passin[5] = { {-1,3},{3,7},{8,11},{0,0},{0,0} };
+	Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
 	Factory::SpriteData man{ "hero.png", 200.0f, 320.0f, 4, 3, 12, 0.1f, 0, passin };
 	Factory::SpriteData data{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.15f };
 	Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
@@ -300,6 +47,7 @@ struct TestScenePF : public Scene
 	Factory::SpriteData title{ "title.png", 1.0f, 1.0f, 2, 2, 4, 0.2f, 0 };
 	eid arrow = -1;
 	Com_Sprite* arrow_sprite{ nullptr };
+	size_t levels{ 0 };
 	//Factory::SpriteData data{ 0,"test2", 1, 8, 8, 0.1f, 100.0f, 200.0f };
 
 	Factory::SpriteData buttonsurface{ "title.png", 1.0f, 1.0f, 2, 2, 4, 0.2f, 0 };
@@ -311,11 +59,27 @@ struct TestScenePF : public Scene
 	void Initialize() override {
 		std::cout << test << " this is a test scene" << std::endl;
 		std::cout << sizeof(Com_Tilemap) << std::endl;
-		once = false;
+
 
 		//init tilemap 
-		tilemap = Factory::Instance().FF_Tilemap("tilemap", ResourceManager::Instance()._tilemap_names[ResourceManager::Instance()._tilemap_id]._binary + ".txt",
-															ResourceManager::Instance()._tilemap_names[ResourceManager::Instance()._tilemap_id]._map + ".txt");
+		tilemap = Factory::Instance().FF_Tilemap("tilemap", ResourceManager::Instance()._tilemap_names2[ResourceManager::Instance()._tilemap_id2]._binary + ".txt",
+			ResourceManager::Instance()._tilemap_names2[ResourceManager::Instance()._tilemap_id2]._map + ".txt");
+
+		if (ResourceManager::Instance()._tilemap_names2[ResourceManager::Instance()._tilemap_id2]._binary + ".txt" == "c_level1.txt") {
+			levels = 1;
+		}
+		if (ResourceManager::Instance()._tilemap_names2[ResourceManager::Instance()._tilemap_id2]._binary + ".txt" == "c_level2.txt") {
+			levels = 2;
+		}
+		if (ResourceManager::Instance()._tilemap_names2[ResourceManager::Instance()._tilemap_id2]._binary + ".txt" == "c_level3.txt") {
+			levels = 3;
+		}
+		if (levels == 1 || levels == 2) {
+			SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->spawnBoss = false;
+		}
+		if (levels == 2 || levels == 3) {
+			SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->yammonsterenable = true; //enable 
+		}
 		Factory::Instance()[tilemap].Get<Com_Position>().x = -5;
 		Factory::Instance()[tilemap].Get<Com_Position>().y = 3;
 		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
@@ -339,7 +103,7 @@ struct TestScenePF : public Scene
 		Factory::Instance()[spawner].Get<Com_Boss>().BossHealth = 20;
 		SystemDatabase::Instance().GetSystem<Sys_AABB>()->Boss = &Factory::Instance()[spawner].Get<Com_Boss>();
 		SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->boss = &Factory::Instance()[spawner].Get<Com_Boss>();
-		SystemDatabase::Instance().GetSystem<Sys_EnemyStateBoss>()->boss = &Factory::Instance()[spawner].Get<Com_Boss>(); 
+		SystemDatabase::Instance().GetSystem<Sys_EnemyStateBoss>()->boss = &Factory::Instance()[spawner].Get<Com_Boss>();
 
 		//testting for level editor 
 		for (int y = 0; y < com_tilemap._height; ++y) {
@@ -367,7 +131,7 @@ struct TestScenePF : public Scene
 				//if its' a destructible wall 
 				if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 4) {
 					wall = Factory::Instance().FF_SpriteTile(box, tilemap, x, y);
-					Factory::Instance()[wall].AddComponent<Com_YLayering,Com_Health,Com_type, Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_ParticleEmitter>();
+					Factory::Instance()[wall].AddComponent<Com_YLayering, Com_Health, Com_type, Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_ParticleEmitter>();
 					SystemDatabase::Instance().GetSystem<Sys_Obstacle>()->_grid = &pf2._grid;
 					Entity& e = Factory::Instance()[wall];
 					e.Get<Com_Health>().health = 3;
@@ -384,7 +148,7 @@ struct TestScenePF : public Scene
 					bomb = Factory::Instance().FF_SpriteTile(boom, tilemap, x, y);
 					Factory::Instance()[bomb].AddComponent<Com_YLayering, Com_type, Com_Health, Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_ParticleEmitter, Com_GameTimer>();
 					SystemDatabase::Instance().GetSystem<Sys_ParticleEmitter>()->tilemap = tilemap;
-					SystemDatabase::Instance().GetSystem<Sys_Obstacle>()->_grid = &pf2._grid; 
+					SystemDatabase::Instance().GetSystem<Sys_Obstacle>()->_grid = &pf2._grid;
 					Entity& e = Factory::Instance()[bomb];
 					e.Get<Com_Health>().health = 1;
 					e.Get<Com_type>().type = 4;
@@ -455,7 +219,8 @@ struct TestScenePF : public Scene
 	________________________________*/
 	void Update(const float& dt) override {
 		UNREFERENCED_PARAMETER(dt);
-		GUISettingsUpdate();
+
+
 
 		if (AEInputCheckTriggered(AEVK_P)) {
 			SceneManager::Instance()._pause = !SceneManager::Instance()._pause;
@@ -485,7 +250,7 @@ struct TestScenePF : public Scene
 		if (AEInputCheckCurr('L')) {
 			ResourceManager::Instance()._screen_shake = 1.0f;
 		}
-//#endif
+		//#endif
 		if (AEInputCheckTriggered('R')) {
 			bs.disable = 0;
 			bs.bossdefeat = false;
@@ -493,31 +258,11 @@ struct TestScenePF : public Scene
 			SceneManager::Instance().RestartScene();
 		}
 
-		Com_Sprite& sprite = Factory::Instance()[player].Get<Com_Sprite>();
-		// if (AEInputCheckTriggered(AEVK_SPACE)) {
-		// 	_playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
-		// 	//ResourceManager::Instance().ShootingSound();
-		// 	sprite._lock = true;
-		// 	sprite._current_frame = 0;
-		// 	sprite._frame_interval_counter = 0.0f;
-		// 	sprite._current_frame_segment = 2;
-		if (AEInputCheckTriggered(AEVK_ESCAPE)) {
-			SceneManager::Instance()._pause = !SceneManager::Instance()._pause;
-			_settings_toggle = SceneManager::Instance()._pause;
-		}
-		if (AEInputCheckTriggered(AEVK_SPACE) && !SceneManager::Instance()._pause) {
+		if (AEInputCheckTriggered(AEVK_SPACE)) {
 			_playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
 			//ResourceManager::Instance().ShootingSound();
-			sprite._lock = true;
-			sprite._current_frame = 0;
-			sprite._frame_interval_counter = 0.0f;
-			sprite._current_frame_segment = 2;
-		}
-		if (AEInputCheckTriggered(AEVK_Z) && !SceneManager::Instance()._pause) {
-			_playerInv.Inventory_GetCurrentSecondaryWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
 		}
 		if (AEInputCheckCurr(AEVK_LEFT) || AEInputCheckCurr(AEVK_A)) {
-			sprite._flip = true;
 			arrow_sprite->_visible = true;
 			arrow_sprite->_current_frame_segment = 0;
 		}
@@ -526,7 +271,6 @@ struct TestScenePF : public Scene
 			arrow_sprite->_current_frame_segment = 1;
 		}
 		else if (AEInputCheckCurr(AEVK_RIGHT) || AEInputCheckCurr(AEVK_D)) {
-			sprite._flip = false;
 			arrow_sprite->_visible = true;
 			arrow_sprite->_current_frame_segment = 2;
 		}
@@ -539,31 +283,34 @@ struct TestScenePF : public Scene
 		}
 
 
-		if (Factory::Instance()[player].Get<Com_Health>().health <= 0 && once == false)
+		if (Factory::Instance()[player].Get<Com_Health>().health <= 0)
 		{
 			Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose :(", "courier");
-			once = true;
 		}
-		else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && bs.bossdefeat == true && once == false)
+		else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && bs.bossdefeat == true)
 		{
 			Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Win :D", "courier");
-			once = true;
 		}
 
 		//Com_EnemySpawn& com_spawner = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
-		if (Factory::Instance()[player].Get<Com_Health>().health <= 0 || (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <=0 && bs.bossdefeat == true)) {
+		if (Factory::Instance()[player].Get<Com_Health>().health <= 0 || (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && bs.bossdefeat == true)) {
 			Factory::Instance()[menu].Get<Com_GUISurface>()._active = true;
 			Factory::Instance()[_WinOrLose].Get<Com_GUISurface>()._active = true;
 		}
+		//end of stage for level 1 
+		if (SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->spawnBoss == true && levels == 1 || SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->spawnBoss == true && levels == 2) {
+			SceneManager::Instance().ChangeScene("Main Menu");
+		}
 
 		GUISettingsUpdate();
-	}	
+	}
 	/*
 	Exit Override (optional)
 	________________________________*/
 	void Exit() override {
 		std::cout << "woo switching to scene 2!" << std::endl;
-		
+
 
 	}
 };
+

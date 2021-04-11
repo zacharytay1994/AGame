@@ -70,6 +70,18 @@ struct ResourceManager {
 	std::vector<AEGfxTexture*> _tilemap_images;
 	//-->
 
+
+	//<-- Level Select Normal
+	struct tilemap_identifier2 {
+		std::string _name;
+		std::string _binary;
+		std::string _map;
+	};
+	int _tilemap_id2{ 0 };
+	std::vector<tilemap_identifier> _tilemap_names2;
+	std::vector<AEGfxTexture*> _tilemap_images2;
+	//-->
+
 private:
 	ResourceManager();
 	void Initialize();
@@ -82,6 +94,12 @@ private:
 	std::string _known_tilemaps = "tilemaps.txt";
 	int _tilemap_count{ 0 };
 	int _current_tilemap{ -1 };
+	//-->
+
+	//<-- Level Select
+	std::string _known_tilemaps2 = "leveltilemaps.txt";
+	int _tilemap_count2{ 0 };
+	int _current_tilemap2{ -1 };
 	//-->
 
 
@@ -148,6 +166,8 @@ public:
 
 	void ReadTilemapNames();
 	std::string SwitchTilemap(const int& val);
+	void ReadTilemapNames2();
+	std::string SwitchTilemap2(const int& val);
 
 	// music and sound effect
 	void CreateMusic();

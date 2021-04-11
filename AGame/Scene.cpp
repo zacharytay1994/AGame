@@ -14,7 +14,8 @@
 #include "Scene_Inventory.h"
 #include "Scene_LevelSelect.h"
 #include "Scene_Instruction.h"
-
+#include "Scene_LevelSelectNormal.h"
+#include "Scene_Levels.h"
 #include <iostream>
 
 /*______________________________________________________
@@ -202,6 +203,8 @@ void SceneManager::Initialize() {
 	AddScene<LevelSelect>("LevelSelect");
 	AddScene<Scene_Instructions>("Instructions");
 	AddScene<Scene_Credits>("Credits");
+	AddScene<LevelSelectNormal>("LevelSelectNormal");
+	AddScene<Level>("Level");
 }
 
 void SceneManager::Free()
