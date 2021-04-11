@@ -18,7 +18,7 @@ written consent of DigiPen Institute of Technology is prohibited.
 	  \brief
 		Default constructor
 	*/
-	/**************************************************************************/
+/**************************************************************************/
 Inventory::Inventory() : equipped_weapon{ nullptr }
 {
 	inventory_weapon.insert(std::make_pair("NoWeapon", new NoWeapon()));
@@ -33,6 +33,12 @@ Inventory::Inventory() : equipped_weapon{ nullptr }
 	coins = 100; // cannot be more than 1000000, will cause memory leaks
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Destructor
+	*/
+/**************************************************************************/
 Inventory::~Inventory()
 {
 	std::map<std::string, Weapon*>::iterator it;
@@ -42,6 +48,18 @@ Inventory::~Inventory()
 	}
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Equips a weapon, if it is unlocked
+
+	  \param name
+	    The name of the weapon to equip
+
+	  \return
+	    True if weapon is successfully equipped
+	*/
+/**************************************************************************/
 bool Inventory::Inventory_EquipWeapon(std::string const& name)
 {
 	std::map<std::string, Weapon*>::iterator it = inventory_weapon.find(name);
@@ -53,6 +71,18 @@ bool Inventory::Inventory_EquipWeapon(std::string const& name)
 	return false;
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Equips a secondary weapon, if it is unlocked
+
+	  \param name
+		The name of the weapon to equip
+
+	  \return
+		True if weapon is successfully equipped
+	*/
+/**************************************************************************/
 bool Inventory::Inventory_EquipSecondaryWeapon(std::string const& name)
 {
 	std::map<std::string, Weapon*>::iterator it = inventory_weapon.find(name);
@@ -64,16 +94,46 @@ bool Inventory::Inventory_EquipSecondaryWeapon(std::string const& name)
 	return false;
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Gets the currently equipped weapon
+
+	  \return
+		The weapon class
+	*/
+/**************************************************************************/
 Weapon& Inventory::Inventory_GetCurrentWeapon()
 {
 	return *equipped_weapon;
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Gets the currently equipped secondary weapon
+
+	  \return
+		The weapon class
+	*/
+/**************************************************************************/
 Weapon& Inventory::Inventory_GetCurrentSecondaryWeapon()
 {
 	return *equipped_secondary_weapon;
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Unlocks a weapon, if the player has enough coins
+
+	  \param name
+	    The name of the weapon
+
+	  \return
+		Whether the weapon was successfully unlocked
+	*/
+/**************************************************************************/
 bool Inventory::Inventory_SetWeaponUnlocked(std::string const& name)
 {
 	std::map<std::string, Weapon*>::iterator it = inventory_weapon.find(name);
@@ -95,6 +155,18 @@ bool Inventory::Inventory_SetWeaponUnlocked(std::string const& name)
 	return false;
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Checks if a weapon is unlocked
+
+	  \param name
+		The name of the weapon
+
+	  \return
+		True if the weapon is unlocked, false if locked
+	*/
+/**************************************************************************/
 bool Inventory::Inventory_CheckWeaponUnlocked(std::string const& name) const
 {
 	std::map<std::string, Weapon*>::const_iterator it = inventory_weapon.find(name);
@@ -105,6 +177,12 @@ bool Inventory::Inventory_CheckWeaponUnlocked(std::string const& name) const
 	return false;
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Prints the current weapon details to console
+	*/
+/**************************************************************************/
 void Inventory::Inventory_PrintCurrentWeapon() const
 {
 	if (equipped_weapon != nullptr)
@@ -183,14 +261,35 @@ void Inventory::Inventory_PrintCurrentWeapon() const
 	}
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Adds coins to inventory (max 1,000,000)
+
+	  \param newcoins
+		The number of coins to add (can be negative)
+
+	  \return
+		The current total amount of coins the player has
+	*/
+/**************************************************************************/
 int Inventory::Inventory_AddCoins(int newcoins)
 {
 	coins += newcoins;
-	if (coins >= 1000000) coins = 999999;
+	if (coins >= 1000000) coins = 999999;	// cannot be more than 1000000, will cause memory leaks
 	if (coins < 0) coins = 0;
 	return coins;
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Gets the size of the inventory
+
+	  \return
+		Size of inventory
+	*/
+/**************************************************************************/
 size_t Inventory::Inventory_GetSize() const
 {
 	return inventory_weapon.size();

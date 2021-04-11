@@ -33,7 +33,6 @@ class Weapon
 
 		virtual void Weapon_Shoot();	// What happens when weapon is fired
 		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap);
-		virtual void Weapon_Reload();	// What happens when weapon is reloaded
 
 		const unsigned int	GetWeapon_ID() const;
 		const std::string&	GetWeapon_Name() const;
