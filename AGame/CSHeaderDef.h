@@ -1527,9 +1527,12 @@ struct Sys_AABB : public System {
 				
 				if (type->type == type->EnemyBalls && (AABBColData[i].type->type == type->player)) {
 					std::cout << "collidied human" << std::endl;
-					if ((tilepos->_grid_x == 4 && tilepos->_grid_y == 3) || (tilepos->_grid_x == 5 && tilepos->_grid_y == 3))
+					if (tilepos->_grid_x == 4 || tilepos->_grid_y == 3 || tilepos->_grid_x == 5 || tilepos->_grid_y == 4)
 					{
 						_grid->Get({ 4, 3 })._obstacle = false;
+						_grid->Get({ 4, 4 })._obstacle = false;
+						_grid->Get({ 5, 3 })._obstacle = false;
+						_grid->Get({ 5, 4 })._obstacle = false;
 						Gridcoliterator.push_back(iteratorcomgrid);
 						erase = true;
 					}

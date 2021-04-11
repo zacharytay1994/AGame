@@ -35,7 +35,7 @@ struct Level : public Scene
 	Inventory playerInv;
 	Factory::SpriteData box{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
 	Factory::SpriteData boom{ "kaboom", 40.0f, 40.0f, 1, 1, 1, 0.15f };
-	Vec2i passin[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
+	Vec2i passin[5] = { {-1,3},{3,7},{8,11},{0,0},{0,0} };
 	Factory::SpriteData man{ "hero.png", 200.0f, 320.0f, 4, 3, 12, 0.1f, 0, passin };
 	Factory::SpriteData data{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.15f };
 	Factory::SpriteData data1{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.25f };
@@ -295,6 +295,11 @@ struct Level : public Scene
 			bs.bossdefeat = false;
 			bs.BossHealth = 20;
 			SceneManager::Instance().RestartScene();
+		}
+		Com_Sprite& sprite = Factory::Instance()[player].Get<Com_Sprite>();
+		if (AEInputCheckTriggered(AEVK_ESCAPE)) {
+			SceneManager::Instance()._pause = !SceneManager::Instance()._pause;
+			SceneManager::Instance()._settings_toggle = SceneManager::Instance()._pause;
 		}
 
 		if (AEInputCheckTriggered(AEVK_SPACE)) {
