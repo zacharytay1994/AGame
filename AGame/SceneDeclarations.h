@@ -19,6 +19,7 @@ static Inventory _playerInv;
 //void TestFunction(Com_GUISurface* surface) {
 //	std::cout << "button1" << std::endl;
 //}
+static int levelsunlocked{ 1 };
 static int levelselector{ 0 };
 static bool _change_scene_toggle{ false };
 void ToggleChangeSceneButton(Com_GUISurface* surface) {
