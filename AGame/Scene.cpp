@@ -123,6 +123,8 @@ void SceneManager::Initialize() {
 	// particle
 	ComponentDescription_DB::Instance().RegisterComponent<Com_ParticleFriction>();
 
+	ComponentDescription_DB::Instance().RegisterComponent<Com_FadeOut>();
+
 	
 	// 3. Registering all systems for the game
 	//SystemDatabase::Instance().RegisterSystem<Example_UpdatePosition, Position, Example_Velocity>();
@@ -153,6 +155,8 @@ void SceneManager::Initialize() {
 
 	SystemDatabase::Instance().RegisterSystem<Sys_TileMoveSpriteState, Com_Sprite, Com_TilePosition, Com_TileMoveSpriteState>();
 	SystemDatabase::Instance().RegisterSystem<Sys_ParentPosition, Com_ParentPosition>();
+
+	SystemDatabase::Instance().RegisterSystem<Sys_FadeOut, Com_FadeOut, Com_Sprite>();
 
 	// GUI SYSTEMS
 	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceRender, Com_Position, Com_GUISurface, Com_Sprite>();
@@ -276,6 +280,9 @@ void SceneManager::Update(const float& dt)
 		ResourceManager::Instance().Update(_dt);
 		SystemDatabase::Instance().RemoveAllEntities();
 	}
+	// draw cursor
+	ResourceManager::Instance().CursorParticlesUpdate(AEFrameRateControllerGetFrameTime());
+	ResourceManager::Instance().DrawCursor();
 }
 
 /*______________________________________________________

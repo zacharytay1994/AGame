@@ -123,4 +123,7 @@ public:
 	eid FF_CreateParticleFrictionBlood(const SpriteData& data, const Vec2f& position, const Vec2f& velocity, const float& friction);
 	eid FF_CreateParticleFrictionBloodSpray(const SpriteData& data, const Vec2f& position, const Vec2f& direction, const float& friction,
 		const float& sprayangle, const Vec2f& scale, const float& strength, const int& num);
+
+	// border
+	eid FF_CreateBorder(const SpriteData& data);
 };
