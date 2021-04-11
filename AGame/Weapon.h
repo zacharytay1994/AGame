@@ -19,7 +19,7 @@ class Weapon
 		~Weapon();						// Default destructor
 
 		virtual void Weapon_Shoot();	// What happens when weapon is fired
-		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap) const;
+		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap);
 		virtual void Weapon_Reload();	// What happens when weapon is reloaded
 
 		const unsigned int	GetWeapon_ID() const;
@@ -27,7 +27,6 @@ class Weapon
 		const std::string&  GetWeapon_Description() const;
 		const unsigned int	GetWeapon_Damage() const;
 		const unsigned int	GetWeapon_ReloadTime() const;
-		const unsigned int	GetWeapon_Capacity() const;
 		const bool			GetWeapon_Unlocked() const;
 		const unsigned int	GetWeapon_Cost() const;
 
@@ -35,15 +34,13 @@ class Weapon
 
 
 		int&	Weapon_Curr_ReloadTimer();
-		int&	Weapon_Curr_Capacity();
 		void	Weapon_Unlock();
 
 	protected:
 		void SetWeapon_Name(std::string const& new_Name);
 		void SetWeapon_Description(std::string const& new_Desc);
 		void SetWeapon_Damage(unsigned int new_Damage);
-		void SetWeapon_ReloadTime(unsigned int new_ReloadTime);
-		void SetWeapon_Capacity(unsigned int new_Capacity);
+		void SetWeapon_ReloadTime(int new_ReloadTime);
 		void SetWeapon_Pattern(std::vector<BulletSpawn> const& rhs);
 		void SetWeapon_Cost(unsigned int new_Cost);
 
@@ -56,10 +53,8 @@ class Weapon
 		unsigned int weapon_Cost;
 		unsigned int weapon_Damage;
 		unsigned int weapon_ReloadTime;
-		unsigned int weapon_Capacity;
 
 		int weapon_curr_ReloadTimer;
-		int weapon_curr_Capacity;
 		bool weapon_unlocked;
 };
 
@@ -79,7 +74,7 @@ class TrickPistol : public Weapon
 {
 	public:
 		TrickPistol();
-		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap) const;
+		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap);
 };
 
 class DualPistol : public Weapon
@@ -92,12 +87,12 @@ class DualDiagPistol : public Weapon
 {
 	public:
 		DualDiagPistol();
-		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap) const;
+		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap);
 };
 
 class Dagger : public Weapon
 {
 	public:
 		Dagger();
-		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap) const;
+		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap);
 };

@@ -45,12 +45,12 @@ bool Inventory::Inventory_EquipSecondaryWeapon(std::string const& name)
 	return false;
 }
 
-const Weapon& Inventory::Inventory_GetCurrentWeapon() const
+Weapon& Inventory::Inventory_GetCurrentWeapon()
 {
 	return *equipped_weapon;
 }
 
-const Weapon& Inventory::Inventory_GetCurrentSecondaryWeapon() const
+Weapon& Inventory::Inventory_GetCurrentSecondaryWeapon()
 {
 	return *equipped_secondary_weapon;
 }
@@ -95,7 +95,6 @@ void Inventory::Inventory_PrintCurrentWeapon() const
 		std::cout << "* Name: " << std::setw(12) << std::left << equipped_weapon->GetWeapon_Name()	<< " *" << std::endl;
 		std::cout << "* DMG: "	<< std::setw(13) << std::left << equipped_weapon->GetWeapon_Damage()	<< " *" << std::endl;
 		std::cout << "* Reload: " << std::setw(10) << std::left << equipped_weapon->GetWeapon_ReloadTime() << " *" << std::endl;
-		std::cout << "* Capacity: " << std::setw(8) << std::left << equipped_weapon->GetWeapon_Capacity() << " *" << std::endl;
 		int** printMap;
 		unsigned int height = 3, width = 3;
 		int maxheight = 1, minheight = -1, maxwidth = 1, minwidth = -1, currheight = 0, currwidth = 0;
