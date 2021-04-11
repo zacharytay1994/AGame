@@ -22,6 +22,8 @@ static Inventory _playerInv;
 static int levelsunlocked{ 1 };
 static int levelselector{ 0 };
 static bool _change_scene_toggle{ false };
+static bool _quit_confirmation{ false };
+static eid _quit_confirmation_window{ -1 };
 void ToggleChangeSceneButton(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	_change_scene_toggle = !_change_scene_toggle;
@@ -35,6 +37,14 @@ void SettingsButton(Com_GUISurface* surface) {
 	SceneManager::Instance()._pause = SceneManager::Instance()._settings_toggle;
 }
 
+void QuitConfirmation(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	if (!_quit_confirmation)
+		_quit_confirmation = true;
+	else
+		SceneManager::Instance().StopGame();
+}
+
 void QuitGame(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	std::cout << "button3" << std::endl;
@@ -43,28 +53,33 @@ void QuitGame(Com_GUISurface* surface) {
 
 void ChangeTestScene(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	SceneManager::Instance().ChangeScene("Test Scene");
 }
 
 void ChangeInventoryScene(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	SceneManager::Instance().ChangeScene("InventoryMenu");
 }
 
 void ChangeLevelSelect(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	levelselector = 1;
+	_quit_confirmation = false;
 	SceneManager::Instance().ChangeScene("LevelSelect");
 }
 
 void ChangeLevelSelectNormal(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	levelselector = 2;
+	_quit_confirmation = false;
 	SceneManager::Instance().ChangeScene("LevelSelectNormal");
 }
 
 void ChangeTestScenePF(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	if (_playerInv.Inventory_GetCurrentWeapon().GetWeapon_Name() != "NoWeapon") {
 		//if it's custom 
 		if (levelselector == 1) {
@@ -78,32 +93,38 @@ void ChangeTestScenePF(Com_GUISurface* surface) {
 
 void ChangeShootingRangeScene(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	SceneManager::Instance().ChangeScene("ShootingRange");
 }
 
 void ChangeWilf(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	SceneManager::Instance().ChangeScene("Instructions");
 }
 
 void ChangeMainMenu(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	SceneManager::Instance().ChangeScene("Main Menu");
 }
 
 void ToggleFullScreen(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	SceneManager::Instance()._fullscreen = !SceneManager::Instance()._fullscreen;
 	AEToogleFullScreen(SceneManager::Instance()._fullscreen);
 }
 
 void ToggleMute(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	ResourceManager::Instance().ToggleMuteMusic();
 }
 
 void OpenSurvey(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	#ifdef _WIN32 
 		system("start https://forms.gle/KPbjkFks2SYmj9af8");
 	#elif __APPLE__ 
@@ -116,18 +137,21 @@ void OpenSurvey(Com_GUISurface* surface) {
 
 void Credits(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	_playerInv.Inventory_AddCoins(300);
 	SceneManager::Instance().ChangeScene("Credits");
 }
 
 void Instructions(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	SceneManager::Instance().ChangeScene("Instructions");
 }
 
 
 void ChangeLevelEditor(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	SceneManager::Instance().ChangeScene("Leveleditor");
 }
 
@@ -147,6 +171,8 @@ void GUISettingsInitialize() {
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
 	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, button, 0.5f, 0.6f, 0.9f, 0.08f, OpenSurvey, "Survey", "courier");	// clickable child surface text
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
+	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, button, 0.5f, 0.8f, 0.9f, 0.08f, QuitConfirmation, "Quit", "courier");	// clickable child surface text
+	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
 
 	// change scene menu
 	_change_scene = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.16f, 0.38f, 0.3f, 0.6f, 200);
@@ -156,18 +182,12 @@ void GUISettingsInitialize() {
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();// clickable child surface text
 	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.35f, 0.9f, 0.08f, ToggleMute, "Mute Music", "courier");	// clickable child surface text
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
-	/*
-	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.2f, 0.9f, 0.08f, ChangeMainMenu, "Main", "courier");	// clickable child surface text
-	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
-	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.35f, 0.9f, 0.08f, ChangeTestScenePF, "Aus", "courier");	// clickable child surface text
-	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
-	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.5f, 0.9f, 0.08f, ChangeShootingRangeScene, "Noel", "courier");	// clickable child surface text
-	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
-	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.65f, 0.9f, 0.08f, ChangeWilf, "Wilfred", "courier");	// clickable child surface text
-	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
-	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.8f, 0.9f, 0.08f, ChangeTestScene, "Zac", "courier");	// clickable child surface text
-	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();*/
 	Factory::Instance().FF_CreateGUIChildClickableSurface(_change_scene, { "cross" }, 0.9f, 0.05f, 0.08f, 0.04f, ToggleChangeSceneButton);					// clickable child surface text
+
+	Factory::SpriteData title{ "title.png", 1.0f, 1.0f, 2, 2, 4, 0.2f, 0 };
+	_quit_confirmation_window = Factory::Instance().FF_CreateGUISurface(title, 0.5f, 0.2f, 0.8f, 0.3f, 990);
+	Factory::Instance().FF_CreateGUIChildSurfaceText(_quit_confirmation_window, { "transparent" }, 0.5f, 0.5f, 0.9f, 0.05f, "Click QUIT again to confirm", "courier");
+	Factory::Instance()[_quit_confirmation_window].Get<Com_GUISurface>()._active = false;
 }
 
 void GUISettingsUpdate() {
@@ -175,7 +195,18 @@ void GUISettingsUpdate() {
 		SceneManager::Instance()._pause = !SceneManager::Instance()._pause;
 		SceneManager::Instance()._settings_toggle = SceneManager::Instance()._pause;
 		_change_scene_toggle = false;
+		_quit_confirmation = false;
 	}
+
+	if (_quit_confirmation)
+	{
+		Factory::Instance()[_quit_confirmation_window].Get<Com_GUISurface>()._active = true;
+	}
+	else
+	{
+		Factory::Instance()[_quit_confirmation_window].Get<Com_GUISurface>()._active = false;
+	}
+
 	Factory::Instance()[_settings].Get<Com_GUISurface>()._active = SceneManager::Instance()._settings_toggle;
 	Factory::Instance()[_change_scene].Get<Com_GUISurface>()._active = _change_scene_toggle;
 }
@@ -183,30 +214,35 @@ void GUISettingsUpdate() {
 // WEAPON STUFF
 void EquipPistol(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	_playerInv.Inventory_SetWeaponUnlocked("Pistol");
 	_playerInv.Inventory_EquipWeapon("Pistol");
 }
 
 void EquipTrickPistol(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	_playerInv.Inventory_SetWeaponUnlocked("TrickPistol");
 	_playerInv.Inventory_EquipWeapon("TrickPistol");
 }
 
 void EquipDualPistol(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	_playerInv.Inventory_SetWeaponUnlocked("DualPistol");
 	_playerInv.Inventory_EquipWeapon("DualPistol");
 }
 
 void EquipDualDiagPistol(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	_playerInv.Inventory_SetWeaponUnlocked("DualDiagPistol");
 	_playerInv.Inventory_EquipWeapon("DualDiagPistol");
 }
 
 void EquipDagger(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	_playerInv.Inventory_SetWeaponUnlocked("Dagger");
 	_playerInv.Inventory_EquipWeapon("Dagger");
 }
