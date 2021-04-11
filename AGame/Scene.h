@@ -38,9 +38,12 @@ class SceneManager {
 	std::shared_ptr<Scene>	_current_scene = nullptr;					// current scene being processed, if nullptr, scene state won't update
 	std::string				_current_scene_name = "";					// current scene name, assigned by AddScene()
 	void Initialize();
+	std::string				_next_scene = "";
+	float					_delay{ 0.0f };
 public:
 	static SceneManager& Instance();
 	void ChangeScene(const std::string& name);
+	void ChangeSceneNow(const std::string& name);
 	void Free();
 	bool _pause{ false };
 	bool _fullscreen{ true };
