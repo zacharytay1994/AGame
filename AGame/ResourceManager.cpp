@@ -72,10 +72,12 @@ void ResourceManager::FlushDraw()
 			i = r->_layer;
 			FlushDrawTextLayer(i);
 		}
+		AEGfxSetTintColor(r->r, r->g, r->b, r->a);
 		AEMtx33Concat(&r->_transform, &shake, &r->_transform);
 		AEGfxSetTransform(r->_transform.m);
 		AEGfxTextureSet(r->_texture, r->_offset_x, r->_offset_y);
 		AEGfxMeshDraw(r->_mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
+		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 	FlushDrawText();
 	_render_queue_vector.resize(0);
@@ -329,6 +331,70 @@ AEMtx33 ResourceManager::ScreenShake()
 	return trans;
 }
 
+void ResourceManager::DrawCursor()
+{
+	if (_cursor_mesh) {
+		AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
+		AEMtx33 trans{ 0 }, scale{ 0 };
+		int x, y;
+		AEGfxTextureSet(GetTexture("cursor"), 0.0f,0.0f);
+		AEInputGetCursorPosition(&x, &y);
+		x -= (float)AEGetWindowWidth() / 2.0f;
+		y -= (float)AEGetWindowHeight() / 2.0f;
+		y *= -1;
+		AEMtx33Trans(&trans, x, y);
+		AEMtx33Scale(&scale, 100.0f, 100.0f);
+		AEMtx33Concat(&trans, &trans, &scale);
+		AEGfxSetTransform(trans.m);
+		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
+		AEGfxMeshDraw(_cursor_mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
+	}
+}
+
+void ResourceManager::CursorParticlesUpdate(const float& dt)
+{
+	int x, y;
+	AEInputGetCursorPosition(&x, &y);
+	x -= (float)AEGetWindowWidth() / 2.0f;
+	y -= (float)AEGetWindowHeight() / 2.0f;
+	y *= -1;
+	if (_cursor_particle_count > 0) {
+		AddCursorParticle();
+		_cursor_particles.back()._position.x = x;
+		_cursor_particles.back()._position.y = y;
+		--_cursor_particle_count;
+	}
+	AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
+	AEGfxTextureSet(GetTexture("inkblob"), 0.0f, 0.0f);
+	for (auto& p : _cursor_particles) {
+		if (p._a <= 0.0f) {
+			p._position.x = x;
+			p._position.y = y;
+			p._dimension = (0.5f + AERandFloat()) * cursor_particle_scale;
+			p._scale = 1.0f;
+			p._a = 1.0f;
+		}
+		else {
+			p._position.y -= 5.0f * dt;
+			p._scale -= 0.5f * dt;
+			p._a -= 0.15f * dt;
+		}
+		// draw particle
+		AEMtx33 trans{ 0 }, scale{ 0 };
+		AEMtx33Trans(&trans, p._position.x, p._position.y);
+		AEMtx33Scale(&scale, p._dimension * p._scale, p._dimension * p._scale);
+		AEMtx33Concat(&trans, &trans, &scale);
+		AEGfxSetTransform(trans.m);
+		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, p._a);
+		AEGfxMeshDraw(_cursor_mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
+	}
+}
+
+void ResourceManager::AddCursorParticle()
+{
+	_cursor_particles.emplace_back();
+}
+
 void ResourceManager::ReadTilemapNames()
 {
 	// open file
@@ -429,7 +495,12 @@ void ResourceManager::CreateMusic()
 	result = sound_system->createSound("../bin/Assets/Sound/Knife.wav", FMOD_DEFAULT, 0, &soundStab);
 	result = sound_system->createSound("../bin/Assets/Sound/Boom.wav", FMOD_DEFAULT, 0, &soundBoom);
 	result = sound_system->createSound("../bin/Assets/Sound/Death.wav", FMOD_DEFAULT, 0, &soundEnemyDeath);
+	result = sound_system->createSound("../bin/Assets/Sound/LaserBomb.wav", FMOD_DEFAULT, 0, &soundLaserBomb);
 	result = soundWalk->setMode(FMOD_LOOP_OFF);
+	result = soundShoot->setMode(FMOD_LOOP_OFF);
+	result = soundStab->setMode(FMOD_LOOP_OFF);
+	result = soundEnemyDeath->setMode(FMOD_LOOP_OFF);
+	result = soundLaserBomb->setMode(FMOD_LOOP_OFF);
 
 	//result = sound_system->createSound(Common_SoundPath("drumloop.wav"), FMOD_DEFAULT, 0, &sound1);
 	std::cout << "Sound load";
@@ -460,6 +531,11 @@ void ResourceManager::BoomSound()
 void ResourceManager::EnemyDeathSound()
 {
 	result = sound_system->playSound(soundEnemyDeath, 0, false, &channelEnemyDeath);
+}
+
+void ResourceManager::BombSound()
+{
+	result = sound_system->playSound(soundLaserBomb, 0, false, &channelLaserBomb);
 }
 
 void ResourceManager::UpdateAndPlayMusic() 
@@ -530,6 +606,10 @@ ResourceManager::ResourceManager()
 
 void ResourceManager::Initialize()
 {
+	// mouse cursor
+	LoadTexture("cursor", "cursor.png");
+	LoadTexture("inkblob", "inkblob.png");
+	_cursor_mesh = CreateMesh(1, 1);
 	// load all textures
 	LoadTexture("noimage", "noimage.png");
 	LoadTexture("test3", "TestAlien.png");

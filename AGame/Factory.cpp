@@ -358,6 +358,9 @@ eid Factory::FF_CreateParticleFrictionBloodSpray(const SpriteData& data, const V
         sprite._y_scale = scale.x + (scale.y - scale.x) * (1.5f - rand_str);
         sprite._current_frame = (int)(AERandFloat() * 4.0f);
         sprite._loop = false;
+        sprite._render_pack.r = AERandFloat() + 0.2f;
+        sprite._render_pack.g = AERandFloat() + 0.2f;
+        sprite._render_pack.b = AERandFloat() + 0.2f;
 
         // calculate frame offsets
         int current_frame = sprite._current_frame + sprite._frame_segment[sprite._current_frame_segment].x;
@@ -375,6 +378,16 @@ eid Factory::FF_CreateParticleFrictionBloodSpray(const SpriteData& data, const V
         sprite._render_pack._offset_y = (current_frame / sprite._col) * 1.0f / (float)sprite._row;
     }
     return -1;
+}
+
+eid Factory::FF_CreateBorder(const SpriteData& data)
+{
+    eid id = FF_Sprite(data, 0.0f,0.0f);
+    Entity& e = Factory::Instance()[id].AddComponent<Com_FadeOut>();
+    Com_Sprite& sprite = e.Get<Com_Sprite>();
+    sprite._x_scale = (float)AEGetWindowWidth();
+    sprite._y_scale = (float)AEGetWindowHeight();
+    return eid();
 }
 
 //edits 

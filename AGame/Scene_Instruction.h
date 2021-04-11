@@ -39,6 +39,7 @@ struct Scene_Instructions : public Scene
 	eid menu{ -1 };
 	eid wall{ -1 };
 	eid bomb{ -1 };
+	eid _WinOrLose{ -1 };
 	Inventory playerInv;
 	Factory::SpriteData box{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
 	Factory::SpriteData boom{ "kaboom", 40.0f, 40.0f, 1, 1, 1, 0.15f };
@@ -50,6 +51,7 @@ struct Scene_Instructions : public Scene
 	Factory::SpriteData data22{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.25f };
 	Factory::SpriteData underline{ "underline.png", 80.0f, 200.0f, 4, 1, 4, 0.25f };
 	Factory::SpriteData clock{ "clock.png", 80.0f, 200.0f, 3, 2, 5, 0.20f };
+	Factory::SpriteData title{ "title.png", 1.0f, 1.0f, 2, 2, 4, 0.2f, 0 };
 	Vec2i passin2[5] = { {0,1},{2,3},{4,5},{6,7},{0,0} };
 	Factory::SpriteData arrows{ "arrows.png", 50.0f, 50.0f, 3, 3, 8, 0.1f, -900, passin2 };
 	eid arrow = -1;
@@ -63,6 +65,7 @@ struct Scene_Instructions : public Scene
 	bool right{ false };
 	bool last{ false };
 	size_t spacetriggered{ 0 };
+	size_t daggertriggered{ 0 };
 	Factory::SpriteData buttonsurface{ "title.png", 1.0f, 1.0f, 2, 2, 4, 0.2f, 0 };
 	Vec2i passin3[5] = { {0,3},{4,7},{0,0},{0,0},{0,0} };
 	Factory::SpriteData button{ "buttonsprite.png", 1.0f, 1.0f, 3, 3, 8, 0.1f, 0, passin3 };
@@ -75,6 +78,10 @@ struct Scene_Instructions : public Scene
 
 		//reset 
 		last = false;
+		if (currentinstructions == 4) {
+			//reset
+			currentinstructions = 0;
+		}
 		//init tilemap 
 		tilemap = Factory::Instance().FF_Tilemap("tilemap", "c_INSTRUCTION.txt", "t_INSTRUCTION.txt");
 		Factory::Instance()[tilemap].Get<Com_Position>().x = -3;
@@ -140,6 +147,27 @@ struct Scene_Instructions : public Scene
 		}
 		//third
 		if (currentinstructions == 2) {
+			for (int y = 0; y < com_tilemap._height; ++y) {
+				for (int x = 0; x < com_tilemap._width; ++x) {
+					//if it's a player spawn location 
+					if (com_tilemap._map[x * (size_t)com_tilemap._height + y] == 2) {
+						player = Factory::Instance().FF_SpriteTile(man, tilemap, x, y);
+						Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne, Com_TileMoveSpriteState, Com_type>();
+						Factory::Instance()[player].Get<Com_TilePosition>()._is_player = true;
+						Factory::Instance()[player].Get<Com_type>().type = 0; // set player type
+						//SystemDatabase::Instance().GetSystem<Sys_AABB>()->player_id = player;
+						SystemDatabase::Instance().GetSystem<Sys_AABB>()->_grid = &pf2._grid;
+						SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->tile = tilemap;
+						SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
+						SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
+						SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
+
+					}
+				}
+			}
+		}
+		//fourth
+		if (currentinstructions == 3) {
 			//spawn player and monster
 			for (int y = 0; y < com_tilemap._height; ++y) {
 				for (int x = 0; x < com_tilemap._width; ++x) {
@@ -187,13 +215,21 @@ struct Scene_Instructions : public Scene
 		a.Get<Com_ParentPosition>()._parent_id = player;
 		arrow_sprite = &a.Get<Com_Sprite>();
 
+		//menu = Factory::Instance().FF_CreateGUISurface(buttonsurface, 0.5f, 0.5f, 0.9f, 0.6f, 120);
+		//eid start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(menu, button, 0.5f, 0.35f, 0.4f, 0.2f, ChangeTestScenePF, "Restart", "courier");
+		//Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
+		//start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(menu, button, 0.5f, 0.60f, 0.4f, 0.2f, ChangeMainMenu, "Main Menu", "courier");
+		//Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
+		//Factory::Instance()[menu].Get<Com_GUISurface>()._active = false;
+
 		menu = Factory::Instance().FF_CreateGUISurface(buttonsurface, 0.5f, 0.5f, 0.9f, 0.6f, 120);
-		eid start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(menu, button, 0.5f, 0.35f, 0.4f, 0.2f, ChangeTestScenePF, "Restart", "courier");
-		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
-		start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(menu, button, 0.5f, 0.60f, 0.4f, 0.2f, ChangeMainMenu, "Main Menu", "courier");
+		_WinOrLose = Factory::Instance().FF_CreateGUISurface(title, 0.5f, 0.2f, 0.8f, 0.3f, 140);
+		//eid start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(menu, button, 0.5f, 0.35f, 0.4f, 0.2f, ChangeTestScenePF, "Restart", "courier");
+		//Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
+		eid start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(menu, button, 0.5f, 0.50f, 0.4f, 0.2f, ChangeMainMenu, "Main Menu", "courier");
 		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
 		Factory::Instance()[menu].Get<Com_GUISurface>()._active = false;
-
+		Factory::Instance()[_WinOrLose].Get<Com_GUISurface>()._active = false;
 
 		GUISettingsInitialize();
 	}
@@ -204,6 +240,7 @@ struct Scene_Instructions : public Scene
 		UNREFERENCED_PARAMETER(dt);
 
 		std::stringstream ss1;
+		std::cout << currentinstructions << std::endl;
 
 		if (AEInputCheckCurr('L')) {
 			ResourceManager::Instance()._screen_shake = 1.0f;
@@ -226,6 +263,9 @@ struct Scene_Instructions : public Scene
 		else if (AEInputCheckCurr(AEVK_DOWN) || AEInputCheckCurr(AEVK_S)) {
 			arrow_sprite->_visible = true;
 			arrow_sprite->_current_frame_segment = 3;
+		}
+		else if (AEInputCheckTriggered(AEVK_Z) && !SceneManager::Instance()._pause) {
+			_playerInv.Inventory_GetCurrentSecondaryWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
 		}
 		else {
 			arrow_sprite->_visible = false;
@@ -276,23 +316,48 @@ struct Scene_Instructions : public Scene
 				++spacetriggered;
 			}
 			if (spacetriggered >= 5) {
+				currentinstructions = 2;
+				messageseen = false;
+				SceneManager::Instance().RestartScene();
+			}
+		}
+
+		//Message to use dagger 
+		if (currentinstructions == 2 && messageseen == false) {
+			eid main2 = Factory::Instance().FF_CreateGUISurface({ "transparent" }, 0.5f, 0.5f, 1.0f, 1.0f, 100);
+			Vec2i passin4[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
+			Factory::SpriteData button2{ "background2.png", 2.0f, 1.0f, 2, 1, 2, 0.05f, 0, passin4 };
+			Factory::Instance().FF_CreateGUIChildSurfaceText(main2, button2, 0.5f, 0.1f, 0.75f, 0.2f, "Press Z to use Melee Weapon!! Use it 5 times!", "courier");
+			SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->error = false;
+			messageseen = true;
+		}
+		//Press space to shoot 
+		if (currentinstructions == 2 && messageseen == true) {
+			_playerInv.Inventory_SetWeaponUnlocked("Pistol");
+			_playerInv.Inventory_EquipWeapon("Pistol");
+			if (AEInputCheckTriggered(AEVK_Z)) {
+				++daggertriggered;
+			}
+			if (daggertriggered >= 5) {
 				++currentinstructions;
 				messageseen = false;
 				SceneManager::Instance().RestartScene();
 			}
 		}
-		if (currentinstructions == 2 && messageseen == false) {	
+
+		if (currentinstructions >= 3 && messageseen == false) {	
 			eid main2 = Factory::Instance().FF_CreateGUISurface({ "transparent" }, 0.5f, 0.5f, 1.0f, 1.0f, 100);
 			Vec2i passin4[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
 			Factory::SpriteData button2{ "background2.png", 2.0f, 1.0f, 2, 1, 2, 0.05f, 0, passin4 };
 			Factory::Instance().FF_CreateGUIChildSurfaceText(main2, button2, 0.5f, 0.1f, 0.75f, 0.2f, "Now Kill all the Monsters!", "courier");
 			messageseen = true;
 		}
-		if (currentinstructions == 2 && messageseen == true) {
-			currentinstructions = 3;
+		if (currentinstructions == 3 && messageseen == true) {
+			currentinstructions = 4;
 			messageseen = false;
 			last = true;
 			spacetriggered = 0;
+			daggertriggered = 0;
 			up = false;
 			down = false;
 			left = false;
@@ -300,11 +365,23 @@ struct Scene_Instructions : public Scene
 			SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->spawnBoss = false;
 		}
 		if (last == true) {
-			if (SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->spawnBoss == true) {
-				currentinstructions = 0;
-				messageseen = false;
-				SceneManager::Instance().ChangeScene("Main Menu");
+			Com_Wave& com_wave = Factory::Instance()[spawner].Get<Com_Wave>();
+			Com_EnemySpawn& em = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
+			if (Factory::Instance()[player].Get<Com_Health>().health <= 0)
+			{
+				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose :(", "courier");
 			}
+			else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0)
+			{
+				SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->spawnBoss = false;
+				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "Now go conquer the world!", "courier");
+			}
+
+			if (Factory::Instance()[player].Get<Com_Health>().health <= 0 || (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0)) {
+				Factory::Instance()[menu].Get<Com_GUISurface>()._active = true;
+				Factory::Instance()[_WinOrLose].Get<Com_GUISurface>()._active = true;
+			}
+
 		}
 
 		//if all monster die change scene 

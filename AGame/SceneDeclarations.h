@@ -19,7 +19,8 @@ static Inventory _playerInv;
 //void TestFunction(Com_GUISurface* surface) {
 //	std::cout << "button1" << std::endl;
 //}
-
+static int levelsunlocked{ 1 };
+static int levelselector{ 0 };
 static bool _change_scene_toggle{ false };
 void ToggleChangeSceneButton(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
@@ -52,13 +53,26 @@ void ChangeInventoryScene(Com_GUISurface* surface) {
 
 void ChangeLevelSelect(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	levelselector = 1;
+	SceneManager::Instance().ChangeScene("LevelSelect");
+}
+
+void ChangeLevelSelectNormal(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	levelselector = 2;
 	SceneManager::Instance().ChangeScene("LevelSelectNormal");
 }
 
 void ChangeTestScenePF(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	if (_playerInv.Inventory_GetCurrentWeapon().GetWeapon_Name() != "NoWeapon") {
-		SceneManager::Instance().ChangeScene("Level");
+		//if it's custom 
+		if (levelselector == 1) {
+			SceneManager::Instance().ChangeScene("Test PathFinding");
+		}
+		if (levelselector == 2) {
+			SceneManager::Instance().ChangeScene("Level");
+		}
 	}
 }
 
@@ -283,7 +297,8 @@ struct TestScenePF : public Scene
 	eid _WinOrLose{ -1 };
 	eid wall{ -1 };
 	eid bomb{ -1 };
-	bool once = false;
+	eid bossy{ -1 };
+	bool once = false, checkBoss= false;
 	Inventory playerInv;
 	Factory::SpriteData box{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
 	Factory::SpriteData boom{ "kaboom", 40.0f, 40.0f, 1, 1, 1, 0.15f };
@@ -295,6 +310,7 @@ struct TestScenePF : public Scene
 	Factory::SpriteData data22{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.25f };
 	Factory::SpriteData underline{ "underline.png", 80.0f, 200.0f, 4, 1, 4, 0.25f };
 	Factory::SpriteData clock{ "clock.png", 80.0f, 200.0f, 3, 2, 5, 0.20f };
+	Factory::SpriteData meat{ "flowers.png", 80.0f, 200.0f, 2, 2, 4, 1000.0f };
 	Vec2i passin2[5] = { {0,1},{2,3},{4,5},{6,7},{0,0} };
 	Factory::SpriteData arrows{ "arrows.png", 50.0f, 50.0f, 3, 3, 8, 0.1f, -900, passin2 };
 	Factory::SpriteData title{ "title.png", 1.0f, 1.0f, 2, 2, 4, 0.2f, 0 };
@@ -312,6 +328,7 @@ struct TestScenePF : public Scene
 		std::cout << test << " this is a test scene" << std::endl;
 		std::cout << sizeof(Com_Tilemap) << std::endl;
 		once = false;
+		checkBoss = false;
 
 		//init tilemap 
 		tilemap = Factory::Instance().FF_Tilemap("tilemap", ResourceManager::Instance()._tilemap_names[ResourceManager::Instance()._tilemap_id]._binary + ".txt",
@@ -428,10 +445,14 @@ struct TestScenePF : public Scene
 		lives = Factory::Instance().FF_CreateGUIChildSurfaceText(lives, { "transparent" }, 0.5f, 0.5f, 0.8f, 0.4f, ss.str().c_str(), "courier");
 
 		waves = Factory::Instance().FF_CreateGUISurface(underline, 0.8f, 0.1f, 0.4f, 0.1f, 100);
-		Factory::Instance().FF_CreateGUIChildSurfaceText(waves, { "transparent" }, 0.3f, 0.5f, 0.4f, 0.4f, "Waves: ", "courier");
 		std::stringstream ss1;
 		ss1 << Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves;
 		waves = Factory::Instance().FF_CreateGUIChildSurfaceText(waves, { "transparent" }, 0.5f, 0.5f, 0.8f, 0.4f, ss1.str().c_str(), "courier");
+
+		bossy = Factory::Instance().FF_CreateGUISurface(underline, 0.8f, 0.1f, 0.4f, 0.1f, 100);
+		std::stringstream ss2;
+		ss2 << Factory::Instance()[spawner].Get<Com_Boss>().BossHealth;
+		bossy = Factory::Instance().FF_CreateGUIChildSurfaceText(bossy, { "transparent" }, 0.5f, 0.5f, 0.8f, 0.4f, ss2.str().c_str(), "courier");
 
 		menu = Factory::Instance().FF_CreateGUISurface(buttonsurface, 0.5f, 0.5f, 0.9f, 0.6f, 120);
 		_WinOrLose = Factory::Instance().FF_CreateGUISurface(title, 0.5f, 0.2f, 0.8f, 0.3f, 140);
@@ -441,6 +462,8 @@ struct TestScenePF : public Scene
 		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
 		Factory::Instance()[menu].Get<Com_GUISurface>()._active = false;
 		Factory::Instance()[_WinOrLose].Get<Com_GUISurface>()._active = false;
+		Factory::Instance()[bossy].Get<Com_GUISurface>()._active = false;
+		
 
 
 		//Factory::Instance().FF_CreateGUISurface(clock, 0.5f, 0.05f, 0.1f, 0.1f, 100);
@@ -472,15 +495,34 @@ struct TestScenePF : public Scene
 		//Entity& testing = Factory::Instance()[tilemap];
 		//if (AEInputCheckTriggered('E')) {
 		//}
-		std::stringstream ss;
-		ss << Factory::Instance()[player].Get<Com_Health>().health;
-		Factory::Instance()[lives].Get<Com_Text>()._data._text = ss.str();
-		std::stringstream ss1;
-		ss1 << Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves;
-		Factory::Instance()[waves].Get<Com_Text>()._data._text = ss1.str();
 		Com_Boss& bs = Factory::Instance()[spawner].Get<Com_Boss>();
 		Com_Wave& com_wave = Factory::Instance()[spawner].Get<Com_Wave>();
 		Com_EnemySpawn& em = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
+		
+		std::stringstream ss;
+		ss << Factory::Instance()[player].Get<Com_Health>().health;
+		Factory::Instance()[lives].Get<Com_Text>()._data._text = ss.str();
+		
+		if (com_wave.numberofwaves > 0 && em.CurrNoOfEnemies > 0 && checkBoss == false) 
+		{
+			Factory::Instance().FF_CreateGUIChildSurfaceText(waves, { "transparent" }, 0.3f, 0.5f, 0.4f, 0.4f, "Waves: ", "courier");
+			checkBoss = true;
+		}
+			// for wave
+			std::stringstream ss1;
+			ss1 << Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves;
+			Factory::Instance()[waves].Get<Com_Text>()._data._text = ss1.str();
+	
+		if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && checkBoss ==true)
+		{
+			Factory::Instance().FF_CreateGUIChildSurfaceText(bossy, { "transparent" }, 0.3f, 0.5f, 0.4f, 0.4f, "Boss HP:   ", "courier");
+			Factory::Instance()[waves].Get<Com_GUISurface>()._active = false;
+			Factory::Instance()[bossy].Get<Com_GUISurface>()._active = true;
+			checkBoss = false;
+		}
+			std::stringstream ss2;
+			ss2 << Factory::Instance()[spawner].Get<Com_Boss>().BossHealth;
+			Factory::Instance()[bossy].Get<Com_Text>()._data._text = ss2.str();
 
 		if (AEInputCheckCurr('L')) {
 			ResourceManager::Instance()._screen_shake = 1.0f;

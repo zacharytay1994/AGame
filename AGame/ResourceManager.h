@@ -10,6 +10,8 @@
 #include <string>
 #include "music.h"
 
+static constexpr int cursor_particle_scale = 5.0f;
+
 // forward deckaratuibs
 struct Com_Tilemap;
 struct Com_TilePosition;
@@ -24,6 +26,7 @@ struct RenderPack {
 	float				r{ 1.f };
 	float				g{ 1.f };
 	float				b{ 1.f };
+	float				a{ 1.0f };
 };
 
 struct TextPack {
@@ -51,6 +54,12 @@ struct RM_Compare {
 	bool operator()(RenderPack* lhs, RenderPack* rhs) const { return lhs->_layer > rhs->_layer; }
 };
 
+struct CursorParticle {
+	Vec2f	_position{ -1000.0f,-1000.0f };
+	float	_scale{ 1.0f };
+	float	_dimension{ cursor_particle_scale };
+	float	_a{ 1.0f };
+};
 
 struct ResourceManager {
 	static ResourceManager& Instance();
@@ -58,6 +67,7 @@ struct ResourceManager {
 	void FreeResources();
 	float _screen_shake{ 0.0f };
 	float _dampening{ 10.0f };
+	AEGfxVertexList* _cursor_mesh{ nullptr };
 
 	//<-- Level Select
 	struct tilemap_identifier {
@@ -82,6 +92,8 @@ struct ResourceManager {
 	std::vector<AEGfxTexture*> _tilemap_images2;
 	//-->
 
+	int _cursor_particle_count = 200;
+	std::vector<CursorParticle> _cursor_particles;
 private:
 	ResourceManager();
 	void Initialize();
@@ -117,6 +129,7 @@ private:
 	FMOD::Sound* soundStab;
 	FMOD::Sound* soundBoom;
 	FMOD::Sound* soundEnemyDeath;
+	FMOD::Sound* soundLaserBomb;
 	
 	// Channels required for sound
 	FMOD::Channel* channel = 0;  // BGM
@@ -125,6 +138,7 @@ private:
 	FMOD::Channel* channelMeleeEffect = 0;
 	FMOD::Channel* channelBoomEffect = 0;
 	FMOD::Channel* channelEnemyDeath = 0;
+	FMOD::Channel* channelLaserBomb = 0;
 	
 	FMOD_RESULT       result;
 	unsigned int      version;
@@ -178,7 +192,11 @@ public:
 	void StabbingSound();
 	void BoomSound();
 	void EnemyDeathSound();
+	void BombSound();
 	void FreeMusic();
 
 	AEMtx33 ScreenShake();
+	void DrawCursor();
+	void CursorParticlesUpdate(const float& dt);
+	void AddCursorParticle();
 }; 

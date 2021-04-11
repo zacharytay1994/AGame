@@ -542,6 +542,9 @@ struct Sys_EnemyStateOne : public System {
 					{
 						std::cout << "hit" << std::endl;
 						--(state.playerHealth->health);
+						ResourceManager::Instance()._screen_shake = 10.0f;
+						ResourceManager::Instance().ScreenShake();
+						Factory::Instance().FF_CreateBorder({ "redborder.png" });
 						if (state.playerHealth->health <= 0)
 						{
 							/*std::cout << "お前もう死んで " << std::endl;
@@ -557,6 +560,9 @@ struct Sys_EnemyStateOne : public System {
 					{
 						std::cout << "hit white" << std::endl;
 						--(state.playerHealth->health);
+						ResourceManager::Instance()._screen_shake = 10.0f;
+						ResourceManager::Instance().ScreenShake();
+						Factory::Instance().FF_CreateBorder({ "redborder.png" });
 						if (state.playerHealth->health <= 0)
 						{
 							/*std::cout << "お前もう死んで " << std::endl;
@@ -573,8 +579,6 @@ struct Sys_EnemyStateOne : public System {
 			fp._start = Vec2i(pos._grid_x, pos._grid_y);
 			fp._end = Vec2i(state._player->_grid_x, state._player->_grid_y);
 			fp._find = true;
-
-
 		}
 	}
 	void ATTACK_EXIT() {
@@ -858,6 +862,19 @@ struct Sys_EnemyStateBoss : public System {
 			eid j = Factory::Instance().FF_CreateprojBoss(data, pos._grid_x - 1, pos._grid_y, -fabs(rand_velocityx), rand_velocityy, _tilemap);
 			Factory::Instance()[j].AddComponent<Com_YLayering>();
 		}
+		else if (pos._grid_x == Factory::Instance()[player].Get<Com_TilePosition>()._grid_x)
+		{
+			if (pos._grid_y < Factory::Instance()[player].Get<Com_TilePosition>()._grid_y)
+			{
+				eid j = Factory::Instance().FF_CreateprojBoss(data, pos._grid_x, pos._grid_y+1, rand_velocityx, -fabs(rand_velocityy), _tilemap);
+				Factory::Instance()[j].AddComponent<Com_YLayering>();
+			}
+			else if (pos._grid_y > Factory::Instance()[player].Get<Com_TilePosition>()._grid_y)
+			{
+				eid j = Factory::Instance().FF_CreateprojBoss(data, pos._grid_x, pos._grid_y-1, rand_velocityx, fabs(rand_velocityy), _tilemap);
+				Factory::Instance()[j].AddComponent<Com_YLayering>();
+			}
+		}
 
 	}
 };
@@ -1137,6 +1154,7 @@ struct Sys_ArrowKeysTilemap : public System {
 					_grid->Get({ pos._grid_x, pos._grid_y })._obstacle = 0;
 					pos._grid_x -= 1;
 				}
+				Factory::Instance().FF_CreateBorder({ "greenborder.png" });
 				ResourceManager::Instance().WalkingSound();
 			}
 		}
@@ -1147,6 +1165,7 @@ struct Sys_ArrowKeysTilemap : public System {
 					_grid->Get({ pos._grid_x, pos._grid_y })._obstacle = 0;
 					pos._grid_x += 1;
 				}
+				Factory::Instance().FF_CreateBorder({ "greenborder.png" });
 				ResourceManager::Instance().WalkingSound();
 			}
 		}
@@ -1157,6 +1176,7 @@ struct Sys_ArrowKeysTilemap : public System {
 					_grid->Get({ pos._grid_x, pos._grid_y })._obstacle = 0;
 					pos._grid_y -= 1;
 				}
+				Factory::Instance().FF_CreateBorder({ "greenborder.png" });
 				ResourceManager::Instance().WalkingSound();
 			}
 		}
@@ -1167,6 +1187,7 @@ struct Sys_ArrowKeysTilemap : public System {
 					_grid->Get({ pos._grid_x, pos._grid_y })._obstacle = 0;
 					pos._grid_y += 1;
 				}
+				Factory::Instance().FF_CreateBorder({ "greenborder.png" });
 				ResourceManager::Instance().WalkingSound();
 			}
 		}
@@ -1436,6 +1457,9 @@ struct Sys_AABB : public System {
 					std::cout << "collidied human2213"  << std::endl;
 					//_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					--_PLayerHealth->health;
+					ResourceManager::Instance()._screen_shake = 10.0f;
+					ResourceManager::Instance().ScreenShake();
+					Factory::Instance().FF_CreateBorder({ "redborder.png" });
 					if (_PLayerHealth->health <= 0) 
 					{
 						std::cout << "U died" << std::endl;
@@ -1450,6 +1474,7 @@ struct Sys_AABB : public System {
 					std::cout << "collidied Boss" << std::endl;
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					--Boss->BossHealth;
+					Factory::Instance().FF_CreateBorder({ "greenborder.png" });
 					if (Boss->BossHealth <= 0) 
 					{
 						--_spawner->CurrNoOfEnemies;
@@ -1475,10 +1500,10 @@ struct Sys_AABB : public System {
 					if (AABBColData[i].type->type == type->enemyrange || AABBColData[i].type->type == type->enemy) {
 						Vec2f direction_movement = { vel->x, vel->y };
 						direction_movement.NormalizeSelf();
-						Factory::Instance().FF_CreateParticleFrictionSpray({ "meat.png", 80.0f, 200.0f, 2, 2, 4, 1000.0f },
-							{ position.x,position.y }, direction_movement, 0.9f, 0.6f, { 30.0f,50.0f }, 1200.0f, 5);
+						Factory::Instance().FF_CreateParticleFrictionSpray({ "flowers.png", 80.0f, 200.0f, 2, 2, 4, 1000.0f },
+							{ position.x,position.y }, direction_movement, 0.9f, 0.9f, { 10.0f,30.0f }, 1200.0f, 10);
 						Factory::Instance().FF_CreateParticleFrictionBloodSpray({ "blood.png", 80.0f, 200.0f, 2, 2, 4, 1000.0f },
-							{ position.x,position.y }, direction_movement, 0.9f, 0.6f, { 30.0f,50.0f }, 1200.0f, 20);
+							{ position.x,position.y }, direction_movement, 0.9f, 1.2f, { 30.0f,50.0f }, 1200.0f, 30);
 					}
 					//Gridcoliterator.push_back(iteratorcomgrid);
 					//erase = true;
@@ -1546,6 +1571,7 @@ struct Sys_AABB : public System {
 				if (type->type == type->bombbarrel && (AABBColData[i].type->type == type->bullet)) {
 					health.health;
 					--health.health;
+					ResourceManager::Instance().BombSound();
 					break;
 				}
 				if (type->type == type->bullet && (AABBColData[i].type->type == type->bombbarrel)) {
@@ -1931,9 +1957,12 @@ struct Sys_EnemySpawning : public System {
 		}
 		else if (wave.numberofwaves <= 0 && spawnBoss == true && boss->disable == 0)
 		{
-			Vec2i ran = { 0 + (rand() % 2 * Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width -1),rand() % 3 };
+			Vec2i ran2;
+			Vec2i ran = { (Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width-1) / 2,
+				rand() % (Factory::Instance()[_tilemap].Get<Com_Tilemap>()._height - 1) };
 			while (_grid->Get(ran)._obstacle || _grid->Get(ran)._player || (ran.x == 0  && ran.y == 0)) {
-				ran = { 0 + (rand() % 2 * Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width -1), rand() % 3 };
+				ran = { 0 + (rand() % 2 * (Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width-1)),
+					rand() % (Factory::Instance()[_tilemap].Get<Com_Tilemap>()._height - 1) };
 			}
 			Vec2i passin[5] = { {0,15},{16,30},{0,0},{0,0},{0,0} };
 			Vec2i passin2[5] = { {31,45},{46,60},{0,0},{0,0},{0,0} };
@@ -1947,10 +1976,12 @@ struct Sys_EnemySpawning : public System {
 				eid enemy = Factory::Instance().FF_CreateBoss(Left, _tilemap, ran.x, ran.y, 7); // boss
 				Factory::Instance()[enemy].Get<Com_Boss>().playerHealth = &Factory::Instance()[playerpos].Get<Com_Health>();
 
-				Vec2i ran2 = { 0 + (rand() % 2 * Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width - 1),rand() % 3 };
+				 ran2 = { ran.x,
+					ran.y + (1 + (rand() % 2 * -2)) };
 				while (_grid->Get(ran2)._obstacle || _grid->Get(ran2)._player || (ran2.x == 0 && ran2.y == 0)
 					|| (ran2.x == ran.x && ran2.y == ran.y)) {
-					ran2 = { 0 + (rand() % 2 * Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width - 1), rand() % 3 };
+					ran2 = { 0 + (rand() % 2 * (Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width - 1)), 
+						rand() % (Factory::Instance()[_tilemap].Get<Com_Tilemap>()._height - 1) };
 				}
 
 				eid enemy2 = Factory::Instance().FF_CreateBoss(Right, _tilemap, ran2.x, ran2.y, 7); // boss
@@ -1964,9 +1995,11 @@ struct Sys_EnemySpawning : public System {
 				eid enemy = Factory::Instance().FF_CreateBoss(Left, _tilemap, ran.x, ran.y, 7); // boss
 				Factory::Instance()[enemy].Get<Com_Boss>().playerHealth = &Factory::Instance()[playerpos].Get<Com_Health>();
 
-				Vec2i ran2 = { 0 + (rand() % 2 * Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width - 1),rand() % 3 };
+				 ran2 = { ran.x,
+					ran.y + (1 + (rand()% 2 *-2)) };
 				while (_grid->Get(ran2)._obstacle || _grid->Get(ran2)._player || (ran2.x == 0 && ran2.y == 0) || (ran2.x == ran.x && ran2.y == ran.y)) {
-					ran2 = { 0 + (rand() % 2 * Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width - 1), rand() % 3 };
+					ran2 = { 0 + (rand() % 2 * (Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width - 1)), 
+						rand() % (Factory::Instance()[_tilemap].Get<Com_Tilemap>()._height - 1) };
 				}
 
 				eid enemy2 = Factory::Instance().FF_CreateBoss(Right, _tilemap, ran2.x, ran2.y, 7); // boss
@@ -1976,7 +2009,7 @@ struct Sys_EnemySpawning : public System {
 			
 
 			_grid->Get({ ran })._obstacle = true;
-			_grid->Get({ ran.x, ran.y + 2 })._obstacle = true;
+			_grid->Get({ ran2 })._obstacle = true;
 			++_spawner.CurrNoOfEnemies;
 			spawnBoss = false;
 		}
@@ -3096,12 +3129,14 @@ struct Sys_Cursor : public System {
 struct Com_ParticleFriction {
 	Vec2f _velocity{ 0.0f,0.0f };
 	float _friction{ 0.8f };
+	float _fade{ 0.5f };
 };
 
 struct Sys_ParticleFriction : public System {
 	void UpdateComponent() override {
 		Com_ParticleFriction& pf = get<Com_ParticleFriction>();
 		Com_Position& pos = get<Com_Position>();
+		Com_Sprite& sprite = get<Com_Sprite>();
 		// if exist velocity, apply friction
 		if (pf._velocity.x > 0.1f || pf._velocity.y > 0.1f) {
 			pf._velocity = pf._velocity * (pf._friction);
@@ -3110,6 +3145,31 @@ struct Sys_ParticleFriction : public System {
 		}
 		else {
 			pf._velocity = { 0.0f,0.0f };
+		}
+		// fade particles
+		if (sprite._render_pack.a > 0.0f) {
+			sprite._render_pack.a -= pf._fade * _dt;
+		}
+		else {
+			RemoveEntity();
+		}
+	}
+};
+
+struct Com_FadeOut {
+	float _fade{ 2.0f };
+};
+
+struct Sys_FadeOut : public System {
+	void UpdateComponent() override {
+		Com_FadeOut& fo = get<Com_FadeOut>();
+		Com_Sprite& sprite = get<Com_Sprite>();
+		// fade particles
+		if (sprite._render_pack.a > 0.0f) {
+			sprite._render_pack.a -= fo._fade * _dt;
+		}
+		else {
+			RemoveEntity();
 		}
 	}
 };
