@@ -550,37 +550,79 @@ void ResourceManager::CreateMusic()
 
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Play walking sound
+	*/
+/**************************************************************************/
 void ResourceManager::WalkingSound()
 {
 	result = sound_system->playSound(soundWalk, 0, false, &channelWalkingPlayer);
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Play shooting sound
+	*/
+/**************************************************************************/
 void ResourceManager::ShootingSound(float pitch)
 {
 	result = sound_system->playSound(soundShoot, 0, false, &channelGunEffect);
 	channelGunEffect->setPitch(pitch);
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Play stabbing sound
+	*/
+/**************************************************************************/
 void ResourceManager::StabbingSound()
 {
 	result = sound_system->playSound(soundStab, 0, false, &channelMeleeEffect);
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Play boom sound
+	*/
+/**************************************************************************/
 void ResourceManager::BoomSound()
 {
 	result = sound_system->playSound(soundBoom, 0, false, &channelBoomEffect);
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Play enemy death sound
+	*/
+/**************************************************************************/
 void ResourceManager::EnemyDeathSound()
 {
 	result = sound_system->playSound(soundEnemyDeath, 0, false, &channelEnemyDeath);
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Play bomb sound
+	*/
+/**************************************************************************/
 void ResourceManager::BombSound()
 {
 	result = sound_system->playSound(soundLaserBomb, 0, false, &channelLaserBomb);
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Play player damage sound
+	*/
+/**************************************************************************/
 void ResourceManager::PlayerDamageSound()
 {
 	result = sound_system->playSound(soundGrunt, 0, false, &channelGrunt);
@@ -627,6 +669,17 @@ void ResourceManager::UpdateAndPlayMusic()
 	}
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Mutes and unmutes the music
+
+	  \param setting
+		-1 to switch to the opposite setting
+		0 to unmute
+		1 to mute
+	*/
+/**************************************************************************/
 void ResourceManager::ToggleMuteMusic(int setting)
 {
 	bool paused;
