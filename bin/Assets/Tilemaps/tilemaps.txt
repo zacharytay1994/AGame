@@ -8,5 +8,9 @@ DASDASD
 LETSGO
 LEVEL
 
+<<<<<<< HEAD
+TEST
+=======
 REALLEVEL
 LEVELA
+>>>>>>> 5cd90891e87ffc2cf7971b7e79529dbf5f44a8c3

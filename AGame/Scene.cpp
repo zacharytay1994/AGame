@@ -234,6 +234,13 @@ void SceneManager::Free()
 *			  assigned at SceneManager::AddScene()
 ________________________________________________________*/
 void SceneManager::ChangeScene(const std::string& name) {
+	_delay = 0.5f;
+	_next_scene = name;
+	ResourceManager::Instance()._panel_timer = 3.14159f;
+}
+
+void SceneManager::ChangeSceneNow(const std::string& name)
+{
 	_pause = false;
 	_settings_toggle = false;
 	assert(_scenes.find(name) != _scenes.end());
@@ -268,6 +275,15 @@ void SceneManager::ChangeScene(const std::string& name) {
 ________________________________________________________*/
 void SceneManager::Update(const float& dt)
 {
+	if (_delay > 0.0f) {
+		_delay -= AEFrameRateControllerGetFrameTime();
+	}
+	else {
+		if (_next_scene != "") {
+			ChangeSceneNow(_next_scene);
+			_next_scene = "";
+		}
+	}
 	if (_current_scene) {
 		_current_scene->Update(dt);
 		//if (AEInputCheckTriggered('H')) {
@@ -281,6 +297,7 @@ void SceneManager::Update(const float& dt)
 		SystemDatabase::Instance().RemoveAllEntities();
 	}
 	// draw cursor
+	ResourceManager::Instance().DrawScenePanels(AEFrameRateControllerGetFrameTime());
 	ResourceManager::Instance().CursorParticlesUpdate(AEFrameRateControllerGetFrameTime());
 	ResourceManager::Instance().DrawCursor();
 }

@@ -2530,6 +2530,7 @@ struct Sys_Obstacle : public System {
 			if (health.health == 0) {
 				_grid->Get({ tilepos._grid_x,tilepos._grid_y })._obstacle = false;
 				//explode 
+				ResourceManager::Instance().BoomSound();
 				particle.active = true;
 				//RemoveEntity();
 			}

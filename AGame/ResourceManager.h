@@ -94,6 +94,8 @@ struct ResourceManager {
 
 	int _cursor_particle_count = 200;
 	std::vector<CursorParticle> _cursor_particles;
+	std::vector<Vec2f> _scene_transition;
+	float _panel_timer{ 3.14159f };
 private:
 	ResourceManager();
 	void Initialize();
@@ -127,6 +129,7 @@ private:
 	FMOD::Sound* soundWalk;
 	FMOD::Sound* soundShoot;
 	FMOD::Sound* soundStab;
+	FMOD::Sound* soundBoom;
 	FMOD::Sound* soundEnemyDeath;
 	FMOD::Sound* soundLaserBomb;
 	FMOD::Sound* soundGrunt;
@@ -136,6 +139,7 @@ private:
 	FMOD::Channel* channelWalkingPlayer = 0;
 	FMOD::Channel* channelGunEffect = 0;
 	FMOD::Channel* channelMeleeEffect = 0;
+	FMOD::Channel* channelBoomEffect = 0;
 	FMOD::Channel* channelEnemyDeath = 0;
 	FMOD::Channel* channelLaserBomb = 0;
 	FMOD::Channel* channelGrunt = 0;
@@ -186,10 +190,11 @@ public:
 	// music and sound effect
 	void CreateMusic();
 	void UpdateAndPlayMusic();
-	void ToggleMuteMusic();
+	void ToggleMuteMusic(int setting = -1);
 	void WalkingSound();
 	void ShootingSound(float pitch = 1.f);
 	void StabbingSound();
+	void BoomSound();
 	void EnemyDeathSound();
 	void BombSound();
 	void PlayerDamageSound();
@@ -199,4 +204,5 @@ public:
 	void DrawCursor();
 	void CursorParticlesUpdate(const float& dt);
 	void AddCursorParticle();
-}; 
+	void DrawScenePanels(const float& dt);
+};
