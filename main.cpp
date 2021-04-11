@@ -57,6 +57,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	int gGameRunning = 1;
 	float g_dt = 0.f;
+	bool fullscreen{ false };
 	
 	/*Vec2f a{ 1.0f, 1.0f };
 	Vec2f b{ 2.0f,2.0f };*/
@@ -92,6 +93,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 		// Handling Input
 		AEInputUpdate();
+
+		if (GetAsyncKeyState(AEVK_LALT)) {
+			if (AEInputCheckTriggered(AEVK_RETURN)) {
+				fullscreen = !fullscreen;
+				AEToogleFullScreen(fullscreen);
+			}
+			else if (GetAsyncKeyState(AEVK_TAB)) {
+				
+			}
+		}
 
 		///////////////////
 		// Game loop update

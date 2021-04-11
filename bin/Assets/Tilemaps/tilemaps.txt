@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 test2
 test
 WilfTile
@@ -18,3 +19,6 @@ LEVELA
 REEEEE
 IDKHOW
 IDKWHY
+=======
+Custom1
+>>>>>>> 2d279fa3e33a1c968e7129c3845ec71003ccff99

@@ -1115,7 +1115,12 @@ struct Sys_ArrowKeysTilemap : public System {
 	float _counter{ _speed };
 	bool _turn{ false };
 	Grid* _grid{ nullptr };
+	bool _once{ false };
 	void OncePerFrame() {
+		if (_once) {
+			return;
+		}
+		_once = true;
 		_counter -= _dt;
 		if (_counter <= 0.0f) {
 			_counter = _speed;
@@ -1127,6 +1132,7 @@ struct Sys_ArrowKeysTilemap : public System {
 		}
 	}
 	void UpdateComponent() override {
+		_once = false;
 		Com_TilePosition& pos = get<Com_TilePosition>();
 		Com_Direction& direction = get<Com_Direction>();
 
@@ -1527,9 +1533,12 @@ struct Sys_AABB : public System {
 				
 				if (type->type == type->EnemyBalls && (AABBColData[i].type->type == type->player)) {
 					std::cout << "collidied human" << std::endl;
-					if ((tilepos->_grid_x == 4 && tilepos->_grid_y == 3) || (tilepos->_grid_x == 5 && tilepos->_grid_y == 3))
+					if (tilepos->_grid_x == 4 || tilepos->_grid_y == 3 || tilepos->_grid_x == 5 || tilepos->_grid_y == 4)
 					{
 						_grid->Get({ 4, 3 })._obstacle = false;
+						_grid->Get({ 4, 4 })._obstacle = false;
+						_grid->Get({ 5, 3 })._obstacle = false;
+						_grid->Get({ 5, 4 })._obstacle = false;
 						Gridcoliterator.push_back(iteratorcomgrid);
 						erase = true;
 					}

@@ -49,7 +49,8 @@ struct Level : public Scene
 	eid arrow = -1;
 	Com_Sprite* arrow_sprite{ nullptr };
 	size_t levels{ 0 };
-	bool once = false;
+	eid bossy{ -1 };
+	bool once = false, checkBoss = false;
 	//Factory::SpriteData data{ 0,"test2", 1, 8, 8, 0.1f, 100.0f, 200.0f };
 
 	Factory::SpriteData buttonsurface{ "title.png", 1.0f, 1.0f, 2, 2, 4, 0.2f, 0 };
@@ -62,6 +63,8 @@ struct Level : public Scene
 		std::cout << test << " this is a test scene" << std::endl;
 		std::cout << sizeof(Com_Tilemap) << std::endl;
 		once = false;
+		checkBoss = false;
+
 		////unlock level 2 
 		//if (levelsunlocked == 2) {
 		//	//double check if the file name already exist 
@@ -221,10 +224,14 @@ struct Level : public Scene
 		lives = Factory::Instance().FF_CreateGUIChildSurfaceText(lives, { "transparent" }, 0.5f, 0.5f, 0.8f, 0.4f, ss.str().c_str(), "courier");
 
 		waves = Factory::Instance().FF_CreateGUISurface(underline, 0.8f, 0.1f, 0.4f, 0.1f, 100);
-		Factory::Instance().FF_CreateGUIChildSurfaceText(waves, { "transparent" }, 0.3f, 0.5f, 0.4f, 0.4f, "Waves: ", "courier");
 		std::stringstream ss1;
 		ss1 << Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves;
 		waves = Factory::Instance().FF_CreateGUIChildSurfaceText(waves, { "transparent" }, 0.5f, 0.5f, 0.8f, 0.4f, ss1.str().c_str(), "courier");
+
+		bossy = Factory::Instance().FF_CreateGUISurface(underline, 0.8f, 0.1f, 0.4f, 0.1f, 100);
+		std::stringstream ss2;
+		ss2 << Factory::Instance()[spawner].Get<Com_Boss>().BossHealth;
+		bossy = Factory::Instance().FF_CreateGUIChildSurfaceText(bossy, { "transparent" }, 0.5f, 0.5f, 0.8f, 0.4f, ss2.str().c_str(), "courier");
 
 		menu = Factory::Instance().FF_CreateGUISurface(buttonsurface, 0.5f, 0.5f, 0.9f, 0.6f, 120);
 		_WinOrLose = Factory::Instance().FF_CreateGUISurface(title, 0.5f, 0.2f, 0.8f, 0.3f, 140);
@@ -234,7 +241,7 @@ struct Level : public Scene
 		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
 		Factory::Instance()[menu].Get<Com_GUISurface>()._active = false;
 		Factory::Instance()[_WinOrLose].Get<Com_GUISurface>()._active = false;
-
+		Factory::Instance()[bossy].Get<Com_GUISurface>()._active = false;
 
 		GUISettingsInitialize();
 	}
@@ -261,15 +268,23 @@ struct Level : public Scene
 		//Entity& testing = Factory::Instance()[tilemap];
 		//if (AEInputCheckTriggered('E')) {
 		//}
-		std::stringstream ss;
-		ss << Factory::Instance()[player].Get<Com_Health>().health;
-		Factory::Instance()[lives].Get<Com_Text>()._data._text = ss.str();
-		std::stringstream ss1;
-		ss1 << Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves;
-		Factory::Instance()[waves].Get<Com_Text>()._data._text = ss1.str();
 		Com_Boss& bs = Factory::Instance()[spawner].Get<Com_Boss>();
 		Com_Wave& com_wave = Factory::Instance()[spawner].Get<Com_Wave>();
 		Com_EnemySpawn& em = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
+		std::stringstream ss;
+		ss << Factory::Instance()[player].Get<Com_Health>().health;
+		Factory::Instance()[lives].Get<Com_Text>()._data._text = ss.str();
+
+		if (com_wave.numberofwaves > 0 && em.CurrNoOfEnemies > 0 && checkBoss == false)
+		{
+			Factory::Instance().FF_CreateGUIChildSurfaceText(waves, { "transparent" }, 0.3f, 0.5f, 0.4f, 0.4f, "Waves: ", "courier");
+			checkBoss = true;
+		}
+		// for wave
+		std::stringstream ss1;
+		ss1 << Factory::Instance()[spawner].Get<Com_Wave>().numberofwaves;
+		Factory::Instance()[waves].Get<Com_Text>()._data._text = ss1.str();
+
 
 		if (AEInputCheckCurr('L')) {
 			ResourceManager::Instance()._screen_shake = 1.0f;
@@ -281,8 +296,8 @@ struct Level : public Scene
 			bs.BossHealth = 20;
 			SceneManager::Instance().RestartScene();
 		}
-
 		Com_Sprite& sprite = Factory::Instance()[player].Get<Com_Sprite>();
+
 		if (AEInputCheckTriggered(AEVK_SPACE) && !SceneManager::Instance()._pause) {
 			// Shotos the primary weapon if not paused
 			_playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
@@ -380,6 +395,17 @@ struct Level : public Scene
 				_playerInv.Inventory_AddCoins(50);
 				once = true;
 			}
+
+			if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && checkBoss == true)
+			{
+				Factory::Instance().FF_CreateGUIChildSurfaceText(bossy, { "transparent" }, 0.3f, 0.5f, 0.4f, 0.4f, "Boss HP:   ", "courier");
+				Factory::Instance()[waves].Get<Com_GUISurface>()._active = false;
+				Factory::Instance()[bossy].Get<Com_GUISurface>()._active = true;
+				checkBoss = false;
+			}
+			std::stringstream ss2;
+			ss2 << Factory::Instance()[spawner].Get<Com_Boss>().BossHealth;
+			Factory::Instance()[bossy].Get<Com_Text>()._data._text = ss2.str();
 
 			//Com_EnemySpawn& com_spawner = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
 			if (Factory::Instance()[player].Get<Com_Health>().health <= 0 || (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && bs.bossdefeat == true)) {
