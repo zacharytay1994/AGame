@@ -49,15 +49,17 @@ struct InventoryMenu : public Scene {
 		main = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.5f, 0.5f, 1.0f, 1.0f, 100);
 		//Factory::Instance().FF_CreateGUIChildSurfaceText(main, { "transparent" }, 0.5f, 0.2f, 0.04f, 0.04f, "Inventory", "courier");
 		_title = Factory::Instance().FF_CreateGUISurface(title, 0.5f, 0.2f, original_dim_x, original_dim_y, 140);
-		Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.35f, 0.5f, 0.8f, 0.4f, "Inventory", "courier");
+		Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.35f, 0.35f, 0.8f, 0.4f, "Inventory", "courier");
 		current_coins = "[Coins: ";
 		current_coins += std::to_string(_playerInv.coins);
 		current_coins += "]";
 		
-		coins_text = Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.65f, 0.5f, 0.8f, 0.4f, current_coins.c_str(), "courier");
+		coins_text = Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.65f, 0.35f, 0.8f, 0.4f, current_coins.c_str(), "courier");
 		std::string current_weapon_text = _playerInv.Inventory_GetCurrentWeapon().GetWeapon_Name();
-		current_weapon = Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.5f, 0.6f, 0.8f, 0.4f, current_weapon_text, "courier");
-		
+		current_weapon = Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.5f, 0.5f, 0.6f, 0.2f, current_weapon_text, "courier");
+		std::string shop_text = "Each weapon costs 50 coins";
+		Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.5f, 0.6f, 0.8f, 0.4f, shop_text, "courier");
+
 		_buttons_surface = Factory::Instance().FF_CreateGUISurface(buttonbg, 0.5f, original_y, 0.9f, 0.6f, 120);
 		eid start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.5f, 0.35f, 0.4f, 0.2f, ChangeTestScenePF, "Start", "courier");
 		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
