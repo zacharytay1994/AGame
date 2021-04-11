@@ -49,6 +49,7 @@ struct Level : public Scene
 	eid arrow = -1;
 	Com_Sprite* arrow_sprite{ nullptr };
 	size_t levels{ 0 };
+	bool once = false;
 	//Factory::SpriteData data{ 0,"test2", 1, 8, 8, 0.1f, 100.0f, 200.0f };
 
 	Factory::SpriteData buttonsurface{ "title.png", 1.0f, 1.0f, 2, 2, 4, 0.2f, 0 };
@@ -60,7 +61,7 @@ struct Level : public Scene
 	void Initialize() override {
 		std::cout << test << " this is a test scene" << std::endl;
 		std::cout << sizeof(Com_Tilemap) << std::endl;
-
+		once = false;
 		////unlock level 2 
 		//if (levelsunlocked == 2) {
 		//	//double check if the file name already exist 
@@ -310,16 +311,18 @@ struct Level : public Scene
 
 		if (levels == 1) {
 
-			if (Factory::Instance()[player].Get<Com_Health>().health <= 0)
+			if (Factory::Instance()[player].Get<Com_Health>().health <= 0 && once == false)
 			{
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose :(", "courier");
+				once = true;
 			}
-			else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0)
+			else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && once == false)
 			{
 				SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->spawnBoss = false;
 				//++levels;
 				levelsunlocked = 2;
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Won! Level 2 Unlocked!", "courier");
+				once = true;
 			}
 
 			//Com_EnemySpawn& com_spawner = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
@@ -331,16 +334,18 @@ struct Level : public Scene
 
 		if (levels == 2) {
 
-			if (Factory::Instance()[player].Get<Com_Health>().health <= 0)
+			if (Factory::Instance()[player].Get<Com_Health>().health <= 0 && once == false)
 			{
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose :(", "courier");
+				once = true;
 			}
-			else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0)
+			else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && once == false)
 			{
 				SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->spawnBoss = false;
 				//++levels;
 				levelsunlocked = 3;
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Won! Level 3 Unlocked!", "courier");
+				once = true;
 			}
 
 			//Com_EnemySpawn& com_spawner = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
@@ -351,13 +356,15 @@ struct Level : public Scene
 		}
 
 		if (levels == 3) {
-			if (Factory::Instance()[player].Get<Com_Health>().health <= 0)
+			if (Factory::Instance()[player].Get<Com_Health>().health <= 0 && once == false)
 			{
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose :(", "courier");
+				once = true;
 			}
-			else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && bs.bossdefeat == true)
+			else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && bs.bossdefeat == true && once == false)
 			{
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Win :D", "courier");
+				once = true;
 			}
 
 			//Com_EnemySpawn& com_spawner = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
