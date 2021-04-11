@@ -555,9 +555,6 @@ struct TestScenePF : public Scene
 			sprite._frame_interval_counter = 0.0f;
 			sprite._current_frame_segment = 2;
 		}
-		if (AEInputCheckTriggered(AEVK_Z) && !SceneManager::Instance()._pause) {
-			_playerInv.Inventory_GetCurrentSecondaryWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
-		}
 		if (AEInputCheckCurr(AEVK_LEFT) || AEInputCheckCurr(AEVK_A)) {
 			sprite._flip = true;
 			arrow_sprite->_visible = true;
@@ -575,6 +572,9 @@ struct TestScenePF : public Scene
 		else if (AEInputCheckCurr(AEVK_DOWN) || AEInputCheckCurr(AEVK_S)) {
 			arrow_sprite->_visible = true;
 			arrow_sprite->_current_frame_segment = 3;
+		}
+		else if (AEInputCheckTriggered(AEVK_Z) && !SceneManager::Instance()._pause) {
+			_playerInv.Inventory_GetCurrentSecondaryWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
 		}
 		else {
 			arrow_sprite->_visible = false;

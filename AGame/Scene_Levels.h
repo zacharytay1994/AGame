@@ -283,7 +283,7 @@ struct Level : public Scene
 		}
 
 		Com_Sprite& sprite = Factory::Instance()[player].Get<Com_Sprite>();
-		if (AEInputCheckTriggered(AEVK_SPACE)) {
+		if (AEInputCheckTriggered(AEVK_SPACE) && !SceneManager::Instance()._pause) {
 			_playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
 			//ResourceManager::Instance().ShootingSound();
 			sprite._lock = true;

@@ -225,15 +225,6 @@ void TrickPistol::Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction
 		return;
 	}
 
-	if (static_cast<float>(AEGetTime(nullptr)) - Weapon_Curr_ReloadTimer() > GetWeapon_ReloadTime())
-	{
-		Weapon_Curr_ReloadTimer() = static_cast<float>(AEGetTime(nullptr));
-	}
-	else
-	{
-		return;
-	}
-
 	Factory::SpriteData data{ "bullet.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };
 
 	// Spawn bullet at weapon_Pattern[i] relative to player
