@@ -302,7 +302,6 @@ struct Level : public Scene
 			SceneManager::Instance()._settings_toggle = SceneManager::Instance()._pause;
 		}
 
-		Com_Sprite& sprite = Factory::Instance()[player].Get<Com_Sprite>();
 		if (AEInputCheckTriggered(AEVK_SPACE)) {
 			_playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
 			//ResourceManager::Instance().ShootingSound();
