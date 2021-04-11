@@ -8,6 +8,7 @@ struct Opening : public Scene {
 	eid load{ -1 };
 	Factory::SpriteData data1{ "logo" };
 	bool last = false;
+	bool click = false;
 	
 
 	void Initialize() override {
@@ -30,8 +31,9 @@ struct Opening : public Scene {
 		GUISettingsUpdate();
 
 
-		if (last == true || AEInputCheckTriggered(AEVK_SPACE) || AEInputCheckTriggered(AEVK_LBUTTON)) {
+		if (last == true || (AEInputCheckTriggered(AEVK_SPACE) && !click) || (AEInputCheckTriggered(AEVK_LBUTTON) && !click)) {
 			last = false;
+			click = true;
 			SceneManager::Instance().ChangeScene("Main Menu");
 		}
 	}
