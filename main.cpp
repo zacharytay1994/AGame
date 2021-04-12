@@ -1,3 +1,16 @@
+/******************************************************************************/
+/*!
+\file		main.cpp
+\author 	HCMR
+\par    	email: nil
+\date   	April 12, 2021
+\brief		entry point for AGame
+
+Copyright (C) 2021 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior
+written consent of DigiPen Institute of Technology is prohibited.
+ */
+ /******************************************************************************/
 // ---------------------------------------------------------------------------
 // includes
 #include "AEEngine.h"
@@ -10,30 +23,7 @@
 #include <iostream>
 #include <string>
 
-//struct Vec2 {
-//	float x = 0;
-//	float y = 0;
-//};
-//
-//struct Position {
-//	Vec2 _pos = { 0,0 };
-//};
-//
-//struct Velocity {
-//	Vec2 _vel = { 1,1 };
-//};
-//
-//void UpdatePosition(System& s) {
-//	s.c<Position>()._pos.x += s.c<Velocity>()._vel.x * s._dt;
-//	s.c<Position>()._pos.y += s.c<Velocity>()._vel.y * s._dt;
-//}
-//
-//void PrintPosition(System& s) {
-//	std::cout << "Entity: " << s._current_id << " : " << s.c<Position>()._pos.x << " | " << s.c<Position>()._pos.y << std::endl;
-//}
-
 // ---------------------------------------------------------------------------
-// main - ENGINE PROOF
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,

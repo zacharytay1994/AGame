@@ -1,3 +1,16 @@
+/******************************************************************************/
+/*!
+\file		ResourceManager.h
+\author 	HCMR
+\par    	email: nil
+\date   	April 12, 2021
+\brief		Allocates and Frees resources for AGame
+
+Copyright (C) 2021 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior
+written consent of DigiPen Institute of Technology is prohibited.
+ */
+ /******************************************************************************/
 #pragma once
 #include <unordered_map>
 #include <stack>
@@ -36,18 +49,6 @@ struct TextPack {
 	Vec2f		_position{ 0.0f,0.0f };
 	float		_scale{ 1.0f };
 	float		_r{ 0.0f }, _g{ 0.0f }, _b{ 0.0f };
-};
-
-struct SurfacePack {
-	/*Vec2f			_position{ 0.0f, 0.0f };
-	Vec2f			_n_position{ 0.0f,0.0f };
-	Vec2f			_dimensions{ 1.0f, 1.0f };
-	Vec2f			_ph_dimensions{ 1.0f, 1.0f };
-	Com_GUISurface* _parent_surface{ nullptr };
-	Com_Position*	_parent_position{ nullptr };
-	bool			_active{ true };
-	bool			_parent_active{ true };
-	int				_layer{ 100 };*/
 };
 
 struct RM_Compare {
@@ -118,7 +119,6 @@ private:
 
 
 	std::vector<RenderPack*> _render_queue_vector;
-	//std::priority_queue <RenderPack*, std::vector<RenderPack*>, RM_Compare> _render_queue;
 	std::vector<TextPack*> _text_pack;
 
 	//Fmod (Music)

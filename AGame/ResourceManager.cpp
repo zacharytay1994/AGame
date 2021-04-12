@@ -1,3 +1,16 @@
+/******************************************************************************/
+/*!
+\file		ResourceManager.cpp
+\author 	HCMR
+\par    	email: nil
+\date   	April 12, 2021	
+\brief		Allocates and Frees resources for AGame
+
+Copyright (C) 2021 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior
+written consent of DigiPen Institute of Technology is prohibited.
+ */
+ /******************************************************************************/
 #include "ResourceManager.h"
 #include "CSHeaderDef.h"
 #include <assert.h>
@@ -56,17 +69,8 @@ void ResourceManager::FlushDraw()
 	AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
 	auto cmp = [](RenderPack const* const a, RenderPack const* const b) { return a->_layer < b->_layer; };
 	auto cmp2 = [](TextPack const* const a, TextPack const* const b) { return a->_layer > b->_layer; };
-	//std::priority_queue <RenderPack*, RM_Compare> _somequeue( _render_queue_vector );
-	//std::make_heap<RenderPack*>(_render_queue_vector.begin(), _render_queue_vector.end(), RM_Compare);
 	std::sort(_render_queue_vector.begin(), _render_queue_vector.end(), cmp);
 	std::sort(_text_pack.begin(), _text_pack.end(), cmp2);
-	/*while (!_render_queue_vector.empty()) {
-		const RenderPack& rp = *_render_queue.top();
-		AEGfxSetTransform(const_cast<RenderPack&>(rp)._transform.m);
-		AEGfxTextureSet(rp._texture, rp._offset_x, rp._offset_y);
-		AEGfxMeshDraw(rp._mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
-		_render_queue.pop();
-	}*/
 	int i = -10000000;
 	for (auto r : _render_queue_vector) {
 		if (r->_layer > i) {
@@ -110,7 +114,6 @@ void ResourceManager::FlushDrawTextLayer(int layer)
 void ResourceManager::ResetRenderQueue()
 {
 	_render_queue_vector.resize(0);
-	//_render_queue = std::priority_queue <RenderPack*, std::vector<RenderPack*>, RM_Compare>();
 }
 
 void ResourceManager::ResetTextStack()
@@ -123,7 +126,6 @@ AEGfxTexture* ResourceManager::LoadTexture(const std::string& name, const std::s
 	if (_textures.find(name) != _textures.end()) { return _textures[name]; };
 	_textures[name] = AEGfxTextureLoad((asset_path + texture_path + path).c_str());
 	// make sure texture is successfully loaded
-	//assert(_textures[name]);
 	if (!_textures[name]) { 
 		std::cout << "TEXTURE NOT LOADED, PATH NOT FOUND!"; return nullptr; 
 	}
@@ -282,10 +284,6 @@ void ResourceManager::ReadFloorMapBin(const std::string& path, Com_Tilemap& tile
 		}
 	}
 }
-
-//void ResourceManager::WriteFloorMapBin(const std::string& path, Com_Tilemap& tilemap)
-//{
-//}
 
 void ResourceManager::ReadFloorMapTxt(const std::string& path, Com_Tilemap& tilemap)
 {
@@ -527,7 +525,6 @@ void ResourceManager::CreateMusic()
 	//load tracks
 	//char* filePath = new char;
 
-	//result = sound_system->createSound(Common_MediaPath("drumloop.wav"), FMOD_DEFAULT, 0, &sound1);
 	result = sound_system->createSound("../bin/Assets/Sound/SoulFly.wav", FMOD_DEFAULT, 0, &sound1);
 	result = sound1->setMode(FMOD_LOOP_NORMAL); 
 
@@ -545,7 +542,6 @@ void ResourceManager::CreateMusic()
 	result = soundLaserBomb->setMode(FMOD_LOOP_OFF);
 	result = soundGrunt->setMode(FMOD_LOOP_OFF);
 
-	//result = sound_system->createSound(Common_SoundPath("drumloop.wav"), FMOD_DEFAULT, 0, &sound1);
 	std::cout << "Sound load";
 
 }
@@ -630,15 +626,10 @@ void ResourceManager::PlayerDamageSound()
 
 void ResourceManager::UpdateAndPlayMusic() 
 {
-	//std::cout<< AEFrameRateControllerGetFrameTime()<<std::endl;
-	//std::cout << "Sound update" << std::endl;
-
 	//mute
 	if (AEInputCheckTriggered(AEVK_M)) {
 		mute = !mute;
 		playing = true;
-		//channel->getMute(&mute);
-		//channel->setMute(&mute);
 	}
 	if (!mute) {
 		//Play sound
@@ -646,8 +637,6 @@ void ResourceManager::UpdateAndPlayMusic()
 		if (!playing)
 		{
 			result = sound_system->playSound(sound1, 0, false, &channel);
-			//std::cout << "sound pressed";
-			//ERRCHECK(result);
 		}
 
 		result = sound_system->update();
@@ -709,10 +698,6 @@ void ResourceManager::FreeMusic()
 	result = soundShoot->release();
 	std::cout << "Freed" << std::endl;
 }
-
-//void ResourceManager::WriteFloorMapTxt(const std::string& path, Com_Tilemap& tilemap)
-//{
-//}
 
 ResourceManager::ResourceManager()
 {
