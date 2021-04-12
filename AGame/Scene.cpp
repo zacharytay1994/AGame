@@ -234,9 +234,12 @@ void SceneManager::Free()
 *			  assigned at SceneManager::AddScene()
 ________________________________________________________*/
 void SceneManager::ChangeScene(const std::string& name) {
-	_delay = 0.5f;
-	_next_scene = name;
-	ResourceManager::Instance()._panel_timer = 3.14159f;
+	if (!_lock) {
+		_delay = 0.5f;
+		_next_scene = name;
+		ResourceManager::Instance()._panel_timer = 3.14159f;
+		_lock = true;
+	}
 }
 
 void SceneManager::ChangeSceneNow(const std::string& name)
@@ -280,8 +283,10 @@ void SceneManager::Update(const float& dt)
 	}
 	else {
 		if (_next_scene != "") {
+			_lock = false;
 			ChangeSceneNow(_next_scene);
 			_next_scene = "";
+			return;
 		}
 	}
 	if (_current_scene) {
