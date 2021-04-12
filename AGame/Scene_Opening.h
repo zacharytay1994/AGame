@@ -30,11 +30,7 @@ struct Opening : public Scene {
 		GUISettingsUpdate();
 
 
-		if (last == true 
-			|| (AEInputCheckTriggered(AEVK_SPACE))
-			|| (AEInputCheckTriggered(AEVK_LBUTTON))
-			|| (AEInputCheckTriggered(AEVK_RETURN))
-			|| (AEInputCheckTriggered(AEVK_ESCAPE))) {
+		if (last == true ) {
 			last = false;
 			SceneManager::Instance().ChangeScene("Main Menu");
 		}
