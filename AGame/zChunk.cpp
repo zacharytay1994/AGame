@@ -1,3 +1,16 @@
+/******************************************************************************/
+/*!
+\file		zChunk.cpp
+\author 	Zachary Tay
+\par    	email: z.tay\@digipen.edu
+\date   	April 12, 2021
+\brief		chunk for ecs
+
+Copyright (C) 2021 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior
+written consent of DigiPen Institute of Technology is prohibited.
+ */
+ /******************************************************************************/
 #include "zChunk.h"
 #include "zArchetype.h"
 #include <iostream>
