@@ -104,6 +104,7 @@ void ToggleMute(Com_GUISurface* surface) {
 
 void ResetConfirmationyes(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	levelsunlocked = 1;
 	//rewrite both custom and normals
 	//normals
 	std::ofstream file;
