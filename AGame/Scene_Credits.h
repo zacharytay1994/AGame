@@ -69,6 +69,7 @@ struct Scene_Credits : public Scene {
 
 		if (last == true || AEInputCheckTriggered(AEVK_SPACE) || AEInputCheckTriggered(AEVK_LBUTTON)) {
 			SceneManager::Instance().ChangeScene("Main Menu");
+			last = false;
 		}
 	}
 };
