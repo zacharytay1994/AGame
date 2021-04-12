@@ -1,3 +1,16 @@
+/******************************************************************************/
+/*!
+\file		Factory.h
+\author 	HCMR
+\par    	email: nil
+\date   	April 12, 2021
+\brief		Factory Functions of AGame
+
+Copyright (C) 2021 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior
+written consent of DigiPen Institute of Technology is prohibited.
+ */
+ /******************************************************************************/
 #pragma once
 #include <vector>
 #include <assert.h>
