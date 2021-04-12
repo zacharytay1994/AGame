@@ -1,3 +1,17 @@
+/******************************************************************************/
+/*!
+\File Name		: zArchetype.cpp
+\Project Name	: AGame
+\Authors 		: 
+				Primary - Zachary Tay (100%)
+				Secondary -
+\brief		Archetype for Ecs
+
+All content © 2021 DigiPen Institute of Technology Singapore. All
+rights reserved.
+*/
+/******************************************************************************/
+
 #include <iostream>
 #include <stack>
 #include "zArchetype.h"
@@ -26,15 +40,10 @@ ArchetypeDatabase& ArchetypeDatabase::Instance() {
 bool ArchetypeDatabase::CloneArchetype(const std::bitset<64>& mask, Archetype* archetype, 
 	std::shared_ptr<Archetype>& outarche)
 {
-	//if (_database.find(mask) != _database.end()) {
-	//	outarche = _database[mask];
-	//	return false;
-	//} // else creates it
 	auto archetype_ptr = std::make_shared<Archetype>();
 	archetype_ptr->_type_offset = archetype->_type_offset;
 	archetype_ptr->_descriptions = archetype->_descriptions;
 	archetype_ptr->_chunk_stride = archetype->_chunk_stride;
-	//archetype_ptr->AddDescriptions(mask);
 	archetype_ptr->_mask = mask;
 	_database[mask] = archetype_ptr;
 	outarche = _database[mask];

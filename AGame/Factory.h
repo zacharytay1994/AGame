@@ -1,3 +1,16 @@
+/******************************************************************************/
+/*!
+\File Name		: Factory.h
+\Project Name	: AGame
+\Authors 		:
+				Primary - Zachary Tay (100%)
+				Secondary -
+\brief		Factory Functions headers declartion
+
+All content © 2021 DigiPen Institute of Technology Singapore. All
+rights reserved.
+*/
+/******************************************************************************/
 #pragma once
 #include <vector>
 #include <assert.h>
@@ -24,7 +37,6 @@ public:
 	eid CreateEntity() {
 		_entities.emplace_back();
 		_entities.back().Initialize<T...>();
-		//std::cout << "entity created" << std::endl;
 		return (eid)_unique_ids++;
 	}
 	void RemoveEntity(Entity* entity);
@@ -66,11 +78,13 @@ public:
 			}
 		}
 	};
+	//for sprite
 	eid FF_Sprite(const SpriteData& data, const float& x, const float& y);
+	//for tile map and object on tiles
 	eid FF_Tilemap(const std::string& texture, const std::string& bottom, const std::string& top);
 	eid FF_SpriteTile(const SpriteData& data, const eid& tilemap, const int& x, const int& y);
-	//eid FF_SpriteRandomPosition(const SpriteData& data, const float& x, const float& y, const float& velX, const float& velY);
 
+	//movable tiles
 	template <typename MovementType>
 	eid FF_SpriteMovableTile(const SpriteData& data, const eid& tilemap, const int& x, const int& y) {
 		eid id = FF_SpriteTile(data, tilemap, x, y);
@@ -88,39 +102,48 @@ public:
 	eid FF_CreateGUIChildClickableSurface(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*));
 	eid FF_CreateGUIChildClickableSurfaceText(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string& text, const std::string& font);
 	eid FF_CreateGUISettings();
-
-	//created by wilf for testing 
-	eid FF_Createproj(const SpriteData& data, const int& x, const int& y,const Com_Direction& direction); //create projectile 
-	eid FF_Createproj2(const SpriteData& data, const int& x, const int& y, const int& vel_x, const int& vel_y, eid const& tilemap, int lifetime = -1); //modified by Noel for Tilebased
-	eid FF_CreateprojEnemy(const SpriteData& data, const int& x, const int& y, const int& vel_x, const int& vel_y, eid const& tilemap,int lifetime = -1);
-	eid FF_CreateprojBoss(const SpriteData& data, const int& x, const int& y, const int& vel_x, const int& vel_y, eid const& tilemap, int lifetime = -1);
-	eid FF_CreateGUIChildClickableTextboxSurface(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*));
-	eid FF_CreateGUIChildClickableSurfaceTextBox(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string& text, const std::string& font);
-	eid FF_WriteTileMap();
 	eid FF_CreateGUIChildClickableSurfaceTextLoadTileMap(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string& text, const std::string& font);
 	eid FF_CreateGUIChildClickableSurfaceWordsTextBox(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string& text, const std::string& font);
 	eid FF_CreateGUIChildClickableTextboxWordsSurface(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*));
-	eid FF_TilemapGUI(const std::string& texture, const std::string& bottom, const std::string& top);
 	eid FF_CreateGUIChildClickableSurfaceTextLevelEditor(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string& text, const std::string& font);
 	eid FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string& text, const std::string& font);
-	eid FF_BombProjectile(const SpriteData& data, const int& x, const int& y, eid const& tilemap, int lifetime);
 	eid FF_CreateGUIChildClickableSurfaceTextBoxwithinstructions(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string& text, const std::string& font);
 	eid FF_CreateGUIChildSurfaceTextMoving(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, const std::string& text, const std::string& font);
 	eid FF_CreateGUIChildSurfaceTextMovingWithin(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height);
 	eid FF_CreateGUISurfaceTextMoving(const SpriteData& data, const float& x, const float& y, const float& width, const float& height, int layer);
-	//eid FF_CreateEnemy(const SpriteData& data, const eid& tilemap, const int& x, const int& y);
+	eid FF_CreateGUIChildClickableTextboxSurface(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*));
+	eid FF_CreateGUIChildClickableSurfaceTextBox(eid parent, const SpriteData& data, const float& x, const float& y, const float& width, const float& height, void(*onclick)(Com_GUISurface*), const std::string& text, const std::string& font);
+	eid FF_TilemapGUI(const std::string& texture, const std::string& bottom, const std::string& top);
+	
+	//creating projectiles
+	eid FF_Createproj(const SpriteData& data, const int& x, const int& y,const Com_Direction& direction); //create projectile 
+	eid FF_Createproj2(const SpriteData& data, const int& x, const int& y, const int& vel_x, const int& vel_y, eid const& tilemap, int lifetime = -1); //modified
+	eid FF_CreateprojEnemy(const SpriteData& data, const int& x, const int& y, const int& vel_x, const int& vel_y, eid const& tilemap,int lifetime = -1);
 
+	//creating the boss
+	eid FF_CreateprojBoss(const SpriteData& data, const int& x, const int& y, const int& vel_x, const int& vel_y, eid const& tilemap, int lifetime = -1);
+
+	//writing to tilemap
+	eid FF_WriteTileMap();
+	eid FF_BombProjectile(const SpriteData& data, const int& x, const int& y, eid const& tilemap, int lifetime);
+
+	//for enemy
 	eid FF_CreateSpawner();
 	eid FF_CreateEnemy(const SpriteData& data, const eid& tilemap, const int& x, const int& y, const int& type); //create enemy
 	eid FF_CreateBoss(const SpriteData& data, const eid& tilemap, const int& x, const int& y, const int& type); // create boss
+
+	//for bomb obstacle
 	eid FF_CreateParticle(const SpriteData& data, const int& x, const int& y, const float& velx, const float& vely); // create particle
 	eid FF_CreateBomb(const SpriteData& data, const int& x, const int& y);//create bomb
 
-	// particle
+	// particle for cursor
 	eid FF_CreateParticleFriction(const SpriteData& data, const Vec2f& position, const Vec2f& velocity, const float& friction);
 	eid FF_CreateParticleFrictionSpray(const SpriteData& data, const Vec2f& position, const Vec2f& direction, const float& friction,
 		const float& sprayangle, const Vec2f& scale, const float& strength, const int& num);
 	eid FF_CreateParticleFrictionBlood(const SpriteData& data, const Vec2f& position, const Vec2f& velocity, const float& friction);
 	eid FF_CreateParticleFrictionBloodSpray(const SpriteData& data, const Vec2f& position, const Vec2f& direction, const float& friction,
 		const float& sprayangle, const Vec2f& scale, const float& strength, const int& num);
+
+	// border
+	eid FF_CreateBorder(const SpriteData& data);
 };

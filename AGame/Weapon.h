@@ -1,5 +1,18 @@
-#pragma once
+/******************************************************************************/
+/*!
+\File Name		: Weapon.h
+\Project Name	: AGame
+\Authors 		:
+				Primary - Noel Ho (100%)
+				Secondary -
+\brief		Functions for weapons
 
+All content © 2021 DigiPen Institute of Technology Singapore. All
+rights reserved.
+*/
+/******************************************************************************/
+
+#pragma once
 #include <vector>
 #include <string>
 #include "Factory.h"
@@ -19,15 +32,13 @@ class Weapon
 		~Weapon();						// Default destructor
 
 		virtual void Weapon_Shoot();	// What happens when weapon is fired
-		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap) const;
-		virtual void Weapon_Reload();	// What happens when weapon is reloaded
-
+		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap);
+		//getting weapon info
 		const unsigned int	GetWeapon_ID() const;
 		const std::string&	GetWeapon_Name() const;
 		const std::string&  GetWeapon_Description() const;
 		const unsigned int	GetWeapon_Damage() const;
 		const unsigned int	GetWeapon_ReloadTime() const;
-		const unsigned int	GetWeapon_Capacity() const;
 		const bool			GetWeapon_Unlocked() const;
 		const unsigned int	GetWeapon_Cost() const;
 
@@ -35,31 +46,29 @@ class Weapon
 
 
 		int&	Weapon_Curr_ReloadTimer();
-		int&	Weapon_Curr_Capacity();
 		void	Weapon_Unlock();
 
 	protected:
+		//set weapon
 		void SetWeapon_Name(std::string const& new_Name);
 		void SetWeapon_Description(std::string const& new_Desc);
 		void SetWeapon_Damage(unsigned int new_Damage);
-		void SetWeapon_ReloadTime(unsigned int new_ReloadTime);
-		void SetWeapon_Capacity(unsigned int new_Capacity);
+		void SetWeapon_ReloadTime(int new_ReloadTime);
 		void SetWeapon_Pattern(std::vector<BulletSpawn> const& rhs);
 		void SetWeapon_Cost(unsigned int new_Cost);
 
 		std::vector<BulletSpawn> weapon_Pattern;
 
 	private:
+		//weapon info
 		const unsigned int weapon_ID;
 		std::string weapon_Name;
 		std::string weapon_Description;
 		unsigned int weapon_Cost;
 		unsigned int weapon_Damage;
 		unsigned int weapon_ReloadTime;
-		unsigned int weapon_Capacity;
 
 		int weapon_curr_ReloadTimer;
-		int weapon_curr_Capacity;
 		bool weapon_unlocked;
 };
 
@@ -78,26 +87,26 @@ class Pistol : public Weapon
 class TrickPistol : public Weapon
 {
 	public:
-		TrickPistol();
-		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap) const;
+		TrickPistol();// Default constructor
+		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap);
 };
 
 class DualPistol : public Weapon
 {
 	public:
-		DualPistol();
+		DualPistol(); // Default constructor
 };
 
 class DualDiagPistol : public Weapon
 {
 	public:
-		DualDiagPistol();
-		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap) const;
+		DualDiagPistol();// Default constructor
+		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap);
 };
 
 class Dagger : public Weapon
 {
 	public:
-		Dagger();
-		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap) const;
+		Dagger();// Default constructor
+		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap);
 };

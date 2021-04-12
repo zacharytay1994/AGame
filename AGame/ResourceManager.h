@@ -1,3 +1,16 @@
+/******************************************************************************/
+/*!
+\File Name		:	ResourceManager.h
+\Project Name	:	AGame
+\Authors 		:
+				Primary - Austen Ang (50%)
+				Secondary - Zachary Tay (50%)
+\brief		Contains all the functions declartion which handles the resources of AGame
+
+All content © 2021 DigiPen Institute of Technology Singapore. All
+rights reserved.
+*/
+/******************************************************************************/
 #pragma once
 #include <unordered_map>
 #include <stack>
@@ -10,10 +23,13 @@
 #include <string>
 #include "music.h"
 
+static constexpr float cursor_particle_scale = 5.0f;
+
 // forward deckaratuibs
 struct Com_Tilemap;
 struct Com_TilePosition;
 
+//render pack 
 struct RenderPack {
 	int					_layer{ 0 };
 	AEMtx33				_transform{ 0 };
@@ -27,6 +43,7 @@ struct RenderPack {
 	float				a{ 1.0f };
 };
 
+//text pack
 struct TextPack {
 	int			_layer{ 0 };
 	char		_font{ 0 };
@@ -36,22 +53,16 @@ struct TextPack {
 	float		_r{ 0.0f }, _g{ 0.0f }, _b{ 0.0f };
 };
 
-struct SurfacePack {
-	/*Vec2f			_position{ 0.0f, 0.0f };
-	Vec2f			_n_position{ 0.0f,0.0f };
-	Vec2f			_dimensions{ 1.0f, 1.0f };
-	Vec2f			_ph_dimensions{ 1.0f, 1.0f };
-	Com_GUISurface* _parent_surface{ nullptr };
-	Com_Position*	_parent_position{ nullptr };
-	bool			_active{ true };
-	bool			_parent_active{ true };
-	int				_layer{ 100 };*/
-};
-
 struct RM_Compare {
 	bool operator()(RenderPack* lhs, RenderPack* rhs) const { return lhs->_layer > rhs->_layer; }
 };
 
+struct CursorParticle {
+	Vec2f	_position{ -1000.0f,-1000.0f };
+	float	_scale{ 1.0f };
+	float	_dimension{ cursor_particle_scale };
+	float	_a{ 1.0f };
+};
 
 struct ResourceManager {
 	static ResourceManager& Instance();
@@ -59,6 +70,7 @@ struct ResourceManager {
 	void FreeResources();
 	float _screen_shake{ 0.0f };
 	float _dampening{ 10.0f };
+	AEGfxVertexList* _cursor_mesh{ nullptr };
 
 	//<-- Level Select
 	struct tilemap_identifier {
@@ -83,6 +95,10 @@ struct ResourceManager {
 	std::vector<AEGfxTexture*> _tilemap_images2;
 	//-->
 
+	int _cursor_particle_count = 200;
+	std::vector<CursorParticle> _cursor_particles;
+	std::vector<Vec2f> _scene_transition;
+	float _panel_timer{ 3.14159f };
 private:
 	ResourceManager();
 	void Initialize();
@@ -105,7 +121,6 @@ private:
 
 
 	std::vector<RenderPack*> _render_queue_vector;
-	//std::priority_queue <RenderPack*, std::vector<RenderPack*>, RM_Compare> _render_queue;
 	std::vector<TextPack*> _text_pack;
 
 	//Fmod (Music)
@@ -116,14 +131,20 @@ private:
 	FMOD::Sound* soundWalk;
 	FMOD::Sound* soundShoot;
 	FMOD::Sound* soundStab;
+	FMOD::Sound* soundBoom;
 	FMOD::Sound* soundEnemyDeath;
+	FMOD::Sound* soundLaserBomb;
+	FMOD::Sound* soundGrunt;
 	
 	// Channels required for sound
 	FMOD::Channel* channel = 0;  // BGM
 	FMOD::Channel* channelWalkingPlayer = 0;
 	FMOD::Channel* channelGunEffect = 0;
 	FMOD::Channel* channelMeleeEffect = 0;
+	FMOD::Channel* channelBoomEffect = 0;
 	FMOD::Channel* channelEnemyDeath = 0;
+	FMOD::Channel* channelLaserBomb = 0;
+	FMOD::Channel* channelGrunt = 0;
 	
 	FMOD_RESULT       result;
 	unsigned int      version;
@@ -171,12 +192,19 @@ public:
 	// music and sound effect
 	void CreateMusic();
 	void UpdateAndPlayMusic();
-	void ToggleMuteMusic();
+	void ToggleMuteMusic(int setting = -1);
 	void WalkingSound();
 	void ShootingSound(float pitch = 1.f);
 	void StabbingSound();
+	void BoomSound();
 	void EnemyDeathSound();
+	void BombSound();
+	void PlayerDamageSound();
 	void FreeMusic();
 
 	AEMtx33 ScreenShake();
-}; 
+	void DrawCursor();
+	void CursorParticlesUpdate(const float& dt);
+	void AddCursorParticle();
+	void DrawScenePanels(const float& dt);
+};

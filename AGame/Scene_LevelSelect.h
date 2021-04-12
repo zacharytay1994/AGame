@@ -1,3 +1,17 @@
+/******************************************************************************/
+/*!
+\File Name		: Scene_LevelSelect
+\Project Name	: AGame
+\Authors 		:	
+				Primary - Zachary Tay (100%)
+				Secondary -
+\brief		Scene for level selector for custom maps
+
+All content © 2021 DigiPen Institute of Technology Singapore. All
+rights reserved.
+*/
+/******************************************************************************/
+
 #pragma once
 #include "SceneDeclarations.h"
 

@@ -1,3 +1,17 @@
+/******************************************************************************/
+/*!
+\File Name		: zEntity.cpp
+\Project Name	: AGame
+\Authors 		:
+				Primary - Zachary Tay (100%)
+				Secondary -
+\brief		Entity for ECS
+
+All content © 2021 DigiPen Institute of Technology Singapore. All
+rights reserved.
+*/
+/******************************************************************************/
+
 #include "zEntity.h"
 #include "Factory.h"
 

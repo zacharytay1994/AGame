@@ -1,12 +1,26 @@
+/******************************************************************************/
+/*!
+\File Name		: zSystem.cpp
+\Project Name	: AGame
+\Authors 		:
+				Primary - Zachary Tay (100%)
+				Secondary -
+\brief		System for ECS
+
+All content © 2021 DigiPen Institute of Technology Singapore. All
+rights reserved.
+*/
+/******************************************************************************/
 #include "zSystem.h"
 #include "zArchetype.h"
 #include "zChunk.h"
 
+//system instance
 SystemDatabase& SystemDatabase::Instance() {
 	static SystemDatabase instance;
 	return instance;
 }
-
+//system database update
 void SystemDatabase::SystemDatabaseUpdate(const float& dt) {
 	ArchetypeDatabase& adb = ArchetypeDatabase::Instance();
 	for (auto& system : _database) {
@@ -29,14 +43,14 @@ void SystemDatabase::SystemDatabaseUpdate(const float& dt) {
 		}
 	}
 }
-
+//remove all entities from database
 void SystemDatabase::RemoveAllEntities()
 {
 	for (auto& system : _database) {
 		system.second->RemoveAllEntities();
 	}
 }
-
+//remove all entites from system
 void System::RemoveAllEntities()
 {
 	for (auto tbr : _to_be_removed) {
@@ -44,7 +58,7 @@ void System::RemoveAllEntities()
 	}
 	_to_be_removed.clear();
 }
-
+//remove entity
 void System::RemoveEntity()
 {
 	if (_current_chunk) {

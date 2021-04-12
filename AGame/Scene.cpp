@@ -1,3 +1,17 @@
+/******************************************************************************/
+/*!
+\File Name		: Scene.cpp
+\Project Name	: AGame
+\Authors 		:
+				Primary - Zachary Tay (100%)
+				Secondary -
+\brief		Scene handling for AGame
+
+All content © 2021 DigiPen Institute of Technology Singapore. All
+rights reserved.
+*/
+/******************************************************************************/
+
 #include "Scene.h"
 #include "SceneDeclarations.h"
 #include "zSystem.h"
@@ -6,9 +20,6 @@
 #include "Scene_LevelEditor.h"
 #include "Scene_LevelEditor2.h"
 #include "Scene_MainMenu.h"
-#include "Scene_Zac.h"
-#include "Scene_Wilfred.h"
-#include "Scene_Noel.h"
 #include "Scene_Opening.h"
 #include "Scene_Credits.h"
 #include "Scene_Inventory.h"
@@ -86,8 +97,6 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_YLayering>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Particle>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_ParticleEmitter>();
-	//ComponentDescription_DB::Instance().RegisterComponent<Com_objecttype>();
-	//ComponentDescription_DB::Instance().RegisterComponent<Com_BoundingBox>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_CollisionData>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_Camera>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_ParentPosition>();
@@ -98,11 +107,10 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_BoundingBoxGUI>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_instructionsGUI>();
 
-
 	// Pathfinding
 	ComponentDescription_DB::Instance().RegisterComponent<Com_FindPath>();
 
-	// GUI COMPONENTS
+	// GUI Components
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUISurface>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUIMouseCheck>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUIOnClick>();
@@ -116,25 +124,24 @@ void SceneManager::Initialize() {
 	ComponentDescription_DB::Instance().RegisterComponent<Com_errormessageGUI>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_TextMovingGUI>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_GUIDelay>();
-	// enemy states
+
+	// Enemy States
 	ComponentDescription_DB::Instance().RegisterComponent<Com_EnemyStateOne>();
 	ComponentDescription_DB::Instance().RegisterComponent<Com_TileMoveSpriteState>();
 
 	// particle
 	ComponentDescription_DB::Instance().RegisterComponent<Com_ParticleFriction>();
 
+	ComponentDescription_DB::Instance().RegisterComponent<Com_FadeOut>();
+
 	
 	// 3. Registering all systems for the game
-	//SystemDatabase::Instance().RegisterSystem<Example_UpdatePosition, Position, Example_Velocity>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Tilemap, Com_Tilemap>();
 	SystemDatabase::Instance().RegisterSystem<Sys_DrawSprite, Com_Position, Com_Sprite>();
 	SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeys, Com_Position, Com_ArrowKeys>();
-	//SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeysTilemap, Com_TilePosition, Com_ArrowKeysTilemap, Com_Direction>();
 	SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeysTilemap, Com_TilePosition, Com_ArrowKeysTilemap>();
 	SystemDatabase::Instance().RegisterSystem<Sys_TilemapPosition, Com_Tilemap, Com_Position>();
 	SystemDatabase::Instance().RegisterSystem<Sys_TilePosition, Com_TilemapRef, Com_TilePosition, Com_Position>();
-	// SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeysTilemap, Com_TilePosition>();
-	//SystemDatabase::Instance().RegisterSystem<Sys_ArrowKeysTilemap, Com_TilePosition, Com_ArrowKeysTilemap, Com_Direction>();
 	SystemDatabase::Instance().RegisterSystem<Sys_PlayerAttack, Com_Direction, Com_WeaponAttack, Com_TilePosition, Com_Projectile>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GameTimer, Com_GameTimer>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Velocity, Com_Position, Com_Velocity>();
@@ -143,16 +150,14 @@ void SceneManager::Initialize() {
 	SystemDatabase::Instance().RegisterSystem<Sys_ParticleSys,Com_Particle, Com_GameTimer >();
 	SystemDatabase::Instance().RegisterSystem<Sys_ParticleEmitter, Com_ParticleEmitter, Com_GameTimer, Com_TilePosition>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Obstacle, Com_type,Com_Health,Com_TilePosition, Com_ParticleEmitter>();
-	//SystemDatabase::Instance().RegisterSystem<Sys_RegisteringEntity, Com_objecttype>();
-	//test 
 	SystemDatabase::Instance().RegisterSystem <Sys_Boundingbox, Com_BoundingBox, Com_Position,Com_Sprite>();
 	SystemDatabase::Instance().RegisterSystem <Sys_AABB, Com_BoundingBox, Com_Velocity, Com_CollisionData, Com_type,Com_Health, Com_Position>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Projectile2, Com_TilePosition, Com_Projectile>();
 	SystemDatabase::Instance().RegisterSystem<Sys_Camera, Com_Position, Com_Camera>();
 	SystemDatabase::Instance().RegisterSystem<Sys_GridCollision, Com_type, Com_TilePosition, Com_GridColData>();
-
 	SystemDatabase::Instance().RegisterSystem<Sys_TileMoveSpriteState, Com_Sprite, Com_TilePosition, Com_TileMoveSpriteState>();
 	SystemDatabase::Instance().RegisterSystem<Sys_ParentPosition, Com_ParentPosition>();
+	SystemDatabase::Instance().RegisterSystem<Sys_FadeOut, Com_FadeOut, Com_Sprite>();
 
 	// GUI SYSTEMS
 	SystemDatabase::Instance().RegisterSystem<Sys_GUISurfaceRender, Com_Position, Com_GUISurface, Com_Sprite>();
@@ -173,13 +178,11 @@ void SceneManager::Initialize() {
 
 	// pathfinding
 	SystemDatabase::Instance().RegisterSystem<Sys_PathFinding, Com_type, Com_FindPath>();
-	//SystemDatabase::Instance().RegisterSystem<Sys_Pathfinding_v2, Com_FindPath>();
 
 	// enemy states, spawn, attack
 	SystemDatabase::Instance().RegisterSystem<Sys_EnemyStateOne, Com_EnemyStateOne, Com_FindPath, Com_TilePosition, Com_Sprite, Com_type>();
 	SystemDatabase::Instance().RegisterSystem<Sys_EnemyStateBoss,Com_TilePosition, Com_Sprite, Com_type, Com_Boss,Com_GameTimer>();
 	SystemDatabase::Instance().RegisterSystem<Sys_EnemySpawning, Com_EnemySpawn, Com_Wave, Com_Boss>();
-	//SystemDatabase::Instance().RegisterSystem<Sys_EnemyAttack, Com_Direction, Com_type, Com_TilePosition, Com_Tilemap, Com_EnemyStateOne>();
 	
 	//Health test
 	SystemDatabase::Instance().RegisterSystem<Sys_HealthUpdate, Com_Health>();
@@ -189,14 +192,9 @@ void SceneManager::Initialize() {
 
 
 	// 4. Registering scenes
-	AddScene<TestScene>("Test Scene");
-	AddScene<TestScene2>("Test Scene 2");
 	AddScene<TestScenePF>("Test PathFinding");
-	AddScene<ExampleScene>("ExampleScene");
 	AddScene<MainMenu>("Main Menu");
 	AddScene<Opening>("Opening");
-	AddScene<TestScenewilfred>("TestScenewilfred");
-	AddScene<ShootingRange>("ShootingRange");
 	AddScene<LevelEditor>("Leveleditor");
 	AddScene<LevelEditor2>("Leveleditor2");
 	AddScene<InventoryMenu>("InventoryMenu");
@@ -230,6 +228,16 @@ void SceneManager::Free()
 *			  assigned at SceneManager::AddScene()
 ________________________________________________________*/
 void SceneManager::ChangeScene(const std::string& name) {
+	if (!_lock) {
+		_delay = 0.5f;
+		_next_scene = name;
+		ResourceManager::Instance()._panel_timer = 3.14159f;
+		_lock = true;
+	}
+}
+
+void SceneManager::ChangeSceneNow(const std::string& name)
+{
 	_pause = false;
 	_settings_toggle = false;
 	assert(_scenes.find(name) != _scenes.end());
@@ -238,8 +246,6 @@ void SceneManager::ChangeScene(const std::string& name) {
 		_current_scene->Exit();
 		_current_scene->Unload();
 		std::cout << "SCENE |" << _current_scene_name << "| FREED AND UNLOADED." << std::endl;
-		// reload the scene into memory
-		//_scenes[_current_scene_name] = std::make_shared<Scene>();
 	}
 	ResourceManager::Instance().ResetRenderQueue();
 	ResourceManager::Instance().ResetTextStack();
@@ -264,17 +270,31 @@ void SceneManager::ChangeScene(const std::string& name) {
 ________________________________________________________*/
 void SceneManager::Update(const float& dt)
 {
+	if (_delay > 0.0f) {
+		_delay -= (float)AEFrameRateControllerGetFrameTime();
+	}
+	else {
+		if (_next_scene != "") {
+			_lock = false;
+			ChangeSceneNow(_next_scene);
+			_next_scene = "";
+			return;
+		}
+	}
 	if (_current_scene) {
 		_current_scene->Update(dt);
-		//if (AEInputCheckTriggered('H')) {
-		//	SceneManager::Instance().ChangeScene("Main Menu");
-		//}
 		float _dt = _pause ? 0.0f : static_cast<float>(AEFrameRateControllerGetFrameTime());
 		SystemDatabase::Instance().SystemDatabaseUpdate(_dt);
 		ResourceManager::Instance().FlushDraw();
 		ResourceManager::Instance().FlushDrawText();
 		ResourceManager::Instance().Update(_dt);
 		SystemDatabase::Instance().RemoveAllEntities();
+	}
+	// draw cursor
+	if (_currentlyplaying == false) {
+		ResourceManager::Instance().DrawScenePanels((float)AEFrameRateControllerGetFrameTime());
+		ResourceManager::Instance().CursorParticlesUpdate((float)AEFrameRateControllerGetFrameTime());
+		ResourceManager::Instance().DrawCursor();
 	}
 }
 
@@ -317,10 +337,7 @@ ________________________________________________________*/
 void Scene::Exit()
 {
 }
-
-
 // new functions
-
 void SceneManager::RestartScene()
 {
 	if (_current_scene) {

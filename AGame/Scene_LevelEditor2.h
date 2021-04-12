@@ -1,3 +1,16 @@
+/******************************************************************************/
+/*!
+\File Name		: Scene_LevelEditor2.h
+\Project Name	: AGame
+\Authors 		:
+				Primary - Wilfred Ng (100%)
+				Secondary -
+\brief		Scene part 2 of level editor for user to create custom tilemap based on gui 
+
+All content © 2021 DigiPen Institute of Technology Singapore. All
+rights reserved.
+*/
+/******************************************************************************/
 #pragma once
 #include "SceneDeclarations.h"
 #include <iostream>
@@ -11,80 +24,53 @@
 #include <string>
 #include "Scene_LevelEditor.h"
 
-
+//non collision activated
 void nocolbut(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
-	std::cout << "activated non collidable" << std::endl;
-	//Factory::Instance()[tilemap].Get<Com_Position>().y = 1;
 	SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp = 1;
 }
+//player spawn activated
 void playerspawnbut(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
-	std::cout << "activated player spawn" << std::endl;
 	SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp = 2;
 }
+//enemy spawn activated
 void enemyspawnbut(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
-	std::cout << "activated enemy" << std::endl;
 	SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp = 3;
 }
+//wall activated
 void wallbut(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp = 4;
-	//SceneManager::Instance().ChangeScene("Main Menu");
 }
+//bomb activated
 void bombbut(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp = 5;
-	//SceneManager::Instance().ChangeScene("Main Menu");
 }
+//reset activated
 void resetbut(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp = 0;
 	SceneManager::Instance().RestartScene();
-	//SceneManager::Instance().ChangeScene("Main Menu");
 }
+//save map activated
 void savemapbut(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
-	std::cout << "Save map" << std::endl;
 	SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp = 6;
-	//SceneManager::Instance().ChangeScene("Main Menu");
 }
-
+//error message 
 void errormessage2(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
-	std::cout << "entered row" << std::endl;
 	SceneManager::Instance().RestartScene();
 }
 
-
-
-void ChangeTestSceneLevelEditor2(Com_GUISurface* surface) {
-	UNREFERENCED_PARAMETER(surface);
-	SceneManager::Instance().ChangeScene("Main Menu");
-}
-
 struct LevelEditor2 : public Scene {
-	eid i{ -1 };
+	//memeber variables 
+	//for the tile and gui
 	eid main{ -1 };
-	eid _settings{ -1 };
-	eid _change_scene{ -1 };
-	Factory::SpriteData data1{ "menubackground" };
-	Factory::SpriteData data2{ "buttonsurface" };
-	Factory::SpriteData data3{ "button1" };
-	Factory::SpriteData data4{ "button2" };
-	Factory::SpriteData data5{ "button3" };
-	Factory::SpriteData data6{ "transparent" };
-	Factory::SpriteData dataskeleton{ "skeleton", 100.0f, 160.0f, 2, 3, 8, 0.15f };
-	Factory::SpriteData underline{ "underline.png", 80.0f, 200.0f, 4, 1, 4, 0.25f };
-	//Sys_Pathfinding_v2 _pathfinding;
-	bool frameskipped = false;
-
-
 	eid tilemap = -1;
-	static inline std::string mapname;
-	eid test = -1;
-
 	//for the buttons 
 	eid noncol = -1;
 	eid playerspawn = -1;
@@ -96,39 +82,39 @@ struct LevelEditor2 : public Scene {
 	eid bomb{ -1 };
 	eid savemap{ -1 };
 
-	bool _gui_change_scene{ false };
+	//sprite data 
+	Factory::SpriteData underline{ "underline.png", 80.0f, 200.0f, 4, 1, 4, 0.25f };
+
+	//scene frame skip once 
+	bool frameskipped = false;
+
+	//map name 
+	static inline std::string mapname;
+
+
 	void Initialize() override {
-		std::cout << "SYSTEM MESSAGE: You're now entering the level editor.2" << std::endl;
-		//render 
-		std::cout << "name of map " << mapname << "this is what i want" << std::endl;
-		//tilemap = Factory::Instance().FF_Tilemap("tilemap", "tilehello.txt", "tilehello.txt");
+		//init tilemap 
 		tilemap = Factory::Instance().FF_TilemapGUI("tilemap", "c_"+mapname, "t_"+mapname);
-		//tilemap = Factory::Instance().FF_TilemapGUI("tilemap", "C_WilfTile.txt", "C_WilfTile.txt");
 		Factory::Instance()[tilemap].Get<Com_Position>().x = -7;
 		Factory::Instance()[tilemap].Get<Com_Position>().y = 4;
 		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
 		Com_Tilemap& com_tilemap = Factory::Instance()[tilemap].Get<Com_Tilemap>();
+		//getting the tile map and name of map created  
 		SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->_tilemap = tilemap;
 		SystemDatabase::Instance().GetSystem< Sys_GUIMapClick>()->nameofmap = mapname;
 
-		//for some reason needs this*****
+		//init grid 
 		Sys_PathFinding& pf2 = *SystemDatabase::Instance().GetSystem<Sys_PathFinding>();
 		pf2._grid = Grid(com_tilemap._width, com_tilemap._height, com_tilemap._map);
 		pf2._initialized = true;
 		SystemDatabase::Instance().GetSystem<Sys_TilePosition>()->_grid = &pf2._grid;
-		//**** needed 
-		//	AEToogleFullScreen(true);
 		
-		/*eid tile = Factory::Instance().FF_CreateGUIChildClickableTileMap(main, { "transparent" }, 0.5f, 0.15f, 0.8f, 0.2f, nocolbut, mapname, "tilemap");*/
-		
-
+		//init button 
 		Vec2i passin4[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
 		Factory::SpriteData button{ "background2.png", 2.0f, 1.0f, 2, 1, 2, 0.05f, 0, passin4 };
 
-
+		//surface 
 		main = Factory::Instance().FF_CreateGUISurface({ "transparent" }, 0.85f, 0.5f, 0.27f, 1.0f, 100);																	// surface
-
-
 
 		//non collidable - unlimited 
 		noncol = Factory::Instance().FF_CreateGUIChildClickableSurfaceTextLevelEditor(main, button, 0.5f, 0.12f, 0.8f, 0.1f, nocolbut, "Blank Space", "courier");
@@ -164,8 +150,9 @@ struct LevelEditor2 : public Scene {
 	void Update(const float& dt) override {
 		UNREFERENCED_PARAMETER(dt);
 		GUISettingsUpdate();
-
+		//string 
 		std::stringstream ss;
+		//displays whatever was clicked 
 		if (SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp == 0) {
 			ss << "Nothing";
 			Factory::Instance()[selected].Get<Com_Text>()._data._text = ss.str();
@@ -206,16 +193,18 @@ struct LevelEditor2 : public Scene {
 				eid main2 = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.5f, 0.5f, 1.0f, 1.0f, 100);
 				Vec2i passin4[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
 				Factory::SpriteData button2{ "background2.png", 2.0f, 1.0f, 2, 1, 2, 0.05f, 0, passin4 };
-				Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main2, button2, 0.5f, 0.5f, 0.75f, 0.2f, errormessage2, "You did not placed the player!", "courier");
+				Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main2, button2, 0.5f, 0.5f, 0.75f, 0.2f, errormessage2, "Place Player!", "courier");
 				SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp = 0;
 				SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->error = false;
 				frameskipped = false;
 			}
 			frameskipped = true;
 		}
-		//if (AEInputCheckTriggered('R')) {
-		//	SceneManager::Instance().RestartScene();
-		//}
+		//if error message triggered 
+		if (SystemDatabase::Instance().GetSystem<Sys_errormessageGUI>()->errortriggered == true) {
+			SystemDatabase::Instance().GetSystem<Sys_errormessageGUI>()->errortriggered = false;
+			SceneManager::Instance().RestartScene();
+		}
 	}
 	void Exit() override {
 

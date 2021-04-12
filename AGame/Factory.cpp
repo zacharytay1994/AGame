@@ -1,3 +1,17 @@
+/******************************************************************************/
+/*!
+\File Name		: Factory.cpp
+\Project Name	: AGame
+\Authors 		:
+                Primary - Zachary Tay (25%)
+                Secondary - Austen Ang (25%), Noel Ho (25%) , Wilfred Ng (25%)
+
+\brief		Contain all the custom factory functions for AGame
+
+All content © 2021 DigiPen Institute of Technology Singapore. All
+rights reserved.
+*/
+/******************************************************************************/
 #include "Factory.h"
 #include "ResourceManager.h"
 #include "CSHeaderDef.h"
@@ -175,7 +189,6 @@ eid Factory::FF_Createproj(const SpriteData& data, const int& x, const int& y, c
     Entity& e = Factory::Instance()[id];
     e.Get<Com_type>().type = Com_type::bullet;
     //setting of velocity which is not initialized 
-    //Com_Direction& direction = e.Get<Com_Direction>();
     Com_Velocity& velocity = e.Get<Com_Velocity>();
 	//updates the velocity 
 	if (direction.currdir == direction.left) {
@@ -197,6 +210,36 @@ eid Factory::FF_Createproj(const SpriteData& data, const int& x, const int& y, c
     return id;
 }
 
+/**************************************************************************/
+    /*!
+      \brief
+        Creates a projectile with details given
+
+      \param data
+        The sprite image
+
+      \param x
+        The x position on the grid
+
+      \param y
+        The y position on the grid
+
+      \param vel_x
+        The x velocity
+
+      \param vel_y
+        The y velocity
+
+      \param tilemap
+        The tilemap to spawn the projectile on
+
+      \param lifetime
+        How long the projectile will remain on the grid, -1 if infinite
+
+      \return
+        The entity ID of the projectile
+    */
+/**************************************************************************/
 eid Factory::FF_Createproj2(const SpriteData& data, const int& x, const int& y, const int& vel_x, const int& vel_y, eid const& tilemap, int lifetime)
 {
     eid id = FF_SpriteTile(data, tilemap, x, y);
@@ -233,8 +276,8 @@ eid Factory::FF_CreateprojBoss(const SpriteData& data, const int& x, const int& 
     Com_Projectile& proj = e.Get<Com_Projectile>();
     e.Get<Com_type>().type = 6;
     e.Get<Com_Particle>().lifetime = 100;
-    e.Get<Com_Velocity>().x = vel_x;
-    e.Get<Com_Velocity>().y = vel_y;
+    e.Get<Com_Velocity>().x = (float)vel_x;
+    e.Get<Com_Velocity>().y = (float)vel_y;
     proj.grid_vel_x = vel_x;
     proj.grid_vel_y = vel_y;
     proj.lifetime = lifetime;
@@ -272,16 +315,11 @@ eid Factory::FF_CreateBoss(const SpriteData& data, const eid& tilemap ,const int
 
 
 eid Factory::FF_CreateParticle(const SpriteData& data, const int& x, const int& y,const float& velx, const float& vely) {
-    //float min{ 200.0f };
-    //float max{ 200.0f };
-    //float lifetimemin{ 0.0f };
-    //float lifetimemax(10.0f);
     eid id = FF_Sprite(data, (float)x, (float)y);
     Factory::Instance()[id].AddComponent<Com_Velocity, Com_Particle,Com_GameTimer,Com_Boundary, Com_BoundingBox>();
     Entity& e = Factory::Instance()[id];
     e.Get<Com_Velocity>().x = velx;
     e.Get<Com_Velocity>().y = vely;
-    //e.Get<Com_Particle>().lifetime = lifetimemin + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (lifetimemax - (lifetimemin))));
     return id;
 }
 
@@ -290,8 +328,6 @@ eid Factory::FF_CreateBomb(const SpriteData& data, const int& x, const int& y)
     eid id = FF_Sprite(data, (float)x, (float)y);
     //for the projectile not the entity calling it 
     Factory::Instance()[id].AddComponent<Com_WeaponAttack, Com_Velocity, Com_Boundary, Com_ParticleEmitter,Com_GameTimer>();
-    //Entity& e = Factory::Instance()[id];
-    //setting of velocity which is not initialized 
     return id;
 }
 
@@ -328,7 +364,6 @@ eid Factory::FF_CreateParticleFrictionSpray(const SpriteData& data, const Vec2f&
             }
             current_frame = sprite._frame_segment[sprite._current_frame_segment].x;
         }
-        //sprite._current_frame = ++sprite._current_frame >= sprite._frames ? 0 : sprite._current_frame;
         sprite._render_pack._offset_x = (current_frame % sprite._col) * 1.0f / (float)sprite._col;
         sprite._render_pack._offset_y = (current_frame / sprite._col) * 1.0f / (float)sprite._row;
     }
@@ -343,7 +378,7 @@ eid Factory::FF_CreateParticleFrictionBlood(const SpriteData& data, const Vec2f&
     pf._velocity = velocity;
     pf._friction = friction;
     Com_Sprite& sprite = e.Get<Com_Sprite>();
-    sprite._render_pack._layer = -10000.0f;
+    sprite._render_pack._layer = -10000;
     return id;
 }
 
@@ -373,11 +408,20 @@ eid Factory::FF_CreateParticleFrictionBloodSpray(const SpriteData& data, const V
             }
             current_frame = sprite._frame_segment[sprite._current_frame_segment].x;
         }
-        //sprite._current_frame = ++sprite._current_frame >= sprite._frames ? 0 : sprite._current_frame;
         sprite._render_pack._offset_x = (current_frame % sprite._col) * 1.0f / (float)sprite._col;
         sprite._render_pack._offset_y = (current_frame / sprite._col) * 1.0f / (float)sprite._row;
     }
     return -1;
+}
+
+eid Factory::FF_CreateBorder(const SpriteData& data)
+{
+    eid id = FF_Sprite(data, 0.0f,0.0f);
+    Entity& e = Factory::Instance()[id].AddComponent<Com_FadeOut>();
+    Com_Sprite& sprite = e.Get<Com_Sprite>();
+    sprite._x_scale = (float)AEGetWindowWidth();
+    sprite._y_scale = (float)AEGetWindowHeight();
+    return eid();
 }
 
 //edits 
@@ -405,17 +449,7 @@ eid Factory::FF_CreateGUIChildClickableSurfaceTextBox(eid parent, const SpriteDa
 eid Factory::FF_WriteTileMap()
 {
     eid id = CreateEntity<Com_Tilemap, Com_Position, Com_Writetofile>();
-   /* Entity& e = Factory::Instance()[id];
-    Com_Tilemap& tilemap = e.Get<Com_Tilemap>();*/
-    //ResourceManager::Instance().GetResource(tilemap._render_pack._texture, tilemap._render_pack._mesh, texture, 4, 4, 16);
-    //ResourceManager::Instance().ReadTilemapTxt(top, tilemap);
-    //ResourceManager::Instance().ReadFloorMapTxt(bottom, tilemap);
-    //tilemap._scale_x = 50.0f;
-    //tilemap._scale_y = 50.0f;
-    //tilemap._initialized = true;
-    //ResourceManager::Instance().WriteTilemapTxt(bottom, tilemap);
-    //ResourceManager::Instance().WriteFloorMapTxt(top, tilemap);
-    //WriteTilemapBin(const std::string & path, Com_Tilemap & tilemap);
+
     return id;
 }
 
@@ -424,16 +458,7 @@ eid Factory::FF_CreateGUIChildClickableSurfaceTextLoadTileMap(eid parent, const 
 {
     UNREFERENCED_PARAMETER(text);
     UNREFERENCED_PARAMETER(font);
-    //eid id = FF_CreateGUIChildClickableSurface(parent, data, x, y, width, height, onclick);
-    //Entity& e = Factory::Instance()[id].AddComponent<Com_Text,Com_Writetofile, Com_GUIMouseCheck,Com_Tilemap>();
-    //Com_Text& com_text = e.Get<Com_Text>();
-    //com_text._data._text = text;
-    //com_text._data._font = ResourceManager::Instance().GetFont(font);
-    //com_text._data._layer = Factory::Instance()[parent].Get<Com_GUISurface>()._layer + 2;
-    ////write to file
-    ////ResourceManager::Instance().WriteTilemapBin(top, tilemap);
-    ////ResourceManager::Instance().WriteTilemapBin(bottom, tilemap);
-    //return id;
+
     eid id = FF_CreateGUIChildSurface(parent, data, x, y, width, height);
     Entity& e = Factory::Instance()[id].AddComponent<Com_GUIOnClick, Com_GUIMouseCheck, Com_Writetofile, Com_Tilemap>();
     e.Get<Com_GUIOnClick>()._click_event = onclick;

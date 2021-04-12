@@ -1,8 +1,23 @@
+/******************************************************************************/
+/*!
+\File Name		:	ResourceManager.cpp
+\Project Name	:	AGame
+\Authors 		:	
+				Primary - Austen Ang (50%)
+				Secondary - Zachary Tay (50%)
+\brief		Contains all the functions which handles the resources of AGame
+
+All content © 2021 DigiPen Institute of Technology Singapore. All
+rights reserved.
+*/
+/******************************************************************************/
+
 #include "ResourceManager.h"
 #include "CSHeaderDef.h"
 #include <assert.h>
 #include <fstream>
 #include <algorithm>
+#include <math.h>
 
 #define MY_PI 3.142f
 
@@ -55,17 +70,8 @@ void ResourceManager::FlushDraw()
 	AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
 	auto cmp = [](RenderPack const* const a, RenderPack const* const b) { return a->_layer < b->_layer; };
 	auto cmp2 = [](TextPack const* const a, TextPack const* const b) { return a->_layer > b->_layer; };
-	//std::priority_queue <RenderPack*, RM_Compare> _somequeue( _render_queue_vector );
-	//std::make_heap<RenderPack*>(_render_queue_vector.begin(), _render_queue_vector.end(), RM_Compare);
 	std::sort(_render_queue_vector.begin(), _render_queue_vector.end(), cmp);
 	std::sort(_text_pack.begin(), _text_pack.end(), cmp2);
-	/*while (!_render_queue_vector.empty()) {
-		const RenderPack& rp = *_render_queue.top();
-		AEGfxSetTransform(const_cast<RenderPack&>(rp)._transform.m);
-		AEGfxTextureSet(rp._texture, rp._offset_x, rp._offset_y);
-		AEGfxMeshDraw(rp._mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
-		_render_queue.pop();
-	}*/
 	int i = -10000000;
 	for (auto r : _render_queue_vector) {
 		if (r->_layer > i) {
@@ -109,7 +115,6 @@ void ResourceManager::FlushDrawTextLayer(int layer)
 void ResourceManager::ResetRenderQueue()
 {
 	_render_queue_vector.resize(0);
-	//_render_queue = std::priority_queue <RenderPack*, std::vector<RenderPack*>, RM_Compare>();
 }
 
 void ResourceManager::ResetTextStack()
@@ -122,7 +127,6 @@ AEGfxTexture* ResourceManager::LoadTexture(const std::string& name, const std::s
 	if (_textures.find(name) != _textures.end()) { return _textures[name]; };
 	_textures[name] = AEGfxTextureLoad((asset_path + texture_path + path).c_str());
 	// make sure texture is successfully loaded
-	//assert(_textures[name]);
 	if (!_textures[name]) { 
 		std::cout << "TEXTURE NOT LOADED, PATH NOT FOUND!"; return nullptr; 
 	}
@@ -282,10 +286,6 @@ void ResourceManager::ReadFloorMapBin(const std::string& path, Com_Tilemap& tile
 	}
 }
 
-//void ResourceManager::WriteFloorMapBin(const std::string& path, Com_Tilemap& tilemap)
-//{
-//}
-
 void ResourceManager::ReadFloorMapTxt(const std::string& path, Com_Tilemap& tilemap)
 {
 	// open text file
@@ -329,6 +329,110 @@ AEMtx33 ResourceManager::ScreenShake()
 	AEMtx33 trans;
 	AEMtx33Trans(&trans, cos(r * 2 * PI) * _screen_shake, sin(r * 2 * PI) * _screen_shake);
 	return trans;
+}
+
+void ResourceManager::DrawCursor()
+{
+	if (_cursor_mesh) {
+		AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
+		AEMtx33 trans{ 0 }, scale{ 0 };
+		int x, y;
+		AEGfxTextureSet(GetTexture("cursor"), 0.0f,0.0f);
+		AEInputGetCursorPosition(&x, &y);
+		x -= (int)((float)AEGetWindowWidth() / 2.0f);
+		y -= (int)((float)AEGetWindowHeight() / 2.0f);
+		y *= -1;
+		AEMtx33Trans(&trans, (float)x, (float)y);
+		AEMtx33Scale(&scale, 100.0f, 100.0f);
+		AEMtx33Concat(&trans, &trans, &scale);
+		AEGfxSetTransform(trans.m);
+		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
+		AEGfxMeshDraw(_cursor_mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
+	}
+}
+
+void ResourceManager::CursorParticlesUpdate(const float& dt)
+{
+	int x, y;
+	AEInputGetCursorPosition(&x, &y);
+	x -= (int)((float)AEGetWindowWidth() / 2.0f);
+	y -= (int)((float)AEGetWindowHeight() / 2.0f);
+	y *= -1;
+	if (_cursor_particle_count > 0) {
+		AddCursorParticle();
+		_cursor_particles.back()._position.x = (float)x;
+		_cursor_particles.back()._position.y = (float)y;
+		--_cursor_particle_count;
+	}
+	AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
+	AEGfxTextureSet(GetTexture("inkblob"), 0.0f, 0.0f);
+	for (auto& p : _cursor_particles) {
+		if (p._a <= 0.0f) {
+			p._position.x = (float)x;
+			p._position.y = (float)y;
+			p._dimension = (0.5f + AERandFloat()) * cursor_particle_scale;
+			p._scale = 1.0f;
+			p._a = 1.0f;
+		}
+		else {
+			p._position.y -= 5.0f * dt;
+			p._scale -= 0.5f * dt;
+			p._a -= 0.15f * dt;
+		}
+		// draw particle
+		AEMtx33 trans{ 0 }, scale{ 0 };
+		AEMtx33Trans(&trans, p._position.x, p._position.y);
+		AEMtx33Scale(&scale, p._dimension * p._scale, p._dimension * p._scale);
+		AEMtx33Concat(&trans, &trans, &scale);
+		AEGfxSetTransform(trans.m);
+		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, p._a);
+		AEGfxMeshDraw(_cursor_mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
+	}
+}
+
+void ResourceManager::AddCursorParticle()
+{
+	_cursor_particles.emplace_back();
+}
+
+void ResourceManager::DrawScenePanels(const float& dt)
+{
+	if (_panel_timer > 0.0f) {
+		_panel_timer -= 3.0f * dt;
+	}
+	float height = (float)AEGetWindowHeight()/2.0f;
+	float width = (float)AEGetWindowWidth()/2.0f;
+	AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
+	AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
+	AEMtx33 trans{ 0 }, scale{ 0 };
+
+	AEGfxTextureSet(GetTexture("LeftPanel"), 0.0f, 0.0f);
+	AEMtx33Trans(&trans, _scene_transition[2].x + height * sin(_panel_timer), _scene_transition[2].y);
+	AEMtx33Scale(&scale, width * 2.0f, height * 2.0f);
+	AEMtx33Concat(&trans, &trans, &scale);
+	AEGfxSetTransform(trans.m);
+	AEGfxMeshDraw(_cursor_mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
+
+	AEGfxTextureSet(GetTexture("RightPanel"), 0.0f, 0.0f);
+	AEMtx33Trans(&trans, _scene_transition[3].x - height * sin(_panel_timer), _scene_transition[3].y);
+	AEMtx33Scale(&scale, width * 2.0f, height * 2.0f);
+	AEMtx33Concat(&trans, &trans, &scale);
+	AEGfxSetTransform(trans.m);
+	AEGfxMeshDraw(_cursor_mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
+
+	AEGfxTextureSet(GetTexture("TopPanel"), 0.0f, 0.0f);
+	AEMtx33Trans(&trans, _scene_transition[0].x, _scene_transition[0].y - height * sin(_panel_timer));
+	AEMtx33Scale(&scale, width * 2.0f, height * 2.0f);
+	AEMtx33Concat(&trans, &trans, &scale);
+	AEGfxSetTransform(trans.m);
+	AEGfxMeshDraw(_cursor_mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
+
+	AEGfxTextureSet(GetTexture("BottomPanel"), 0.0f, 0.0f);
+	AEMtx33Trans(&trans, _scene_transition[1].x, _scene_transition[1].y + height * sin(_panel_timer));
+	AEMtx33Scale(&scale, width * 2.0f, height * 2.0f);
+	AEMtx33Concat(&trans, &trans, &scale);
+	AEGfxSetTransform(trans.m);
+	AEGfxMeshDraw(_cursor_mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
 }
 
 void ResourceManager::ReadTilemapNames()
@@ -422,53 +526,125 @@ void ResourceManager::CreateMusic()
 	//load tracks
 	//char* filePath = new char;
 
-	//result = sound_system->createSound(Common_MediaPath("drumloop.wav"), FMOD_DEFAULT, 0, &sound1);
 	result = sound_system->createSound("../bin/Assets/Sound/SoulFly.wav", FMOD_DEFAULT, 0, &sound1);
 	result = sound1->setMode(FMOD_LOOP_NORMAL); 
 
 	result = sound_system->createSound("../bin/Assets/Sound/WalkingPlayer1.wav", FMOD_DEFAULT, 0, &soundWalk);
 	result = sound_system->createSound("../bin/Assets/Sound/Gun.wav", FMOD_DEFAULT, 0, &soundShoot);
 	result = sound_system->createSound("../bin/Assets/Sound/Knife.wav", FMOD_DEFAULT, 0, &soundStab);
+	result = sound_system->createSound("../bin/Assets/Sound/Boom.wav", FMOD_DEFAULT, 0, &soundBoom);
 	result = sound_system->createSound("../bin/Assets/Sound/Death.wav", FMOD_DEFAULT, 0, &soundEnemyDeath);
+	result = sound_system->createSound("../bin/Assets/Sound/LaserBomb.wav", FMOD_DEFAULT, 0, &soundLaserBomb);
+	result = sound_system->createSound("../bin/Assets/Sound/Grunt.wav", FMOD_DEFAULT, 0, &soundGrunt);
 	result = soundWalk->setMode(FMOD_LOOP_OFF);
+	result = soundShoot->setMode(FMOD_LOOP_OFF);
+	result = soundStab->setMode(FMOD_LOOP_OFF);
+	result = soundEnemyDeath->setMode(FMOD_LOOP_OFF);
+	result = soundLaserBomb->setMode(FMOD_LOOP_OFF);
+	result = soundGrunt->setMode(FMOD_LOOP_OFF);
 
-	//result = sound_system->createSound(Common_SoundPath("drumloop.wav"), FMOD_DEFAULT, 0, &sound1);
 	std::cout << "Sound load";
 
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Play walking sound
+	*/
+/**************************************************************************/
 void ResourceManager::WalkingSound()
 {
-	result = sound_system->playSound(soundWalk, 0, false, &channelWalkingPlayer);
+	if (SceneManager::Instance()._musicmmute == false) {
+		result = sound_system->playSound(soundWalk, 0, false, &channelWalkingPlayer);
+	}
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Play shooting sound
+	*/
+/**************************************************************************/
 void ResourceManager::ShootingSound(float pitch)
 {
-	result = sound_system->playSound(soundShoot, 0, false, &channelGunEffect);
-	channelGunEffect->setPitch(pitch);
+	if (SceneManager::Instance()._musicmmute == false) {
+		result = sound_system->playSound(soundShoot, 0, false, &channelGunEffect);
+		channelGunEffect->setPitch(pitch);
+	}
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Play stabbing sound
+	*/
+/**************************************************************************/
 void ResourceManager::StabbingSound()
 {
-	result = sound_system->playSound(soundStab, 0, false, &channelMeleeEffect);
+	if (SceneManager::Instance()._musicmmute == false) {
+		result = sound_system->playSound(soundStab, 0, false, &channelMeleeEffect);
+	}
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Play boom sound
+	*/
+/**************************************************************************/
+void ResourceManager::BoomSound()
+{
+	if (SceneManager::Instance()._musicmmute == false) {
+		result = sound_system->playSound(soundBoom, 0, false, &channelBoomEffect);
+	}
+}
+
+/**************************************************************************/
+	/*!
+	  \brief
+		Play enemy death sound
+	*/
+/**************************************************************************/
 void ResourceManager::EnemyDeathSound()
 {
-	result = sound_system->playSound(soundEnemyDeath, 0, false, &channelEnemyDeath);
+	if (SceneManager::Instance()._musicmmute == false) {
+		result = sound_system->playSound(soundEnemyDeath, 0, false, &channelEnemyDeath);
+	}
+}
+
+/**************************************************************************/
+	/*!
+	  \brief
+		Play bomb sound
+	*/
+/**************************************************************************/
+void ResourceManager::BombSound()
+{
+	if (SceneManager::Instance()._musicmmute == false) {
+		result = sound_system->playSound(soundLaserBomb, 0, false, &channelLaserBomb);
+	}
+}
+
+/**************************************************************************/
+	/*!
+	  \brief
+		Play player damage sound
+	*/
+/**************************************************************************/
+void ResourceManager::PlayerDamageSound()
+{
+	if (SceneManager::Instance()._musicmmute == false) {
+		result = sound_system->playSound(soundGrunt, 0, false, &channelGrunt);
+	}
 }
 
 void ResourceManager::UpdateAndPlayMusic() 
 {
-	//std::cout<< AEFrameRateControllerGetFrameTime()<<std::endl;
-	//std::cout << "Sound update" << std::endl;
-
 	//mute
 	if (AEInputCheckTriggered(AEVK_M)) {
 		mute = !mute;
 		playing = true;
-		//channel->getMute(&mute);
-		//channel->setMute(&mute);
 	}
 	if (!mute) {
 		//Play sound
@@ -476,8 +652,6 @@ void ResourceManager::UpdateAndPlayMusic()
 		if (!playing)
 		{
 			result = sound_system->playSound(sound1, 0, false, &channel);
-			//std::cout << "sound pressed";
-			//ERRCHECK(result);
 		}
 
 		result = sound_system->update();
@@ -499,12 +673,37 @@ void ResourceManager::UpdateAndPlayMusic()
 	}
 }
 
-void ResourceManager::ToggleMuteMusic()
+/**************************************************************************/
+	/*!
+	  \brief
+		Mutes and unmutes the music
+
+	  \param setting
+		-1 to switch to the opposite setting
+		0 to unmute
+		1 to mute
+	*/
+/**************************************************************************/
+void ResourceManager::ToggleMuteMusic(int setting)
 {
 	bool paused;
 	result = channel->getPaused(&paused);
-	paused = !paused;
-	result = channel->setPaused(paused);
+
+	switch (setting)
+	{
+		case -1:
+			paused = !paused;
+			result = channel->setPaused(paused);
+			break;
+		case 0:
+			if(paused != true)
+				result = channel->setPaused(true);
+			break;
+		case 1:
+			if(paused != false)
+				result = channel->setPaused(false);
+			break;
+	}
 }
 
 void ResourceManager::FreeMusic() 
@@ -515,10 +714,6 @@ void ResourceManager::FreeMusic()
 	std::cout << "Freed" << std::endl;
 }
 
-//void ResourceManager::WriteFloorMapTxt(const std::string& path, Com_Tilemap& tilemap)
-//{
-//}
-
 ResourceManager::ResourceManager()
 {
 	Initialize();
@@ -526,6 +721,21 @@ ResourceManager::ResourceManager()
 
 void ResourceManager::Initialize()
 {
+	// mouse cursor
+	LoadTexture("cursor", "cursor.png");
+	LoadTexture("inkblob", "inkblob.png");
+	_cursor_mesh = CreateMesh(1, 1);
+
+	// scene transition
+	LoadTexture("TopPanel", "TopPanel.png");
+	LoadTexture("BottomPanel", "BottomPanel.png");
+	LoadTexture("RightPanel", "RightPanel.png");
+	LoadTexture("LeftPanel", "LeftPanel.png");
+	_scene_transition.push_back({ 0.0f,(float)AEGetWindowHeight() });
+	_scene_transition.push_back({ 0.0f,-(float)AEGetWindowHeight() });
+	_scene_transition.push_back({ -(float)AEGetWindowWidth(),0.0f });
+	_scene_transition.push_back({ (float)AEGetWindowWidth(),0.0f });
+
 	// load all textures
 	LoadTexture("noimage", "noimage.png");
 	LoadTexture("test3", "TestAlien.png");

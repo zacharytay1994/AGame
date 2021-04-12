@@ -1,3 +1,16 @@
+/******************************************************************************/
+/*!
+\File Name		: Scene.h
+\Project Name	: AGame
+\Authors 		:
+				Primary - Zachary Tay (100%)
+				Secondary -
+\brief		SceneManager system for all scenes
+
+All content © 2021 DigiPen Institute of Technology Singapore. All
+rights reserved.
+*/
+/******************************************************************************/
 #pragma once
 #include <unordered_map>
 #include <string>
@@ -38,12 +51,20 @@ class SceneManager {
 	std::shared_ptr<Scene>	_current_scene = nullptr;					// current scene being processed, if nullptr, scene state won't update
 	std::string				_current_scene_name = "";					// current scene name, assigned by AddScene()
 	void Initialize();
+	std::string				_next_scene = "";
+	float					_delay{ 0.0f };
+	bool					_lock{ false };
 public:
 	static SceneManager& Instance();
 	void ChangeScene(const std::string& name);
+	void ChangeSceneNow(const std::string& name);
 	void Free();
 	bool _pause{ false };
+	bool _currentlyplaying{ false };
+	bool _inlevel{ false };
+	bool _musicmmute{ false };
 	bool _fullscreen{ true };
+	bool _settings_toggle{ false };
 	void CheckGame(int& gamerunning) {
 		gamerunning = _gamerunning;
 	}

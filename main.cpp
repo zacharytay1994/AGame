@@ -1,3 +1,18 @@
+/******************************************************************************/
+/*!
+\File Name		: main.cpp
+\Project Name	: AGame
+\Authors 		:
+				Primary - Zachary Tay (100%)
+				Secondary -
+\brief		Entry point of AGame
+
+All content © 2021 DigiPen Institute of Technology Singapore. All
+rights reserved.
+*/
+/******************************************************************************/
+
+
 // ---------------------------------------------------------------------------
 // includes
 #include "AEEngine.h"
@@ -10,30 +25,7 @@
 #include <iostream>
 #include <string>
 
-//struct Vec2 {
-//	float x = 0;
-//	float y = 0;
-//};
-//
-//struct Position {
-//	Vec2 _pos = { 0,0 };
-//};
-//
-//struct Velocity {
-//	Vec2 _vel = { 1,1 };
-//};
-//
-//void UpdatePosition(System& s) {
-//	s.c<Position>()._pos.x += s.c<Velocity>()._vel.x * s._dt;
-//	s.c<Position>()._pos.y += s.c<Velocity>()._vel.y * s._dt;
-//}
-//
-//void PrintPosition(System& s) {
-//	std::cout << "Entity: " << s._current_id << " : " << s.c<Position>()._pos.x << " | " << s.c<Position>()._pos.y << std::endl;
-//}
-
 // ---------------------------------------------------------------------------
-// main - ENGINE PROOF
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
@@ -57,23 +49,21 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	int gGameRunning = 1;
 	float g_dt = 0.f;
+	bool fullscreen{ false };
 	
-	/*Vec2f a{ 1.0f, 1.0f };
-	Vec2f b{ 2.0f,2.0f };*/
-	//std::cout << "hgello" << std::endl;
-	//std::cout << a.x << ":" << a.y << std::endl;
- 	//std::cout << a << std::endl;
 	/////////////////
 	// Initialization
 
 	// Using custom window procedure
 	AESysInit(hInstance, nCmdShow, 800, 600, 1, 60, true, NULL);
+	//full screen
 	//AEToogleFullScreen(true);
+	AEInputShowCursor(0);
 	// music
 	ResourceManager::Instance().CreateMusic();
 
 	// Changing the window title
-	AESysSetWindowTitle("A Beautiful Game!");
+	AESysSetWindowTitle("AGame");
 
 	// reset the system modules
 	AESysReset();
@@ -92,12 +82,40 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		// Handling Input
 		AEInputUpdate();
 
+		if (GetAsyncKeyState(AEVK_LALT)) {
+			if (AEInputCheckTriggered(AEVK_RETURN)) {
+				fullscreen = !fullscreen;
+				AEToogleFullScreen(fullscreen);
+			}
+			else if (GetAsyncKeyState(AEVK_TAB)) {
+				ShowWindow(AESysGetWindowHandle(), SW_MINIMIZE);
+			}
+		}
+
 		///////////////////
 		// Game loop update
 		SceneManager::Instance().CheckGame(gGameRunning);
 
-		g_dt = (float)AEFrameRateControllerGetFrameTime();
-		if (SceneManager::Instance()._pause)	g_dt = 0.f;
+		if (GetFocus() != AESysGetWindowHandle())	// If the game is not in focus
+		{
+			SceneManager::Instance()._pause = true;	// Pause the game
+			ResourceManager::Instance().ToggleMuteMusic(0);	// Mute the music
+		}
+		else
+		{
+			// If the game is not paused by player, unpause it
+			if(!SceneManager::Instance()._settings_toggle) { SceneManager::Instance()._pause = false; }
+			if (SceneManager::Instance()._musicmmute == false) {
+				ResourceManager::Instance().ToggleMuteMusic(1);	// Unmute the music
+			}
+		}
+
+		g_dt = (float)AEFrameRateControllerGetFrameTime();	// Get framerate
+		if (SceneManager::Instance()._pause) // If the game is paused
+		{ 
+			ResourceManager::Instance().ToggleMuteMusic(0);	// Mute the music
+			g_dt = 0.f; // Set the dt to 0, disables most of the systems
+		}
 
 		SceneManager::Instance().Update(g_dt);
 		ResourceManager::Instance().UpdateAndPlayMusic();
@@ -106,7 +124,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 		//////////////////
 		// Game loop draw
-
+		
 		// Game loop draw end
 		/////////////////////
 
@@ -124,6 +142,5 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	ResourceManager::Instance().FreeMusic();
 	SceneManager::Instance().Free();
 	SceneManager::Instance().Unload();
-	//Inventory::Inventory_Free();
 	// free chunk data resources
 }
