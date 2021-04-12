@@ -308,6 +308,7 @@ struct Level : public Scene
 			sprite._current_frame_segment = 2;
 		}
 		if (AEInputCheckCurr(AEVK_LEFT) || AEInputCheckCurr(AEVK_A)) {
+			sprite._flip = true;
 			arrow_sprite->_visible = true;
 			arrow_sprite->_current_frame_segment = 0;
 		}
@@ -316,6 +317,7 @@ struct Level : public Scene
 			arrow_sprite->_current_frame_segment = 1;
 		}
 		else if (AEInputCheckCurr(AEVK_RIGHT) || AEInputCheckCurr(AEVK_D)) {
+			sprite._flip = false;
 			arrow_sprite->_visible = true;
 			arrow_sprite->_current_frame_segment = 2;
 		}
@@ -398,7 +400,7 @@ struct Level : public Scene
 
 			if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && checkBoss == true)
 			{
-				Factory::Instance().FF_CreateGUIChildSurfaceText(bossy, { "transparent" }, 0.3f, 0.5f, 0.4f, 0.4f, "Boss HP:   ", "courier");
+				Factory::Instance().FF_CreateGUIChildSurfaceText(bossy, { "transparent" }, 0.3f, 0.5f, 0.4f, 0.4f, "Boss HP:  ", "courier");
 				Factory::Instance()[waves].Get<Com_GUISurface>()._active = false;
 				Factory::Instance()[bossy].Get<Com_GUISurface>()._active = true;
 				checkBoss = false;

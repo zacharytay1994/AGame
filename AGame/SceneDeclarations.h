@@ -211,6 +211,46 @@ void ToggleMute(Com_GUISurface* surface) {
 	ResourceManager::Instance().ToggleMuteMusic();
 }
 
+void ResetConfirmationyes(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	levelsunlocked = 1;
+	//rewrite both custom and normals
+	//normals
+	std::ofstream file;
+	assert(file);
+	file.open("../bin/Assets/Tilemaps/leveltilemaps.txt"); //overwrite
+	file << "level1";
+	file.close();
+	//customs
+	std::ofstream filecustoms;
+	assert(filecustoms);
+	filecustoms.open("../bin/Assets/Tilemaps/tilemaps.txt"); //overwrite
+	filecustoms << "Custom1";
+	filecustoms.close();
+	SceneManager::Instance().ChangeScene("Main Menu");
+}
+
+void ResetConfirmationno(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	_change_scene_toggle = false;
+	SceneManager::Instance()._settings_toggle = !SceneManager::Instance()._settings_toggle;
+	SceneManager::Instance().ChangeScene("Main Menu");
+}
+
+void ResetProgress(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	eid i{ -1 };
+	Vec2i passin4[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
+	eid main = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.5f, 0.5f, .5f, 0.5f, 200);
+	Factory::Instance()[main].AddComponent<Com_GUIDrag, Com_GUIMouseCheck>();
+	Factory::SpriteData button{ "background2.png", 2.0f, 1.0f, 2, 1, 2, 0.05f, 0, passin4 };
+	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(main, button, 0.5f, 0.25f, 0.9f, 0.08f, ResetConfirmationyes, "Reset(Yes)", "courier");	// clickable child surface text
+	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
+	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(main, button, 0.5f, 0.75f, 0.9f, 0.08f, ResetConfirmationno, "Reset(No)", "courier");	// clickable child surface text
+	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
+}
+
+
 /**************************************************************************/
 	/*!
 	  \brief
@@ -298,11 +338,24 @@ void GUISettingsInitialize() {
 	// change scene menu
 	_change_scene = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.16f, 0.38f, 0.3f, 0.6f, 200);
 	Factory::Instance()[_change_scene].AddComponent<Com_GUIDrag, Com_GUIMouseCheck>();
-	Factory::Instance().FF_CreateGUIChildSurfaceText(_change_scene, { "transparent" }, 0.5f, 0.08f, 0.9f, 0.05f, "Select Scene", "courier");		
+	Factory::Instance().FF_CreateGUIChildSurfaceText(_change_scene, { "transparent" }, 0.5f, 0.08f, 0.9f, 0.05f, "Select Option", "courier");		
 	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.2f, 0.9f, 0.08f, ToggleFullScreen, "Fullscreen", "courier");	// clickable child surface text
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();// clickable child surface text
 	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.35f, 0.9f, 0.08f, ToggleMute, "Mute Music", "courier");	// clickable child surface text
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
+	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.5f, 0.9f, 0.08f, ResetProgress, "Reset Progress", "courier");	// clickable child surface text
+	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
+	/*
+	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.2f, 0.9f, 0.08f, ChangeMainMenu, "Main", "courier");	// clickable child surface text
+	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
+	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.35f, 0.9f, 0.08f, ChangeTestScenePF, "Aus", "courier");	// clickable child surface text
+	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
+	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.5f, 0.9f, 0.08f, ChangeShootingRangeScene, "Noel", "courier");	// clickable child surface text
+	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
+	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.65f, 0.9f, 0.08f, ChangeWilf, "Wilfred", "courier");	// clickable child surface text
+	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
+	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.8f, 0.9f, 0.08f, ChangeTestScene, "Zac", "courier");	// clickable child surface text
+	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();*/
 	Factory::Instance().FF_CreateGUIChildClickableSurface(_change_scene, { "cross" }, 0.9f, 0.05f, 0.08f, 0.04f, ToggleChangeSceneButton);					// clickable child surface text
 
 	// quit game confirmation menu
@@ -748,7 +801,7 @@ struct TestScenePF : public Scene
 			SceneManager::Instance()._settings_toggle = SceneManager::Instance()._pause;
 		}
 		if (AEInputCheckTriggered(AEVK_SPACE) && !SceneManager::Instance()._pause) {
-			_playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
+			const_cast<Weapon*>(&_playerInv.Inventory_GetCurrentWeapon())->Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
 			//ResourceManager::Instance().ShootingSound();
 			sprite._lock = true;
 			sprite._current_frame = 0;
@@ -774,7 +827,7 @@ struct TestScenePF : public Scene
 			arrow_sprite->_current_frame_segment = 3;
 		}
 		else if (AEInputCheckTriggered(AEVK_Z) && !SceneManager::Instance()._pause) {
-			_playerInv.Inventory_GetCurrentSecondaryWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
+			const_cast<Weapon*>(&_playerInv.Inventory_GetCurrentSecondaryWeapon())->Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
 		}
 		else {
 			arrow_sprite->_visible = false;
