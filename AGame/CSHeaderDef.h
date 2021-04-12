@@ -911,25 +911,25 @@ struct Sys_EnemyStateBoss : public System {
 		if (pos._grid_x < Factory::Instance()[player].Get<Com_TilePosition>()._grid_x &&
 			(pos._grid_x > 0 || pos._grid_x < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width))
 		{
-			eid j = Factory::Instance().FF_CreateprojBoss(data, pos._grid_x + 1, pos._grid_y, fabs(rand_velocityx), rand_velocityy, _tilemap);
+			eid j = Factory::Instance().FF_CreateprojBoss(data, pos._grid_x + 1, pos._grid_y, (int)fabs(rand_velocityx), (int)rand_velocityy, _tilemap);
 			Factory::Instance()[j].AddComponent<Com_YLayering>();
 		}
 		else if (pos._grid_x > Factory::Instance()[player].Get<Com_TilePosition>()._grid_x &&
 			(pos._grid_x > 0 || pos._grid_x < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width))
 		{
-			eid j = Factory::Instance().FF_CreateprojBoss(data, pos._grid_x - 1, pos._grid_y, -fabs(rand_velocityx), rand_velocityy, _tilemap);
+			eid j = Factory::Instance().FF_CreateprojBoss(data, pos._grid_x - 1, pos._grid_y, -(int)fabs(rand_velocityx), (int)rand_velocityy, _tilemap);
 			Factory::Instance()[j].AddComponent<Com_YLayering>();
 		}
 		else if (pos._grid_x == Factory::Instance()[player].Get<Com_TilePosition>()._grid_x)
 		{
 			if (pos._grid_y < Factory::Instance()[player].Get<Com_TilePosition>()._grid_y)
 			{
-				eid j = Factory::Instance().FF_CreateprojBoss(data, pos._grid_x, pos._grid_y+1, rand_velocityx, -fabs(rand_velocityy), _tilemap);
+				eid j = Factory::Instance().FF_CreateprojBoss(data, pos._grid_x, pos._grid_y+1, (int)rand_velocityx, -(int)fabs(rand_velocityy), _tilemap);
 				Factory::Instance()[j].AddComponent<Com_YLayering>();
 			}
 			else if (pos._grid_y > Factory::Instance()[player].Get<Com_TilePosition>()._grid_y)
 			{
-				eid j = Factory::Instance().FF_CreateprojBoss(data, pos._grid_x, pos._grid_y-1, rand_velocityx, fabs(rand_velocityy), _tilemap);
+				eid j = Factory::Instance().FF_CreateprojBoss(data, pos._grid_x, pos._grid_y-1, (int)rand_velocityx, (int)fabs(rand_velocityy), _tilemap);
 				Factory::Instance()[j].AddComponent<Com_YLayering>();
 			}
 		}
@@ -3058,7 +3058,6 @@ struct Sys_GUIDelay : public System {
 	bool* last{nullptr};
 	void UpdateComponent() override {
 		Com_GUIDelay& delay = get<Com_GUIDelay>();
-		Com_GUISurface& surface = get<Com_GUISurface>();
 		if (delay.active == true) {
 			buffer -= _dt;
 		}

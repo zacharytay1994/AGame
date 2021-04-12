@@ -36,8 +36,8 @@ struct Scene_Credits : public Scene {
 		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "executives2" }, 0.5f, 2.12f, 0.48f, 0.48f, "", "courier");
 		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "executives3" }, 0.5f, 2.17f, 0.48f, 0.48f, "", "courier");
 		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "ending" }, 0.5f, 2.5f, 0.3f, 0.3f, "", "courier");
-		eid last = Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "endingfmod" }, 0.5f, 2.6f, 0.3f, 0.3f, "", "courier");
-		Factory::Instance()[last].Get<Com_TextMovingGUI>().lastmessage = true; //assigning the last message 
+		eid _last = Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "endingfmod" }, 0.5f, 2.6f, 0.3f, 0.3f, "", "courier");
+		Factory::Instance()[_last].Get<Com_TextMovingGUI>().lastmessage = true; //assigning the last message 
 		// initialize gui settings
 		GUISettingsInitialize();
 	}

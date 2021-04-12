@@ -276,8 +276,8 @@ eid Factory::FF_CreateprojBoss(const SpriteData& data, const int& x, const int& 
     Com_Projectile& proj = e.Get<Com_Projectile>();
     e.Get<Com_type>().type = 6;
     e.Get<Com_Particle>().lifetime = 100;
-    e.Get<Com_Velocity>().x = vel_x;
-    e.Get<Com_Velocity>().y = vel_y;
+    e.Get<Com_Velocity>().x = (float)vel_x;
+    e.Get<Com_Velocity>().y = (float)vel_y;
     proj.grid_vel_x = vel_x;
     proj.grid_vel_y = vel_y;
     proj.lifetime = lifetime;
@@ -386,7 +386,7 @@ eid Factory::FF_CreateParticleFrictionBlood(const SpriteData& data, const Vec2f&
     pf._velocity = velocity;
     pf._friction = friction;
     Com_Sprite& sprite = e.Get<Com_Sprite>();
-    sprite._render_pack._layer = -10000.0f;
+    sprite._render_pack._layer = -10000;
     return id;
 }
 

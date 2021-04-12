@@ -338,10 +338,10 @@ void ResourceManager::DrawCursor()
 		int x, y;
 		AEGfxTextureSet(GetTexture("cursor"), 0.0f,0.0f);
 		AEInputGetCursorPosition(&x, &y);
-		x -= (float)AEGetWindowWidth() / 2.0f;
-		y -= (float)AEGetWindowHeight() / 2.0f;
+		x -= (int)((float)AEGetWindowWidth() / 2.0f);
+		y -= (int)((float)AEGetWindowHeight() / 2.0f);
 		y *= -1;
-		AEMtx33Trans(&trans, x, y);
+		AEMtx33Trans(&trans, (float)x, (float)y);
 		AEMtx33Scale(&scale, 100.0f, 100.0f);
 		AEMtx33Concat(&trans, &trans, &scale);
 		AEGfxSetTransform(trans.m);
@@ -354,21 +354,21 @@ void ResourceManager::CursorParticlesUpdate(const float& dt)
 {
 	int x, y;
 	AEInputGetCursorPosition(&x, &y);
-	x -= (float)AEGetWindowWidth() / 2.0f;
-	y -= (float)AEGetWindowHeight() / 2.0f;
+	x -= (int)((float)AEGetWindowWidth() / 2.0f);
+	y -= (int)((float)AEGetWindowHeight() / 2.0f);
 	y *= -1;
 	if (_cursor_particle_count > 0) {
 		AddCursorParticle();
-		_cursor_particles.back()._position.x = x;
-		_cursor_particles.back()._position.y = y;
+		_cursor_particles.back()._position.x = (float)x;
+		_cursor_particles.back()._position.y = (float)y;
 		--_cursor_particle_count;
 	}
 	AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
 	AEGfxTextureSet(GetTexture("inkblob"), 0.0f, 0.0f);
 	for (auto& p : _cursor_particles) {
 		if (p._a <= 0.0f) {
-			p._position.x = x;
-			p._position.y = y;
+			p._position.x = (float)x;
+			p._position.y = (float)y;
 			p._dimension = (0.5f + AERandFloat()) * cursor_particle_scale;
 			p._scale = 1.0f;
 			p._a = 1.0f;
@@ -554,7 +554,9 @@ void ResourceManager::CreateMusic()
 /**************************************************************************/
 void ResourceManager::WalkingSound()
 {
-	result = sound_system->playSound(soundWalk, 0, false, &channelWalkingPlayer);
+	if (SceneManager::Instance()._musicmmute == false) {
+		result = sound_system->playSound(soundWalk, 0, false, &channelWalkingPlayer);
+	}
 }
 
 /**************************************************************************/
@@ -565,8 +567,10 @@ void ResourceManager::WalkingSound()
 /**************************************************************************/
 void ResourceManager::ShootingSound(float pitch)
 {
-	result = sound_system->playSound(soundShoot, 0, false, &channelGunEffect);
-	channelGunEffect->setPitch(pitch);
+	if (SceneManager::Instance()._musicmmute == false) {
+		result = sound_system->playSound(soundShoot, 0, false, &channelGunEffect);
+		channelGunEffect->setPitch(pitch);
+	}
 }
 
 /**************************************************************************/
@@ -577,7 +581,9 @@ void ResourceManager::ShootingSound(float pitch)
 /**************************************************************************/
 void ResourceManager::StabbingSound()
 {
-	result = sound_system->playSound(soundStab, 0, false, &channelMeleeEffect);
+	if (SceneManager::Instance()._musicmmute == false) {
+		result = sound_system->playSound(soundStab, 0, false, &channelMeleeEffect);
+	}
 }
 
 /**************************************************************************/
@@ -588,7 +594,9 @@ void ResourceManager::StabbingSound()
 /**************************************************************************/
 void ResourceManager::BoomSound()
 {
-	result = sound_system->playSound(soundBoom, 0, false, &channelBoomEffect);
+	if (SceneManager::Instance()._musicmmute == false) {
+		result = sound_system->playSound(soundBoom, 0, false, &channelBoomEffect);
+	}
 }
 
 /**************************************************************************/
@@ -599,7 +607,9 @@ void ResourceManager::BoomSound()
 /**************************************************************************/
 void ResourceManager::EnemyDeathSound()
 {
-	result = sound_system->playSound(soundEnemyDeath, 0, false, &channelEnemyDeath);
+	if (SceneManager::Instance()._musicmmute == false) {
+		result = sound_system->playSound(soundEnemyDeath, 0, false, &channelEnemyDeath);
+	}
 }
 
 /**************************************************************************/
@@ -610,7 +620,9 @@ void ResourceManager::EnemyDeathSound()
 /**************************************************************************/
 void ResourceManager::BombSound()
 {
-	result = sound_system->playSound(soundLaserBomb, 0, false, &channelLaserBomb);
+	if (SceneManager::Instance()._musicmmute == false) {
+		result = sound_system->playSound(soundLaserBomb, 0, false, &channelLaserBomb);
+	}
 }
 
 /**************************************************************************/
@@ -621,7 +633,9 @@ void ResourceManager::BombSound()
 /**************************************************************************/
 void ResourceManager::PlayerDamageSound()
 {
-	result = sound_system->playSound(soundGrunt, 0, false, &channelGrunt);
+	if (SceneManager::Instance()._musicmmute == false) {
+		result = sound_system->playSound(soundGrunt, 0, false, &channelGrunt);
+	}
 }
 
 void ResourceManager::UpdateAndPlayMusic() 

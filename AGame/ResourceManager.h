@@ -23,7 +23,7 @@ written consent of DigiPen Institute of Technology is prohibited.
 #include <string>
 #include "music.h"
 
-static constexpr int cursor_particle_scale = 5.0f;
+static constexpr float cursor_particle_scale = 5.0f;
 
 // forward deckaratuibs
 struct Com_Tilemap;

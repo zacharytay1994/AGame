@@ -25,7 +25,7 @@ Weapon::Weapon()
 	: weapon_ID(0),
 	weapon_Damage(0),
 	weapon_ReloadTime(0),
-	weapon_curr_ReloadTimer(0.f),
+	weapon_curr_ReloadTimer(0),
 	weapon_unlocked(false),
 	weapon_Cost(50)
 {
@@ -45,7 +45,7 @@ Weapon::Weapon(Weapon const& rhs)
 	: weapon_ID(0),
 	weapon_Damage(rhs.weapon_Damage),
 	weapon_ReloadTime(rhs.weapon_ReloadTime),
-	weapon_curr_ReloadTimer(0.f),
+	weapon_curr_ReloadTimer(0),
 	weapon_unlocked(false),
 	weapon_Cost(50)
 {
@@ -68,7 +68,7 @@ Weapon::Weapon(unsigned int const& ID)
 	: weapon_ID(ID),
 	weapon_Damage(0),
 	weapon_ReloadTime(0),
-	weapon_curr_ReloadTimer(0.f),
+	weapon_curr_ReloadTimer(0),
 	weapon_unlocked(false),
 	weapon_Cost(50)
 {
@@ -96,7 +96,7 @@ void Weapon::Weapon_Shoot()
 {
 	if (static_cast<float>(AEGetTime(nullptr)) - Weapon_Curr_ReloadTimer() > GetWeapon_ReloadTime())
 	{
-		Weapon_Curr_ReloadTimer() = static_cast<float>(AEGetTime(nullptr));
+		Weapon_Curr_ReloadTimer() = static_cast<int>(AEGetTime(nullptr));
 	}
 	else
 	{
@@ -129,7 +129,7 @@ void Weapon::Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid
 {
 	if (static_cast<float>(AEGetTime(nullptr)) - Weapon_Curr_ReloadTimer() > GetWeapon_ReloadTime())
 	{
-		Weapon_Curr_ReloadTimer() = static_cast<float>(AEGetTime(nullptr));
+		Weapon_Curr_ReloadTimer() = static_cast<int>(AEGetTime(nullptr));
 	}
 	else
 	{
@@ -453,7 +453,7 @@ void TrickPistol::Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction
 {
 	if (static_cast<float>(AEGetTime(nullptr)) - Weapon_Curr_ReloadTimer() > GetWeapon_ReloadTime())
 	{
-		Weapon_Curr_ReloadTimer() = static_cast<float>(AEGetTime(nullptr));
+		Weapon_Curr_ReloadTimer() = static_cast<int>(AEGetTime(nullptr));
 	}
 	else
 	{
@@ -543,7 +543,7 @@ void DualDiagPistol::Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direct
 {
 	if (static_cast<float>(AEGetTime(nullptr)) - Weapon_Curr_ReloadTimer() > GetWeapon_ReloadTime())
 	{
-		Weapon_Curr_ReloadTimer() = static_cast<float>(AEGetTime(nullptr));
+		Weapon_Curr_ReloadTimer() = static_cast<int>(AEGetTime(nullptr));
 	}
 	else
 	{
