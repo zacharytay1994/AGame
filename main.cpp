@@ -7,7 +7,7 @@
 				Secondary -
 \brief		Entry point of AGame
 
-All content © 2021 DigiPen Institute of Technology Singapore. All
+All content ï¿½ 2021 DigiPen Institute of Technology Singapore. All
 rights reserved.
 */
 /******************************************************************************/
@@ -57,7 +57,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	// Using custom window procedure
 	AESysInit(hInstance, nCmdShow, 800, 600, 1, 60, true, NULL);
 	//full screen
-	//AEToogleFullScreen(true);
+	AEToogleFullScreen(true);
 	AEInputShowCursor(0);
 	// music
 	ResourceManager::Instance().CreateMusic();
