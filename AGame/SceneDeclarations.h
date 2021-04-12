@@ -748,7 +748,7 @@ struct TestScenePF : public Scene
 			SceneManager::Instance()._settings_toggle = SceneManager::Instance()._pause;
 		}
 		if (AEInputCheckTriggered(AEVK_SPACE) && !SceneManager::Instance()._pause) {
-			_playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
+			const_cast<Weapon*>(&_playerInv.Inventory_GetCurrentWeapon())->Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
 			//ResourceManager::Instance().ShootingSound();
 			sprite._lock = true;
 			sprite._current_frame = 0;
@@ -774,7 +774,7 @@ struct TestScenePF : public Scene
 			arrow_sprite->_current_frame_segment = 3;
 		}
 		else if (AEInputCheckTriggered(AEVK_Z) && !SceneManager::Instance()._pause) {
-			_playerInv.Inventory_GetCurrentSecondaryWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
+			const_cast<Weapon*>(&_playerInv.Inventory_GetCurrentSecondaryWeapon())->Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
 		}
 		else {
 			arrow_sprite->_visible = false;
