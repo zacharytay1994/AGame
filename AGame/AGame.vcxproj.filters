@@ -48,9 +48,6 @@
     <ClInclude Include="zSystem.h">
       <Filter>Header Files\ecs</Filter>
     </ClInclude>
-    <ClInclude Include="Enemy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CSHeaderDef.h">
       <Filter>Header Files</Filter>
     </ClInclude>

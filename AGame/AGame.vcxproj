@@ -24,7 +24,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CSHeaderDef.h" />
-    <ClInclude Include="Enemy.h" />
     <ClInclude Include="Factory.h" />
     <ClInclude Include="Inventory.h" />
     <ClInclude Include="music.h" />
