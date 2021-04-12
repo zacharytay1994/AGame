@@ -102,30 +102,30 @@ void ChangeTestSceneLevelEditor(Com_GUISurface* surface) {
 
 	//check if all the user inputs are there
 	if ((*LevelEditor::nameofmap).empty()) {
-		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main, button, 0.5f, 0.6f, 0.75f, 0.2f, errormessage, "Hey Man! Input the map name!", "courier");
+		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main, button, 0.5f, 0.6f, 0.75f, 0.2f, errormessage, "No Map Name", "courier");
 		return;
 	}
 	if ((*LevelEditor::nameofcol).empty()) {
-		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main, button, 0.5f, 0.6f, 0.75f, 0.2f, errormessage, "Hey Man! the column in empty!", "courier");
+		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main, button, 0.5f, 0.6f, 0.75f, 0.2f, errormessage, "Column Empty", "courier");
 		return;
 	}
 	if ((*LevelEditor::nameofrow).empty()) {
-		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main, button, 0.5f, 0.6f, 0.75f, 0.2f, errormessage, "Hey Man! the row is empty!!", "courier");
+		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main, button, 0.5f, 0.6f, 0.75f, 0.2f, errormessage, "Row Empty", "courier");
 		return;
 	}
 	//check if the row is bigger than the maximum
 	if (std::stoi(*LevelEditor::nameofrow) > 10) {
-		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main, button, 0.5f, 0.6f, 0.75f, 0.2f, errormessage, "Hey Man! the biggest is 10 for the row!", "courier");
+		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main, button, 0.5f, 0.6f, 0.75f, 0.2f, errormessage, "Row Max 10", "courier");
 		return;
 	}
 	//check if the column is bigger than the maximum
 	if (std::stoi(*LevelEditor::nameofcol) > 10) {
-		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main, button, 0.5f, 0.6f, 0.75f, 0.2f, errormessage, "Hey Man! the biggest is 10 for the column!", "courier");
+		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main, button, 0.5f, 0.6f, 0.75f, 0.2f, errormessage, "Col Max 10", "courier");
 		return;
 	}
 	//if it's a duplicate name 
 	if (*LevelEditor::nameofmap == "duplicate name") {
-		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main, button, 0.5f, 0.6f, 0.75f, 0.2f, errormessage, "Hey Man! The name already exist!", "courier");
+		Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main, button, 0.5f, 0.6f, 0.75f, 0.2f, errormessage, "Map exist", "courier");
 		return;
 	}
 	//if everything is fine 

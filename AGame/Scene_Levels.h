@@ -400,7 +400,7 @@ struct Level : public Scene
 
 			if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && checkBoss == true)
 			{
-				Factory::Instance().FF_CreateGUIChildSurfaceText(bossy, { "transparent" }, 0.3f, 0.5f, 0.4f, 0.4f, "Boss HP:   ", "courier");
+				Factory::Instance().FF_CreateGUIChildSurfaceText(bossy, { "transparent" }, 0.3f, 0.5f, 0.4f, 0.4f, "Boss HP:  ", "courier");
 				Factory::Instance()[waves].Get<Com_GUISurface>()._active = false;
 				Factory::Instance()[bossy].Get<Com_GUISurface>()._active = true;
 				checkBoss = false;
