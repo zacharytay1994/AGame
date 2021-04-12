@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 test2
 test
 WilfTile
@@ -28,3 +29,7 @@ IDKWHY
 Custom1
 >>>>>>> 2d279fa3e33a1c968e7129c3845ec71003ccff99
 >>>>>>> origin/NoelBranch4
+=======
+Custom1
+CUSTOMA
+>>>>>>> 1fcd1f8e9448048e717000fa1ea1561965b41b32

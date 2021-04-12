@@ -75,7 +75,7 @@ struct InventoryMenu : public Scene {
 		coins_text = Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.65f, 0.35f, 0.8f, 0.4f, current_coins.c_str(), "courier");
 		std::string current_weapon_text = _playerInv.Inventory_GetCurrentWeapon().GetWeapon_Name();
 		current_weapon = Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.5f, 0.5f, 0.6f, 0.2f, current_weapon_text, "courier");
-		std::string shop_text = "Each weapon costs 50 coins";
+		std::string shop_text = "50coins/weapon";
 		Factory::Instance().FF_CreateGUIChildSurfaceText(_title, { "transparent" }, 0.5f, 0.6f, 0.8f, 0.4f, shop_text, "courier");
 
 		_buttons_surface = Factory::Instance().FF_CreateGUISurface(buttonbg, 0.5f, original_y, 0.9f, 0.6f, 120);

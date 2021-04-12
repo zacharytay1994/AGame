@@ -40,6 +40,7 @@ class SceneManager {
 	void Initialize();
 	std::string				_next_scene = "";
 	float					_delay{ 0.0f };
+	bool					_lock{ false };
 public:
 	static SceneManager& Instance();
 	void ChangeScene(const std::string& name);

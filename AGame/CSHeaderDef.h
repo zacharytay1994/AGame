@@ -2768,6 +2768,7 @@ struct Com_Writetofile {
 	std::string* col;
 	std::string* row;
 	std::string* name;
+	bool _once{ false };
 };
 
 
@@ -2777,6 +2778,9 @@ struct Sys_writetofile : public System {
 		Com_Tilemap& tile = get<Com_Tilemap>();
 		Com_Writetofile& wtf = get<Com_Writetofile>();
 		//Com_Tilemap* tileptr = &get<Com_Tilemap>();
+		if (wtf._once) {
+			return;
+		}
 		if (mouse._over && AEInputCheckTriggered(AEVK_LBUTTON)) {
 			//write file if col and col is not empty
 			if (!(*wtf.row).empty() && !(*wtf.col).empty() && !(*wtf.name).empty()) {
@@ -2800,7 +2804,7 @@ struct Sys_writetofile : public System {
 					}
 				}
 
-				tile._initialized = { true };
+				//tile._initialized = { true };
 				//init all to 1
 				for (size_t i{ 0 }; i < tile._height; ++i) {
 					for (size_t j{ 0 }; j < tile._width; ++j) {
@@ -2823,6 +2827,7 @@ struct Sys_writetofile : public System {
 				ResourceManager::Instance().WriteTilemapTxt(S2, tile);
 				*wtf.name =*wtf.name + ".txt";
 			}
+			wtf._once = true;
 		}
 	}
 };
