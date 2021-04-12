@@ -308,6 +308,7 @@ struct Level : public Scene
 			sprite._current_frame_segment = 2;
 		}
 		if (AEInputCheckCurr(AEVK_LEFT) || AEInputCheckCurr(AEVK_A)) {
+			sprite._flip = true;
 			arrow_sprite->_visible = true;
 			arrow_sprite->_current_frame_segment = 0;
 		}
@@ -316,6 +317,7 @@ struct Level : public Scene
 			arrow_sprite->_current_frame_segment = 1;
 		}
 		else if (AEInputCheckCurr(AEVK_RIGHT) || AEInputCheckCurr(AEVK_D)) {
+			sprite._flip = false;
 			arrow_sprite->_visible = true;
 			arrow_sprite->_current_frame_segment = 2;
 		}
