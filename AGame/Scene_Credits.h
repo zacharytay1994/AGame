@@ -7,9 +7,7 @@
 #include "CSHeaderDef.h"
 #include "Factory.h"
 #include "ResourceManager.h"
-#include "Inventory.h"
 #include <string>
-#include"Scene_LevelEditor2.h"
 
 
 struct Scene_Credits : public Scene {
@@ -22,7 +20,7 @@ struct Scene_Credits : public Scene {
 		// main background
 		main = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.5f, 0.5f, 1.0f, 1.0f, 100);	//surface 
 		SystemDatabase::Instance().GetSystem<Sys_TextMovingGUI>()->last = &last; //assigning pointer to last message
-		//text 
+		//text textures
 		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "gamelogo" }, 0.5f, 0.25f, 0.4f, 0.4f, "", "courier");
 		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "teamlogo" }, 0.5f, 0.4f, 0.3f, 0.3f, "", "courier");
 		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "zachary" }, 0.35f, 0.65f, 0.25f, 0.25f, "", "courier");
@@ -39,7 +37,7 @@ struct Scene_Credits : public Scene {
 		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "executives3" }, 0.5f, 2.17f, 0.48f, 0.48f, "", "courier");
 		Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "ending" }, 0.5f, 2.5f, 0.3f, 0.3f, "", "courier");
 		eid last = Factory::Instance().FF_CreateGUIChildSurfaceTextMoving(main, { "endingfmod" }, 0.5f, 2.6f, 0.3f, 0.3f, "", "courier");
-		Factory::Instance()[last].Get<Com_TextMovingGUI>().lastmessage = true; //assining the last message 
+		Factory::Instance()[last].Get<Com_TextMovingGUI>().lastmessage = true; //assigning the last message 
 		// initialize gui settings
 		GUISettingsInitialize();
 	}
