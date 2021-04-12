@@ -1,3 +1,16 @@
+/******************************************************************************/
+/*!
+\File Name		: Scene_LevelEditor.h
+\Project Name	: AGame
+\Authors 		:
+				Primary - Wilfred Ng (100%)
+				Secondary -
+\brief		Scene part 1 of level editor to recieve input from user on the dimensions and name of custom map
+
+All content © 2021 DigiPen Institute of Technology Singapore. All
+rights reserved.
+*/
+/******************************************************************************/
 #pragma once
 #include "SceneDeclarations.h"
 #include <iostream>

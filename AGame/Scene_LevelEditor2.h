@@ -1,3 +1,16 @@
+/******************************************************************************/
+/*!
+\File Name		: Scene_LevelEditor2.h
+\Project Name	: AGame
+\Authors 		:
+				Primary - Wilfred Ng (100%)
+				Secondary -
+\brief		Scene part 2 of level editor for user to create custom tilemap based on gui 
+
+All content © 2021 DigiPen Institute of Technology Singapore. All
+rights reserved.
+*/
+/******************************************************************************/
 #pragma once
 #include "SceneDeclarations.h"
 #include <iostream>

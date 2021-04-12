@@ -1,3 +1,16 @@
+/******************************************************************************/
+/*!
+\File Name		: Scene_LevelSelectNormal.h
+\Project Name	: AGame
+\Authors 		:
+				Primary - Wilfred Ng (100%)
+				Secondary -
+\brief		Scene for level selector for normal levels. 3 Levels which are unlockable 
+
+All content © 2021 DigiPen Institute of Technology Singapore. All
+rights reserved.
+*/
+/******************************************************************************/
 #pragma once
 #include "SceneDeclarations.h"
 

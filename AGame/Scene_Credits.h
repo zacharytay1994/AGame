@@ -1,3 +1,17 @@
+/******************************************************************************/
+/*!
+\File Name		: Scene_Credits.h
+\Project Name	: AGame
+\Authors 		:
+				Primary - Wilfred Ng (100%)
+				Secondary -
+\brief		Credit Scene for AGame
+
+All content © 2021 DigiPen Institute of Technology Singapore. All
+rights reserved.
+*/
+/******************************************************************************/
+
 #pragma once
 #include "SceneDeclarations.h"
 #include <iostream>

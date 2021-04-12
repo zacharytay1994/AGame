@@ -1,3 +1,16 @@
+/******************************************************************************/
+/*!
+\File Name		: Scene_Instruction.h
+\Project Name	: AGame
+\Authors 		:
+				Primary - Wilfred Ng (100%)
+				Secondary -
+\brief		Scene for instructions on how to play the game 4 stages 
+
+All content © 2021 DigiPen Institute of Technology Singapore. All
+rights reserved.
+*/
+/******************************************************************************/
 #pragma once
 #include <iostream>
 #include "Scene.h"
