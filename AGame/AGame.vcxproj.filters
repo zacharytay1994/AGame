@@ -78,9 +78,6 @@
     <ClInclude Include="Scene_MainMenu.h">
       <Filter>Header Files\Scenes</Filter>
     </ClInclude>
-    <ClInclude Include="Scene_Noel.h">
-      <Filter>Header Files\Scenes</Filter>
-    </ClInclude>
     <ClInclude Include="music.h">
       <Filter>Header Files</Filter>
     </ClInclude>

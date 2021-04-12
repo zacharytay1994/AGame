@@ -29,6 +29,7 @@ static constexpr float cursor_particle_scale = 5.0f;
 struct Com_Tilemap;
 struct Com_TilePosition;
 
+//render pack 
 struct RenderPack {
 	int					_layer{ 0 };
 	AEMtx33				_transform{ 0 };
@@ -42,6 +43,7 @@ struct RenderPack {
 	float				a{ 1.0f };
 };
 
+//text pack
 struct TextPack {
 	int			_layer{ 0 };
 	char		_font{ 0 };

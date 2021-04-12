@@ -19,7 +19,6 @@ written consent of DigiPen Institute of Technology is prohibited.
 #include "Scene_LevelEditor.h"
 #include "Scene_LevelEditor2.h"
 #include "Scene_MainMenu.h"
-#include "Scene_Noel.h"
 #include "Scene_Opening.h"
 #include "Scene_Credits.h"
 #include "Scene_Inventory.h"
@@ -193,10 +192,8 @@ void SceneManager::Initialize() {
 
 	// 4. Registering scenes
 	AddScene<TestScenePF>("Test PathFinding");
-	AddScene<ExampleScene>("ExampleScene");
 	AddScene<MainMenu>("Main Menu");
 	AddScene<Opening>("Opening");
-	AddScene<ShootingRange>("ShootingRange");
 	AddScene<LevelEditor>("Leveleditor");
 	AddScene<LevelEditor2>("Leveleditor2");
 	AddScene<InventoryMenu>("InventoryMenu");

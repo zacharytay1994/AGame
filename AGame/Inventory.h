@@ -25,23 +25,25 @@ class Inventory
 	public:
 		Inventory();
 		~Inventory();
-
+		//equip weapon
 		bool Inventory_EquipWeapon(std::string const& name);
 		bool Inventory_EquipSecondaryWeapon(std::string const& name);
+		//get weapon 
 		Weapon& Inventory_GetCurrentWeapon();
 		Weapon& Inventory_GetCurrentSecondaryWeapon();
-
-		bool Inventory_SetWeaponUnlocked(std::string const& name);
+		//weapon unlock
+		bool Inventory_SetWeaponUnlocked(std::string const& name); 
 		bool Inventory_CheckWeaponUnlocked(std::string const& name) const;
-
+		//print current weapon engaged
 		void Inventory_PrintCurrentWeapon() const;
-
+		//for coin inventory system
 		int coins;
 		int Inventory_AddCoins(int newcoins);
-
+		//get inventory size
 		size_t Inventory_GetSize() const;
 
 	private:
+		//member variables
 		std::map<std::string, Weapon*> inventory_weapon;
 		Weapon* equipped_weapon;
 		Weapon* equipped_secondary_weapon;

@@ -33,7 +33,7 @@ class Weapon
 
 		virtual void Weapon_Shoot();	// What happens when weapon is fired
 		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap);
-
+		//getting weapon info
 		const unsigned int	GetWeapon_ID() const;
 		const std::string&	GetWeapon_Name() const;
 		const std::string&  GetWeapon_Description() const;
@@ -49,6 +49,7 @@ class Weapon
 		void	Weapon_Unlock();
 
 	protected:
+		//set weapon
 		void SetWeapon_Name(std::string const& new_Name);
 		void SetWeapon_Description(std::string const& new_Desc);
 		void SetWeapon_Damage(unsigned int new_Damage);
@@ -59,6 +60,7 @@ class Weapon
 		std::vector<BulletSpawn> weapon_Pattern;
 
 	private:
+		//weapon info
 		const unsigned int weapon_ID;
 		std::string weapon_Name;
 		std::string weapon_Description;
@@ -85,26 +87,26 @@ class Pistol : public Weapon
 class TrickPistol : public Weapon
 {
 	public:
-		TrickPistol();
+		TrickPistol();// Default constructor
 		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap);
 };
 
 class DualPistol : public Weapon
 {
 	public:
-		DualPistol();
+		DualPistol(); // Default constructor
 };
 
 class DualDiagPistol : public Weapon
 {
 	public:
-		DualDiagPistol();
+		DualDiagPistol();// Default constructor
 		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap);
 };
 
 class Dagger : public Weapon
 {
 	public:
-		Dagger();
+		Dagger();// Default constructor
 		virtual void Weapon_Shoot(BulletSpawn spawn, const Com_Direction& direction, eid const& tilemap);
 };
