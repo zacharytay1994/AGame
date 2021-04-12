@@ -107,7 +107,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		{
 			// If the game is not paused by player, unpause it
 			if(!SceneManager::Instance()._settings_toggle) { SceneManager::Instance()._pause = false; }
-			ResourceManager::Instance().ToggleMuteMusic(1);	// Unmute the music
+			if (SceneManager::Instance()._musicmmute == false) {
+				ResourceManager::Instance().ToggleMuteMusic(1);	// Unmute the music
+			}
 		}
 
 		g_dt = (float)AEFrameRateControllerGetFrameTime();	// Get framerate
