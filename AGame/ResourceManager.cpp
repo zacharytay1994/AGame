@@ -1,16 +1,17 @@
 /******************************************************************************/
 /*!
-\file		ResourceManager.cpp
-\author 	HCMR
-\par    	email: nil
-\date   	April 12, 2021	
-\brief		Allocates and Frees resources for AGame
+\File Name		:	ResourceManager.cpp
+\Project Name	:	AGame
+\Authors 		:	
+				Primary - Austen (50%)
+				Secondary - Zachary Tay (50%)
+\brief		Contains all the functions which handles the resources of AGame
 
-Copyright (C) 2021 DigiPen Institute of Technology.
-Reproduction or disclosure of this file or its contents without the prior
-written consent of DigiPen Institute of Technology is prohibited.
- */
- /******************************************************************************/
+All content © 2021 DigiPen Institute of Technology Singapore. All
+rights reserved.
+*/
+/******************************************************************************/
+
 #include "ResourceManager.h"
 #include "CSHeaderDef.h"
 #include <assert.h>

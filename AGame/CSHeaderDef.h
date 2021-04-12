@@ -1,16 +1,18 @@
 /******************************************************************************/
 /*!
-\file		CSHeaderDef.h
-\author 	HCMR
-\par    	email: nil
-\date   	April 12, 2021
-\brief		Components and Systems of AGame
+\File Name		: CSHeaderDef.h
+\Project Name	: AGame
+\Authors 		:	
+				Primary - Zachary Tay (25%)
+				Secondary - Austen Ang (25%), Noel Ho (25%) , Wilfred Ng (25%)
+						
+\brief		Contains all the components and system logic for AGame
 
-Copyright (C) 2021 DigiPen Institute of Technology.
-Reproduction or disclosure of this file or its contents without the prior
-written consent of DigiPen Institute of Technology is prohibited.
- */
- /******************************************************************************/
+All content © 2021 DigiPen Institute of Technology Singapore. All
+rights reserved.
+*/
+/******************************************************************************/
+
 #pragma once
 #include <iostream>
 #include <string>
