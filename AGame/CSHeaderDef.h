@@ -482,6 +482,7 @@ struct Sys_EnemyStateOne : public System {
 		if (!_player || !_grid || Factory::Instance()[_player_id].Get<Com_Health>().health <= 0) {
 			return;
 		}
+		//get the enemy state
 		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
 		state._player = &_player->Get<Com_TilePosition>();
 		state.playerHealth = &_player->Get<Com_Health>();
@@ -600,6 +601,7 @@ struct Sys_EnemyStateOne : public System {
 				{
 					if (state.playerHealth != nullptr)
 					{
+						//damage sound and effects 
 						ResourceManager::Instance().PlayerDamageSound();
 						std::cout << "hit" << std::endl;
 						--(state.playerHealth->health);
@@ -700,7 +702,7 @@ struct Sys_EnemyStateBoss : public System {
 		{
 			Pattern = 0;
 		}
-
+		//switching up the boss attack patterns 
 		switch (Pattern) 
 		{
 			case 0:
@@ -725,7 +727,7 @@ struct Sys_EnemyStateBoss : public System {
 				}
 			}
 			break;
-
+			//case where the boss shoot near pattern 
 			case 1:
 			{
 				if (posBoss._grid_x < Factory::Instance()[player].Get<Com_TilePosition>()._grid_x || posBoss._grid_x > Factory::Instance()[player].Get<Com_TilePosition>()._grid_x) {
@@ -751,7 +753,7 @@ struct Sys_EnemyStateBoss : public System {
 				
 			}
 			break;
-
+			//case where the boss is nearing death 
 			case 2: 
 			{
 				if (posBoss._grid_x < Factory::Instance()[player].Get<Com_TilePosition>()._grid_x || posBoss._grid_x > Factory::Instance()[player].Get<Com_TilePosition>()._grid_x) {
@@ -773,6 +775,7 @@ struct Sys_EnemyStateBoss : public System {
 			}
 			break;
 		}
+		//timer 
 		if (timer <= 0) 
 		{
 			timer = 10.0f;
@@ -787,6 +790,7 @@ struct Sys_EnemyStateBoss : public System {
 	*/
 	void Pattern1(const Factory::SpriteData& data , Com_TilePosition& pos)
 	{
+		//shooting pattern 
 		if (pos._grid_x > Factory::Instance()[player].Get<Com_TilePosition>()._grid_x)
 		{
 			eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y, -1, 0, _tilemap);
@@ -817,6 +821,7 @@ struct Sys_EnemyStateBoss : public System {
 	*/
 	void Pattern2Ver1(const Factory::SpriteData& data, Com_TilePosition& pos)
 	{
+		//shooting pattern 
 		if (pos._grid_x > Factory::Instance()[player].Get<Com_TilePosition>()._grid_x &&
 			(pos._grid_x > 0 || pos._grid_x < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width))
 		{
@@ -862,6 +867,7 @@ struct Sys_EnemyStateBoss : public System {
 	*/
 	void Pattern2Ver2(const Factory::SpriteData& data, Com_TilePosition& pos)
 	{
+		//shooting pattern
 		if (pos._grid_x > Factory::Instance()[player].Get<Com_TilePosition>()._grid_x &&
 			(pos._grid_x > 0 || pos._grid_x < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width))
 		{
@@ -907,11 +913,13 @@ struct Sys_EnemyStateBoss : public System {
 	*/
 	void PatternDesperate(const Factory::SpriteData& data, Com_TilePosition& pos)
 	{
+		//random variables 
 		float minvel{ -100.0f };
 		float maxvel{ 100.0f };
 		float rand_velocityx = minvel + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (maxvel - ((minvel)))));
 		float rand_velocityy = minvel + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (maxvel - ((minvel)))));
-	
+		
+		//shooting pattern 
 		if (pos._grid_x < Factory::Instance()[player].Get<Com_TilePosition>()._grid_x &&
 			(pos._grid_x > 0 || pos._grid_x < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width))
 		{
@@ -1214,21 +1222,26 @@ struct Sys_ArrowKeysTilemap : public System {
 		Com_TilePosition& pos = get<Com_TilePosition>();
 		Com_Direction& direction = get<Com_Direction>();
 		int x = 0, y = 0;
+		//movement left 
 		if (AEInputCheckCurr(AEVK_LEFT) || AEInputCheckCurr(AEVK_A)) {
 			x -= 1;
 		}
+		//movement right
 		if (AEInputCheckCurr(AEVK_RIGHT) || AEInputCheckCurr(AEVK_D)) {
 			
 			x += 1;
 		}
+		//movement up
 		if (AEInputCheckCurr(AEVK_UP) || AEInputCheckCurr(AEVK_W)) {
 			
 			y -= 1;
 		}
+		//movement down 
 		if (AEInputCheckCurr(AEVK_DOWN) || AEInputCheckCurr(AEVK_S)) {
 			
 			y += 1;
 		}
+		//check for obstacle before walking 
 		if (x == -1) {
 			direction.currdir = Com_Direction::left;
 			if (_turn) {
@@ -1289,12 +1302,14 @@ struct Sys_Tilemap : public System {
 			DrawTilemap(tilemap);
 		}
 	}
+	//drawing of tile map 
 	void DrawTilemap(Com_Tilemap& tilemap) {
 		AEMtx33 trans, scale, transform;
 		AEMtx33Scale(&scale, tilemap._scale_x, tilemap._scale_y);
 		AEGfxSetRenderMode(AEGfxRenderMode::AE_GFX_RM_TEXTURE);
 		AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
 		AEMtx33 shake = ResourceManager::Instance().ScreenShake();
+		//drawing tile map based on loaded tilemap 
 		for (size_t y = 0; y < (size_t)tilemap._height; ++y) {
 			for (size_t x = 0; x < (size_t)tilemap._width; ++x) {
 				if (tilemap._floor_mask[x * (size_t)tilemap._height + y] == -1) { continue; }
@@ -1305,7 +1320,6 @@ struct Sys_Tilemap : public System {
 					// sample texture according to collision mask
 					tilemap._render_pack._offset_x = (tilemap._floor_mask[x * (size_t)tilemap._height + y] % 4) * 1.0f / (float)4;
 					tilemap._render_pack._offset_y = (tilemap._floor_mask[x * (size_t)tilemap._height + y] / 4) * 1.0f / (float)4;
-					//ResourceManager::Instance().DrawQueue(&tilemap._render_pack);
 					AEMtx33Concat(&tilemap._render_pack._transform, &shake, &tilemap._render_pack._transform);
 					AEGfxSetTintColor(1.0f, 1.0f, 1.0f, 1.0f);
 					//for highlighting of tile 
@@ -1314,7 +1328,7 @@ struct Sys_Tilemap : public System {
 							AEGfxSetTintColor(0.0f, 0.0f, 0.0f, 1.0f);
 						}
 					}
-					
+					//transformation 
 					AEGfxSetTransform(tilemap._render_pack._transform.m);
 					AEGfxTextureSet(tilemap._render_pack._texture, tilemap._render_pack._offset_x, tilemap._render_pack._offset_y);
 					AEGfxMeshDraw(tilemap._render_pack._mesh, AEGfxMeshDrawMode::AE_GFX_MDM_TRIANGLES);
@@ -1587,7 +1601,7 @@ struct Sys_AABB : public System {
 					}
 					break;
 				}
-
+				//collision with bullet 
 				if (type->type == type->bullet && (AABBColData[i].type->type == type->enemy)) {
 					std::cout << "collidied" << std::endl;
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
