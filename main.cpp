@@ -100,7 +100,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 				AEToogleFullScreen(fullscreen);
 			}
 			else if (GetAsyncKeyState(AEVK_TAB)) {
-				
+				ShowWindow(AESysGetWindowHandle(), SW_MINIMIZE);
 			}
 		}
 
