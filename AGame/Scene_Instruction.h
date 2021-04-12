@@ -214,7 +214,7 @@ struct Scene_Instructions : public Scene
 		//press WASD / Up Down Left Right to move instruction 1 
 		if (currentinstructions == 0 && messageseen == false) {
 			eid main2 = Factory::Instance().FF_CreateGUISurface({ "transparent" }, 0.5f, 0.5f, 1.0f, 1.0f, 100);
-			Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwithinstructions(main2, button2, 0.5f, 0.1f, 0.75f, 0.2f, instructions, "WASD/UP DOWN LEFT RIGHT TO MOVE", "courier");
+			Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwithinstructions(main2, button2, 0.5f, 0.1f, 0.75f, 0.2f, instructions, "WASD/ARROW KEY", "courier");
 			SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->error = false;
 			messageseen = true;
 		}

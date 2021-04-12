@@ -3054,10 +3054,12 @@ struct Com_errormessageGUI {
 };
 
 struct Sys_errormessageGUI : public System {
+	bool errortriggered = false;
 	void UpdateComponent() override {
 		Com_errormessageGUI& errmsg = get<Com_errormessageGUI>();
 ;		if (AEInputCheckTriggered(AEVK_LBUTTON) && errmsg.skiponeframe == true || AEInputCheckTriggered(AEVK_SPACE) && errmsg.skiponeframe == true ) {
 			RemoveEntity();
+			errortriggered = true;
 		}
 		errmsg.skiponeframe = true;
 	}

@@ -53,7 +53,6 @@ void savemapbut(Com_GUISurface* surface) {
 
 void errormessage2(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
-	std::cout << "entered row" << std::endl;
 	SceneManager::Instance().RestartScene();
 }
 
@@ -206,16 +205,17 @@ struct LevelEditor2 : public Scene {
 				eid main2 = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.5f, 0.5f, 1.0f, 1.0f, 100);
 				Vec2i passin4[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
 				Factory::SpriteData button2{ "background2.png", 2.0f, 1.0f, 2, 1, 2, 0.05f, 0, passin4 };
-				Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main2, button2, 0.5f, 0.5f, 0.75f, 0.2f, errormessage2, "You did not placed the player!", "courier");
+				Factory::Instance().FF_CreateGUIChildClickableSurfaceTextBoxwitherrormsg(main2, button2, 0.5f, 0.5f, 0.75f, 0.2f, errormessage2, "Place Player!", "courier");
 				SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->Leveledittyp = 0;
 				SystemDatabase::Instance().GetSystem<Sys_GUIMapClick>()->error = false;
 				frameskipped = false;
 			}
 			frameskipped = true;
 		}
-		//if (AEInputCheckTriggered('R')) {
-		//	SceneManager::Instance().RestartScene();
-		//}
+		if (SystemDatabase::Instance().GetSystem<Sys_errormessageGUI>()->errortriggered == true) {
+			SystemDatabase::Instance().GetSystem<Sys_errormessageGUI>()->errortriggered = false;
+			SceneManager::Instance().RestartScene();
+		}
 	}
 	void Exit() override {
 
