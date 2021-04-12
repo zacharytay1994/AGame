@@ -65,6 +65,9 @@ struct Level : public Scene
 		once = false;
 		checkBoss = false;
 
+		SceneManager::Instance()._inlevel = true;
+		SceneManager::Instance()._currentlyplaying = true;
+
 		////unlock level 2 
 		//if (levelsunlocked == 2) {
 		//	//double check if the file name already exist 
@@ -341,6 +344,7 @@ struct Level : public Scene
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose :(", "courier");
 				_playerInv.Inventory_AddCoins(25);
 				once = true;
+				SceneManager::Instance()._currentlyplaying = false;
 			}
 			else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && once == false)
 			{
@@ -350,12 +354,14 @@ struct Level : public Scene
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Won! Level 2 Unlocked!", "courier");
 				_playerInv.Inventory_AddCoins(50);
 				once = true;
+				SceneManager::Instance()._currentlyplaying = false;
 			}
 
 			//Com_EnemySpawn& com_spawner = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
 			if (Factory::Instance()[player].Get<Com_Health>().health <= 0 || (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0)) {
 				Factory::Instance()[menu].Get<Com_GUISurface>()._active = true;
 				Factory::Instance()[_WinOrLose].Get<Com_GUISurface>()._active = true;
+				
 			}
 		}
 
@@ -366,6 +372,7 @@ struct Level : public Scene
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose :(", "courier");
 				_playerInv.Inventory_AddCoins(25);
 				once = true;
+				SceneManager::Instance()._currentlyplaying = false;
 			}
 			else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && once == false)
 			{
@@ -375,6 +382,7 @@ struct Level : public Scene
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Won! Level 3 Unlocked!", "courier");
 				_playerInv.Inventory_AddCoins(50);
 				once = true;
+				SceneManager::Instance()._currentlyplaying = false;
 			}
 
 			//Com_EnemySpawn& com_spawner = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
@@ -390,12 +398,14 @@ struct Level : public Scene
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose :(", "courier");
 				_playerInv.Inventory_AddCoins(25);
 				once = true;
+				SceneManager::Instance()._currentlyplaying = false;
 			}
 			else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && bs.bossdefeat == true && once == false)
 			{
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Win :D", "courier");
 				_playerInv.Inventory_AddCoins(50);
 				once = true;
+				SceneManager::Instance()._currentlyplaying = false;
 			}
 
 			if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && checkBoss == true)
@@ -423,8 +433,8 @@ struct Level : public Scene
 	________________________________*/
 	void Exit() override {
 		std::cout << "woo switching to scene 2!" << std::endl;
-
-
+		SceneManager::Instance()._currentlyplaying = false;
+		SceneManager::Instance()._inlevel = false;
 	}
 };
 

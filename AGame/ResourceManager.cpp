@@ -554,7 +554,9 @@ void ResourceManager::CreateMusic()
 /**************************************************************************/
 void ResourceManager::WalkingSound()
 {
-	result = sound_system->playSound(soundWalk, 0, false, &channelWalkingPlayer);
+	if (SceneManager::Instance()._musicmmute == false) {
+		result = sound_system->playSound(soundWalk, 0, false, &channelWalkingPlayer);
+	}
 }
 
 /**************************************************************************/
@@ -565,8 +567,10 @@ void ResourceManager::WalkingSound()
 /**************************************************************************/
 void ResourceManager::ShootingSound(float pitch)
 {
-	result = sound_system->playSound(soundShoot, 0, false, &channelGunEffect);
-	channelGunEffect->setPitch(pitch);
+	if (SceneManager::Instance()._musicmmute == false) {
+		result = sound_system->playSound(soundShoot, 0, false, &channelGunEffect);
+		channelGunEffect->setPitch(pitch);
+	}
 }
 
 /**************************************************************************/
@@ -577,7 +581,9 @@ void ResourceManager::ShootingSound(float pitch)
 /**************************************************************************/
 void ResourceManager::StabbingSound()
 {
-	result = sound_system->playSound(soundStab, 0, false, &channelMeleeEffect);
+	if (SceneManager::Instance()._musicmmute == false) {
+		result = sound_system->playSound(soundStab, 0, false, &channelMeleeEffect);
+	}
 }
 
 /**************************************************************************/
@@ -588,7 +594,9 @@ void ResourceManager::StabbingSound()
 /**************************************************************************/
 void ResourceManager::BoomSound()
 {
-	result = sound_system->playSound(soundBoom, 0, false, &channelBoomEffect);
+	if (SceneManager::Instance()._musicmmute == false) {
+		result = sound_system->playSound(soundBoom, 0, false, &channelBoomEffect);
+	}
 }
 
 /**************************************************************************/
@@ -599,7 +607,9 @@ void ResourceManager::BoomSound()
 /**************************************************************************/
 void ResourceManager::EnemyDeathSound()
 {
-	result = sound_system->playSound(soundEnemyDeath, 0, false, &channelEnemyDeath);
+	if (SceneManager::Instance()._musicmmute == false) {
+		result = sound_system->playSound(soundEnemyDeath, 0, false, &channelEnemyDeath);
+	}
 }
 
 /**************************************************************************/
@@ -610,7 +620,9 @@ void ResourceManager::EnemyDeathSound()
 /**************************************************************************/
 void ResourceManager::BombSound()
 {
-	result = sound_system->playSound(soundLaserBomb, 0, false, &channelLaserBomb);
+	if (SceneManager::Instance()._musicmmute == false) {
+		result = sound_system->playSound(soundLaserBomb, 0, false, &channelLaserBomb);
+	}
 }
 
 /**************************************************************************/
@@ -621,7 +633,9 @@ void ResourceManager::BombSound()
 /**************************************************************************/
 void ResourceManager::PlayerDamageSound()
 {
-	result = sound_system->playSound(soundGrunt, 0, false, &channelGrunt);
+	if (SceneManager::Instance()._musicmmute == false) {
+		result = sound_system->playSound(soundGrunt, 0, false, &channelGrunt);
+	}
 }
 
 void ResourceManager::UpdateAndPlayMusic() 

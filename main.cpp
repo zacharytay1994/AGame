@@ -60,7 +60,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	// Using custom window procedure
 	AESysInit(hInstance, nCmdShow, 800, 600, 1, 60, true, NULL);
 	//full screen
-	AEToogleFullScreen(true);
+	//AEToogleFullScreen(true);
 	AEInputShowCursor(0);
 	// music
 	ResourceManager::Instance().CreateMusic();

@@ -52,6 +52,9 @@ void SettingsButton(Com_GUISurface* surface) {
 	SceneManager::Instance()._settings_toggle = SceneManager::Instance()._pause;
 	_change_scene_toggle = false;
 	_quit_confirmation = false;
+	if (SceneManager::Instance()._inlevel == true) {
+		SceneManager::Instance()._currentlyplaying = true;
+	}
 }
 
 /**************************************************************************/
@@ -382,7 +385,6 @@ void GUISettingsInitialize() {
 void GUISettingsUpdate() {
 	// Escape key opens and closes the settings menu
 	if (AEInputCheckTriggered(AEVK_ESCAPE)) {
-
 		// Pauses or unpauses the game
 		SceneManager::Instance()._pause = !SceneManager::Instance()._pause;
 
@@ -390,6 +392,19 @@ void GUISettingsUpdate() {
 		SceneManager::Instance()._settings_toggle = SceneManager::Instance()._pause;
 		_change_scene_toggle = false;
 		_quit_confirmation = false;
+
+		SceneManager::Instance()._currentlyplaying = false;
+
+		//draws back cursor 
+		if (SceneManager::Instance()._inlevel == true) {
+			if (SceneManager::Instance()._settings_toggle == true) {
+				SceneManager::Instance()._currentlyplaying = false;
+			}
+			//removes cursor
+			if (SceneManager::Instance()._settings_toggle == false) {
+				SceneManager::Instance()._currentlyplaying = true;
+			}
+		}
 	}
 
 	// Shows the QUIT CONFIRMATION text if the user pressed the QUIT button once
@@ -587,6 +602,9 @@ struct TestScenePF : public Scene
 	________________________________*/
 	void Initialize() override {
 		std::cout << test << " this is a test scene" << std::endl;
+
+		SceneManager::Instance()._currentlyplaying = true;
+		SceneManager::Instance()._inlevel = true;
 		std::cout << sizeof(Com_Tilemap) << std::endl;
 		once = false;
 		checkBoss = false;
@@ -847,12 +865,14 @@ struct TestScenePF : public Scene
 			Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose :(", "courier");
 			_playerInv.Inventory_AddCoins(25);
 			once = true;
+			SceneManager::Instance()._currentlyplaying = false;
 		}
 		else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && bs.bossdefeat == true && once == false)
 		{
 			Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Win :D", "courier");
 			_playerInv.Inventory_AddCoins(50);
 			once = true;
+			SceneManager::Instance()._currentlyplaying = false;
 		}
 
 		//Com_EnemySpawn& com_spawner = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
@@ -868,7 +888,8 @@ struct TestScenePF : public Scene
 	________________________________*/
 	void Exit() override {
 		std::cout << "woo switching to scene 2!" << std::endl;
-		
+		SceneManager::Instance()._currentlyplaying = false;
+		SceneManager::Instance()._inlevel = false;
 
 	}
 };

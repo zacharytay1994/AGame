@@ -298,9 +298,11 @@ void SceneManager::Update(const float& dt)
 		SystemDatabase::Instance().RemoveAllEntities();
 	}
 	// draw cursor
-	ResourceManager::Instance().DrawScenePanels((float)AEFrameRateControllerGetFrameTime());
-	ResourceManager::Instance().CursorParticlesUpdate((float)AEFrameRateControllerGetFrameTime());
-	ResourceManager::Instance().DrawCursor();
+	if (_currentlyplaying == false) {
+		ResourceManager::Instance().DrawScenePanels(AEFrameRateControllerGetFrameTime());
+		ResourceManager::Instance().CursorParticlesUpdate(AEFrameRateControllerGetFrameTime());
+		ResourceManager::Instance().DrawCursor();
+	}
 }
 
 /*______________________________________________________
