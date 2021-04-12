@@ -81,12 +81,6 @@
     <ClInclude Include="Scene_MainMenu.h">
       <Filter>Header Files\Scenes</Filter>
     </ClInclude>
-    <ClInclude Include="Scene_Zac.h">
-      <Filter>Header Files\Scenes</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene_Wilfred.h">
-      <Filter>Header Files\Scenes</Filter>
-    </ClInclude>
     <ClInclude Include="Scene_Noel.h">
       <Filter>Header Files\Scenes</Filter>
     </ClInclude>

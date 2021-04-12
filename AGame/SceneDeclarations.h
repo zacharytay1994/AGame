@@ -1,3 +1,16 @@
+/******************************************************************************/
+/*!
+\file		Scene.h
+\author 	HCMR
+\par    	email: nil
+\date   	April 12, 2021
+\brief		Game Scene
+
+Copyright (C) 2021 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior
+written consent of DigiPen Institute of Technology is prohibited.
+ */
+ /******************************************************************************/
 #pragma once
 #include <iostream>
 #include "Scene.h"
@@ -356,17 +369,6 @@ void GUISettingsInitialize() {
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
 	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.5f, 0.9f, 0.08f, ResetProgress, "Reset Progress", "courier");	// clickable child surface text
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
-	/*
-	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.2f, 0.9f, 0.08f, ChangeMainMenu, "Main", "courier");	// clickable child surface text
-	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
-	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.35f, 0.9f, 0.08f, ChangeTestScenePF, "Aus", "courier");	// clickable child surface text
-	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
-	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.5f, 0.9f, 0.08f, ChangeShootingRangeScene, "Noel", "courier");	// clickable child surface text
-	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
-	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.65f, 0.9f, 0.08f, ChangeWilf, "Wilfred", "courier");	// clickable child surface text
-	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
-	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.8f, 0.9f, 0.08f, ChangeTestScene, "Zac", "courier");	// clickable child surface text
-	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();*/
 	Factory::Instance().FF_CreateGUIChildClickableSurface(_change_scene, { "cross" }, 0.9f, 0.05f, 0.08f, 0.04f, ToggleChangeSceneButton);					// clickable child surface text
 
 	// quit game confirmation menu
@@ -486,30 +488,6 @@ void EquipDagger(Com_GUISurface* surface) {
 	_playerInv.Inventory_SetWeaponUnlocked("Dagger");
 	_playerInv.Inventory_EquipWeapon("Dagger");
 }
-
-/*!___________________________________________________________________
-	TEST SCENE - Created By : Zac
-_____________________________________________________________________*/
-
-/*___________________________________________________________________
-	TEST SCENE 2 - Created By : Zac
-_____________________________________________________________________*/
-struct TestScene2 : public Scene {
-	std::string test = "hi";
-	eid e;
-	void Initialize() override {
-		std::cout << test << " i came from test scene 1" << std::endl;
-		e = Factory::Instance().FF_Sprite({ "test2", 50.0f, 100.0f, 1, 8, 8 }, 0, 0);
-	}
-	void Update(const float& dt) override {
-		UNREFERENCED_PARAMETER(dt);
-		//std::cout << "hehe just keep printing" << std::endl;
-		if (AEInputCheckCurr('C')) {
-			SceneManager::Instance().ChangeScene("Test Scene");
-		}
-	}
-	// overriding initialize/update/exit is optional
-};
 
 // Example Code
 struct ExampleScene : public Scene {
@@ -668,11 +646,6 @@ struct TestScenePF : public Scene
 					Entity& e = Factory::Instance()[wall];
 					e.Get<Com_Health>().health = 3;
 					e.Get<Com_type>().type = 3;
-
-					//mis = Factory::Instance().FF_SpriteTile(boom, tilemap, x, y);
-					//Factory::Instance()[mis].AddComponent<Com_YLayering, Com_type, Com_GridColData>();
-					//Entity& e = Factory::Instance()[mis];
-					//e.Get<Com_type>().type = 1;
 					continue;
 				}
 				//if it's a explosive barrel 
@@ -688,28 +661,6 @@ struct TestScenePF : public Scene
 				}
 			}
 		}
-
-		// player = Factory::Instance().FF_SpriteTile(man, tilemap, 0, 0);
-		// Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne, Com_TileMoveSpriteState, Com_type>();
-		// Factory::Instance()[player].Get<Com_TilePosition>()._is_player = true;
-		// Factory::Instance()[player].Get<Com_type>().type = 0; // set player type
-		// //SystemDatabase::Instance().GetSystem<Sys_AABB>()->_PLayerHealth = &Factory::Instance()[player].Get<Com_Health>();
-		// SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->tile = tilemap;
-		// SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
-		// SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
-
-		//player = Factory::Instance().FF_SpriteTile(man, tilemap, 0, 0);
-		//Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap, Com_Health, Com_EnemyStateOne, Com_TileMoveSpriteState, Com_type>();
-		//Factory::Instance()[player].Get<Com_TilePosition>()._is_player = true;
-		//Factory::Instance()[player].Get<Com_type>().type = 0; // set player type
-		//SystemDatabase::Instance().GetSystem<Sys_GridCollision>()->player_id = player;
-		//SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->tile = tilemap;
-		//SystemDatabase::Instance().GetSystem<Sys_PathFinding>()->playerPos = player;
-		//SystemDatabase::Instance().GetSystem<Sys_EnemyStateOne>()->_player_id = player;
-
-		//SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->playerpos = player;
-
-
 
 		arrow = Factory::Instance().FF_Sprite(arrows, 0.0f, 0.0f);
 		Entity& a = Factory::Instance()[arrow];
@@ -742,15 +693,8 @@ struct TestScenePF : public Scene
 		Factory::Instance()[menu].Get<Com_GUISurface>()._active = false;
 		Factory::Instance()[_WinOrLose].Get<Com_GUISurface>()._active = false;
 		Factory::Instance()[bossy].Get<Com_GUISurface>()._active = false;
-		
-
-
-		//Factory::Instance().FF_CreateGUISurface(clock, 0.5f, 0.05f, 0.1f, 0.1f, 100);
 
 		GUISettingsInitialize();
-		//_playerInv.Inventory_SetWeaponUnlocked("Pistol");
-		//_playerInv.Inventory_EquipWeapon("Pistol");
-		//std::cout << "EQUIPPED PISTOL" << std::endl;
 	}
 	/*
 	Update Override (optional)
@@ -762,18 +706,6 @@ struct TestScenePF : public Scene
 		if (AEInputCheckTriggered(AEVK_P)) {
 			SceneManager::Instance()._pause = !SceneManager::Instance()._pause;
 		}
-		//s32 cursorpox;
-		//s32 cursorposy;
-		//AEInputGetCursorPosition(&cursorpox, &cursorposy);
-		////of set cursor 
-		//cursorpox -= AEGetWindowWidth() / 2;
-		//cursorposy -= AEGetWindowHeight() / 2;
-		//cursorposy = -cursorposy;
-		//std::cout << cursorpox << std::endl;
-
-		//Entity& testing = Factory::Instance()[tilemap];
-		//if (AEInputCheckTriggered('E')) {
-		//}
 		Com_Boss& bs = Factory::Instance()[spawner].Get<Com_Boss>();
 		Com_Wave& com_wave = Factory::Instance()[spawner].Get<Com_Wave>();
 		Com_EnemySpawn& em = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
@@ -806,7 +738,6 @@ struct TestScenePF : public Scene
 		if (AEInputCheckCurr('L')) {
 			ResourceManager::Instance()._screen_shake = 1.0f;
 		}
-//#endif
 		if (AEInputCheckTriggered('R')) {
 			bs.disable = 0;
 			bs.bossdefeat = false;
@@ -815,20 +746,12 @@ struct TestScenePF : public Scene
 		}
 
 		Com_Sprite& sprite = Factory::Instance()[player].Get<Com_Sprite>();
-		// if (AEInputCheckTriggered(AEVK_SPACE)) {
-		// 	_playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
-		// 	//ResourceManager::Instance().ShootingSound();
-		// 	sprite._lock = true;
-		// 	sprite._current_frame = 0;
-		// 	sprite._frame_interval_counter = 0.0f;
-		// 	sprite._current_frame_segment = 2;
 		if (AEInputCheckTriggered(AEVK_ESCAPE)) {
 			SceneManager::Instance()._pause = !SceneManager::Instance()._pause;
 			SceneManager::Instance()._settings_toggle = SceneManager::Instance()._pause;
 		}
 		if (AEInputCheckTriggered(AEVK_SPACE) && !SceneManager::Instance()._pause) {
 			const_cast<Weapon*>(&_playerInv.Inventory_GetCurrentWeapon())->Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
-			//ResourceManager::Instance().ShootingSound();
 			sprite._lock = true;
 			sprite._current_frame = 0;
 			sprite._frame_interval_counter = 0.0f;
@@ -874,8 +797,7 @@ struct TestScenePF : public Scene
 			once = true;
 			SceneManager::Instance()._currentlyplaying = false;
 		}
-
-		//Com_EnemySpawn& com_spawner = Factory::Instance()[spawner].Get<Com_EnemySpawn>();
+		
 		if (Factory::Instance()[player].Get<Com_Health>().health <= 0 || (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <=0 && bs.bossdefeat == true)) {
 			Factory::Instance()[menu].Get<Com_GUISurface>()._active = true;
 			Factory::Instance()[_WinOrLose].Get<Com_GUISurface>()._active = true;
