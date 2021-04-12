@@ -618,6 +618,11 @@ struct Sys_EnemyStateBoss : public System {
 		Factory::SpriteData ProjEnemy{ "EnemyBall.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };	
 		Com_GameTimer& gametimer = get<Com_GameTimer>();
 		Com_Sprite& sprite = get<Com_Sprite>();
+		
+		if (Factory::Instance()[player].Get<Com_Health>().health <= 0)
+		{
+			return;
+		}
 		if (posBoss._grid_x < Factory::Instance()[player].Get<Com_TilePosition>()._grid_x || posBoss._grid_x > Factory::Instance()[player].Get<Com_TilePosition>()._grid_x) {
 			sprite._flip = false;
 		}
@@ -762,10 +767,10 @@ struct Sys_EnemyStateBoss : public System {
 			{
 				eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, i, -1, 0, _tilemap);
 				eid k = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x - 1, i, -1, 0, _tilemap);
-				eid l = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x - 2, i, -1, 0, _tilemap);
+				//eid l = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x - 2, i, -1, 0, _tilemap);
 				Factory::Instance()[j].AddComponent<Com_YLayering>();
 				Factory::Instance()[k].AddComponent<Com_YLayering>();
-				Factory::Instance()[l].AddComponent<Com_YLayering>();
+				//Factory::Instance()[l].AddComponent<Com_YLayering>();
 			}
 		}
 
@@ -777,10 +782,10 @@ struct Sys_EnemyStateBoss : public System {
 			{
 				eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, i, 1, 0, _tilemap);
 				eid k = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x + 1, i, 1, 0, _tilemap);
-				eid l = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x + 2, i, 1, 0, _tilemap);
+				//eid l = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x + 2, i, 1, 0, _tilemap);
 				Factory::Instance()[j].AddComponent<Com_YLayering>();
 				Factory::Instance()[k].AddComponent<Com_YLayering>();
-				Factory::Instance()[l].AddComponent<Com_YLayering>();
+				//Factory::Instance()[l].AddComponent<Com_YLayering>();
 			}
 		}
 		else if (pos._grid_x == Factory::Instance()[player].Get<Com_TilePosition>()._grid_x)
