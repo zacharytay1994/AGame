@@ -17,27 +17,26 @@
 
 using namespace std;
 
-
 /*___________________________________________________________________________________________________________________________________
 	COMPONENT DECLARATIONS & DEFINITONS																	<<	COMPONENT DEFINITIONS  >>
 	_________________________________________________________________________________________________________________________________*/
-// basic data
+// Basic Data
 struct Com_Position;
 struct Com_Velocity;
 struct Com_Sprite;
 struct Com_Direction;
-// input
+// Input
 struct Com_ArrowKeys;
 struct Com_ArrowKeysTilemap;
-// tilemap
+// Tilemap
 struct Com_Tilemap;
 struct Com_TilemapRef;
 struct Com_TilePosition;
 
-// collision
+// Collision
 struct Com_BoundingBox;
 struct Com_CollisionData;
-// attack
+// Attack
 struct Com_WeaponAttack;
 // Nodes
 struct Com_Node;
@@ -54,127 +53,157 @@ struct Com_BoundingBoxGUI;
 /*__________________________________________________________________________________________________
 																				Component::BASIC DATA
 ____________________________________________________________________________________________________*/
-
-//timer
+/*
+	Timer for Entities
+*/
 struct Com_GameTimer {
-	size_t timerinseconds{ 0 };
-	size_t incrementer{ 0 };
+	size_t				timerinseconds	{ 0 };
+	size_t				incrementer		{ 0 };
 };
-
+/*
+	Position for Entities
+*/
 struct Com_Position {
-	float x{ -1000.0f };
-	float y{ -1000.0f };
+	float				x	{ -1000.0f };
+	float				y	{ -1000.0f };
 };
-
+/*
+	Velocity for Entities
+*/
 struct Com_Velocity {
-	float x{ 0.0f };
-	float y{ 0.0f };
+	float				x	{ 0.0f };
+	float				y	{ 0.0f };
 };
-
+/*
+	Sprite for Entities
+*/
 struct Com_Sprite {
 	RenderPack			_render_pack;
-	float				_x_scale = 1.0f;
-	float				_y_scale = 1.0f;
-	float				_rotation = 0.0f;
-	bool				_flip = { false };
-	bool				_loop = { true };
-	bool				_repeat{ true };
-	int					_frames = 1;
-	int					_current_frame = 0;
-	float				_frame_interval = 1;
+	float				_x_scale				= 1.0f;
+	float				_y_scale				= 1.0f;
+	float				_rotation				= 0.0f;
+	bool				_flip					{ false };
+	bool				_loop					{ true };
+	bool				_repeat					{ true };
+	int					_frames					= 1;
+	int					_current_frame			= 0;
+	float				_frame_interval			= 1;
 	float				_frame_interval_counter = 0.0f;
-	int					_row = 1;
-	int					_col = 1;
-	bool				_visible{ true };
-	int					_current_frame_segment{ 0 };
-	Vec2i				_frame_segment[5]{ {0,0}, {0,0}, {0,0}, {0,0}, {0,0} };
-	bool				_lock{ false };
+	int					_row					= 1;
+	int					_col					= 1;
+	bool				_visible				{ true };
+	int					_current_frame_segment	{ 0 };
+	Vec2i				_frame_segment[5]		{ {0,0}, {0,0}, {0,0}, {0,0}, {0,0} };
+	bool				_lock					{ false };
 	int					_next_current_frame_segment{ 0 };
 };
-
+/*
+	Direction for Entities
+*/
 struct Com_Direction {
-	enum Direction { up, down, left, right };
-	int currdir = up;
+	enum Direction		{ up, down, left, right };
+	int					currdir = up;
 };
-
+/*
+	Boundary for Entities
+	- Filler component to act as Signature for Archetype
+*/
 struct Com_Boundary {
-	char _filler = 0; //filler 
+	char				_filler = 0;	//filler 
 };
-
+/*
+	Sorts entity's draw order by y position
+	- Filler component to act as Signature for Archetype
+*/
 struct Com_YLayering {
-	char filler = 0;
+	char				filler = 0;
 };
-
+/*
+	Component that stores Parent Entity ID
+*/
 struct Com_ParentPosition {
-	eid _parent_id{ -1 };
+	eid					_parent_id{ -1 };
 };
 
 /*																				Component::INPUT
 ____________________________________________________________________________________________________*/
-
+/*
+	Arrow Keys Input
+	- Filler component to act as Signature for Archetype
+*/
 struct Com_ArrowKeys {
-	char _filler = 0; // filler 
+	char				_filler = 0;	// filler 
 };
-
+/*
+	Arrow Keys on Tilemap Input
+	- Filler component to act as Signature for Archetype
+*/
 struct Com_ArrowKeysTilemap {
-	char _filler = 0;
+	char				_filler = 0;	// filler
 };
 /*																				Component::TILEMAP
 ____________________________________________________________________________________________________*/
-
+/*
+	Makes an Entity a Tilemap
+*/
 struct Com_Tilemap {
-	RenderPack		_render_pack;
-	std::vector<int> _map;
-	std::vector<int> _floor_mask;
-	float _offset_x{ 0.0f };
-	float _offset_y{ 0.0f };
-	int _width = 0;
-	int _height = 0;
-	float _scale_x = 1.0f;
-	float _scale_y = 1.0f;
-	bool _initialized = false;
+	RenderPack			_render_pack;
+	std::vector<int>	_map;
+	std::vector<int>	_floor_mask;
+	float				_offset_x		{ 0.0f };
+	float				_offset_y		{ 0.0f };
+	int					_width			= 0;
+	int					_height			= 0;
+	float				_scale_x		= 1.0f;
+	float				_scale_y		= 1.0f;
+	bool				_initialized	= false;
 };
-
+/*
+	Holds a reference to a Tilemap Entity
+*/
 struct Com_TilemapRef {
-	Com_Tilemap* _tilemap = nullptr;
+	Com_Tilemap*		_tilemap	= nullptr;
 };
-
+/*
+	Holds Tilemap Positional Data
+*/
 struct Com_TilePosition {
-	int _grid_x = 0;
-	int _grid_y = 0;
-	int _vgrid_x = 0;	// verified grid positions - do not set
-	int _vgrid_y = 0;	// verified grid positions - do not set
-	float _speed = 4.0f;
-	Vec2f _direction = { 0.0f,0.0f };
-	bool _moving{ false };
-	bool _initialized{ false };
-	bool _is_player{ false };
+	int					_grid_x		= 0;
+	int					_grid_y		= 0;
+	int					_vgrid_x	= 0;	// verified grid positions - do not set
+	int					_vgrid_y	= 0;	// verified grid positions - do not set
+	float				_speed		= 4.0f;
+	Vec2f				_direction	= { 0.0f,0.0f };
+	bool				_moving		{ false };
+	bool				_initialized{ false };
+	bool				_is_player	{ false };
 };
-
 /*																				Component::COLLISION
 ____________________________________________________________________________________________________*/
+/*
+	Axis-Aligned Bounding Box for Entity
+*/
 struct Com_BoundingBox
 {
-	float minx;
-	float miny;
-	float maxx;
-	float maxy;
+	float				minx;
+	float				miny;
+	float				maxx;
+	float				maxy;
 };
-
-
-
-
-// testing for wilfred ////////////////////////////
-
+/*
+	Collision Data for Entity
+*/
 struct Com_CollisionData {
-	Com_BoundingBox* aabb{ nullptr };
-	Com_Velocity* vel{ nullptr };
-	Com_type* type{ nullptr };
-	bool emplacedvec{ false };
+	Com_BoundingBox*	aabb		{ nullptr };
+	Com_Velocity*		vel			{ nullptr };
+	Com_type*			type		{ nullptr };
+	bool				emplacedvec	{ false };
 };
-
 /*																				Component::ATTACK
 ____________________________________________________________________________________________________*/
+/*
+	Weapon Data that can be Equipped to an Entity
+*/
 struct Com_WeaponAttack
 {
 	enum Weapons {
@@ -182,33 +211,35 @@ struct Com_WeaponAttack
 		pistol,
 		bomb
 	};
-	int currentweapon{ 1 };
-};;
-
+	int currentweapon	{ 1 };
+};
 /*																				Component::ENEMY
 ____________________________________________________________________________________________________*/
-
+/*
+	Enemy Type Data
+*/
 struct Com_TypeEnemy {
 	enum EnemyType
 	{
 		AlienMelee, //melee
 		AlienRange  //range
 	};
-	size_t Alientype{ 0 };
+	size_t Alientype	{ 0 };
 };
-
-
 /*																Component::PATH FINDING
 ____________________________________________________________________________________________________*/
+/*
+	Data used in A-Star Pathfinding Algorithm (non-component data)
+*/
 struct PathFinding
 {
-	bool bObstacle = false;					// Is the node an obstruction?
-	bool bVisited = false;					// Have we searched this node before?
-	float fGlobalGoal = 0.0f;				// Distance to goal so far
-	float fLocalGoal = 0.0f;				// Distance to goal if we took the alternative route
-	Vec2i gridPos{ 0,0 };
-	vector<PathFinding*> vecNeighbours;	// Connections to neighbours
-	PathFinding* parent = nullptr;		// Node connecting to this node that offers shortest parent
+	bool					bObstacle		= false;	// Is the node an obstruction?
+	bool					bVisited		= false;	// Have we searched this node before?
+	float					fGlobalGoal		= 0.0f;		// Distance to goal so far
+	float					fLocalGoal		= 0.0f;		// Distance to goal if we took the alternative route
+	Vec2i					gridPos			{ 0,0 };
+	vector<PathFinding*>	vecNeighbours;				// Connections to neighbours
+	PathFinding*			parent			= nullptr;	// Node connecting to this node that offers shortest parent
 
 	~PathFinding()
 	{
@@ -220,21 +251,11 @@ struct PathFinding
 		}
 	}
 };
-
+/*
+	Node Data in Pathfinding (non-component data)
+*/
 struct Com_Node
 {
-	//PathFinding* nodeStart = nullptr;
-	//PathFinding* nodeEnd = nullptr;
-	////vector<Com_PathFinding> nodes;
-	//int MapWidth = 0;
-	//int MapHeight = 0;
-	//PathFinding* nodes = nullptr;
-	//~Com_Node()
-	//{
-	//	delete nodes;
-	//	delete nodeStart;
-	//	delete nodeEnd;
-	//}
 	Com_Node()
 	{}
 	Com_Node(const Vec2i& gridPos, bool obstacle = false, const Vec2f& worldPos = { 0.0f,0.0f })
@@ -255,14 +276,15 @@ struct Com_Node
 		return distance_x * 14 + (distance_y - distance_x) * 10;
 	}
 
-	int		_g_cost = 0, _h_cost = 0;
-	Vec2i	_grid_pos{ 0,0 };
-	Vec2f	_world_pos{ 0.0f,0.0f };
-	bool	_obstacle{ false };
-	Com_Node* _parent{ nullptr };
-	bool	_closed{ false };
-	bool	_open{ false };
-	bool	_player{ false };
+	int			_g_cost		= 0,	
+				_h_cost		= 0;
+	Vec2i		_grid_pos	{ 0,0 };
+	Vec2f		_world_pos	{ 0.0f,0.0f };
+	bool		_obstacle	{ false };
+	Com_Node*	_parent		{ nullptr };
+	bool		_closed		{ false };
+	bool		_open		{ false };
+	bool		_player		{ false };
 
 	int FCost() { return _g_cost + _h_cost; }
 };
@@ -308,13 +330,13 @@ struct Grid {
 };
 
 struct Com_FindPath {
-	bool	_find{ false };
-	bool	_found{ false };
-	bool	_reached{ false };
-	Vec2i	_start{ 0,0 };
-	Vec2i	_end{ 0,0 };
-	Vec2i	_next{ 100, 100 }; // initailized to make sure is out of game board
-	Vec2i	_CheckNext{ 0,0 };
+	bool	_find		{ false };
+	bool	_found		{ false };
+	bool	_reached	{ false };
+	Vec2i	_start		{ 0,0 };
+	Vec2i	_end		{ 0,0 };
+	Vec2i	_next		{ 100, 100 };	// initailized to make sure is out of game board
+	Vec2i	_CheckNext	{ 0,0 };
 };
 
 struct Com_DamagedTiles {
@@ -322,7 +344,7 @@ struct Com_DamagedTiles {
 };
 
 struct Com_Health {
-	int health{ 3 };
+	int		health		{ 3 };
 };
 
 struct Sys_HealthUpdate : public System {
@@ -357,17 +379,15 @@ struct Com_type {
 -------------------------------------------*/
 
 struct Com_EnemySpawn {
-	int numberofenemies{ 3 }; //number of enemies to spawn
-	int CurrNoOfEnemies{ 0 }; //keep track of enemies on map
-	int DEATHEnemiespawncounter{ 0 };
+	int		numberofenemies			{ 3 };		//number of enemies to spawn
+	int		CurrNoOfEnemies			{ 0 };		//keep track of enemies on map
+	int		DEATHEnemiespawncounter	{ 0 };
 };
 
 struct Com_Wave {
-	float timerforwave{ 3.0f }; //if timer hits 0 in secsm spawn new wave 
-	size_t numberofwaves{ 10 }; //if number of wave hit 0, level unlocked 
+	float	timerforwave			{ 3.0f };	//if timer hits 0 in secsm spawn new wave 
+	size_t	numberofwaves			{ 10 };		//if number of wave hit 0, level unlocked 
 };
-
-
 
 /*																				system::ENEMY STATES
 ____________________________________________________________________________________________________*/
@@ -375,11 +395,10 @@ ________________________________________________________________________________
 //for Boss type enemy
 -------------------------------------------*/
 struct Com_Boss {
-	int BossHealth = 0;
-
-	int disable = 0;
-	bool enable = false;
-	bool bossdefeat = false;
+	int			BossHealth	= 0;
+	int			disable		= 0;
+	bool		enable		= false;
+	bool		bossdefeat	= false;
 	Com_Health* playerHealth;
 };
 struct Com_EnemyStateOne {
@@ -389,21 +408,21 @@ struct Com_EnemyStateOne {
 		MOVE,
 		ATTACK,
 		EVILWIN
-	} _current_state{ STATES::IDLE };
-	int _speed{ 2 };
-	int _counter{ _speed };
-	Com_TilePosition* _player;
-	Com_Health* playerHealth;
+	}		_current_state	{ STATES::IDLE };
+	int		_speed			{ 2 };
+	int		_counter		{ _speed };
+	Com_TilePosition*		_player;
+	Com_Health*				playerHealth;
 };
 
 struct Sys_EnemyStateOne : public System {
-	float _turn_step{ 0.5f };
-	float _turn_step_counter{ _turn_step };
-	bool  _turn{ false };
-	eid		_player_id{ -1 };
-	Entity* _player{ nullptr };
-	Grid* _grid{ nullptr };
-	eid	_tilemap{ -1 };
+	float	_turn_step			{ 0.5f };
+	float	_turn_step_counter	{ _turn_step };
+	bool	_turn				{ false };
+	eid		_player_id			{ -1 };
+	Entity* _player				{ nullptr };
+	Grid*	_grid				{ nullptr };
+	eid		_tilemap			{ -1 };
 
 	void OncePerFrame() override {
 		_turn_step_counter -= _dt;
@@ -884,33 +903,33 @@ struct Sys_EnemyStateBoss : public System {
 /*																				Component::GUI
 ____________________________________________________________________________________________________*/
 struct Com_GUISurface {
-	Vec2f			_position{ 0.0f, 0.0f };
-	Vec2f			_n_position{ 0.0f,0.0f };
-	Vec2f			_dimensions{ 1.0f, 1.0f };
-	Vec2f			_ph_dimensions{ 1.0f, 1.0f };
-	Com_GUISurface* _parent_surface{ nullptr };
+	Vec2f			_position		{ 0.0f, 0.0f };
+	Vec2f			_n_position		{ 0.0f,0.0f };
+	Vec2f			_dimensions		{ 1.0f, 1.0f };
+	Vec2f			_ph_dimensions	{ 1.0f, 1.0f };
+	Com_GUISurface* _parent_surface	{ nullptr };
 	Com_Position*	_parent_position{ nullptr };
-	bool			_active{ true };
-	bool			_parent_active{ true };
-	int				_layer{ 0 };
+	bool			_active			{ true };
+	bool			_parent_active	{ true };
+	int				_layer			{ 0 };
 };
 
 struct Com_GUIMouseCheck {
-	bool _over{ false };
+	bool			_over			{ false };
 };
 
 using OnClick = void(*)(Com_GUISurface* surface);
 struct Com_GUIOnClick {
-	OnClick _click_event{ nullptr };
+	OnClick			_click_event	{ nullptr };
 };
 
 struct Com_GUIDrag {
-	bool _held{ false };
-	Vec2f _click_position{ 0.0f,0.0f };
+	bool			_held			{ false };
+	Vec2f			_click_position	{ 0.0f,0.0f };
 };
 
 struct Com_Text {
-	TextPack _data;
+	TextPack		_data;
 };
 
 /*___________________________________________________________________________________________________________________________________
