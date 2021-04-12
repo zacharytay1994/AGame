@@ -60,6 +60,8 @@ public:
 	void ChangeSceneNow(const std::string& name);
 	void Free();
 	bool _pause{ false };
+	bool _currentlyplaying{ false };
+	bool _inlevel{ false };
 	bool _musicmmute{ false };
 	bool _fullscreen{ true };
 	bool _settings_toggle{ false };
