@@ -278,7 +278,7 @@ ________________________________________________________*/
 void SceneManager::Update(const float& dt)
 {
 	if (_delay > 0.0f) {
-		_delay -= AEFrameRateControllerGetFrameTime();
+		_delay -= (float)AEFrameRateControllerGetFrameTime();
 	}
 	else {
 		if (_next_scene != "") {
@@ -298,8 +298,8 @@ void SceneManager::Update(const float& dt)
 		SystemDatabase::Instance().RemoveAllEntities();
 	}
 	// draw cursor
-	ResourceManager::Instance().DrawScenePanels(AEFrameRateControllerGetFrameTime());
-	ResourceManager::Instance().CursorParticlesUpdate(AEFrameRateControllerGetFrameTime());
+	ResourceManager::Instance().DrawScenePanels((float)AEFrameRateControllerGetFrameTime());
+	ResourceManager::Instance().CursorParticlesUpdate((float)AEFrameRateControllerGetFrameTime());
 	ResourceManager::Instance().DrawCursor();
 }
 

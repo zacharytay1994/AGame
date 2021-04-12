@@ -145,7 +145,7 @@ bool Inventory::Inventory_SetWeaponUnlocked(std::string const& name)
 		}
 
 		unsigned int weapon_cost = it->second->GetWeapon_Cost();
-		if (coins >= weapon_cost)
+		if (coins >= (int)weapon_cost)
 		{
 			Inventory_AddCoins(-static_cast<int>(weapon_cost));
 			it->second->Weapon_Unlock();

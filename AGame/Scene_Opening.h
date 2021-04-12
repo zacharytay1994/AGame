@@ -29,11 +29,18 @@ struct Opening : public Scene {
 		UNREFERENCED_PARAMETER(dt);
 		GUISettingsUpdate();
 
-
-		if (last == true ) {
+		if (last == true
+			|| (AEInputCheckTriggered(AEVK_SPACE))
+			|| (AEInputCheckTriggered(AEVK_LBUTTON))
+			|| (AEInputCheckTriggered(AEVK_RETURN))
+			|| (AEInputCheckTriggered(AEVK_ESCAPE))) {
 			last = false;
 			SceneManager::Instance().ChangeScene("Main Menu");
 		}
+		/*if (last == true ) {
+			last = false;
+			SceneManager::Instance().ChangeScene("Main Menu");
+		}*/
 	}
 	/*
 	Exit Override (optional)
