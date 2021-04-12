@@ -252,7 +252,7 @@ struct PathFinding
 	}
 };
 /*
-	Node Data in Pathfinding (non-component data)
+	Node Data used in Pathfinding (non-component data)
 */
 struct Com_Node
 {
@@ -286,9 +286,12 @@ struct Com_Node
 	bool		_open		{ false };
 	bool		_player		{ false };
 
+	// Calculates and returns FCost of Node
 	int FCost() { return _g_cost + _h_cost; }
 };
-
+/*
+	Grid Data used in Pathfinding (non-component data)
+*/
 struct Grid {
 	Grid() = default;
 	Grid(int width, int height, const std::vector<int> grid)
@@ -296,22 +299,27 @@ struct Grid {
 		_width(width),
 		_height(height)
 	{
+		// Initializes grid with empty nodes
 		for (size_t y = 0; y < height; ++y) {
 			for (size_t x = 0; x < width; ++x)
 				_grid.emplace_back(Vec2i((int)x, (int)y), !grid[x * height + y]); {
 			}
 		}
 	}
-	size_t _width{ 0 };
-	size_t _height{ 0 };
-	vector<Com_Node> _grid;
-	Com_Node _set_obstacle{ Vec2i{-1,-1},1};
+	size_t				_width			{ 0 };
+	size_t				_height			{ 0 };
+	vector<Com_Node>	_grid;
+	Com_Node			_set_obstacle	{ Vec2i{-1,-1},1};
+
+	// Get Node at position in grid
 	Com_Node& Get(const Vec2i& pos) {
 		if (pos.x < 0 || pos.x > _width - 1 || pos.y < 0 || pos.y > _height - 1) {
 			return _set_obstacle;
 		}
 		return _grid[pos.y * _width + pos.x];
 	}
+
+	// Get neighbouring nodes, up, down left, right
 	void GetNeighbours(Com_Node*& node, std::vector<Com_Node*>& neighbours) {
 		neighbours.clear();
 		if (node->_grid_pos.x - 1 >= 0) {
@@ -328,7 +336,9 @@ struct Grid {
 		}
 	}
 };
-
+/*
+	Component Data for Entity's Pathfinding Status
+*/
 struct Com_FindPath {
 	bool	_find		{ false };
 	bool	_found		{ false };
@@ -338,15 +348,16 @@ struct Com_FindPath {
 	Vec2i	_next		{ 100, 100 };	// initailized to make sure is out of game board
 	Vec2i	_CheckNext	{ 0,0 };
 };
-
-struct Com_DamagedTiles {
-	
-};
-
+/*
+	Health Data for Entities
+*/
 struct Com_Health {
 	int		health		{ 3 };
 };
-
+/*
+	System that updates Com_Health
+	- Removes entity when health less than or 0
+*/
 struct Sys_HealthUpdate : public System {
 	void UpdateComponent() override {
 		Com_Health& health = get<Com_Health>();
@@ -358,10 +369,11 @@ struct Sys_HealthUpdate : public System {
 		}
 	}
 };
-
-//edits
+/*
+	Component depicting type of an Entity
+*/
 struct Com_type {
-	size_t type{ 0 };
+	size_t	type{ 0 };
 	enum type {
 		player,
 		enemy,
@@ -373,27 +385,32 @@ struct Com_type {
 		Boss
 	};
 };
-
 /*-------------------------------------
 //for spawning of enemies
 -------------------------------------------*/
-
+/*
+	Enemy Spawning Data to control Waves in Levels
+*/
 struct Com_EnemySpawn {
 	int		numberofenemies			{ 3 };		//number of enemies to spawn
 	int		CurrNoOfEnemies			{ 0 };		//keep track of enemies on map
 	int		DEATHEnemiespawncounter	{ 0 };
 };
-
+/*
+	Enemy Wave Data
+*/
 struct Com_Wave {
 	float	timerforwave			{ 3.0f };	//if timer hits 0 in secsm spawn new wave 
 	size_t	numberofwaves			{ 10 };		//if number of wave hit 0, level unlocked 
 };
-
 /*																				system::ENEMY STATES
 ____________________________________________________________________________________________________*/
 /*-------------------------------------
 //for Boss type enemy
 -------------------------------------------*/
+/*
+	Component defining a boss Entity
+*/
 struct Com_Boss {
 	int			BossHealth	= 0;
 	int			disable		= 0;
@@ -401,20 +418,25 @@ struct Com_Boss {
 	bool		bossdefeat	= false;
 	Com_Health* playerHealth;
 };
+/*
+	State Data of Enemy Entities
+*/
 struct Com_EnemyStateOne {
-	//
 	enum class STATES {
 		IDLE,
 		MOVE,
 		ATTACK,
 		EVILWIN
-	}		_current_state	{ STATES::IDLE };
-	int		_speed			{ 2 };
-	int		_counter		{ _speed };
-	Com_TilePosition*		_player;
-	Com_Health*				playerHealth;
+	}		_current_state		{ STATES::IDLE };
+	int		_speed				{ 2 };
+	int		_counter			{ _speed };
+	Com_TilePosition*			_player;
+	Com_Health*					playerHealth;
 };
-
+/*
+	Statemachine system processing Com_EnemyStateOne, i.e. enemy states
+	- Idle, Move, Attack
+*/
 struct Sys_EnemyStateOne : public System {
 	float	_turn_step			{ 0.5f };
 	float	_turn_step_counter	{ _turn_step };
@@ -424,6 +446,9 @@ struct Sys_EnemyStateOne : public System {
 	Grid*	_grid				{ nullptr };
 	eid		_tilemap			{ -1 };
 
+	/*
+		System only runs this once per frame
+	*/
 	void OncePerFrame() override {
 		_turn_step_counter -= _dt;
 		_player = &Factory::Instance()[_player_id];
@@ -435,6 +460,7 @@ struct Sys_EnemyStateOne : public System {
 			_turn_step_counter = _turn_step;
 		}
 	}
+
 	void UpdateComponent() override {
 		if (!_player || !_grid || Factory::Instance()[_player_id].Get<Com_Health>().health <= 0) {
 			return;
@@ -442,17 +468,15 @@ struct Sys_EnemyStateOne : public System {
 		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
 		state._player = &_player->Get<Com_TilePosition>();
 		state.playerHealth = &_player->Get<Com_Health>();
-		// flip enemies based on player
+		// Flip enemies based on player
 		Com_TilePosition& enemypos = get<Com_TilePosition>();
 		Com_Sprite& sprite = get<Com_Sprite>();
-		//Com_type& ct = get<Com_type>();
 		if (enemypos._grid_x < state._player->_grid_x) {
 			sprite._flip = false;
 		}
 		else {
 			sprite._flip = true;
 		}
-
 		if (_turn) {
 			--state._counter;
 		}
@@ -460,79 +484,81 @@ struct Sys_EnemyStateOne : public System {
 		if (!state._counter) {
 			state._counter = state._speed;
 		}
-
 	}
+	/*
+		Changes from one state to another
+	*/
 	void ChangeState(Com_EnemyStateOne::STATES newState) {
 		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
-		// exit current state
+		// Exit current state
 		(this->*_fp_states[static_cast<int>(state._current_state) * 3 + 2])();
-		// enter new state
+		// Enter new state
 		(this->*_fp_states[static_cast<int>(newState) * 3])();
 		state._current_state = newState;
 	}
-	// idle
+	/*
+		Idle State
+	*/
 	void IDLE_ENTER() {
 		std::cout << "IDLE_ENTER" << std::endl;
 		Com_Sprite& sprite = get<Com_Sprite>();
 		sprite._current_frame_segment = 0;
 		sprite._current_frame = 0;
 	}
+
 	void IDLE_UPDATE() {
-		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
-		Com_FindPath& fp = get<Com_FindPath>();
-		Com_TilePosition& pos = get<Com_TilePosition>();
+		Com_EnemyStateOne&	state	= get<Com_EnemyStateOne>();
+		Com_FindPath&		fp		= get<Com_FindPath>();
+		Com_TilePosition&	pos		= get<Com_TilePosition>();
 		if (!state._counter) {
 			std::cout << "IDLE_UPDATE" << std::endl;
-			// see if can find path to player
+			// See if can find path to player
 			fp._start = Vec2i(pos._grid_x, pos._grid_y);
 			fp._end = Vec2i(state._player->_grid_x, state._player->_grid_y);
 			fp._find = true;
 		}
-		// if path found
+		// If path found
 		if (fp._found) {
 			ChangeState(Com_EnemyStateOne::STATES::MOVE);
 		}
 	}
+
 	void IDLE_EXIT() {
 		std::cout << "IDLE_EXIT" << std::endl;
 	}
-	// move
+	/*
+		Move State
+	*/
 	void MOVE_ENTER() {
 		std::cout << "MOVE_ENTER" << std::endl;
 		Com_Sprite& sprite = get<Com_Sprite>();
 		sprite._current_frame_segment = 1;
 		sprite._current_frame = 0;
 	}
+
 	void MOVE_UPDATE() {
 		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
 		Com_FindPath& fp = get<Com_FindPath>();
 		Com_TilePosition& pos = get<Com_TilePosition>();
 		if (!state._counter) {
 			std::cout << "MOVE_UPDATE" << std::endl;
-			// see if can find path to player
+			// See if can find path to player
 			fp._start = Vec2i(pos._grid_x, pos._grid_y);
 			fp._end = Vec2i(state._player->_grid_x, state._player->_grid_y);
 			fp._find = true;
-
-			//if next path is the player as
-			//std::cout << "x: " << fp._next.x << "y: " << fp._next.y << std::endl;
-			//std::cout << "x: " << pos._grid_x << " & y: " << pos._grid_y << std::endl;
-			// if path found
-			/*if (fp._next.x != -1 && fp._next.y != -1) {
-				pos._grid_x = fp._next.x;
-				pos._grid_y = fp._next.y;
-				std::cout << "x: " << fp._next.x << "y: " << fp._next.y << std::endl;
-			}*/
 		}
 		if (fp._reached)
 		{
 			ChangeState(Com_EnemyStateOne::STATES::ATTACK);
 		}
 	}
+
 	void MOVE_EXIT() {
 		std::cout << "MOVE_EXIT" << std::endl;
 	}
-	// attack
+	/*
+		Attack State
+	*/
 	void ATTACK_ENTER() {
 		std::cout << "ATTACK_ENTER" << std::endl;
 		Com_Sprite& sprite = get<Com_Sprite>();
@@ -540,15 +566,13 @@ struct Sys_EnemyStateOne : public System {
 		sprite._current_frame = 0;
 	}
 	void ATTACK_UPDATE() {
-		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
-		Com_FindPath& fp = get<Com_FindPath>();
-		Com_TilePosition& pos = get<Com_TilePosition>();
-		Com_type& ct = get<Com_type>();
+		Com_EnemyStateOne&	state	= get<Com_EnemyStateOne>();
+		Com_FindPath&		fp		= get<Com_FindPath>();
+		Com_TilePosition&	pos		= get<Com_TilePosition>();
+		Com_type&			ct		= get<Com_type>();
 		if (!state._counter)
 		{
 			std::cout << "ATTACK_UPDATE" << std::endl;
-			//std::cout << "x: " << fp._next.x << "y: " << fp._next.y << std::endl;
-			// see if can find path to player
 			if (!fp._reached)
 			{
 				ChangeState(Com_EnemyStateOne::STATES::MOVE);
@@ -557,7 +581,7 @@ struct Sys_EnemyStateOne : public System {
 			{
 				if (ct.type == ct.enemyrange) 
 				{
-					if (state.playerHealth != nullptr/* && _grid->Get(fp._end)._player*/)
+					if (state.playerHealth != nullptr)
 					{
 						ResourceManager::Instance().PlayerDamageSound();
 						std::cout << "hit" << std::endl;
@@ -567,8 +591,6 @@ struct Sys_EnemyStateOne : public System {
 						Factory::Instance().FF_CreateBorder({ "redborder.png" });
 						if (state.playerHealth->health <= 0)
 						{
-							/*std::cout << "お前もう死んで " << std::endl;
-							std::cout << "何？" << std::endl;*/
 							ChangeState(Com_EnemyStateOne::STATES::IDLE);
 						}
 					}
@@ -576,7 +598,7 @@ struct Sys_EnemyStateOne : public System {
 				if (ct.type == ct.enemy)
 				{
 					// to decrease health - temporary check (theres a bug, cant die if walking out of map)
-					if (state.playerHealth != nullptr/* && _grid->Get(fp._end)._player*/)
+					if (state.playerHealth != nullptr)
 					{
 						ResourceManager::Instance().PlayerDamageSound();
 						std::cout << "hit white" << std::endl;
@@ -586,22 +608,19 @@ struct Sys_EnemyStateOne : public System {
 						Factory::Instance().FF_CreateBorder({ "redborder.png" });
 						if (state.playerHealth->health <= 0)
 						{
-							/*std::cout << "お前もう死んで " << std::endl;
-							std::cout << "何？" << std::endl;*/
 							ChangeState(Com_EnemyStateOne::STATES::IDLE);
 						}
 					}
 				}	
-				/*else {
-					ChangeState(Com_EnemyStateOne::STATES::MOVE);
-				}*/
-
 			}
 			fp._start = Vec2i(pos._grid_x, pos._grid_y);
 			fp._end = Vec2i(state._player->_grid_x, state._player->_grid_y);
 			fp._find = true;
 		}
 	}
+	/*
+		Other States
+	*/
 	void ATTACK_EXIT() {
 		std::cout << "ATTACK_EXIT" << std::endl;
 	}
@@ -615,29 +634,32 @@ struct Sys_EnemyStateOne : public System {
 	void EVILWIN_EXIT() {
 		std::cout << "EVIL_EXIT" << std::endl;
 	}
-
+	/*
+		State type definition
+	*/
 	using FP_STATES = void(Sys_EnemyStateOne::*)();
 	FP_STATES _fp_states[12] = { &Sys_EnemyStateOne::IDLE_ENTER, &Sys_EnemyStateOne::IDLE_UPDATE, &Sys_EnemyStateOne::IDLE_EXIT,
 								&Sys_EnemyStateOne::MOVE_ENTER, &Sys_EnemyStateOne::MOVE_UPDATE, &Sys_EnemyStateOne::MOVE_EXIT,
 								&Sys_EnemyStateOne::ATTACK_ENTER, &Sys_EnemyStateOne::ATTACK_UPDATE, &Sys_EnemyStateOne::ATTACK_EXIT,
 								&Sys_EnemyStateOne::EVILWIN_ENTER, &Sys_EnemyStateOne::EVILWIN_UPDATE, &Sys_EnemyStateOne::EVILWIN_EXIT };
 };
-
-
+/*
+	Statemachine system that processes the boss state
+*/
 struct Sys_EnemyStateBoss : public System {
-	eid player{ -1 };
-	eid _tilemap{ -1 };
-	float timer{ 15.0f };
-	int Pattern = 0;
-	Com_Boss* boss{ nullptr };
-	bool switcher = false;
+	eid			player		{ -1 };
+	eid			_tilemap	{ -1 };
+	float		timer		{ 15.0f };
+	int			Pattern		= 0;
+	Com_Boss*	boss		{ nullptr };
+	bool		switcher	= false;
+
 	void UpdateComponent() override {
-		Com_TilePosition& posBoss = get<Com_TilePosition>();
-		//Com_Boss& boss = get<Com_Boss>();
-		Factory::SpriteData ProjEnemy{ "EnemyBall.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };	
-		Com_GameTimer& gametimer = get<Com_GameTimer>();
-		Com_Sprite& sprite = get<Com_Sprite>();
-		
+		Com_TilePosition&	posBoss		= get<Com_TilePosition>();
+		Factory::SpriteData ProjEnemy	{ "EnemyBall.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };	
+		Com_GameTimer&		gametimer	= get<Com_GameTimer>();
+		Com_Sprite&			sprite		= get<Com_Sprite>();
+
 		if (Factory::Instance()[player].Get<Com_Health>().health <= 0)
 		{
 			return;
@@ -649,11 +671,8 @@ struct Sys_EnemyStateBoss : public System {
 			sprite._flip = true;
 		}
 
-		
-
 		if (boss->BossHealth <= 10 && boss->BossHealth >= 5) 
 		{
-			//std::cout << "Changing pattern" << std::endl;
 			Pattern = 1;
 		}
 		else if (boss->BossHealth <= 4) 
@@ -664,7 +683,7 @@ struct Sys_EnemyStateBoss : public System {
 		{
 			Pattern = 0;
 		}
-		//std::cout << boss->BossHealth << std::endl;
+
 		switch (Pattern) 
 		{
 			case 0:
@@ -746,6 +765,9 @@ struct Sys_EnemyStateBoss : public System {
 			timer -= _dt;
 		}
 	}
+	/*
+		Boss attack pattern 1
+	*/
 	void Pattern1(const Factory::SpriteData& data , Com_TilePosition& pos)
 	{
 		if (pos._grid_x > Factory::Instance()[player].Get<Com_TilePosition>()._grid_x)
@@ -773,11 +795,11 @@ struct Sys_EnemyStateBoss : public System {
 			}
 		}
 	}
-
-
+	/*
+		Boss attack pattern 2.1
+	*/
 	void Pattern2Ver1(const Factory::SpriteData& data, Com_TilePosition& pos)
 	{
-		std::cout << "Heloo" << std::endl;
 		if (pos._grid_x > Factory::Instance()[player].Get<Com_TilePosition>()._grid_x &&
 			(pos._grid_x > 0 || pos._grid_x < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width))
 		{
@@ -786,13 +808,10 @@ struct Sys_EnemyStateBoss : public System {
 			{
 				eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, i, -1, 0, _tilemap);
 				eid k = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x - 1, i, -1, 0, _tilemap);
-				//eid l = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x - 2, i, -1, 0, _tilemap);
 				Factory::Instance()[j].AddComponent<Com_YLayering>();
 				Factory::Instance()[k].AddComponent<Com_YLayering>();
-				//Factory::Instance()[l].AddComponent<Com_YLayering>();
 			}
 		}
-
 		else if (pos._grid_x < Factory::Instance()[player].Get<Com_TilePosition>()._grid_x &&
 			(pos._grid_x > 0 || pos._grid_x < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width))
 		{
@@ -820,55 +839,55 @@ struct Sys_EnemyStateBoss : public System {
 				Factory::Instance()[j].AddComponent<Com_YLayering>();
 			}
 		}
-
-		
 	}
-
+	/*
+		Boss attack pattern 2.2
+	*/
 	void Pattern2Ver2(const Factory::SpriteData& data, Com_TilePosition& pos)
 	{
-		std::cout << "Its me" << std::endl;
-			if (pos._grid_x > Factory::Instance()[player].Get<Com_TilePosition>()._grid_x &&
-				(pos._grid_x > 0 || pos._grid_x < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width))
+		if (pos._grid_x > Factory::Instance()[player].Get<Com_TilePosition>()._grid_x &&
+			(pos._grid_x > 0 || pos._grid_x < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width))
+		{
+			for (int i = 0; i < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._height - 3; ++i)
 			{
-				for (int i = 0; i < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._height - 3; ++i)
-				{
-					eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, i, -1, 0, _tilemap);
-					eid k = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x - 1, i, -1, 0, _tilemap);
-					eid l = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x - 2, i, -1, 0, _tilemap);
-					Factory::Instance()[j].AddComponent<Com_YLayering>();
-					Factory::Instance()[k].AddComponent<Com_YLayering>();
-					Factory::Instance()[l].AddComponent<Com_YLayering>();
-				}
+				eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, i, -1, 0, _tilemap);
+				eid k = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x - 1, i, -1, 0, _tilemap);
+				eid l = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x - 2, i, -1, 0, _tilemap);
+				Factory::Instance()[j].AddComponent<Com_YLayering>();
+				Factory::Instance()[k].AddComponent<Com_YLayering>();
+				Factory::Instance()[l].AddComponent<Com_YLayering>();
 			}
-			else if (pos._grid_x < Factory::Instance()[player].Get<Com_TilePosition>()._grid_x &&
-				(pos._grid_x > 0 || pos._grid_x < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width))
+		}
+		else if (pos._grid_x < Factory::Instance()[player].Get<Com_TilePosition>()._grid_x &&
+			(pos._grid_x > 0 || pos._grid_x < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._width))
+		{
+			for (int i = 0; i < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._height - 3; ++i)
 			{
-				for (int i = 0; i < Factory::Instance()[_tilemap].Get<Com_Tilemap>()._height - 3; ++i)
-				{
-					eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, i, 1, 0, _tilemap);
-					eid k = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x + 1, i, 1, 0, _tilemap);
-					eid l = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x + 2, i, 1, 0, _tilemap);
-					Factory::Instance()[j].AddComponent<Com_YLayering>();
-					Factory::Instance()[k].AddComponent<Com_YLayering>();
-					Factory::Instance()[l].AddComponent<Com_YLayering>();
-				}
+				eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, i, 1, 0, _tilemap);
+				eid k = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x + 1, i, 1, 0, _tilemap);
+				eid l = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x + 2, i, 1, 0, _tilemap);
+				Factory::Instance()[j].AddComponent<Com_YLayering>();
+				Factory::Instance()[k].AddComponent<Com_YLayering>();
+				Factory::Instance()[l].AddComponent<Com_YLayering>();
 			}
-			else if (pos._grid_x == Factory::Instance()[player].Get<Com_TilePosition>()._grid_x)
+		}
+		else if (pos._grid_x == Factory::Instance()[player].Get<Com_TilePosition>()._grid_x)
+		{
+			if (pos._grid_y < Factory::Instance()[player].Get<Com_TilePosition>()._grid_y)
 			{
-				if (pos._grid_y < Factory::Instance()[player].Get<Com_TilePosition>()._grid_y)
-				{
-					eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y, 0, -1, _tilemap);
-					Factory::Instance()[j].AddComponent<Com_YLayering>();
-				}
-				else if (pos._grid_y > Factory::Instance()[player].Get<Com_TilePosition>()._grid_y)
-				{
-					eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y, 0, 1, _tilemap);
-					Factory::Instance()[j].AddComponent<Com_YLayering>();
-				}
+				eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y, 0, -1, _tilemap);
+				Factory::Instance()[j].AddComponent<Com_YLayering>();
 			}
-		
+			else if (pos._grid_y > Factory::Instance()[player].Get<Com_TilePosition>()._grid_y)
+			{
+				eid j = Factory::Instance().FF_CreateprojEnemy(data, pos._grid_x, pos._grid_y, 0, 1, _tilemap);
+				Factory::Instance()[j].AddComponent<Com_YLayering>();
+			}
+		}
 	}
-
+	/*
+		Boss desperate attack pattern
+	*/
 	void PatternDesperate(const Factory::SpriteData& data, Com_TilePosition& pos)
 	{
 		float minvel{ -100.0f };
@@ -901,12 +920,13 @@ struct Sys_EnemyStateBoss : public System {
 				Factory::Instance()[j].AddComponent<Com_YLayering>();
 			}
 		}
-
 	}
 };
-
 /*																				Component::GUI
 ____________________________________________________________________________________________________*/
+/*
+	Component data defining a GUI surface Entity
+*/
 struct Com_GUISurface {
 	Vec2f			_position		{ 0.0f, 0.0f };
 	Vec2f			_n_position		{ 0.0f,0.0f };
@@ -918,25 +938,32 @@ struct Com_GUISurface {
 	bool			_parent_active	{ true };
 	int				_layer			{ 0 };
 };
-
+/*
+	Component storing hover input data on surface
+*/
 struct Com_GUIMouseCheck {
 	bool			_over			{ false };
 };
-
+/*
+	Component storing on click input data on surface
+*/
 using OnClick = void(*)(Com_GUISurface* surface);
 struct Com_GUIOnClick {
 	OnClick			_click_event	{ nullptr };
 };
-
+/*
+	Component storing drag input data on surface
+*/
 struct Com_GUIDrag {
 	bool			_held			{ false };
 	Vec2f			_click_position	{ 0.0f,0.0f };
 };
-
+/*
+	Component storing text data on surface
+*/
 struct Com_Text {
 	TextPack		_data;
 };
-
 /*___________________________________________________________________________________________________________________________________
 	SYSTEM DECLARATIONS				<< RIGHT CLICK ON DECLARATION TO NAVIGATE TO DEFINITION!! >>			<<	SYSTEM DECLARATIONS  >>
 	_________________________________________________________________________________________________________________________________
@@ -963,31 +990,25 @@ ________________________________________________________________________*/
 ____________________________________________________________________________________________________*/
 struct Sys_DrawSprite;
 struct Sys_Boundary;
-
 /*																				system::INPUT
 ____________________________________________________________________________________________________*/
 struct Sys_ArrowKeys;
 struct Sys_ArrowKeysTilemap;
-
 /*																				system::TILEMAP
 ____________________________________________________________________________________________________*/
 struct Sys_Tilemap;
 struct Sys_TilemapPosition;
 struct Sys_TilePosition;
-
 /*																				system::COLLISION
 ____________________________________________________________________________________________________*/
 struct Sys_BoundingBox;
 struct Sys_AABB;
-
 /*																				system::ATTACK
 ____________________________________________________________________________________________________*/
 struct Sys_WeaponAttack;
-
 /*																				system::PATHFINDING
 ____________________________________________________________________________________________________*/
 struct Sys_PathFinding;
-
 /*																				system::GUI
 ____________________________________________________________________________________________________*/
 struct Sys_GUISurfaceRender;
@@ -995,13 +1016,14 @@ struct Sys_GUISurfaceMouseCheck;
 struct Sys_GUISurfaceOnClick;
 struct Sys_GUITextRender;
 struct Sys_textboxinput;
-
 /*___________________________________________________________________________________________________________________________________
 	SYSTEM DEFINITIONS																						<<	SYSTEM DEFINITIONS  >>
 _____________________________________________________________________________________________________________________________________*/
 /*																				system::BASIC SYSTEMS
 ____________________________________________________________________________________________________*/
-
+/*
+	System updating Com_Velocity
+*/
 struct Sys_Velocity : public System {
 	void UpdateComponent() override {
 		Com_Velocity& velocity = get<Com_Velocity>();
@@ -1010,7 +1032,9 @@ struct Sys_Velocity : public System {
 		position.y += velocity.y * _dt;
 	}
 };
-
+/*
+	System updating Com_Sprite
+*/
 struct Sys_DrawSprite : public System {
 	std::vector<Com_Sprite*> con;
 	void UpdateComponent() override {
@@ -1018,7 +1042,7 @@ struct Sys_DrawSprite : public System {
 		if (!sprite._visible) {
 			return;
 		}
-		//	// form the matrix
+		// form the matrix
 		AEMtx33 trans{ 0 }, scale{ 0 }, rot{ 0 };
 		Draw(sprite, get<Com_Position>());
 	}
@@ -1046,7 +1070,6 @@ struct Sys_DrawSprite : public System {
 					}
 					current_frame = sprite._frame_segment[sprite._current_frame_segment].x;
 				}
-				//sprite._current_frame = ++sprite._current_frame >= sprite._frames ? 0 : sprite._current_frame;
 				sprite._render_pack._offset_x = (current_frame % sprite._col) * 1.0f / (float)sprite._col;
 				sprite._render_pack._offset_y = (current_frame / sprite._col) * 1.0f / (float)sprite._row;
 				sprite._frame_interval_counter = 0.0f;
@@ -1069,7 +1092,9 @@ struct Sys_DrawSprite : public System {
 		ResourceManager::Instance().DrawQueue(&sprite._render_pack);
 	}
 };
-
+/*
+	System updating child Com_Position to parent Com_Position
+*/
 struct Sys_ParentPosition : public System {
 	void UpdateComponent() override {
 		// get parent position
@@ -1079,7 +1104,9 @@ struct Sys_ParentPosition : public System {
 		position = parent_position;
 	}
 };
-
+/*
+	System updating boundary checks
+*/
 struct Sys_Boundary : public System {
 	void UpdateComponent() override {
 		//check the boundary
@@ -1105,17 +1132,20 @@ struct Sys_Boundary : public System {
 		}
 	}
 };
-
+/*
+	System updating draw order based on y position
+*/
 struct Sys_YLayering : public System {
 	void UpdateComponent() override {
 		// sets the layer to the position
 		get<Com_Sprite>()._render_pack._layer = static_cast<int>(-get<Com_Position>().y);
 	}
 };
-
 /*																				system::INPUT
 ____________________________________________________________________________________________________*/
-
+/*
+	System updating arrow keys input
+*/
 struct Sys_ArrowKeys : public System {
 	void UpdateComponent() override {
 		if (AEInputCheckCurr(VK_LEFT)) {
@@ -1132,7 +1162,9 @@ struct Sys_ArrowKeys : public System {
 		}
 	}
 };
-
+/*
+	System updating arrow keys input on tilemap
+*/
 struct Sys_ArrowKeysTilemap : public System {
 	// hard coded - assuming only 1 player uses arrow keys tilemap
 	float _speed = 0.5f;
@@ -1159,8 +1191,6 @@ struct Sys_ArrowKeysTilemap : public System {
 		_once = false;
 		Com_TilePosition& pos = get<Com_TilePosition>();
 		Com_Direction& direction = get<Com_Direction>();
-
-
 		int x = 0, y = 0;
 		if (AEInputCheckCurr(AEVK_LEFT) || AEInputCheckCurr(AEVK_A)) {
 			x -= 1;
@@ -1177,7 +1207,6 @@ struct Sys_ArrowKeysTilemap : public System {
 			
 			y += 1;
 		}
-		
 		if (x == -1) {
 			direction.currdir = Com_Direction::left;
 			if (_turn) {
@@ -1225,10 +1254,11 @@ struct Sys_ArrowKeysTilemap : public System {
 		}
 	}
 };
-
 /*																				system::TILEMAP
 ____________________________________________________________________________________________________*/
-
+/*
+	System updating tilemaps
+*/
 struct Sys_Tilemap : public System {
 	std::vector<Com_TilePosition> highlight;
 	void UpdateComponent() override {
@@ -1273,7 +1303,9 @@ struct Sys_Tilemap : public System {
 		highlight.clear();
 	}
 };
-
+/*
+	System updating tilemap position
+*/
 struct Sys_TilemapPosition : public System {
 	void UpdateComponent() override {
 		Com_Tilemap& tilemap = get<Com_Tilemap>();
@@ -1282,7 +1314,9 @@ struct Sys_TilemapPosition : public System {
 		tilemap._offset_y = position.y;
 	}
 };
-
+/*
+	System updating tile position
+*/
 struct Sys_TilePosition : public System {
 	Grid* _grid{ nullptr };
 	void UpdateComponent() override {
@@ -1293,18 +1327,11 @@ struct Sys_TilePosition : public System {
 		Com_Tilemap* tilemap = tilemapref._tilemap;
 		Com_Position& position = get<Com_Position>();
 		Com_TilePosition& t_position = get<Com_TilePosition>();
-		//bool check = false;
 		if (tilemap) {
 			// check if new tile position is within grid - would be checked with collision_mask after
-			/*if (t_position._vgrid_x == t_position._grid_x && t_position._vgrid_y == t_position._grid_y) {
-				if (t_position._is_player) {
-					_grid->Get({ t_position._vgrid_x,t_position._vgrid_y })._obstacle = false;
-				}
-			}*/
 			if (t_position._grid_x >= 0 && t_position._grid_x < tilemap->_width && t_position._grid_y >= 0 && t_position._grid_y < tilemap->_height &&
 				tilemap->_floor_mask[(size_t)t_position._grid_x * (size_t)tilemap->_height + (size_t)t_position._grid_y] >= 0 &&
 				(!_grid->Get({ t_position._grid_x, t_position._grid_y })._obstacle || !t_position._is_player)) {
-				//check = (t_position._vgrid_x != t_position._grid_x || t_position._vgrid_y != t_position._grid_y);
 				if (t_position._is_player) {
 					_grid->Get({ t_position._vgrid_x,t_position._vgrid_y })._obstacle = false;
 					_grid->Get({ t_position._vgrid_x,t_position._vgrid_y })._player = false;
@@ -1330,8 +1357,6 @@ struct Sys_TilePosition : public System {
 				t_position._moving = false;
 			}
 			else {
-				//Vec2f direction = { dis_x, dis_y };
-				//direction.NormalizeSelf();
 				position.x += t_position._direction.x * _dt * t_position._speed;
 				position.y += t_position._direction.y * _dt * t_position._speed;
 				t_position._moving = true;
@@ -1339,10 +1364,16 @@ struct Sys_TilePosition : public System {
 		}
 	}
 };
-
+/*
+	Component to set movement state of sprite
+	- Filler component to act as Signature for Archetype
+*/
 struct Com_TileMoveSpriteState {
 	char filler{ ' ' };
 };
+/*
+	System updating Com_TileMoveSpriteState
+*/
 struct Sys_TileMoveSpriteState : public System {
 	void UpdateComponent() override {
 		Com_Sprite& sprite = get<Com_Sprite>();
@@ -1369,14 +1400,13 @@ struct Sys_TileMoveSpriteState : public System {
 		else if (pos._direction.x > 0.01f) {
 			sprite._flip = false;
 		}
-		/*else if (sprite._current_frame_segment == 1) {
-			sprite._current_frame_segment = 0;
-		}*/
 	}
 };
 /*																				system::COLLISION
 ____________________________________________________________________________________________________*/
-
+/*
+	System updating AABBs of Entities
+*/
 struct Sys_Boundingbox : public System {
 	void UpdateComponent() override {
 		//calculate AABB bounding box 
@@ -1399,76 +1429,48 @@ struct Sys_Boundingbox : public System {
 	{
 		UNREFERENCED_PARAMETER(sprite);
 		//calculate min max
-		//boundingbox.maxx = 0.5f * sprite._x_scale + position.x;
-		//boundingbox.minx = -0.5f * sprite._x_scale + position.x;
-		//boundingbox.miny = -0.5f * sprite._y_scale + position.y;
-		//boundingbox.maxy = 0.5f * sprite._y_scale + position.y;
 		boundingbox.maxx = 0.5f * 25.0f + position.x;
 		boundingbox.minx = -0.5f * 25.0f + position.x;
 		boundingbox.miny = -0.5f * 25.0f + position.y;
 		boundingbox.maxy = 0.5f * 25.0f + position.y;
 	}
 };
-
-
-
-
+/*
+	System calculating collision between AABBs
+*/
 struct Sys_AABB : public System {
 	
 	Com_Health* _PLayerHealth{ nullptr };
 	Grid* _grid{ nullptr };
 	Com_EnemySpawn* _spawner{ nullptr };
 	Com_Boss* Boss{ nullptr };
-	std::vector<Com_CollisionData> AABBColData; //to store all collision data of player
+	std::vector<Com_CollisionData> AABBColData;	// To store all collision data of player
 	std::vector<std::vector<Com_CollisionData>::iterator> Gridcoliterator;
-	//std::vector<Com_CollisionData> AABBTestEnemy; //to store all collision data of player
-	//std::vector<Com_CollisionData> AABBTestBullet; //to store all collision data of player
 	void UpdateComponent() override {
 		if (!_grid || !_spawner) {
 			return;
 		}
 		Com_TilePosition* tilepos = &get<Com_TilePosition>();
 
-		//calculate AABB detection
+		// Calculate AABB detection
 		Com_BoundingBox* AABB = &get<Com_BoundingBox>();
 		Com_Velocity* vel = &get<Com_Velocity>();
 		Com_CollisionData& coldata = get<Com_CollisionData>();
 		Com_type* type = &get<Com_type>();
 		Com_Health& health = get<Com_Health>();
 		Com_Position& position = get<Com_Position>();
-		//Com_ParticleEmitter& particle = get<Com_ParticleEmitter>();
 
-		//emplace back all if not initialized
+		// Emplace back all if not initialized
 		if (coldata.emplacedvec == false) {
 			AABBColData.emplace_back(Com_CollisionData{ AABB,vel,type});
 			coldata.emplacedvec = true;
 		}
+
 		bool erase = false;
 		std::vector<Com_CollisionData>::iterator iteratorcomgrid;
 		iteratorcomgrid = AABBColData.begin();
 		for (size_t i{ 0 }; i < AABBColData.size(); ++i) {
 			if (CollisionAABB(*AABB, *vel, *AABBColData[i].aabb, *AABBColData[i].vel)) {
-				//range attack with enemy 
-				//if ((type->type == type->enemy || type->type == type->enemyrange) && AABBColData[i].type->type == type->bullet) {
-				//	Gridcoliterator.push_back(iteratorcomgrid);
-				//	erase = true;
-				//	RemoveEntity();
-				//	break;
-				//}
-
-				//if (type->type == type->bullet && (AABBColData[i].type->type == type->enemy || AABBColData[i].type->type == type->enemyrange)) {
-				//	std::cout << "Collided Enemy" << std::endl;
-				//	RemoveEntity();
-				//	break;
-				//}
-
-				//if ((type->type == type->player) && AABBColData[i].type->type == type->EnemyBalls)
-				//{
-
-				//	break;
-				//}
-				
-
 				if ((type->type == type->enemy || type->type == type->enemyrange) && (AABBColData[i].type->type == type->bullet)) {
 					std::cout << "collidied" << std::endl;
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
@@ -1481,10 +1483,9 @@ struct Sys_AABB : public System {
 					{
 						Boss->enable = true;
 					}
-					
 					break;
 				}
-				
+
 				if ((type->type == type->player) && (AABBColData[i].type->type == type->EnemyBalls)) {
 					std::cout << "collidied human2213"  << std::endl;
 					//_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
@@ -1526,7 +1527,6 @@ struct Sys_AABB : public System {
 
 				if (type->type == type->bullet && (AABBColData[i].type->type == type->enemyrange || AABBColData[i].type->type == type->enemy || AABBColData[i].type->type == type->Boss)) {
 					std::cout << "collidied" << std::endl;
-					//_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					RemoveEntity();
 					ResourceManager::Instance()._screen_shake = 5.0f;
 					ResourceManager::Instance().ScreenShake();
@@ -1538,23 +1538,9 @@ struct Sys_AABB : public System {
 						Factory::Instance().FF_CreateParticleFrictionBloodSpray({ "blood.png", 80.0f, 200.0f, 2, 2, 4, 1000.0f },
 							{ position.x,position.y }, direction_movement, 0.9f, 1.2f, { 30.0f,50.0f }, 1200.0f, 30);
 					}
-					//Gridcoliterator.push_back(iteratorcomgrid);
-					//erase = true;
 					break;
 				}
-				// if (type->type == type->EnemyBalls && (AABBColData[i].type->type == type->player)) {
-				// 	std::cout << "collidied human" << std::endl;
-				// 	RemoveEntity();
-				// 	ResourceManager::Instance()._screen_shake = 5.0f;
-				// 	ResourceManager::Instance().ScreenShake();
-				// 	//Gridcoliterator.push_back(iteratorcomgrid);
-				// 	//erase = true;
-				// 	/*Gridcoliterator.push_back(iteratorcomgrid);
-				// 	erase = true;*/
-				// 	break;
-				// }
-				
-				
+
 				if (type->type == type->EnemyBalls && (AABBColData[i].type->type == type->player)) {
 					std::cout << "collidied human" << std::endl;
 					if (tilepos->_grid_x == 4 || tilepos->_grid_y == 3 || tilepos->_grid_x == 5 || tilepos->_grid_y == 4)
@@ -1579,14 +1565,11 @@ struct Sys_AABB : public System {
 					}
 					break;
 				}
-				
 
 				if (type->type == type->bullet && (AABBColData[i].type->type == type->enemy)) {
 					std::cout << "collidied" << std::endl;
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					RemoveEntity();
-					//Gridcoliterator.push_back(iteratorcomgrid);
-					//erase = true;
 					break;
 				}
 
@@ -1594,8 +1577,6 @@ struct Sys_AABB : public System {
 					std::cout << "collidied Bossa" << std::endl;
 					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
 					RemoveEntity();
-					/*Gridcoliterator.push_back(iteratorcomgrid);
-					erase = true;*/
 					break;
 				}
 
@@ -1605,10 +1586,12 @@ struct Sys_AABB : public System {
 					--health.health;
 					break;
 				}
+
 				if (type->type == type->bullet && (AABBColData[i].type->type == type->wall)) {
 					RemoveEntity();
 					break;
 				}
+
 				//bomb barrel 
 				if (type->type == type->bombbarrel && (AABBColData[i].type->type == type->bullet)) {
 					health.health;
@@ -1616,6 +1599,7 @@ struct Sys_AABB : public System {
 					ResourceManager::Instance().BombSound();
 					break;
 				}
+
 				if (type->type == type->bullet && (AABBColData[i].type->type == type->bombbarrel)) {
 					RemoveEntity();
 					break;
@@ -1631,7 +1615,6 @@ struct Sys_AABB : public System {
 			//clear the gridcoliterator
 			Gridcoliterator.clear();
 		}
-
 		//check with diff type objects 
 	}
 	/*-----------------------------------------
@@ -1646,66 +1629,65 @@ struct Sys_AABB : public System {
 	bool CollisionAABB(const Com_BoundingBox& object1, const Com_Velocity& objvel1,
 		const Com_BoundingBox& object2, const Com_Velocity& objvel2)
 	{
-		if ((object1.maxx < object2.minx) || (object1.minx > object2.maxx) || (object1.maxy < object2.miny) || (object1.miny > object2.maxy)) // check static collision
+		if ((object1.maxx < object2.minx) || (object1.minx > object2.maxx) || (object1.maxy < object2.miny) || (object1.miny > object2.maxy)) // Check static collision
 		{
-			// initialzing time of first and last contact 
-			float tFirst = 0.0f; //init tfirst 
-			float tLast = (float)AEFrameRateControllerGetFrameTime(); //inti tlast 
-			AEVec2 Rvel;
+			// Initialzing time of first and last contact 
+			float tFirst = 0.0f;	// Init tfirst 
+			float tLast = (float)AEFrameRateControllerGetFrameTime();	// Inti tlast 
+			AEVec2 Rvel	{ 0.0f,0.0f };
 			Rvel.x = objvel2.x - objvel1.x;
 			Rvel.y = objvel2.y - objvel1.y;
 
-			if (Rvel.x < 0.0) // if relative velocity x < 0
+			if (Rvel.x < 0.0)	// If relative velocity x < 0
 			{
 				if (object2.maxx < object1.minx)
 				{
-					return 0;//no collision
+					return 0;	// No collision
 				}
 				if (object1.maxx < object2.minx)
 				{
-					tFirst = max((object1.maxx - object2.minx) / Rvel.x, tFirst); //calculate tfirst touch
+					tFirst = max((object1.maxx - object2.minx) / Rvel.x, tFirst);	// Calculate tfirst touch
 				}
 				if (object2.maxx > object1.minx)
 				{
-					tLast = min((object1.minx - object2.maxx) / Rvel.x, tLast); //calculate tlast touch
+					tLast = min((object1.minx - object2.maxx) / Rvel.x, tLast);		// Calculate tlast touch
 				}
 			}
 
-			if (Rvel.x > 0.0) //if relative velocity x > 0
+			if (Rvel.x > 0.0) // If relative velocity x > 0
 			{
 				if (object2.minx > object1.maxx)
 				{
-					return 0;//no collision
+					return 0;// No collision
 				}
 				if (object2.maxx < object1.minx)
 				{
-					tFirst = max((object1.minx - object2.maxx) / Rvel.x, tFirst);  // calculate tfirst touch
+					tFirst = max((object1.minx - object2.maxx) / Rvel.x, tFirst);	// Calculate tfirst touch
 				}
 				if (object1.maxx > object2.minx)
 				{
-					tLast = min((object1.maxx - object2.minx) / Rvel.x, tLast); //calculate tlast touch 
+					tLast = min((object1.maxx - object2.minx) / Rvel.x, tLast);		// Calculate tlast touch 
 				}
-
 			}
 
 			if (tFirst > tLast)
 			{
-				return 0; //no collision
+				return 0; // No collision
 			}
 
-			if (Rvel.y < 0.0) //if relative velocity y < 0
+			if (Rvel.y < 0.0) // If relative velocity y < 0
 			{
 				if (object2.maxy < object1.miny)
 				{
-					return 0; // not collison moving apart 
+					return 0; // Not collison moving apart 
 				}
 				if (object1.maxy < object2.miny)
 				{
-					tFirst = max((object1.maxy - object2.miny) / Rvel.y, tFirst); //calculate tfirst touch
+					tFirst = max((object1.maxy - object2.miny) / Rvel.y, tFirst);	// Calculate tfirst touch
 				}
 				if (object2.maxy > object1.miny)
 				{
-					tLast = min((object1.miny - object2.maxy) / Rvel.y, tLast); //calculate tlast touch
+					tLast = min((object1.miny - object2.maxy) / Rvel.y, tLast);		// Calculate tlast touch
 				}
 			}
 
@@ -1713,40 +1695,42 @@ struct Sys_AABB : public System {
 			{
 				if (object2.miny > object1.maxy)
 				{
-					return 0; // not collison moving apart 
+					return 0; // Not collison moving apart 
 
 				}
 				if (object2.maxy < object1.miny)
 				{
-					tFirst = max((object1.miny - object2.maxy) / Rvel.y, tFirst);  // cacluate tfirst touch
+					tFirst = max((object1.miny - object2.maxy) / Rvel.y, tFirst);	// Calculate tfirst touch
 
 				}
 				if (object1.maxy > object2.miny)
 				{
-					tLast = min((object1.maxy - object2.miny) / Rvel.y, tLast);  //calculate tlast touch
+					tLast = min((object1.maxy - object2.miny) / Rvel.y, tLast);		// Calculate tlast touch
 				}
 
 			}
 
 			if (tFirst > tLast || tFirst == 0)
 			{
-				return 0; //no collision
+				return 0;	// No collision
 			}
 
 			else
 			{
-				return 1;  //dynamic collision
+				return 1;	// Dynamic collision
 			}
 		}
 
-		return 1;  //static collision 
+		return 1;			// Static collision 
 	}
 
 };
 
 /*																				system::ATTACK
 ____________________________________________________________________________________________________*/
-
+/*
+	Makes an Entity a Projectile
+*/
 struct Com_Projectile {
 	char _filler = 0; //filler
 	float time = static_cast<float>(AEGetTime(nullptr));
@@ -1754,8 +1738,9 @@ struct Com_Projectile {
 	int grid_vel_x = 0;
 	int grid_vel_y = 0;
 };
-
-
+/*
+	System that updates projectile entities
+*/
 struct Sys_Projectile : public System {
 	Factory::SpriteData data = { "test", 20, 20, 1, static_cast<int>(100.0f), static_cast<int>(100.0f), static_cast<int>(100.0f) };
 	//passing in of player's data 
@@ -1764,11 +1749,11 @@ struct Sys_Projectile : public System {
 		Factory::Instance().FF_Createproj(data, static_cast<int>(position.x), static_cast<int>(position.y),direction);
 	}
 };
-
-
+/*
+	System that processes player attacks
+*/
 struct Sys_PlayerAttack : public Sys_Projectile {
 	void UpdateComponent() override {
-
 		Com_Direction& direction = get<Com_Direction>();
 		Com_WeaponAttack& weapon = get<Com_WeaponAttack>();
 		Com_Position& position = get<Com_Position>();
@@ -1778,7 +1763,6 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 				if (weapon.currentweapon == weapon.sword) {
 					//attack the grid infront or shoort invisible bullet 
 					//sword_attack(direction, position);
-
 				}
 				//if character holding to pistol 
 				if (weapon.currentweapon == weapon.pistol) {
@@ -1791,7 +1775,6 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 				if (weapon.currentweapon == weapon.sword) {
 					//attack the grid infront or shoort invisible bullet 
 					//sword_attack(direction, position);
-
 				}
 				//if character holding to pistol 
 				if (weapon.currentweapon == weapon.pistol) {
@@ -1804,7 +1787,6 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 				if (weapon.currentweapon == weapon.sword) {
 					//attack the grid infront or shoort invisible bullet 
 					//sword_attack(direction, position);
-
 				}
 				//if character holding to pistol 
 				if (weapon.currentweapon == weapon.pistol) {
@@ -1817,7 +1799,6 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 				if (weapon.currentweapon == weapon.sword) {
 					//attack the grid infront or shoort invisible bullet 
 					//sword_attack(direction, position);
-
 				}
 				//if character holding to pistol 
 				if (weapon.currentweapon == weapon.pistol) {
@@ -1842,10 +1823,9 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 			weapon.currentweapon = weapon.bomb;
 		}
 	}
-	//void sword_attack(Com_Direction& direction, Com_Position& position) {
-	//	//pending 
-	//
-	//}
+	/*
+		Plants a bomb attack
+	*/
 	void Plant_Bomb(Com_Position& position) {
 		//setting the sprite data to pass in 
 		Factory::SpriteData inner_data{ "kaboom", 40.0f, 40.0f, 1, 1, 1, 0.15f };
@@ -1853,7 +1833,6 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 		Factory::Instance().FF_CreateBomb(inner_data, static_cast<int>(position.x),static_cast<int>(position.y));
 	}
 };
-
 /**************************************************************************/
 	/*!
 	  \brief
@@ -1925,24 +1904,19 @@ struct Sys_Projectile2 : public System {
 		}
 	}
 };
-
-
-//logic for spawning of enemies 
+/*
+	System in charge of Spawning Enemies
+*/
 struct Sys_EnemySpawning : public System {
 	// Initialization
-	bool yammonsterenable{ false };
-	eid _tilemap = { -1 };
-	eid playerpos = -1;
-	float timer{ 0.0f };
-	//
-	Grid* _grid{ nullptr };
-	int _max{ 6 };
-	bool spawnBoss = false;
-	Com_Boss* boss{ nullptr };
-	//eid _spawner_id{ -1 };
-	void OncePerFrame() override
-	{
-	}
+	bool		yammonsterenable	{ false };
+	eid			_tilemap			= { -1 };
+	eid			playerpos			= -1;
+	float		timer				{ 0.0f };
+	Grid*		_grid				{ nullptr };
+	int			_max				{ 6 };
+	bool		spawnBoss			= false;
+	Com_Boss*	boss				{ nullptr };
 	void UpdateComponent() override {
 		if (!_grid || Factory::Instance()[playerpos].Get<Com_Health>().health <= 0) {
 			return;
@@ -1961,8 +1935,6 @@ struct Sys_EnemySpawning : public System {
 				while (_grid->Get(ran)._obstacle || _grid->Get(ran)._player) {
 					ran = { rand() % 9,rand() % 4 };
 				}
-				/*int randomx = rand() % 9;
-				int randomy = rand() % 5;*/
 				Vec2i passin[5] = { {0,3},{4,7},{7,11},{0,0},{0,0} };
 				int randomEnemyCreation =  1 +(rand() % 2 * 4);
 				if(randomEnemyCreation == 1 || (randomEnemyCreation == 5 && yammonsterenable == false)) // melee
@@ -1978,7 +1950,6 @@ struct Sys_EnemySpawning : public System {
 					_grid->Get({ ran })._obstacle = true;
 					Factory::Instance()[enemy].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[playerpos].Get<Com_TilePosition>();
 					Factory::Instance()[enemy].Get<Com_EnemyStateOne>().playerHealth = &Factory::Instance()[playerpos].Get<Com_Health>();
-					//Factory::Instance()[enemy].AddComponent<Com_BoundingBox>();
 					++_spawner.CurrNoOfEnemies;
 				}
 				else if (randomEnemyCreation == 5 && yammonsterenable == true) //ranged 
@@ -1994,7 +1965,6 @@ struct Sys_EnemySpawning : public System {
 					_grid->Get({ ran })._obstacle = true;
 					Factory::Instance()[enemy].Get<Com_EnemyStateOne>()._player = &Factory::Instance()[playerpos].Get<Com_TilePosition>();
 					Factory::Instance()[enemy].Get<Com_EnemyStateOne>().playerHealth = &Factory::Instance()[playerpos].Get<Com_Health>();
-					//Factory::Instance()[enemy].AddComponent<Com_BoundingBox>();
 					++_spawner.CurrNoOfEnemies;
 				}
 			}
@@ -2010,7 +1980,6 @@ struct Sys_EnemySpawning : public System {
 			}
 			Vec2i passin[5] = { {0,15},{16,30},{0,0},{0,0},{0,0} };
 			Vec2i passin2[5] = { {31,45},{46,60},{0,0},{0,0},{0,0} };
-
 
 			if (Factory::Instance()[playerpos].Get<Com_TilePosition>()._grid_x < ran.x) 
 			{
@@ -2050,7 +2019,6 @@ struct Sys_EnemySpawning : public System {
 				Factory::Instance()[enemy2].Get<Com_Boss>().playerHealth = &Factory::Instance()[playerpos].Get<Com_Health>();
 
 			}
-			
 
 			_grid->Get({ ran })._obstacle = true;
 			_grid->Get({ ran2 })._obstacle = true;
@@ -2065,35 +2033,30 @@ struct Sys_EnemySpawning : public System {
 		{
 			spawnBoss = true;
 			boss->enable = false;
-			//std::cout << "Boss appear" << std::endl;
 		}
 	}
-
-
 };
-
-
 /*-------------------------------------
 			//timing for game/wave
 -------------------------------------------*/
-
-//frame rate non independent timer 
+/*
+	System on independent timer
+*/
 struct Sys_GameTimer : public System {
 	void UpdateComponent() override {
 		Com_GameTimer& gametimer = get<Com_GameTimer>();
 		++gametimer.incrementer;
 		if (AEFrameRateControllerGetFrameRate() < gametimer.incrementer) {
-			//std::cout << gametimer.timerinseconds << "\n";
-			gametimer.incrementer = 0; //reset incrementer 
+			gametimer.incrementer = 0;	//reset incrementer 
 			++gametimer.timerinseconds; //add 1 sec
 		}
 	}
 };
-
-
 /*																			system::PATH FINDING
 ____________________________________________________________________________________________________*/
-
+/*
+	System handling AStar pathfinding
+*/
 struct Sys_PathFinding : public System
 {
 	eid playerPos{ -1 };
@@ -2103,13 +2066,10 @@ struct Sys_PathFinding : public System
 			Com_type& ct = get<Com_type>();
 			Com_FindPath& fp = get<Com_FindPath>();
 			Com_TilePosition& tpos = get<Com_TilePosition>();
-			//Com_Tilemap& ctile = get<Com_Tilemap>();
-			//std::cout << ct.type << std::endl;
 			if (Factory::Instance()[playerPos].Get<Com_Health>().health <= 0)
 			{
 				return;
 			}
-			
 			if (fp._find) {
 				fp._found = SolveAStar(fp._start, fp._end, _grid, _path);
 				if (ct.type == ct.enemyrange) 
@@ -2147,9 +2107,6 @@ struct Sys_PathFinding : public System
 						tpos._grid_y = _path[0].y;
 						_grid.Get({ tpos._grid_x, tpos._grid_y })._obstacle = true;
 					}
-					/*else if (_path.size() >= 1 && ct.type == ct.enemyrange) {
-						fp._reached = true;
-					}*/
 					else if (_path.size() == 1) 
 					{
 						fp._reached = true;
@@ -2158,7 +2115,6 @@ struct Sys_PathFinding : public System
 				fp._find = false;
 			}
 		}
-
 	}
 	Grid _grid;
 	vector<Com_Node*> _nodes_to_reset;		// rmb to reserve, PESSIMISM! or something like that
@@ -2248,15 +2204,16 @@ struct Sys_PathFinding : public System
 		node->_closed = false;
 		node->_open = false;
 	}
-
 };
-
-
-
+/*
+	Component defining a particle entity
+*/
 struct Com_Particle {
 	size_t lifetime{ 2 };
 };
-
+/*
+	Updating particle entities
+*/
 struct Sys_ParticleSys : public System {
 	void UpdateComponent() override {
 		Com_Particle& particle = get<Com_Particle>();
@@ -2268,23 +2225,23 @@ struct Sys_ParticleSys : public System {
 		}
 	}
 };
-
-
+/*
+	Component defining a particle emitter
+*/
 struct Com_ParticleEmitter {
 	size_t timeforemitter{ 1 };
 	size_t numberofparticle{ 20 };
 	bool active{false};
 };
-
-
-
+/*
+	System updating particle emitters
+*/
 struct Sys_ParticleEmitter : public System {
 	eid tilemap{ -1 };
 	void UpdateComponent() override {
 		Com_GameTimer& timer = get<Com_GameTimer>();
 		Com_ParticleEmitter& emitter = get<Com_ParticleEmitter>();
 		Com_TilePosition& tilepos = get<Com_TilePosition>();
-		//Com_Position& position = get<Com_Position>();
 		//if timer reaches 0 emit particles 
 		if (emitter.active == true) {
 			if (timer.timerinseconds >= emitter.timeforemitter)
@@ -2294,9 +2251,7 @@ struct Sys_ParticleEmitter : public System {
 					emitparticle();
 				}
 				//create dmg all around 
-				//LoadTexture("transparent", "transparent.png");
 				Factory::SpriteData data{ "transparent.png", 50.0f, 100.0f, 1, 1, 1, 0.15f };
-				//Factory::SpriteData data{ "bullet.png", 50.0f, 100.0f, 2, 2, 4, 0.1f };
 				for (size_t i{ 0 }; i < 8; ++i) {
 					switch (i)
 					{
@@ -2333,7 +2288,9 @@ struct Sys_ParticleEmitter : public System {
 			}
 		}
 	}
-
+	/*
+		Emits Particles
+	*/
 	void emitparticle() {
 		//create particle sprite 
 		float minvel{-50.0f };
@@ -2346,19 +2303,15 @@ struct Sys_ParticleEmitter : public System {
 		float rand_velocityx = minvel + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (maxvel - ((minvel)))));
 		float rand_velocityy = minvel + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (maxvel - ((minvel)))));
 		Factory::SpriteData data{ "bombparticles", rand_sizex, rand_sizey, 1, 1, 1, 0.15f };
-		//Factory::SpriteData data = { "test3", 1,8, 8, 0.1f, rand_sizex, rand_sizey };
 		//create particle 
 		Factory::Instance().FF_CreateParticle(data, static_cast<int>(get<Com_Position>().x), static_cast<int>(get<Com_Position>().y), rand_velocityx ,rand_velocityy);
 	}
-
 };
-
-
-
-
-
 /*																				system::GUI
 ____________________________________________________________________________________________________*/
+/*
+	System rendering gui surfaces
+*/
 struct Sys_GUISurfaceRender : public System {
 	float _screen_width = (float)AEGetWindowWidth();
 	float _screen_height = (float)AEGetWindowHeight();
@@ -2372,15 +2325,11 @@ struct Sys_GUISurfaceRender : public System {
 				surface._active = surface._parent_surface->_active;
 				surface._parent_active = surface._parent_surface->_active;
 			}
-			//surface._active = surface._parent_surface->_active ? surface._active : surface._parent_surface->_active;
 			surface._n_position.x = surface._parent_surface->_n_position.x + surface._parent_surface->_dimensions.x * (surface._position.x - 0.5f);
 			surface._n_position.y = surface._parent_surface->_n_position.y + surface._parent_surface->_dimensions.y * (surface._position.y - 0.5f);
 			// offset with parent
 			position.x = surface._parent_position->x - surface._parent_surface->_ph_dimensions.x + surface._position.x*surface._parent_surface->_ph_dimensions.x*2.0f;
 			position.y = surface._parent_position->y + surface._parent_surface->_ph_dimensions.y - surface._position.y*surface._parent_surface->_ph_dimensions.y*2.0f;
-			// scale with parent
-			/*sprite._x_scale = surface._parent_surface->_dimensions.x * surface._dimensions.x;
-			sprite._y_scale = surface._parent_surface->_dimensions.y * surface._dimensions.y;*/
 		}
 		else {
 			// update sprite position with button
@@ -2393,7 +2342,9 @@ struct Sys_GUISurfaceRender : public System {
 		sprite._visible = surface._active;
 	}
 };
-
+/*
+	System handling entities with mouse hover event
+*/
 struct Sys_GUISurfaceMouseCheck : public System {
 	Vec2i _mouse_position{ 0,0 };
 	Vec2f _screen_dimensions{ AEGetWindowWidth() / 2.0f,AEGetWindowHeight() / 2.0f };
@@ -2413,7 +2364,9 @@ struct Sys_GUISurfaceMouseCheck : public System {
 			_mouse_position.y < position.y - surface._ph_dimensions.y || _mouse_position.y > position.y + surface._ph_dimensions.y);
 	}
 };
-
+/*
+	System handling entities with on click event
+*/
 struct Sys_GUISurfaceOnClick : public System {
 	bool _left_mouse{ false };
 	void OncePerFrame() override {
@@ -2430,10 +2383,15 @@ struct Sys_GUISurfaceOnClick : public System {
 		}
 	}
 };
-
+/*
+	Component giving an entity a hover shadow event
+*/
 struct Com_GUISurfaceHoverShadow {
 	char filler{ ' ' };
 };
+/*
+	System handling Hover Shadow event
+*/
 struct Sys_GUISurfaceHoverShadow : public System {
 	void UpdateComponent() override {
 		Com_Sprite& sprite = get<Com_Sprite>();
@@ -2448,10 +2406,15 @@ struct Sys_GUISurfaceHoverShadow : public System {
 		}
 	}
 };
-
+/*
+	Component giving an entity a hover shadow inventory event
+*/
 struct Com_GUISurfaceHoverShadow_Inventory {
 	bool weapon_unlocked = false;
 };
+/*
+	System processing inventory shadow
+*/
 struct Sys_GUISurfaceHoverShadow_Inventory : public System {
 	void UpdateComponent() override {
 		Com_Sprite& sprite = get<Com_Sprite>();
@@ -2481,7 +2444,9 @@ struct Sys_GUISurfaceHoverShadow_Inventory : public System {
 		}
 	}
 };
-
+/*
+	System rendering gui text
+*/
 struct Sys_GUITextRender : public System {
 	char str_buffer[100];
 	void UpdateComponent() override {
@@ -2490,18 +2455,14 @@ struct Sys_GUITextRender : public System {
 		if (!surface._active) {
 			return;
 		}
-		//Draw(position, text, surface);
 		text._data._position.x = surface._n_position.x * 2.0f - 1.0f;
 		text._data._position.y = -(surface._n_position.y * 2.0f - 1.0f);
 		ResourceManager::Instance().DrawStackText(text._data);
 	}
-	//void Draw(const Com_Position& position, Com_Text& text, const Com_GUISurface& surface) {
-	//	//sprintf_s(str_buffer, text._text.c_str());
-	//	//AEGfxGetPrintSize(text._font, str_buffer, 1.0f, text._width, text._height);
-	//	//AEGfxPrint(text._font, const_cast<s8*>(text._text.c_str()), surface._position.x*2.0f-1.0f, -(surface._position.y*2.0f-1.0f), text._scale, 1.0f, text._g, text._b);
-	//}
 };
-
+/*
+	System handing gui drag events
+*/
 struct Sys_GUIDrag : public System {
 	bool _left_mouse{ false };
 	bool _left_mouse_triggered{ false };
@@ -2544,18 +2505,9 @@ struct Sys_GUIDrag : public System {
 		}
 	}
 };
-
-
-//edits by wilfred
-//struct Com_Obstacle {
-//	enum obst {
-//		bombbarrel,
-//		breakablewall,
-//	};
-//	size_t obstacletype{ 0 };
-//	size_t numofhitstodestroy{ 1 };
-//};
-
+/*
+	System handing obstacle entities
+*/
 struct Sys_Obstacle : public System {
 	Grid* _grid{ nullptr };
 	void UpdateComponent() override {
@@ -2572,7 +2524,6 @@ struct Sys_Obstacle : public System {
 				//explode 
 				ResourceManager::Instance().BoomSound();
 				particle.active = true;
-				//RemoveEntity();
 			}
 		}
 		//if it's a breakable wall 
@@ -2586,7 +2537,9 @@ struct Sys_Obstacle : public System {
 		}
 	}
 };
-
+/*
+	Component determining camera entity
+*/
 struct Com_Camera {
 	char _filler = 0;
 	bool updated{ false };
@@ -2596,8 +2549,9 @@ struct Com_Camera {
 	float boundariesymin = 0.0f;
 	float buffer = 150.0f;
 };
-
-//camera 
+/*
+	System handing camera entity
+*/
 struct Sys_Camera : public System {
 	void UpdateComponent() override {
 		//fix the camera to the player 
@@ -2620,25 +2574,17 @@ struct Sys_Camera : public System {
 };
 /*																				system::ENEMY STATES
 ____________________________________________________________________________________________________*/
-//struct Com_EnemyStateOne {
-//	enum class STATES {
-//		IDLE,
-//		MOVE,
-//		ATTACK
-//	} _current_state{ STATES::IDLE };
-//	int _speed{ 2 };
-//	int _counter{ _speed };
-//	Com_TilePosition* _player{ nullptr };
-//};
-
-
+/*
+	Component data of grid collision
+*/
 struct Com_GridColData {
 	Com_TilePosition* tilepos{ nullptr };
 	Com_type* type{ nullptr };
 	bool emplacedvec{ false };
 };
-
-//grid collision djsdai
+/*
+	System handling grid collision data
+*/
 struct Sys_GridCollision : public System {
 	Grid* _grid{ nullptr };
 	Com_EnemySpawn* _spawner{ nullptr };
@@ -2653,8 +2599,6 @@ struct Sys_GridCollision : public System {
 		Com_type* type = &get<Com_type>();
 		Com_TilePosition* tilepos = &get<Com_TilePosition>();
 		Com_GridColData& gridcoldata = get<Com_GridColData>();
-		//bool hit = false;
-		//Com_EnemySpawn& gridspaen = get<Com_EnemySpawn>();
 		if (gridcoldata.emplacedvec == false) {
 			GridCol.emplace_back(Com_GridColData{ tilepos,type });
 			gridcoldata.emplacedvec = true;
@@ -2674,10 +2618,6 @@ struct Sys_GridCollision : public System {
 					erase = true;
 					RemoveEntity();
 					break;
-					//++gridspaen.DEATHEnemiespawncounter;
-					//--gridspaen.CurrNoOfEnemies;
-					//std::cout << gridspaen.DEATHEnemiespawncounter << std::endl;
-
 				}
 
 				if (type->type == type->bullet && (GridCol[i].type->type == type->enemy || GridCol[i].type->type == type->enemyrange)) {
@@ -2686,31 +2626,6 @@ struct Sys_GridCollision : public System {
 					RemoveEntity();
 					break;
 				}
-
-				/*if ((type->type == type->player) && GridCol[i].type->type == type->EnemyBalls)
-				{
-					std::cout << "Damage Taken" << std::endl;
-					_grid->Get({ tilepos->_vgrid_x,tilepos->_vgrid_y })._obstacle = false;
-					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
-					break;
-				}*/
-
-				/*if (type->type == type->EnemyBalls && (GridCol[i].type->type == type->player)) {
-					std::cout << "Collided Human" << std::endl;
-					hit = true;
-
-					_grid->Get({ tilepos->_grid_x,tilepos->_grid_y })._obstacle = false;
-					if (_PLayerHealth->health > 0 && hit == true)
-					{
-						--_PLayerHealth->health;
-						hit = false;
-					}
-					RemoveEntity();
-					Gridcoliterator.push_back(iteratorcomgrid);
-					erase = true;
-					break;
-
-				}*/
 			}
 			++iteratorcomgrid;
 		}
@@ -2724,8 +2639,9 @@ struct Sys_GridCollision : public System {
 			Gridcoliterator.clear();
 		}
 	}
-
-
+	/*
+		Check grid for collision
+	*/
 	bool gridcollisioncheck(const Com_TilePosition& tilepos1,const Com_TilePosition& tilepos2){
 		if (tilepos1._grid_x == tilepos2._grid_x && tilepos1._grid_y == tilepos2._grid_y) {
 			return true;
@@ -2733,19 +2649,15 @@ struct Sys_GridCollision : public System {
 		else {
 			return false;
 		}
-	
 	}
 };
-
-//edits level editor generate map
+//	Edits level editor generate map
 struct Com_GUItextboxinput {
 	bool inputting{ false };
-	//destructor 
-	//~Com_GUItextboxinput() {
-	//	result.~vector();	
-	//}
 };
-
+/*
+	System handing gui text box input
+*/
 struct Sys_GUItextboxinput : public System {
 	void UpdateComponent() override {
 		Com_GUItextboxinput& input = get<Com_GUItextboxinput>();
@@ -2753,7 +2665,6 @@ struct Sys_GUItextboxinput : public System {
 		Com_Text& text = get<Com_Text>();
 		//input 
 		if (input.inputting) {
-			//AEInputReset();
 			int limit = 2;
 			if (text._data._text.size() < limit) {
 				if (AEInputCheckTriggered(AEVK_0)) { text._data._text += '0'; }
@@ -2777,7 +2688,6 @@ struct Sys_GUItextboxinput : public System {
 			}
 		}
 		//trigger on click 
-		//AEInputCheckTriggered(AEVK_0) && input.inputting == fals
 		if (mouse._over && AEInputCheckTriggered(AEVK_LBUTTON) && input.inputting == false) {
 			std::cout << "entered" << std::endl;
 			//reset result
@@ -2786,7 +2696,9 @@ struct Sys_GUItextboxinput : public System {
 		}
 	}
 };
-
+/*
+	Component holding write to file data
+*/
 struct Com_Writetofile {
 	char _filler = 0;
 	std::string* col;
@@ -2794,14 +2706,14 @@ struct Com_Writetofile {
 	std::string* name;
 	bool _once{ false };
 };
-
-
+/*
+	System handling write to file data
+*/
 struct Sys_writetofile : public System {
 	void UpdateComponent() override {
 		Com_GUIMouseCheck& mouse = get<Com_GUIMouseCheck>();
 		Com_Tilemap& tile = get<Com_Tilemap>();
 		Com_Writetofile& wtf = get<Com_Writetofile>();
-		//Com_Tilemap* tileptr = &get<Com_Tilemap>();
 		if (wtf._once) {
 			return;
 		}
@@ -2828,7 +2740,6 @@ struct Sys_writetofile : public System {
 					}
 				}
 
-				//tile._initialized = { true };
 				//init all to 1
 				for (size_t i{ 0 }; i < tile._height; ++i) {
 					for (size_t j{ 0 }; j < tile._width; ++j) {
@@ -2843,8 +2754,6 @@ struct Sys_writetofile : public System {
 				file.open("../bin/Assets/Tilemaps/tilemaps.txt", std::ios_base::app); // append instead of overwrite
 				file <<"\n"<< *wtf.name ;
 				file.close();
-				/**wtf.name = "t_" + *wtf.name + ".txt";
-				*wtf.name = "c_" + *wtf.name + ".txt";*/
 				std::string S1 = "t_" + *wtf.name + ".txt";
 				std::string S2 = "c_" + *wtf.name + ".txt";
 				ResourceManager::Instance().WriteTilemapTxt(S1, tile);
@@ -2855,20 +2764,13 @@ struct Sys_writetofile : public System {
 		}
 	}
 };
-
-
-
-
-//edits level editor generate map
+// Edits level editor generate map
 struct Com_GUItextboxinputwords {
 	bool inputting{ false };
-
-	//destructor 
-	//~Com_GUItextboxinput() {
-	//	result.~vector();	
-	//}
 };
-
+/*
+	System handing textbox input words
+*/
 struct Sys_GUItextboxinputwords : public System {
 	void UpdateComponent() override {
 		Com_GUItextboxinputwords& input = get<Com_GUItextboxinputwords>();
@@ -2877,7 +2779,6 @@ struct Sys_GUItextboxinputwords : public System {
 		//input 
 		if (input.inputting) {
 			int limit = 12;
-			//AEInputReset();
 			if (text._data._text.size() < limit) {
 				if (AEInputCheckTriggered(AEVK_A)) { text._data._text += 'A'; }
 				if (AEInputCheckTriggered(AEVK_B)) { text._data._text += 'B'; }
@@ -2913,14 +2814,9 @@ struct Sys_GUItextboxinputwords : public System {
 			if (AEInputCheckTriggered(AEVK_SPACE) || !mouse._over && AEInputCheckTriggered(AEVK_LBUTTON)) {
 				//break;
 				input.inputting = false;
-				//change the text colour 
-				//text._data._r = 0.0f;
-				//text._data._g = 1.0f;
-				//text._data._b = 0.0f;
 			}
 		}
 		//trigger on click 
-		//AEInputCheckTriggered(AEVK_0) && input.inputting == fals
 		if (mouse._over && AEInputCheckTriggered(AEVK_LBUTTON) && input.inputting == false) {
 			std::cout << "entered" << std::endl;
 			//reset result
@@ -2930,8 +2826,9 @@ struct Sys_GUItextboxinputwords : public System {
 		}
 	}
 };
-
-
+/*
+	Component defining map GUI
+*/
 struct Com_GUIMap {
 	s32  cursorposy;
 	s32  cursorposx;
@@ -2940,7 +2837,9 @@ struct Com_GUIMap {
 	size_t playercount{ 0 };
 	size_t enemycount{ 0 };
 };
-
+/*
+	Component defining bounding box GUI
+*/
 struct Com_BoundingBoxGUI
 {
 	float minx;
@@ -2951,7 +2850,9 @@ struct Com_BoundingBoxGUI
 	int y;
 	bool tileintialised = false;
 };
-
+/*
+	System handing GUI map click
+*/
 struct Sys_GUIMapClick : public System {
 	eid _tilemap = { -1 };
 	int Leveledittyp = 0;
@@ -2959,7 +2860,6 @@ struct Sys_GUIMapClick : public System {
 	bool savedmap = false;
 	bool error = false;
 	void UpdateComponent() override {
-		//Com_TilePosition& tilepos = get<Com_TilePosition>();
 		Com_Tilemap& tilemap = get<Com_Tilemap>();
 		Com_GUIMap& guimap = get<Com_GUIMap>();
 		AEInputGetCursorPosition(&guimap.cursorposx,&guimap.cursorposy);
@@ -2967,11 +2867,9 @@ struct Sys_GUIMapClick : public System {
 		guimap.cursorposx -= AEGetWindowWidth() / 2;
 		guimap.cursorposy -= AEGetWindowHeight() / 2;
 		guimap.cursorposy = -guimap.cursorposy;
-
 		int spawnspritex;
 		int spawnspritey;
 		if (guimap.uninitialised == true) {
-			//calculateboundingofall(tilemap, x, y, guimap);
 			int height = tilemap._height;
 			int width = tilemap._width;
 			for (int i{ 0 }; i < height; ++i) {
@@ -2988,7 +2886,6 @@ struct Sys_GUIMapClick : public System {
 					float maxy = position.y - 0.5f * tilemap._scale_y;
 					Com_BoundingBoxGUI tmp{ minx,miny,maxx,maxy,j,i, false };
 					guimap.bounding.push_back(tmp);
-					//guimap.bounding.pu
 				}
 			}
 			guimap.uninitialised = false;
@@ -3046,23 +2943,8 @@ struct Sys_GUIMapClick : public System {
 						tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = 5;
 						guimap.bounding[a].tileintialised = true;
 					}
-					//change the data in the the map 
-					//tilemap._map[spawnspritex * (size_t)tilemap._height + spawnspritey] = -1;
-					//Factory::Instance().FF_SpriteTile(dog, _tilemap, 11,11);
 				}
 			}
-			//if (Leveledittyp == 6) {
-			//	//player not placed 
-			//	if (guimap.playercount == 0) {
-			//		error = true;
-			//		return; 
-			//	}
-			//	savedmap = true;
-			//	std::string S1 = "c_" + nameofmap;
-			//	std::string S2 = "t_" + nameofmap;
-			//	ResourceManager::Instance().WriteTilemapTxt(S1, tilemap);
-			//	ResourceManager::Instance().WriteTilemapTxt(S2, tilemap);
-			//}
 		}
 		if (Leveledittyp == 6) {
 			//player not placed 
@@ -3078,12 +2960,15 @@ struct Sys_GUIMapClick : public System {
 		}
 	}
 };
-
-
+/*
+	Component defining an error message
+*/
 struct Com_errormessageGUI {
 	bool skiponeframe = false;
 };
-
+/*
+	System handing an error message entity
+*/
 struct Sys_errormessageGUI : public System {
 	bool errortriggered = false;
 	void UpdateComponent() override {
@@ -3095,10 +2980,15 @@ struct Sys_errormessageGUI : public System {
 		errmsg.skiponeframe = true;
 	}
 };
-
+/*
+	Component defining an instruction gui entity
+*/
 struct Com_instructionsGUI {
 	bool skiponeframe = false;
 };
+/*
+	System handing instruction GUIs
+*/
 struct Sys_InstructionsGUI : public System {
 	void UpdateComponent() override {
 		Com_instructionsGUI& msg = get<Com_instructionsGUI>();
@@ -3110,12 +3000,16 @@ struct Sys_InstructionsGUI : public System {
 		msg.skiponeframe = true;
 	}
 };
-
+/*
+	Component defining a moving text gui entity
+*/
 struct Com_TextMovingGUI {
 	bool active = true;
 	bool lastmessage = false;
 };
-
+/*
+	System handing system text moving gui
+*/
 struct Sys_TextMovingGUI : public System {
 	//const float scrollingspeed = 0.0009f;
 	const float scrollingspeed = 0.002f;
@@ -3137,11 +3031,15 @@ struct Sys_TextMovingGUI : public System {
 		}
 	}
 };
-
+/*
+	Component defining gui delay
+*/
 struct Com_GUIDelay {
 	bool active = true;
 };
-
+/*
+	System handling gui delay
+*/
 struct Sys_GUIDelay : public System {
 	float buffer = 3.0f;
 	bool* last{nullptr};
@@ -3158,13 +3056,16 @@ struct Sys_GUIDelay : public System {
 		}
 	}
 };
-
+/*
+	Component defining a cursor entity
+*/
 struct Com_Cursor {
-	//char _filler = 0;
 	s32 cursorposx;
 	s32 cursorposy;
 };
-
+/*
+	Component handling cursor entity
+*/
 struct Sys_Cursor : public System {
 	void UpdateComponent() override {
 		Com_Position& pos = get<Com_Position>();
@@ -3181,13 +3082,17 @@ struct Sys_Cursor : public System {
 		std::cout << pos.x << std::endl;
 	}
 };
-
+/*
+	Component defining particle friction
+*/
 struct Com_ParticleFriction {
 	Vec2f _velocity{ 0.0f,0.0f };
 	float _friction{ 0.8f };
 	float _fade{ 0.5f };
 };
-
+/*
+	System handling particle friction
+*/
 struct Sys_ParticleFriction : public System {
 	void UpdateComponent() override {
 		Com_ParticleFriction& pf = get<Com_ParticleFriction>();
@@ -3211,11 +3116,15 @@ struct Sys_ParticleFriction : public System {
 		}
 	}
 };
-
+/*
+	Component defining a fadeout entity
+*/
 struct Com_FadeOut {
 	float _fade{ 2.0f };
 };
-
+/*
+	System handling fadeout entities
+*/
 struct Sys_FadeOut : public System {
 	void UpdateComponent() override {
 		Com_FadeOut& fo = get<Com_FadeOut>();
