@@ -62,6 +62,8 @@ struct Com_GUIOnClick;
 struct Com_GUIDrag;
 struct Com_Text;
 struct Com_textboxinput;
+struct Com_GUIDelay;
+struct Com_instructionsGUI;
 // Type
 struct Com_type;
 struct Com_BoundingBoxGUI;
@@ -997,9 +999,14 @@ struct Com_Text {
 		- Sys_AABB
 	>> attack
 		- Sys_Projectile
+	>> pathfinding 
+		- Sys_PathFinding
 	>> GUI
 		- Sys_GUISurfaceRender
 		- Sys_GUIFontRender
+		- Sys_GUISurfaceOnClick
+		- Sys_GUITextRender
+		- Sys_textboxinput
 ________________________________________________________________________*/
 /*																				system::BASIC SYSTEMS
 ____________________________________________________________________________________________________*/

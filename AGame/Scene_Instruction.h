@@ -26,13 +26,21 @@ rights reserved.
 
 
 
-
+/*______________________________________________________
+* Brief:	Instruction button
+*
+* Called:	In Scene_Instructions
+*
+* \return	void
+________________________________________________________*/
 void instructions(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	std::cout << "entered row" << std::endl;
 }
 
-
+/*______________________________________________________
+* Brief:	Instruction Scene 
+________________________________________________________*/
 struct Scene_Instructions : public Scene
 {
 	/*
