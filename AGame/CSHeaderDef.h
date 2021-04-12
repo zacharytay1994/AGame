@@ -417,7 +417,7 @@ struct Sys_EnemyStateOne : public System {
 		}
 	}
 	void UpdateComponent() override {
-		if (!_player || !_grid) {
+		if (!_player || !_grid || Factory::Instance()[_player_id].Get<Com_Health>().health <= 0) {
 			return;
 		}
 		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
@@ -1920,7 +1920,7 @@ struct Sys_EnemySpawning : public System {
 	{
 	}
 	void UpdateComponent() override {
-		if (!_grid) {
+		if (!_grid || Factory::Instance()[playerpos].Get<Com_Health>().health <= 0) {
 			return;
 		}
 		//static Com_EnemySpawn& Enemyspawn = get<Com_EnemySpawn>();
@@ -2081,6 +2081,11 @@ struct Sys_PathFinding : public System
 			Com_TilePosition& tpos = get<Com_TilePosition>();
 			//Com_Tilemap& ctile = get<Com_Tilemap>();
 			//std::cout << ct.type << std::endl;
+			if (Factory::Instance()[playerPos].Get<Com_Health>().health <= 0)
+			{
+				return;
+			}
+			
 			if (fp._find) {
 				fp._found = SolveAStar(fp._start, fp._end, _grid, _path);
 				if (ct.type == ct.enemyrange) 
