@@ -1115,7 +1115,12 @@ struct Sys_ArrowKeysTilemap : public System {
 	float _counter{ _speed };
 	bool _turn{ false };
 	Grid* _grid{ nullptr };
+	bool _once{ false };
 	void OncePerFrame() {
+		if (_once) {
+			return;
+		}
+		_once = true;
 		_counter -= _dt;
 		if (_counter <= 0.0f) {
 			_counter = _speed;
@@ -1127,6 +1132,7 @@ struct Sys_ArrowKeysTilemap : public System {
 		}
 	}
 	void UpdateComponent() override {
+		_once = false;
 		Com_TilePosition& pos = get<Com_TilePosition>();
 		Com_Direction& direction = get<Com_Direction>();
 
@@ -1824,20 +1830,32 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 	}
 };
 
+/**************************************************************************/
+	/*!
+	  \brief
+		The system for projectiles from weapons
+	*/
+/**************************************************************************/
 struct Sys_Projectile2 : public System {
 	void UpdateComponent() override {
 		if (SceneManager::Instance()._pause) return;
 
 		Com_Projectile& proj = get<Com_Projectile>();
+
+		// If the projectile movement timer is up
 		if (AEGetTime(nullptr) - proj.time > AEFrameRateControllerGetFrameTime() * 10)
 		{
+			// If lifetime is not infinite
 			if (proj.lifetime > -1)
 			{
-				proj.lifetime--;
+				// Decrease lifetime
+				proj.lifetime--;	
 			}
 
+			// If lifetime is finished
 			if (proj.lifetime == 0)
 			{
+				// Destroy entity
 				RemoveEntity();
 				return;
 			}
@@ -1845,7 +1863,7 @@ struct Sys_Projectile2 : public System {
 			Com_TilemapRef& tilemapref = get<Com_TilemapRef>();
 			Com_Tilemap* tilemap = tilemapref._tilemap;
 
-
+			// Set the current timer
 			proj.time = static_cast<float>(AEGetTime(nullptr));
 			Com_TilePosition& tileposition = get<Com_TilePosition>();
 			if (tilemap) {
@@ -1863,6 +1881,7 @@ struct Sys_Projectile2 : public System {
 			//highlighting of tile 
 			SystemDatabase::Instance().GetSystem<Sys_Tilemap>()->highlight.push_back({ tileposition._grid_x,tileposition._grid_y });
 			
+			// Moves the projectile
 			if (proj.grid_vel_x > 0)
 			{
 				tileposition._grid_x++;
@@ -1879,17 +1898,6 @@ struct Sys_Projectile2 : public System {
 			{
 				tileposition._grid_y++;
 			}
-
-			//if (tilemap) {
-			//	// check if new tile position is within grid - would be checked with collision_mask after
-			//	if (tileposition._grid_x >= 0 && tileposition._grid_x < tilemap->_width && tileposition._grid_y >= 0 && tileposition._grid_y < tilemap->_height &&
-			//		tilemap->_floor_mask[(size_t)tileposition._grid_x * (size_t)tilemap->_height + (size_t)tileposition._grid_y] >= 0) {
-			//		// Do nothing
-			//	}
-			//	else {
-			//		RemoveEntity();
-			//	}
-			//}
 		}
 	}
 };

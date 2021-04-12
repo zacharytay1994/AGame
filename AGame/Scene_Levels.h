@@ -297,14 +297,11 @@ struct Level : public Scene
 			SceneManager::Instance().RestartScene();
 		}
 		Com_Sprite& sprite = Factory::Instance()[player].Get<Com_Sprite>();
-		if (AEInputCheckTriggered(AEVK_ESCAPE)) {
-			SceneManager::Instance()._pause = !SceneManager::Instance()._pause;
-			SceneManager::Instance()._settings_toggle = SceneManager::Instance()._pause;
-		}
 
-		if (AEInputCheckTriggered(AEVK_SPACE)) {
+		if (AEInputCheckTriggered(AEVK_SPACE) && !SceneManager::Instance()._pause) {
+			// Shotos the primary weapon if not paused
 			_playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
-			//ResourceManager::Instance().ShootingSound();
+
 			sprite._lock = true;
 			sprite._current_frame = 0;
 			sprite._frame_interval_counter = 0.0f;
@@ -327,6 +324,7 @@ struct Level : public Scene
 			arrow_sprite->_current_frame_segment = 3;
 		}
 		else if (AEInputCheckTriggered(AEVK_Z) && !SceneManager::Instance()._pause) {
+			// Shoots the secondary weapon if not moving or paused
 			_playerInv.Inventory_GetCurrentSecondaryWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
 		}
 		else {
@@ -339,6 +337,7 @@ struct Level : public Scene
 			{
 				std::cout << "YOU LOSE" << std::endl;
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose :(", "courier");
+				_playerInv.Inventory_AddCoins(25);
 				once = true;
 			}
 			else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && once == false)
@@ -347,6 +346,7 @@ struct Level : public Scene
 				//++levels;
 				levelsunlocked = 2;
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Won! Level 2 Unlocked!", "courier");
+				_playerInv.Inventory_AddCoins(50);
 				once = true;
 			}
 
@@ -362,6 +362,7 @@ struct Level : public Scene
 			if (Factory::Instance()[player].Get<Com_Health>().health <= 0 && once == false)
 			{
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose :(", "courier");
+				_playerInv.Inventory_AddCoins(25);
 				once = true;
 			}
 			else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && once == false)
@@ -370,6 +371,7 @@ struct Level : public Scene
 				//++levels;
 				levelsunlocked = 3;
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Won! Level 3 Unlocked!", "courier");
+				_playerInv.Inventory_AddCoins(50);
 				once = true;
 			}
 
@@ -384,11 +386,13 @@ struct Level : public Scene
 			if (Factory::Instance()[player].Get<Com_Health>().health <= 0 && once == false)
 			{
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose :(", "courier");
+				_playerInv.Inventory_AddCoins(25);
 				once = true;
 			}
 			else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && bs.bossdefeat == true && once == false)
 			{
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Win :D", "courier");
+				_playerInv.Inventory_AddCoins(50);
 				once = true;
 			}
 
