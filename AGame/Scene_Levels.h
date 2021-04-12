@@ -338,7 +338,7 @@ struct Level : public Scene
 			if (Factory::Instance()[player].Get<Com_Health>().health <= 0 && once == false)
 			{
 				std::cout << "YOU LOSE" << std::endl;
-				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose :(", "courier");
+				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose!", "courier");
 				once = true;
 			}
 			else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && once == false)
@@ -346,7 +346,7 @@ struct Level : public Scene
 				SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->spawnBoss = false;
 				//++levels;
 				levelsunlocked = 2;
-				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Won! Level 2 Unlocked!", "courier");
+				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "Level2 Unlocked", "courier");
 				once = true;
 			}
 
@@ -361,7 +361,7 @@ struct Level : public Scene
 
 			if (Factory::Instance()[player].Get<Com_Health>().health <= 0 && once == false)
 			{
-				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose :(", "courier");
+				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose!", "courier");
 				once = true;
 			}
 			else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && once == false)
@@ -369,7 +369,7 @@ struct Level : public Scene
 				SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->spawnBoss = false;
 				//++levels;
 				levelsunlocked = 3;
-				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Won! Level 3 Unlocked!", "courier");
+				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "Level3 Unlocked", "courier");
 				once = true;
 			}
 
@@ -394,7 +394,7 @@ struct Level : public Scene
 
 			if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && checkBoss == true)
 			{
-				Factory::Instance().FF_CreateGUIChildSurfaceText(bossy, { "transparent" }, 0.3f, 0.5f, 0.4f, 0.4f, "Boss HP:   ", "courier");
+				Factory::Instance().FF_CreateGUIChildSurfaceText(bossy, { "transparent" }, 0.3f, 0.5f, 0.4f, 0.4f, "Boss HP:  ", "courier");
 				Factory::Instance()[waves].Get<Com_GUISurface>()._active = false;
 				Factory::Instance()[bossy].Get<Com_GUISurface>()._active = true;
 				checkBoss = false;
