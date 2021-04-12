@@ -22,49 +22,123 @@ static Inventory _playerInv;
 static int levelsunlocked{ 1 };
 static int levelselector{ 0 };
 static bool _change_scene_toggle{ false };
+static bool _quit_confirmation{ false };
+static eid _quit_confirmation_window{ -1 };
+
+/**************************************************************************/
+	/*!
+	  \brief
+		Turns on the settings menu in options
+	*/
+/**************************************************************************/
 void ToggleChangeSceneButton(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	_change_scene_toggle = !_change_scene_toggle;
 }
 
-//static bool _settings_toggle{ false };
+/**************************************************************************/
+	/*!
+	  \brief
+		Turns on the options menu
+	*/
+/**************************************************************************/
 void SettingsButton(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	_change_scene_toggle = false;
-	SceneManager::Instance()._settings_toggle = !SceneManager::Instance()._settings_toggle;
-	SceneManager::Instance()._pause = SceneManager::Instance()._settings_toggle;
+	// Pauses or unpauses the game
+	SceneManager::Instance()._pause = !SceneManager::Instance()._pause;
+
+	// Toggles the settings menu depending on the pause state
+	SceneManager::Instance()._settings_toggle = SceneManager::Instance()._pause;
+	_change_scene_toggle = false;
+	_quit_confirmation = false;
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Confirms if you want to quit the game
+	*/
+/**************************************************************************/
+void QuitConfirmation(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	if (!_quit_confirmation)
+		_quit_confirmation = true;
+	else
+		SceneManager::Instance().StopGame();
+}
+
+/**************************************************************************/
+	/*!
+	  \brief
+		Quits the game
+	*/
+/**************************************************************************/
 void QuitGame(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	std::cout << "button3" << std::endl;
 	SceneManager::Instance().StopGame();
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Changes scene to Test Scene
+	*/
+/**************************************************************************/
 void ChangeTestScene(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	SceneManager::Instance().ChangeScene("Test Scene");
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Changes scene to Inventory Scene
+	*/
+/**************************************************************************/
 void ChangeInventoryScene(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	SceneManager::Instance().ChangeScene("InventoryMenu");
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Changes scene to Level Select scene
+	*/
+/**************************************************************************/
 void ChangeLevelSelect(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	levelselector = 1;
+	_quit_confirmation = false;
 	SceneManager::Instance().ChangeScene("LevelSelect");
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Changes scene to Normal Level Select scene
+	*/
+/**************************************************************************/
 void ChangeLevelSelectNormal(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	levelselector = 2;
+	_quit_confirmation = false;
 	SceneManager::Instance().ChangeScene("LevelSelectNormal");
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Changes Scene to Game scene if a weapon is equipped
+	*/
+/**************************************************************************/
 void ChangeTestScenePF(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	if (_playerInv.Inventory_GetCurrentWeapon().GetWeapon_Name() != "NoWeapon") {
 		//if it's custom 
 		if (levelselector == 1) {
@@ -76,29 +150,64 @@ void ChangeTestScenePF(Com_GUISurface* surface) {
 	}
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Changes scene to shooting range scene
+	*/
+/**************************************************************************/
 void ChangeShootingRangeScene(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	SceneManager::Instance().ChangeScene("ShootingRange");
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Changes scene to tutorial scene
+	*/
+/**************************************************************************/
 void ChangeWilf(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	SceneManager::Instance().ChangeScene("Instructions");
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Changes scene to main menu scene
+	*/
+/**************************************************************************/
 void ChangeMainMenu(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	SceneManager::Instance().ChangeScene("Main Menu");
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Toggles fullscreen on and off
+	*/
+/**************************************************************************/
 void ToggleFullScreen(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	SceneManager::Instance()._fullscreen = !SceneManager::Instance()._fullscreen;
 	AEToogleFullScreen(SceneManager::Instance()._fullscreen);
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Mutes and unmutes teh music
+	*/
+/**************************************************************************/
 void ToggleMute(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	ResourceManager::Instance().ToggleMuteMusic();
 }
 
@@ -142,8 +251,15 @@ void ResetProgress(Com_GUISurface* surface) {
 }
 
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Opens the survey link (and adds in some bonus coins)
+	*/
+/**************************************************************************/
 void OpenSurvey(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	#ifdef _WIN32 
 		system("start https://forms.gle/KPbjkFks2SYmj9af8");
 	#elif __APPLE__ 
@@ -154,23 +270,49 @@ void OpenSurvey(Com_GUISurface* surface) {
 		_playerInv.Inventory_AddCoins(300);
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Changes scene to credits scene
+	*/
+/**************************************************************************/
 void Credits(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	_playerInv.Inventory_AddCoins(300);
 	SceneManager::Instance().ChangeScene("Credits");
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Changes scene to tutorial scene
+	*/
+/**************************************************************************/
 void Instructions(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	SceneManager::Instance().ChangeScene("Instructions");
 }
 
-
+/**************************************************************************/
+	/*!
+	  \brief
+		Changes scene to Level Editor scene
+	*/
+/**************************************************************************/
 void ChangeLevelEditor(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	SceneManager::Instance().ChangeScene("Leveleditor");
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Initializes the GUI Settings interface
+	*/
+/**************************************************************************/
 void GUISettingsInitialize() {
 	Vec2i passin4[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
 	Factory::SpriteData button{ "background2.png", 2.0f, 1.0f, 2, 1, 2, 0.05f, 0, passin4 };
@@ -179,13 +321,18 @@ void GUISettingsInitialize() {
 	Vec2i passin[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
 	eid settings = Factory::Instance().FF_CreateGUIClickableSurface({ "settingsbutton.png", 1.0f, 1.0f, 2, 1, 2, 0.1f, 0, passin }, 0.96f, 0.04f, 0.04f, 0.04f, SettingsButton, 150);
 	Factory::Instance()[settings].AddComponent<Com_GUISurfaceHoverShadow>();
+
 	// settings menu
 	_settings = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.84f, 0.38f, 0.3f, 0.6f, 150);
-	eid i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, button, 0.5f, 0.2f, 0.9f, 0.08f, ChangeMainMenu, "Main Menu", "courier");	// clickable child surface text
+	eid i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, button, 0.5f, 0.1f, 0.9f, 0.08f, SettingsButton, "Resume", "courier");	// clickable child surface text
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
-	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, button, 0.5f, 0.4f, 0.9f, 0.08f, ToggleChangeSceneButton, "Settings", "courier");	// clickable child surface text
+	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, button, 0.5f, 0.3f, 0.9f, 0.08f, ChangeMainMenu, "Main Menu", "courier");	// clickable child surface text
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
-	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, button, 0.5f, 0.6f, 0.9f, 0.08f, OpenSurvey, "Survey", "courier");	// clickable child surface text
+	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, button, 0.5f, 0.5f, 0.9f, 0.08f, ToggleChangeSceneButton, "Settings", "courier");	// clickable child surface text
+	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
+	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, button, 0.5f, 0.7f, 0.9f, 0.08f, OpenSurvey, "Survey", "courier");	// clickable child surface text
+	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
+	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_settings, button, 0.5f, 0.9f, 0.9f, 0.08f, QuitConfirmation, "Quit", "courier");	// clickable child surface text
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
 
 	// change scene menu
@@ -210,45 +357,109 @@ void GUISettingsInitialize() {
 	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.8f, 0.9f, 0.08f, ChangeTestScene, "Zac", "courier");	// clickable child surface text
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();*/
 	Factory::Instance().FF_CreateGUIChildClickableSurface(_change_scene, { "cross" }, 0.9f, 0.05f, 0.08f, 0.04f, ToggleChangeSceneButton);					// clickable child surface text
+
+	// quit game confirmation menu
+	Factory::SpriteData title{ "title.png", 1.0f, 1.0f, 2, 2, 4, 0.2f, 0 };
+	_quit_confirmation_window = Factory::Instance().FF_CreateGUISurface(title, 0.5f, 0.2f, 0.8f, 0.3f, 990);
+	Factory::Instance().FF_CreateGUIChildSurfaceText(_quit_confirmation_window, { "transparent" }, 0.5f, 0.5f, 0.9f, 0.05f, "Confirm?", "courier");
+	Factory::Instance()[_quit_confirmation_window].Get<Com_GUISurface>()._active = false;
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Update function for the GUI Settings Interface
+	*/
+/**************************************************************************/
 void GUISettingsUpdate() {
+	// Escape key opens and closes the settings menu
 	if (AEInputCheckTriggered(AEVK_ESCAPE)) {
+
+		// Pauses or unpauses the game
 		SceneManager::Instance()._pause = !SceneManager::Instance()._pause;
+
+		// Toggles the settings menu depending on the pause state
 		SceneManager::Instance()._settings_toggle = SceneManager::Instance()._pause;
 		_change_scene_toggle = false;
+		_quit_confirmation = false;
 	}
+
+	// Shows the QUIT CONFIRMATION text if the user pressed the QUIT button once
+	if (_quit_confirmation)
+	{
+		Factory::Instance()[_quit_confirmation_window].Get<Com_GUISurface>()._active = true;
+	}
+	else
+	{
+		Factory::Instance()[_quit_confirmation_window].Get<Com_GUISurface>()._active = false;
+	}
+
 	Factory::Instance()[_settings].Get<Com_GUISurface>()._active = SceneManager::Instance()._settings_toggle;
 	Factory::Instance()[_change_scene].Get<Com_GUISurface>()._active = _change_scene_toggle;
 }
 
 // WEAPON STUFF
+/**************************************************************************/
+	/*!
+	  \brief
+		Unlocks the pistol (if player can afford), and equips it
+	*/
+/**************************************************************************/
 void EquipPistol(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	_playerInv.Inventory_SetWeaponUnlocked("Pistol");
 	_playerInv.Inventory_EquipWeapon("Pistol");
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Unlocks the trick pistol (if player can afford), and equips it
+	*/
+/**************************************************************************/
 void EquipTrickPistol(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	_playerInv.Inventory_SetWeaponUnlocked("TrickPistol");
 	_playerInv.Inventory_EquipWeapon("TrickPistol");
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Unlocks the dual pistol (if player can afford), and equips it
+	*/
+/**************************************************************************/
 void EquipDualPistol(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	_playerInv.Inventory_SetWeaponUnlocked("DualPistol");
 	_playerInv.Inventory_EquipWeapon("DualPistol");
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Unlocks the dual diagonal pistol (if player can afford), and equips it
+	*/
+/**************************************************************************/
 void EquipDualDiagPistol(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	_playerInv.Inventory_SetWeaponUnlocked("DualDiagPistol");
 	_playerInv.Inventory_EquipWeapon("DualDiagPistol");
 }
 
+/**************************************************************************/
+	/*!
+	  \brief
+		Unlocks the dagger (if player can afford), and equips it
+	*/
+/**************************************************************************/
 void EquipDagger(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
+	_quit_confirmation = false;
 	_playerInv.Inventory_SetWeaponUnlocked("Dagger");
 	_playerInv.Inventory_EquipWeapon("Dagger");
 }
@@ -590,15 +801,12 @@ struct TestScenePF : public Scene
 			SceneManager::Instance()._settings_toggle = SceneManager::Instance()._pause;
 		}
 		if (AEInputCheckTriggered(AEVK_SPACE) && !SceneManager::Instance()._pause) {
-			_playerInv.Inventory_GetCurrentWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
+			const_cast<Weapon*>(&_playerInv.Inventory_GetCurrentWeapon())->Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
 			//ResourceManager::Instance().ShootingSound();
 			sprite._lock = true;
 			sprite._current_frame = 0;
 			sprite._frame_interval_counter = 0.0f;
 			sprite._current_frame_segment = 2;
-		}
-		if (AEInputCheckTriggered(AEVK_Z) && !SceneManager::Instance()._pause) {
-			_playerInv.Inventory_GetCurrentSecondaryWeapon().Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
 		}
 		if (AEInputCheckCurr(AEVK_LEFT) || AEInputCheckCurr(AEVK_A)) {
 			sprite._flip = true;
@@ -618,6 +826,9 @@ struct TestScenePF : public Scene
 			arrow_sprite->_visible = true;
 			arrow_sprite->_current_frame_segment = 3;
 		}
+		else if (AEInputCheckTriggered(AEVK_Z) && !SceneManager::Instance()._pause) {
+			const_cast<Weapon*>(&_playerInv.Inventory_GetCurrentSecondaryWeapon())->Weapon_Shoot({ Factory::Instance()[player].Get<Com_TilePosition>()._grid_x, Factory::Instance()[player].Get<Com_TilePosition>()._grid_y }, Factory::Instance()[player].Get<Com_Direction>(), tilemap);
+		}
 		else {
 			arrow_sprite->_visible = false;
 		}
@@ -626,11 +837,13 @@ struct TestScenePF : public Scene
 		if (Factory::Instance()[player].Get<Com_Health>().health <= 0 && once == false)
 		{
 			Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose :(", "courier");
+			_playerInv.Inventory_AddCoins(25);
 			once = true;
 		}
 		else if (com_wave.numberofwaves <= 0 && em.CurrNoOfEnemies <= 0 && bs.bossdefeat == true && once == false)
 		{
 			Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Win :D", "courier");
+			_playerInv.Inventory_AddCoins(50);
 			once = true;
 		}
 

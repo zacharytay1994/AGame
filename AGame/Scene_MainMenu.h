@@ -45,7 +45,7 @@ struct MainMenu : public Scene {
 		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
 		start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.30f, 0.65f, 0.45f, 0.2f, ChangeLevelEditor, "Level Editor", "courier");
 		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
-		start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.50f, 0.85f, 0.45f, 0.2f, QuitGame, "Exit", "courier");
+		start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.50f, 0.85f, 0.45f, 0.2f, QuitConfirmation, "Exit", "courier");
 		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();
 		start = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_buttons_surface, button, 0.70f, 0.65f, 0.45f, 0.2f, Instructions, "How to Play", "courier");
 		Factory::Instance()[start].AddComponent<Com_GUISurfaceHoverShadow>();

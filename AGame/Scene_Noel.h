@@ -1,4 +1,18 @@
 #pragma once
+/******************************************************************************/
+/*!
+\file		Scene_Noel.h
+\author 	Noel Ho Sing Nam
+\par    	email: s.ho\@digipen.edu
+\date   	April 12, 2021
+\brief		Testing scene for weapons
+
+Copyright (C) 2021 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior
+written consent of DigiPen Institute of Technology is prohibited.
+ */
+ /******************************************************************************/
+
 #include "SceneDeclarations.h"
 
 /*!___________________________________________________________________
@@ -9,11 +23,10 @@ struct ShootingRange : public Scene {
 	Member Variables
 	________________________________*/
 	eid player = -1;
-	//Com_Tilemap tile;
 	eid tilemap = -1;
 	Factory::SpriteData data{ "coolguy", 130.0f, 200.0f, 3, 4, 10, 0.25f };
 	Factory::SpriteData data1{ "box", 80.0f, 200.0f, 1, 1, 1, 10.0f };
-	//Inventory playerInv;
+
 	/*
 	Initialize Override (optional)
 	________________________________*/
@@ -26,14 +39,9 @@ struct ShootingRange : public Scene {
 		Factory::Instance()[tilemap].Get<Com_Position>().y = 2;
 		Factory::Instance()[tilemap].Get<Com_Tilemap>()._render_pack._layer = -1000;
 
-		//tilemap = Factory::Instance().FF_Sprite(data, 0.0f, 0.0f);
-
-		//SystemDatabase::Instance().GetSystem<Sys_GUISurfaceOnClick>()->_left_mouse = true;
-
 		player = Factory::Instance().FF_SpriteTile(data, tilemap, 5, 2);
 		Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap>();
-		//player = Factory::Instance().FF_SpriteTile(data1, tilemap, 0, 0);
-		//Factory::Instance()[player].AddComponent<Com_YLayering, Com_ArrowKeysTilemap>();
+
 		GUISettingsInitialize();
 	}
 	/*
@@ -41,9 +49,6 @@ struct ShootingRange : public Scene {
 	________________________________*/
 	void Update(const float& dt) override {
 		UNREFERENCED_PARAMETER(dt);
-		//Entity& testing = Factory::Instance()[tilemap];
-		//if (AEInputCheckTriggered('E')) {
-		//}
 
 		if (AEInputCheckCurr('L')) {
 			SceneManager::Instance().ChangeScene("Test Scene 2");

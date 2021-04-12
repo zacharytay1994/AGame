@@ -417,7 +417,7 @@ struct Sys_EnemyStateOne : public System {
 		}
 	}
 	void UpdateComponent() override {
-		if (!_player || !_grid) {
+		if (!_player || !_grid || Factory::Instance()[_player_id].Get<Com_Health>().health <= 0) {
 			return;
 		}
 		Com_EnemyStateOne& state = get<Com_EnemyStateOne>();
@@ -1830,20 +1830,32 @@ struct Sys_PlayerAttack : public Sys_Projectile {
 	}
 };
 
+/**************************************************************************/
+	/*!
+	  \brief
+		The system for projectiles from weapons
+	*/
+/**************************************************************************/
 struct Sys_Projectile2 : public System {
 	void UpdateComponent() override {
 		if (SceneManager::Instance()._pause) return;
 
 		Com_Projectile& proj = get<Com_Projectile>();
+
+		// If the projectile movement timer is up
 		if (AEGetTime(nullptr) - proj.time > AEFrameRateControllerGetFrameTime() * 10)
 		{
+			// If lifetime is not infinite
 			if (proj.lifetime > -1)
 			{
-				proj.lifetime--;
+				// Decrease lifetime
+				proj.lifetime--;	
 			}
 
+			// If lifetime is finished
 			if (proj.lifetime == 0)
 			{
+				// Destroy entity
 				RemoveEntity();
 				return;
 			}
@@ -1851,7 +1863,7 @@ struct Sys_Projectile2 : public System {
 			Com_TilemapRef& tilemapref = get<Com_TilemapRef>();
 			Com_Tilemap* tilemap = tilemapref._tilemap;
 
-
+			// Set the current timer
 			proj.time = static_cast<float>(AEGetTime(nullptr));
 			Com_TilePosition& tileposition = get<Com_TilePosition>();
 			if (tilemap) {
@@ -1869,6 +1881,7 @@ struct Sys_Projectile2 : public System {
 			//highlighting of tile 
 			SystemDatabase::Instance().GetSystem<Sys_Tilemap>()->highlight.push_back({ tileposition._grid_x,tileposition._grid_y });
 			
+			// Moves the projectile
 			if (proj.grid_vel_x > 0)
 			{
 				tileposition._grid_x++;
@@ -1885,17 +1898,6 @@ struct Sys_Projectile2 : public System {
 			{
 				tileposition._grid_y++;
 			}
-
-			//if (tilemap) {
-			//	// check if new tile position is within grid - would be checked with collision_mask after
-			//	if (tileposition._grid_x >= 0 && tileposition._grid_x < tilemap->_width && tileposition._grid_y >= 0 && tileposition._grid_y < tilemap->_height &&
-			//		tilemap->_floor_mask[(size_t)tileposition._grid_x * (size_t)tilemap->_height + (size_t)tileposition._grid_y] >= 0) {
-			//		// Do nothing
-			//	}
-			//	else {
-			//		RemoveEntity();
-			//	}
-			//}
 		}
 	}
 };
@@ -1918,7 +1920,7 @@ struct Sys_EnemySpawning : public System {
 	{
 	}
 	void UpdateComponent() override {
-		if (!_grid) {
+		if (!_grid || Factory::Instance()[playerpos].Get<Com_Health>().health <= 0) {
 			return;
 		}
 		//static Com_EnemySpawn& Enemyspawn = get<Com_EnemySpawn>();
@@ -2079,6 +2081,11 @@ struct Sys_PathFinding : public System
 			Com_TilePosition& tpos = get<Com_TilePosition>();
 			//Com_Tilemap& ctile = get<Com_Tilemap>();
 			//std::cout << ct.type << std::endl;
+			if (Factory::Instance()[playerPos].Get<Com_Health>().health <= 0)
+			{
+				return;
+			}
+			
 			if (fp._find) {
 				fp._found = SolveAStar(fp._start, fp._end, _grid, _path);
 				if (ct.type == ct.enemyrange) 

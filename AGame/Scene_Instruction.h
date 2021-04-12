@@ -311,7 +311,8 @@ struct Scene_Instructions : public Scene
 			//if lose 
 			if (Factory::Instance()[player].Get<Com_Health>().health <= 0 && once == false)
 			{
-				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "You Lose :(", "courier");
+				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "LOSE!", "courier");
+				_playerInv.Inventory_AddCoins(25);
 				once = true;
 			}
 			//if won
@@ -319,6 +320,7 @@ struct Scene_Instructions : public Scene
 			{
 				SystemDatabase::Instance().GetSystem<Sys_EnemySpawning>()->spawnBoss = false;
 				Factory::Instance().FF_CreateGUIChildSurfaceText(_WinOrLose, { "transparent" }, 0.5f, 0.4f, 0.8f, 0.4f, "GOOD!", "courier");
+				_playerInv.Inventory_AddCoins(50);
 				once = true;
 			}
 			//either lose or win 
