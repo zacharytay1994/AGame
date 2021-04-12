@@ -47,6 +47,7 @@ public:
 	void ChangeSceneNow(const std::string& name);
 	void Free();
 	bool _pause{ false };
+	bool _musicmmute{ false };
 	bool _fullscreen{ true };
 	bool _settings_toggle{ false };
 	void CheckGame(int& gamerunning) {

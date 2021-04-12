@@ -208,7 +208,15 @@ void ToggleFullScreen(Com_GUISurface* surface) {
 void ToggleMute(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	_quit_confirmation = false;
-	ResourceManager::Instance().ToggleMuteMusic();
+	//ResourceManager::Instance().ToggleMuteMusic();
+	if (SceneManager::Instance()._musicmmute == true) {
+		SceneManager::Instance()._musicmmute = false;
+		return;
+	}
+	if (SceneManager::Instance()._musicmmute == false) {
+		SceneManager::Instance()._musicmmute = true;
+		return;
+	}
 }
 
 void ResetConfirmationyes(Com_GUISurface* surface) {
