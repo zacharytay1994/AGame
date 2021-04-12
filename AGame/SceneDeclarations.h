@@ -102,6 +102,45 @@ void ToggleMute(Com_GUISurface* surface) {
 	ResourceManager::Instance().ToggleMuteMusic();
 }
 
+void ResetConfirmationyes(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	//rewrite both custom and normals
+	//normals
+	std::ofstream file;
+	assert(file);
+	file.open("../bin/Assets/Tilemaps/leveltilemaps.txt"); //overwrite
+	file << "level1";
+	file.close();
+	//customs
+	std::ofstream filecustoms;
+	assert(filecustoms);
+	filecustoms.open("../bin/Assets/Tilemaps/tilemaps.txt"); //overwrite
+	filecustoms << "Custom1";
+	filecustoms.close();
+	SceneManager::Instance().ChangeScene("Main Menu");
+}
+
+void ResetConfirmationno(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	_change_scene_toggle = false;
+	SceneManager::Instance()._settings_toggle = !SceneManager::Instance()._settings_toggle;
+	SceneManager::Instance().ChangeScene("Main Menu");
+}
+
+void ResetProgress(Com_GUISurface* surface) {
+	UNREFERENCED_PARAMETER(surface);
+	eid i{ -1 };
+	Vec2i passin4[5] = { {0,0},{1,1},{0,0},{0,0},{0,0} };
+	eid main = Factory::Instance().FF_CreateGUISurface({ "background1" }, 0.5f, 0.5f, .5f, 0.5f, 200);
+	Factory::Instance()[main].AddComponent<Com_GUIDrag, Com_GUIMouseCheck>();
+	Factory::SpriteData button{ "background2.png", 2.0f, 1.0f, 2, 1, 2, 0.05f, 0, passin4 };
+	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(main, button, 0.5f, 0.25f, 0.9f, 0.08f, ResetConfirmationyes, "Reset(Yes)", "courier");	// clickable child surface text
+	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
+	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(main, button, 0.5f, 0.75f, 0.9f, 0.08f, ResetConfirmationno, "Reset(No)", "courier");	// clickable child surface text
+	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
+}
+
+
 void OpenSurvey(Com_GUISurface* surface) {
 	UNREFERENCED_PARAMETER(surface);
 	#ifdef _WIN32 
@@ -155,6 +194,8 @@ void GUISettingsInitialize() {
 	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.2f, 0.9f, 0.08f, ToggleFullScreen, "Fullscreen", "courier");	// clickable child surface text
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();// clickable child surface text
 	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.35f, 0.9f, 0.08f, ToggleMute, "Mute Music", "courier");	// clickable child surface text
+	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
+	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.5f, 0.9f, 0.08f, ResetProgress, "Reset Progress", "courier");	// clickable child surface text
 	Factory::Instance()[i].AddComponent<Com_GUISurfaceHoverShadow>();
 	/*
 	i = Factory::Instance().FF_CreateGUIChildClickableSurfaceText(_change_scene, button, 0.5f, 0.2f, 0.9f, 0.08f, ChangeMainMenu, "Main", "courier");	// clickable child surface text
