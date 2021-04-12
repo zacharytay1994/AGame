@@ -1,16 +1,17 @@
 /******************************************************************************/
 /*!
-\file		Scene.h
-\author 	HCMR
-\par    	email: nil
-\date   	April 12, 2021
-\brief		Game Scene
+\File Name		: SceneDeclaration
+\Project Name	: AGame
+\Authors 		:
+				Primary - Noel Ho (25%)
+				Secondary -  Wilfred Ng (25%), Austen Ang (50%) , Zachary Tay (25%)
 
-Copyright (C) 2021 DigiPen Institute of Technology.
-Reproduction or disclosure of this file or its contents without the prior
-written consent of DigiPen Institute of Technology is prohibited.
- */
- /******************************************************************************/
+\brief		For the GUI Map and for the custom map gameplay 
+
+All content © 2021 DigiPen Institute of Technology Singapore. All
+rights reserved.
+*/
+/******************************************************************************/
 #pragma once
 #include <iostream>
 #include "Scene.h"

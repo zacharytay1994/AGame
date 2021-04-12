@@ -1,3 +1,17 @@
+/******************************************************************************/
+/*!
+\File Name		: Scene_Levels
+\Project Name	: AGame
+\Authors 		:
+				Primary - Wilfred Ng (100%)
+				Secondary -
+\brief		Scene for normal levels. 3 Levels which are unlockable
+
+All content © 2021 DigiPen Institute of Technology Singapore. All
+rights reserved.
+*/
+/******************************************************************************/
+
 #pragma once
 #include <iostream>
 #include "Scene.h"

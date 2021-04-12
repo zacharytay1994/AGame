@@ -1,3 +1,17 @@
+/******************************************************************************/
+/*!
+\File Name		: Scene_Opening.h
+\Project Name	: AGame
+\Authors 		:		
+				Primary - Austen Ang (100%)
+				Secondary -
+\brief		Scene for the opening screen of AGame
+
+All content © 2021 DigiPen Institute of Technology Singapore. All
+rights reserved.
+*/
+/******************************************************************************/
+
 #pragma once
 #include "SceneDeclarations.h"
 

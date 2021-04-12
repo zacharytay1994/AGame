@@ -1,16 +1,16 @@
 /******************************************************************************/
 /*!
-\file		ResourceManager.h
-\author 	HCMR
-\par    	email: nil
-\date   	April 12, 2021
-\brief		Allocates and Frees resources for AGame
+\File Name		:	ResourceManager.h
+\Project Name	:	AGame
+\Authors 		:
+				Primary - Austen Ang (50%)
+				Secondary - Zachary Tay (50%)
+\brief		Contains all the functions declartion which handles the resources of AGame
 
-Copyright (C) 2021 DigiPen Institute of Technology.
-Reproduction or disclosure of this file or its contents without the prior
-written consent of DigiPen Institute of Technology is prohibited.
- */
- /******************************************************************************/
+All content © 2021 DigiPen Institute of Technology Singapore. All
+rights reserved.
+*/
+/******************************************************************************/
 #pragma once
 #include <unordered_map>
 #include <stack>

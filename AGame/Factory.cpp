@@ -1,16 +1,17 @@
 /******************************************************************************/
 /*!
-\file		Factory.cpp
-\author 	HCMR
-\par    	email: nil
-\date   	April 12, 2021
-\brief      Factory functions for AGame
+\File Name		: Factory.cpp
+\Project Name	: AGame
+\Authors 		:
+                Primary - Zachary Tay (25%)
+                Secondary - Austen Ang (25%), Noel Ho (25%) , Wilfred Ng (25%)
 
-Copyright (C) 2021 DigiPen Institute of Technology.
-Reproduction or disclosure of this file or its contents without the prior
-written consent of DigiPen Institute of Technology is prohibited.
- */
- /******************************************************************************/
+\brief		Contain all the custom factory functions for AGame
+
+All content © 2021 DigiPen Institute of Technology Singapore. All
+rights reserved.
+*/
+/******************************************************************************/
 #include "Factory.h"
 #include "ResourceManager.h"
 #include "CSHeaderDef.h"

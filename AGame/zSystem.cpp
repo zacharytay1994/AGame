@@ -1,16 +1,16 @@
 /******************************************************************************/
 /*!
-\file		zSystem.cpp
-\author 	Zachary Tay
-\par    	email: z.tay\@digipen.edu
-\date   	April 12, 2021
+\File Name		: zSystem.cpp
+\Project Name	: AGame
+\Authors 		:
+				Primary - Zachary Tay (100%)
+				Secondary -
 \brief		System for ECS
 
-Copyright (C) 2021 DigiPen Institute of Technology.
-Reproduction or disclosure of this file or its contents without the prior
-written consent of DigiPen Institute of Technology is prohibited.
- */
- /******************************************************************************/
+All content © 2021 DigiPen Institute of Technology Singapore. All
+rights reserved.
+*/
+/******************************************************************************/
 #include "zSystem.h"
 #include "zArchetype.h"
 #include "zChunk.h"

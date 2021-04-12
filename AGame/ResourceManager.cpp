@@ -3,7 +3,7 @@
 \File Name		:	ResourceManager.cpp
 \Project Name	:	AGame
 \Authors 		:	
-				Primary - Austen (50%)
+				Primary - Austen Ang (50%)
 				Secondary - Zachary Tay (50%)
 \brief		Contains all the functions which handles the resources of AGame
 

@@ -1,3 +1,16 @@
+/******************************************************************************/
+/*!
+\File Name		: Scene_MainMenu
+\Project Name	: AGame
+\Authors 		:
+				Primary - Zachary Tay (100%)
+				Secondary -
+\brief		Scene for the main menu gui 
+
+All content © 2021 DigiPen Institute of Technology Singapore. All
+rights reserved.
+*/
+/******************************************************************************/
 #pragma once
 #include "SceneDeclarations.h"
 

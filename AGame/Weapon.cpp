@@ -1,16 +1,17 @@
 /******************************************************************************/
 /*!
-\file		Weapon.cpp
-\author 	Noel Ho Sing Nam
-\par    	email: s.ho\@digipen.edu
-\date   	April 12, 2021
+\File Name		: Weapon.cpp
+\Project Name	: AGame
+\Authors 		:
+				Primary - Noel Ho (100%)
+				Secondary -
 \brief		Functions for weapons
 
-Copyright (C) 2021 DigiPen Institute of Technology.
-Reproduction or disclosure of this file or its contents without the prior
-written consent of DigiPen Institute of Technology is prohibited.
- */
- /******************************************************************************/
+All content © 2021 DigiPen Institute of Technology Singapore. All
+rights reserved.
+*/
+/******************************************************************************/
+
 
 #include "Weapon.h"
 #include "CSHeaderDef.h"

@@ -1,4 +1,3 @@
-#pragma once
 /******************************************************************************/
 /*!
 \file		Inventory.h
@@ -13,6 +12,7 @@ written consent of DigiPen Institute of Technology is prohibited.
  */
  /******************************************************************************/
 
+#pragma once
 #include "Weapon.h"
 #include <map>
 #include <string>
