@@ -2814,7 +2814,7 @@ struct Sys_GUItextboxinputwords : public System {
 		Com_Text& text = get<Com_Text>();
 		//input 
 		if (input.inputting) {
-			int limit = 12;
+			int limit = 8;
 			if (text._data._text.size() < limit) {
 				if (AEInputCheckTriggered(AEVK_A)) { text._data._text += 'A'; }
 				if (AEInputCheckTriggered(AEVK_B)) { text._data._text += 'B'; }
